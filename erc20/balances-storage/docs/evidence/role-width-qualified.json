@@ -1,0 +1,3295 @@
+{
+  "baseline_layouts_sha256": "d587f8c9a866eeec99dee8478ecc3951007994c1478ab377f8891f4d0b47c4c5",
+  "candidate_preparation_sha256": "1687947f243a0d37ef6f5a6c3a2bd055dcc78a082a6cb9265a2ce049180ffcfa",
+  "control_requests_sha256": "58dcc8dfc893be08d9c268a75e0e394ae985aeef9c4f474f1f26437669cbb0a1",
+  "elapsed_seconds": 50.850311916,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "layouts_sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0",
+  "native_scan": {
+    "blocks": 1024,
+    "counts": {
+      "0x22a2c54b15287472f4adbe7587226e3c998cdd96": 16,
+      "0x544028231562a43b106fbceca722b65cb5c861b0": 188
+    },
+    "errors": []
+  },
+  "parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "reference_sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9",
+  "scope": "Source/control/native-only requalification of two narrower existing layouts. Fresh packaged RPC and initialized-holder gates remain separate. No production edits or general role-record claim.",
+  "source_report_sha256": "ac4d92d3d4aa7400acfffc57473d297aa3e7f5baf0d114962c79a5df1cf9686d",
+  "status": "bounded_parity",
+  "tokens": [
+    {
+      "block": 122288023,
+      "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+      "executed_path": "0: PUSH1\n2: PUSH1\n4: MSTORE\n5: CALLVALUE\n6: DUP1\n7: ISZERO\n8: PUSH2\n11: JUMPI\n16: JUMPDEST\n17: POP\n18: PUSH1\n20: CALLDATASIZE\n21: LT\n22: PUSH2\n25: JUMPI\n26: PUSH1\n28: CALLDATALOAD\n29: PUSH1\n31: SHR\n32: DUP1\n33: PUSH4\n38: GT\n39: PUSH2\n42: JUMPI\n43: DUP1\n44: PUSH4\n49: GT\n50: PUSH2\n53: JUMPI\n124: JUMPDEST\n125: DUP1\n126: PUSH4\n131: EQ\n132: PUSH2\n135: JUMPI\n136: DUP1\n137: PUSH4\n142: EQ\n143: PUSH2\n146: JUMPI\n591: JUMPDEST\n592: PUSH2\n595: PUSH2\n598: CALLDATASIZE\n599: PUSH1\n601: PUSH2\n604: JUMP\n4075: JUMPDEST\n4076: PUSH1\n4078: PUSH1\n4080: DUP3\n4081: DUP5\n4082: SUB\n4083: SLT\n4084: ISZERO\n4085: PUSH2\n4088: JUMPI\n4093: JUMPDEST\n4094: PUSH2\n4097: DUP3\n4098: PUSH2\n4101: JUMP\n3876: JUMPDEST\n3877: DUP1\n3878: CALLDATALOAD\n3879: PUSH1\n3881: PUSH1\n3883: PUSH1\n3885: SHL\n3886: SUB\n3887: DUP2\n3888: AND\n3889: DUP2\n3890: EQ\n3891: PUSH2\n3894: JUMPI\n3899: JUMPDEST\n3900: SWAP2\n3901: SWAP1\n3902: POP\n3903: JUMP\n3732: JUMPDEST\n3733: SWAP4\n3734: SWAP3\n3735: POP\n3736: POP\n3737: POP\n3738: JUMP\n605: JUMPDEST\n606: PUSH1\n608: PUSH1\n610: PUSH1\n612: SHL\n613: SUB\n614: AND\n615: PUSH1\n617: SWAP1\n618: DUP2\n619: MSTORE\n620: PUSH1\n622: PUSH1\n624: MSTORE\n625: PUSH1\n627: SWAP1\n628: KECCAK256\n629: SLOAD\n630: SWAP1\n631: JUMP\n411: JUMPDEST\n412: PUSH1\n414: MLOAD\n415: SWAP1\n416: DUP2\n417: MSTORE\n418: PUSH1\n420: ADD\n421: PUSH2\n424: JUMP\n358: JUMPDEST\n359: PUSH1\n361: MLOAD\n362: DUP1\n363: SWAP2\n364: SUB\n365: SWAP1\n366: RETURN",
+      "hash": "0x2f4db30d8deade58b00eb5ce585d20e29fd6014bc75358f8a62b2ee410f83e73",
+      "holder": "0x0663c4b19d139b9582539f6053a9c69a2bcebc9f",
+      "inspection": {
+        "address": "0x0663c4b19d139b9582539f6053a9c69a2bcebc9f",
+        "balance_of": "46897910245160165135350421",
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "block": 122288023,
+        "compilation": {
+          "compiler": "solc",
+          "compilerSettings": {
+            "libraries": {},
+            "optimizer": {
+              "enabled": true,
+              "runs": 200
+            }
+          },
+          "compilerVersion": "0.8.9+commit.e5eed63a",
+          "fullyQualifiedName": "contracts/MUSD.sol:MUSD",
+          "language": "Solidity",
+          "name": "MUSD"
+        },
+        "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+        "elapsed_seconds": 0.300950917,
+        "execution_code": [
+          {
+            "address": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+            "checked_instructions": 1,
+            "runtime_hash": "0x33c553fc95d9f7270270684c02a560f36b8cf27612e572f0dccfbc2677bc5967"
+          }
+        ],
+        "execution_contexts": {
+          "calls": [],
+          "scope": "Observed execution path only; unexecuted branches and uninitialized holder state are not qualified",
+          "storage_reads": [
+            {
+              "code_address": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+              "depth": 1,
+              "key": "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29",
+              "pc": 629,
+              "storage_address": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+              "value": "0x00000000000000000000000000000000000000000026cb04cf0323800e0ffa95"
+            }
+          ]
+        },
+        "hash": "0x2f4db30d8deade58b00eb5ce585d20e29fd6014bc75358f8a62b2ee410f83e73",
+        "read_only_state_overrides": [
+          {
+            "balance_of": "0",
+            "overridden_mapping_word": "0"
+          },
+          {
+            "balance_of": "1",
+            "overridden_mapping_word": "1"
+          },
+          {
+            "balance_of": "123",
+            "overridden_mapping_word": "123"
+          },
+          {
+            "balance_of": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "overridden_mapping_word": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "runtime_keccak256": "0x33c553fc95d9f7270270684c02a560f36b8cf27612e572f0dccfbc2677bc5967",
+        "source_proxy_resolution": {
+          "implementations": [],
+          "isProxy": false,
+          "proxyType": null
+        },
+        "source_runtime_match": true,
+        "source_sha256": "342c42a5054622611bae2945689738ce6cb3b67b8e31db1bec656754b02008bf",
+        "source_storage_layout": {
+          "storage": [
+            {
+              "astId": 24,
+              "contract": "contracts/MUSD.sol:MUSD",
+              "label": "_roles",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_mapping(t_bytes32,t_struct(RoleData)19_storage)"
+            },
+            {
+              "astId": 404,
+              "contract": "contracts/MUSD.sol:MUSD",
+              "label": "_balances",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_mapping(t_address,t_uint256)"
+            },
+            {
+              "astId": 410,
+              "contract": "contracts/MUSD.sol:MUSD",
+              "label": "_allowances",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+            },
+            {
+              "astId": 412,
+              "contract": "contracts/MUSD.sol:MUSD",
+              "label": "_totalSupply",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_uint256"
+            },
+            {
+              "astId": 414,
+              "contract": "contracts/MUSD.sol:MUSD",
+              "label": "_name",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_string_storage"
+            },
+            {
+              "astId": 416,
+              "contract": "contracts/MUSD.sol:MUSD",
+              "label": "_symbol",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_string_storage"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "encoding": "inplace",
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_bool": {
+              "encoding": "inplace",
+              "label": "bool",
+              "numberOfBytes": "1"
+            },
+            "t_bytes32": {
+              "encoding": "inplace",
+              "label": "bytes32",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "encoding": "mapping",
+              "key": "t_address",
+              "label": "mapping(address => bool)",
+              "numberOfBytes": "32",
+              "value": "t_bool"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+              "encoding": "mapping",
+              "key": "t_address",
+              "label": "mapping(address => mapping(address => uint256))",
+              "numberOfBytes": "32",
+              "value": "t_mapping(t_address,t_uint256)"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "encoding": "mapping",
+              "key": "t_address",
+              "label": "mapping(address => uint256)",
+              "numberOfBytes": "32",
+              "value": "t_uint256"
+            },
+            "t_mapping(t_bytes32,t_struct(RoleData)19_storage)": {
+              "encoding": "mapping",
+              "key": "t_bytes32",
+              "label": "mapping(bytes32 => struct AccessControl.RoleData)",
+              "numberOfBytes": "32",
+              "value": "t_struct(RoleData)19_storage"
+            },
+            "t_string_storage": {
+              "encoding": "bytes",
+              "label": "string",
+              "numberOfBytes": "32"
+            },
+            "t_struct(RoleData)19_storage": {
+              "encoding": "inplace",
+              "label": "struct AccessControl.RoleData",
+              "members": [
+                {
+                  "astId": 16,
+                  "contract": "contracts/MUSD.sol:MUSD",
+                  "label": "members",
+                  "offset": 0,
+                  "slot": "0",
+                  "type": "t_mapping(t_address,t_bool)"
+                },
+                {
+                  "astId": 18,
+                  "contract": "contracts/MUSD.sol:MUSD",
+                  "label": "adminRole",
+                  "offset": 0,
+                  "slot": "1",
+                  "type": "t_bytes32"
+                }
+              ],
+              "numberOfBytes": "64"
+            },
+            "t_uint256": {
+              "encoding": "inplace",
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          }
+        },
+        "source_url": "https://sourcify.dev/server/v2/contract/56/0x22a2c54b15287472f4adbe7587226e3c998cdd96?fields=all",
+        "status": "inspected",
+        "storage_key": "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29",
+        "storage_reads": [
+          {
+            "depth": 1,
+            "key": "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29",
+            "pc": 629,
+            "value": "0x00000000000000000000000000000000000000000026cb04cf0323800e0ffa95"
+          }
+        ],
+        "storage_word": "46897910245160165135350421",
+        "tool_language": "Rust",
+        "trace_config": {
+          "disableStack": false,
+          "disableStorage": true,
+          "enableMemory": false,
+          "enableReturnData": false,
+          "timeout": "10s"
+        },
+        "trace_sha256": "58442f7d722ac600a72d2ff6e41416778b16c1529babe24d6a8251af481425c6"
+      },
+      "invalid_call_controls": [
+        {
+          "case": "short_calldata",
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231",
+                "to": "0x22a2c54b15287472f4adbe7587226e3c998cdd96"
+              },
+              {
+                "blockHash": "0x2f4db30d8deade58b00eb5ce585d20e29fd6014bc75358f8a62b2ee410f83e73",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "case": "nonpayable",
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a082310000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f",
+                "to": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+                "value": "0x1"
+              },
+              {
+                "blockHash": "0x2f4db30d8deade58b00eb5ce585d20e29fd6014bc75358f8a62b2ee410f83e73",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "case": "dirty_address",
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a082310000000000000000000000010663c4b19d139b9582539f6053a9c69a2bcebc9f",
+                "to": "0x22a2c54b15287472f4adbe7587226e3c998cdd96"
+              },
+              {
+                "blockHash": "0x2f4db30d8deade58b00eb5ce585d20e29fd6014bc75358f8a62b2ee410f83e73",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        }
+      ],
+      "layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "code_hash": "0x33c553fc95d9f7270270684c02a560f36b8cf27612e572f0dccfbc2677bc5967",
+        "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000000000000000000000000000000000000000002"
+        ],
+        "other_mapping_words": {},
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005"
+        ]
+      },
+      "metadata_controls": [
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000003",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000003": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000003",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000003": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000003",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000003": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000003",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000003": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000004",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000004": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000004"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000004",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000004": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000004"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000004",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000004": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000004"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000004",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000004": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000004"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000005",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000005": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000005"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000005",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000005": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000005"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000005",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000005": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000005"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000005",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000005": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000005"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "allowance",
+          "preimages": {
+            "2d9a18e2570b492547a62975500d2f7bb50fb9d3a222d2bd6ee17d97264e7730": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f0000000000000000000000000000000000000000000000000000000000000002",
+            "d12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88": "000000000000000000000000000000000000000000000000000000000000dead2d9a18e2570b492547a62975500d2f7bb50fb9d3a222d2bd6ee17d97264e7730"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xd12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xd12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "allowance",
+          "preimages": {
+            "2d9a18e2570b492547a62975500d2f7bb50fb9d3a222d2bd6ee17d97264e7730": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f0000000000000000000000000000000000000000000000000000000000000002",
+            "d12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88": "000000000000000000000000000000000000000000000000000000000000dead2d9a18e2570b492547a62975500d2f7bb50fb9d3a222d2bd6ee17d97264e7730"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xd12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xd12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "allowance",
+          "preimages": {
+            "2d9a18e2570b492547a62975500d2f7bb50fb9d3a222d2bd6ee17d97264e7730": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f0000000000000000000000000000000000000000000000000000000000000002",
+            "d12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88": "000000000000000000000000000000000000000000000000000000000000dead2d9a18e2570b492547a62975500d2f7bb50fb9d3a222d2bd6ee17d97264e7730"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xd12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xd12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "allowance",
+          "preimages": {
+            "2d9a18e2570b492547a62975500d2f7bb50fb9d3a222d2bd6ee17d97264e7730": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f0000000000000000000000000000000000000000000000000000000000000002",
+            "d12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88": "000000000000000000000000000000000000000000000000000000000000dead2d9a18e2570b492547a62975500d2f7bb50fb9d3a222d2bd6ee17d97264e7730"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xd12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xd12cd5cea3e3818f054090a6afa4d4278545c54b64fe219f2bc2ed08cfb60c88"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "e4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "e4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "e4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "e4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "preimages": {
+            "0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c": "9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a60000000000000000000000000000000000000000000000000000000000000000",
+            "e8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "preimages": {
+            "0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c": "9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a60000000000000000000000000000000000000000000000000000000000000000",
+            "e8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "preimages": {
+            "0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c": "9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a60000000000000000000000000000000000000000000000000000000000000000",
+            "e8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "preimages": {
+            "0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c": "9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a60000000000000000000000000000000000000000000000000000000000000000",
+            "e8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c"
+          },
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "preimages": {
+            "0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c": "9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a60000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "preimages": {
+            "0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c": "9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a60000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "preimages": {
+            "0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c": "9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a60000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "preimages": {
+            "0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c": "9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a60000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a",
+            "bbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a",
+            "bbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a",
+            "bbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a",
+            "bbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "bbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "bbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "bbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "bbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "state_diff": {
+            "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b"
+        }
+      ],
+      "old_layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "code_hash": "0x33c553fc95d9f7270270684c02a560f36b8cf27612e572f0dccfbc2677bc5967",
+        "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000000000000000000000000000000000000000002"
+        ],
+        "other_mapping_words": {
+          "0x0000000000000000000000000000000000000000000000000000000000000000": 2
+        },
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005"
+        ]
+      },
+      "packed_field_controls": [],
+      "rank": 386,
+      "raw_controls": [
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49"
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49"
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49"
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49"
+        },
+        {
+          "address": "0x000000000000000000000000000000000000dead",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0xb34209a263f6c38fe55f099e9e70f9d67e93982480ff3234a5e0108028ad164d": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xb34209a263f6c38fe55f099e9e70f9d67e93982480ff3234a5e0108028ad164d"
+        },
+        {
+          "address": "0x000000000000000000000000000000000000dead",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0xb34209a263f6c38fe55f099e9e70f9d67e93982480ff3234a5e0108028ad164d": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xb34209a263f6c38fe55f099e9e70f9d67e93982480ff3234a5e0108028ad164d"
+        },
+        {
+          "address": "0x000000000000000000000000000000000000dead",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0xb34209a263f6c38fe55f099e9e70f9d67e93982480ff3234a5e0108028ad164d": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0xb34209a263f6c38fe55f099e9e70f9d67e93982480ff3234a5e0108028ad164d"
+        },
+        {
+          "address": "0x000000000000000000000000000000000000dead",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0xb34209a263f6c38fe55f099e9e70f9d67e93982480ff3234a5e0108028ad164d": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xb34209a263f6c38fe55f099e9e70f9d67e93982480ff3234a5e0108028ad164d"
+        },
+        {
+          "address": "0x0663c4b19d139b9582539f6053a9c69a2bcebc9f",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29"
+        },
+        {
+          "address": "0x0663c4b19d139b9582539f6053a9c69a2bcebc9f",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29"
+        },
+        {
+          "address": "0x0663c4b19d139b9582539f6053a9c69a2bcebc9f",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29"
+        },
+        {
+          "address": "0x0663c4b19d139b9582539f6053a9c69a2bcebc9f",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xc6590ba3ed44e7f5377443f679fd0955f071be0d0591ac263db0cb7231fe1e29"
+        },
+        {
+          "address": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0x0ed624ca4d45f1bb31540c6236d892be58fb42d17f324845c97a0c3bb9fd85c1": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0ed624ca4d45f1bb31540c6236d892be58fb42d17f324845c97a0c3bb9fd85c1"
+        },
+        {
+          "address": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0x0ed624ca4d45f1bb31540c6236d892be58fb42d17f324845c97a0c3bb9fd85c1": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x0ed624ca4d45f1bb31540c6236d892be58fb42d17f324845c97a0c3bb9fd85c1"
+        },
+        {
+          "address": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0x0ed624ca4d45f1bb31540c6236d892be58fb42d17f324845c97a0c3bb9fd85c1": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0ed624ca4d45f1bb31540c6236d892be58fb42d17f324845c97a0c3bb9fd85c1"
+        },
+        {
+          "address": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0x0ed624ca4d45f1bb31540c6236d892be58fb42d17f324845c97a0c3bb9fd85c1": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x0ed624ca4d45f1bb31540c6236d892be58fb42d17f324845c97a0c3bb9fd85c1"
+        },
+        {
+          "address": "0xffffffffffffffffffffffffffffffffffffffff",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0x73df27e0fa8bbb6c6a588f907379871e0f69a2bae64ea632056f6dabc259f362": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x73df27e0fa8bbb6c6a588f907379871e0f69a2bae64ea632056f6dabc259f362"
+        },
+        {
+          "address": "0xffffffffffffffffffffffffffffffffffffffff",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0x73df27e0fa8bbb6c6a588f907379871e0f69a2bae64ea632056f6dabc259f362": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x73df27e0fa8bbb6c6a588f907379871e0f69a2bae64ea632056f6dabc259f362"
+        },
+        {
+          "address": "0xffffffffffffffffffffffffffffffffffffffff",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0x73df27e0fa8bbb6c6a588f907379871e0f69a2bae64ea632056f6dabc259f362": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x73df27e0fa8bbb6c6a588f907379871e0f69a2bae64ea632056f6dabc259f362"
+        },
+        {
+          "address": "0xffffffffffffffffffffffffffffffffffffffff",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0x73df27e0fa8bbb6c6a588f907379871e0f69a2bae64ea632056f6dabc259f362": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x73df27e0fa8bbb6c6a588f907379871e0f69a2bae64ea632056f6dabc259f362"
+        }
+      ],
+      "review_basis": "Complete verified inherited direct mapping getter; exact compiler/source runtime. Private RoleData mapping membership has external grant/revoke/renounce writers. Internal adminRole setter has no source caller; admin writes and all adjacent member offsets remain strict. Candidate changes only role width classification; all prior ordinary metadata remains unchanged.",
+      "role_field_controls": [
+        {
+          "expected": "0",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "0",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac"
+        },
+        {
+          "expected": "0",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "0",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6"
+        },
+        {
+          "expected": "1",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac"
+        },
+        {
+          "expected": "1",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "1",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6"
+        },
+        {
+          "expected": "1",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac"
+        },
+        {
+          "expected": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6"
+        },
+        {
+          "expected": "0",
+          "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "rpc": "0",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53"
+        },
+        {
+          "expected": "0",
+          "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "rpc": "0",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d"
+        },
+        {
+          "expected": "1",
+          "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53"
+        },
+        {
+          "expected": "1",
+          "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "rpc": "1",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d"
+        },
+        {
+          "expected": "1",
+          "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53"
+        },
+        {
+          "expected": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d"
+        },
+        {
+          "expected": "0",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "0",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3"
+        },
+        {
+          "expected": "0",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "0",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b"
+        },
+        {
+          "expected": "1",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3"
+        },
+        {
+          "expected": "1",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "1",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b"
+        },
+        {
+          "expected": "1",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3"
+        },
+        {
+          "expected": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b"
+        }
+      ],
+      "role_keys": [
+        {
+          "admin": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb6",
+          "base": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5",
+          "base_preimage": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "membership": "0xe4fb204781678dd281c63230826f952f6d7f5f4940bfbf9d3735830986fc22ac",
+          "membership_preimage": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "admin": "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6d",
+          "base": "0x0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c",
+          "base_preimage": "9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a60000000000000000000000000000000000000000000000000000000000000000",
+          "membership": "0xe8d0a1eaf4116b72cdd7594fcd2c29a84deb21a99c59f6df7f3380e6ca94ee53",
+          "membership_preimage": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9f0781d7cac9c378efa22a7481e4d4d29704a680ddf504b3bc50b517700ee11e6c",
+          "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6"
+        },
+        {
+          "admin": "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8b",
+          "base": "0xbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a",
+          "base_preimage": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000",
+          "membership": "0x5555a8fc4253cbcc72cbeca9af7f0bd357a6e7a815ea4b2c0af60f5688a1a7d3",
+          "membership_preimage": "0000000000000000000000000663c4b19d139b9582539f6053a9c69a2bcebc9fbbd6e7dddd4326dd7c827841ab9733c6e3fcdf38a516374bd10feec8f674ea8a",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        }
+      ],
+      "role_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "runtime_bindings": [
+        {
+          "block": 122288005,
+          "code_hash": "0x33c553fc95d9f7270270684c02a560f36b8cf27612e572f0dccfbc2677bc5967",
+          "hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf"
+        },
+        {
+          "block": 122289029,
+          "code_hash": "0x33c553fc95d9f7270270684c02a560f36b8cf27612e572f0dccfbc2677bc5967",
+          "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b"
+        }
+      ],
+      "sole_setter_definition": [
+        {
+          "line": 214,
+          "source": "@openzeppelin/contracts/access/AccessControl.sol",
+          "text": "function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {"
+        }
+      ],
+      "source_path": "out/ranks351-400-source-review/0x22a2c54b15287472f4adbe7587226e3c998cdd96.json",
+      "source_preparation_sha256": "1687947f243a0d37ef6f5a6c3a2bd055dcc78a082a6cb9265a2ce049180ffcfa",
+      "source_sha256": "342c42a5054622611bae2945689738ce6cb3b67b8e31db1bec656754b02008bf",
+      "source_storage_layout": {
+        "storage": [
+          {
+            "astId": 24,
+            "contract": "contracts/MUSD.sol:MUSD",
+            "label": "_roles",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)19_storage)"
+          },
+          {
+            "astId": 404,
+            "contract": "contracts/MUSD.sol:MUSD",
+            "label": "_balances",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          {
+            "astId": 410,
+            "contract": "contracts/MUSD.sol:MUSD",
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+          },
+          {
+            "astId": 412,
+            "contract": "contracts/MUSD.sol:MUSD",
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 414,
+            "contract": "contracts/MUSD.sol:MUSD",
+            "label": "_name",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 416,
+            "contract": "contracts/MUSD.sol:MUSD",
+            "label": "_symbol",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_string_storage"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "encoding": "inplace",
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "encoding": "inplace",
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "encoding": "inplace",
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32",
+            "value": "t_bool"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32",
+            "value": "t_mapping(t_address,t_uint256)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32",
+            "value": "t_uint256"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)19_storage)": {
+            "encoding": "mapping",
+            "key": "t_bytes32",
+            "label": "mapping(bytes32 => struct AccessControl.RoleData)",
+            "numberOfBytes": "32",
+            "value": "t_struct(RoleData)19_storage"
+          },
+          "t_string_storage": {
+            "encoding": "bytes",
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)19_storage": {
+            "encoding": "inplace",
+            "label": "struct AccessControl.RoleData",
+            "members": [
+              {
+                "astId": 16,
+                "contract": "contracts/MUSD.sol:MUSD",
+                "label": "members",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "astId": 18,
+                "contract": "contracts/MUSD.sol:MUSD",
+                "label": "adminRole",
+                "offset": 0,
+                "slot": "1",
+                "type": "t_bytes32"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "encoding": "inplace",
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      },
+      "symbol": "MUSD"
+    },
+    {
+      "block": 122288030,
+      "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+      "executed_path": "0: PUSH1\n2: DUP1\n3: PUSH1\n5: MSTORE\n6: PUSH1\n8: CALLDATASIZE\n9: LT\n10: ISZERO\n11: PUSH2\n14: JUMPI\n18: JUMPDEST\n19: PUSH0\n20: CALLDATALOAD\n21: PUSH1\n23: SHR\n24: SWAP1\n25: DUP2\n26: PUSH4\n31: EQ\n32: PUSH2\n35: JUMPI\n36: POP\n37: DUP1\n38: PUSH4\n43: EQ\n44: PUSH2\n47: JUMPI\n48: DUP1\n49: PUSH4\n54: EQ\n55: PUSH2\n58: JUMPI\n59: DUP1\n60: PUSH4\n65: EQ\n66: PUSH2\n69: JUMPI\n70: DUP1\n71: PUSH4\n76: EQ\n77: PUSH2\n80: JUMPI\n81: DUP1\n82: PUSH4\n87: EQ\n88: PUSH2\n91: JUMPI\n92: DUP1\n93: PUSH4\n98: EQ\n99: PUSH2\n102: JUMPI\n103: DUP1\n104: PUSH4\n109: EQ\n110: PUSH2\n113: JUMPI\n114: DUP1\n115: PUSH4\n120: EQ\n121: PUSH2\n124: JUMPI\n125: DUP1\n126: PUSH4\n131: EQ\n132: PUSH2\n135: JUMPI\n136: DUP1\n137: PUSH4\n142: EQ\n143: PUSH2\n146: JUMPI\n147: DUP1\n148: PUSH4\n153: EQ\n154: PUSH2\n157: JUMPI\n158: DUP1\n159: PUSH4\n164: EQ\n165: PUSH2\n168: JUMPI\n169: DUP1\n170: PUSH4\n175: EQ\n176: PUSH2\n179: JUMPI\n180: DUP1\n181: PUSH4\n186: EQ\n187: PUSH2\n190: JUMPI\n191: DUP1\n192: PUSH4\n197: EQ\n198: PUSH2\n201: JUMPI\n1733: JUMPDEST\n1734: CALLVALUE\n1735: PUSH2\n1738: JUMPI\n1739: PUSH1\n1741: CALLDATASIZE\n1742: PUSH1\n1744: NOT\n1745: ADD\n1746: SLT\n1747: PUSH2\n1750: JUMPI\n1751: PUSH1\n1753: PUSH1\n1755: PUSH1\n1757: SHL\n1758: SUB\n1759: PUSH2\n1762: PUSH2\n1765: JUMP\n3133: JUMPDEST\n3134: PUSH1\n3136: CALLDATALOAD\n3137: SWAP1\n3138: PUSH1\n3140: PUSH1\n3142: PUSH1\n3144: SHL\n3145: SUB\n3146: DUP3\n3147: AND\n3148: DUP3\n3149: SUB\n3150: PUSH2\n3153: JUMPI\n3154: JUMP\n1766: JUMPDEST\n1767: AND\n1768: PUSH0\n1769: MSTORE\n1770: PUSH0\n1771: PUSH1\n1773: MSTORE\n1774: PUSH1\n1776: PUSH1\n1778: PUSH0\n1779: KECCAK256\n1780: SLOAD\n1781: PUSH1\n1783: MLOAD\n1784: SWAP1\n1785: DUP2\n1786: MSTORE\n1787: RETURN",
+      "hash": "0x44e274c0f3e1da376dc2079bf9d18c34944017b8551dd03f99437fdd5fb591be",
+      "holder": "0x28f00b510bb49ad1545d6a194ce19924d7329f05",
+      "inspection": {
+        "address": "0x28f00b510bb49ad1545d6a194ce19924d7329f05",
+        "balance_of": "2886890471",
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "block": 122288030,
+        "compilation": {
+          "compiler": "solc",
+          "compilerSettings": {
+            "evmVersion": "cancun",
+            "libraries": {},
+            "metadata": {
+              "appendCBOR": true,
+              "bytecodeHash": "ipfs",
+              "useLiteralContent": false
+            },
+            "optimizer": {
+              "enabled": true,
+              "runs": 200
+            },
+            "remappings": [
+              "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+              "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+              "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+              "forge-std/=lib/forge-std/src/",
+              "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+              "openzeppelin-contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/",
+              "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+              "openzeppelin-foundry-upgrades/=lib/openzeppelin-foundry-upgrades/src/"
+            ],
+            "viaIR": true
+          },
+          "compilerVersion": "0.8.29+commit.ab55807c",
+          "fullyQualifiedName": "src/OHM.sol:OLY",
+          "language": "Solidity",
+          "name": "OLY"
+        },
+        "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+        "elapsed_seconds": 0.304154875,
+        "execution_code": [
+          {
+            "address": "0x544028231562a43b106fbceca722b65cb5c861b0",
+            "checked_instructions": 1,
+            "runtime_hash": "0x472f1a3e9b5b4c5108afe14c75f897d92e70c3cba332b94877e8428e0f68cde7"
+          }
+        ],
+        "execution_contexts": {
+          "calls": [],
+          "scope": "Observed execution path only; unexecuted branches and uninitialized holder state are not qualified",
+          "storage_reads": [
+            {
+              "code_address": "0x544028231562a43b106fbceca722b65cb5c861b0",
+              "depth": 1,
+              "key": "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941",
+              "pc": 1780,
+              "storage_address": "0x544028231562a43b106fbceca722b65cb5c861b0",
+              "value": "0x00000000000000000000000000000000000000000000000000000000ac1273e7"
+            }
+          ]
+        },
+        "hash": "0x44e274c0f3e1da376dc2079bf9d18c34944017b8551dd03f99437fdd5fb591be",
+        "read_only_state_overrides": [
+          {
+            "balance_of": "0",
+            "overridden_mapping_word": "0"
+          },
+          {
+            "balance_of": "1",
+            "overridden_mapping_word": "1"
+          },
+          {
+            "balance_of": "123",
+            "overridden_mapping_word": "123"
+          },
+          {
+            "balance_of": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "overridden_mapping_word": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "runtime_keccak256": "0x472f1a3e9b5b4c5108afe14c75f897d92e70c3cba332b94877e8428e0f68cde7",
+        "source_proxy_resolution": {
+          "implementations": [],
+          "isProxy": false,
+          "proxyType": null
+        },
+        "source_runtime_match": true,
+        "source_sha256": "bc135f8e71a6096626f2d396fb888244bb953738b5d5e35061eafff1c45fee8f",
+        "source_storage_layout": {
+          "storage": [
+            {
+              "astId": 540,
+              "contract": "src/OHM.sol:OLY",
+              "label": "_balances",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_mapping(t_address,t_uint256)"
+            },
+            {
+              "astId": 546,
+              "contract": "src/OHM.sol:OLY",
+              "label": "_allowances",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+            },
+            {
+              "astId": 548,
+              "contract": "src/OHM.sol:OLY",
+              "label": "_totalSupply",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_uint256"
+            },
+            {
+              "astId": 550,
+              "contract": "src/OHM.sol:OLY",
+              "label": "_name",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_string_storage"
+            },
+            {
+              "astId": 552,
+              "contract": "src/OHM.sol:OLY",
+              "label": "_symbol",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_string_storage"
+            },
+            {
+              "astId": 554,
+              "contract": "src/OHM.sol:OLY",
+              "label": "_decimals",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_uint8"
+            },
+            {
+              "astId": 27,
+              "contract": "src/OHM.sol:OLY",
+              "label": "_roles",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_bytes32,t_struct(RoleData)22_storage)"
+            },
+            {
+              "astId": 1131,
+              "contract": "src/OHM.sol:OLY",
+              "label": "mainPair",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_address"
+            },
+            {
+              "astId": 1133,
+              "contract": "src/OHM.sol:OLY",
+              "label": "feeReceiver",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_address"
+            },
+            {
+              "astId": 1143,
+              "contract": "src/OHM.sol:OLY",
+              "label": "feeRatio",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_uint256"
+            },
+            {
+              "astId": 1145,
+              "contract": "src/OHM.sol:OLY",
+              "label": "buyFeeRatio",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_uint256"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "encoding": "inplace",
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_bool": {
+              "encoding": "inplace",
+              "label": "bool",
+              "numberOfBytes": "1"
+            },
+            "t_bytes32": {
+              "encoding": "inplace",
+              "label": "bytes32",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_bool)": {
+              "encoding": "mapping",
+              "key": "t_address",
+              "label": "mapping(address => bool)",
+              "numberOfBytes": "32",
+              "value": "t_bool"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+              "encoding": "mapping",
+              "key": "t_address",
+              "label": "mapping(address => mapping(address => uint256))",
+              "numberOfBytes": "32",
+              "value": "t_mapping(t_address,t_uint256)"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "encoding": "mapping",
+              "key": "t_address",
+              "label": "mapping(address => uint256)",
+              "numberOfBytes": "32",
+              "value": "t_uint256"
+            },
+            "t_mapping(t_bytes32,t_struct(RoleData)22_storage)": {
+              "encoding": "mapping",
+              "key": "t_bytes32",
+              "label": "mapping(bytes32 => struct AccessControl.RoleData)",
+              "numberOfBytes": "32",
+              "value": "t_struct(RoleData)22_storage"
+            },
+            "t_string_storage": {
+              "encoding": "bytes",
+              "label": "string",
+              "numberOfBytes": "32"
+            },
+            "t_struct(RoleData)22_storage": {
+              "encoding": "inplace",
+              "label": "struct AccessControl.RoleData",
+              "members": [
+                {
+                  "astId": 19,
+                  "contract": "src/OHM.sol:OLY",
+                  "label": "hasRole",
+                  "offset": 0,
+                  "slot": "0",
+                  "type": "t_mapping(t_address,t_bool)"
+                },
+                {
+                  "astId": 21,
+                  "contract": "src/OHM.sol:OLY",
+                  "label": "adminRole",
+                  "offset": 0,
+                  "slot": "1",
+                  "type": "t_bytes32"
+                }
+              ],
+              "numberOfBytes": "64"
+            },
+            "t_uint256": {
+              "encoding": "inplace",
+              "label": "uint256",
+              "numberOfBytes": "32"
+            },
+            "t_uint8": {
+              "encoding": "inplace",
+              "label": "uint8",
+              "numberOfBytes": "1"
+            }
+          }
+        },
+        "source_url": "https://sourcify.dev/server/v2/contract/56/0x544028231562a43b106fbceca722b65cb5c861b0?fields=all",
+        "status": "inspected",
+        "storage_key": "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941",
+        "storage_reads": [
+          {
+            "depth": 1,
+            "key": "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941",
+            "pc": 1780,
+            "value": "0x00000000000000000000000000000000000000000000000000000000ac1273e7"
+          }
+        ],
+        "storage_word": "2886890471",
+        "tool_language": "Rust",
+        "trace_config": {
+          "disableStack": false,
+          "disableStorage": true,
+          "enableMemory": false,
+          "enableReturnData": false,
+          "timeout": "10s"
+        },
+        "trace_sha256": "d79fa6393510a5bb8ebd15eaca1137de2d352085a6e6303f9fa8bed5eea2f4b0"
+      },
+      "invalid_call_controls": [
+        {
+          "case": "short_calldata",
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231",
+                "to": "0x544028231562a43b106fbceca722b65cb5c861b0"
+              },
+              {
+                "blockHash": "0x44e274c0f3e1da376dc2079bf9d18c34944017b8551dd03f99437fdd5fb591be",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "case": "nonpayable",
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a0823100000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f05",
+                "to": "0x544028231562a43b106fbceca722b65cb5c861b0",
+                "value": "0x1"
+              },
+              {
+                "blockHash": "0x44e274c0f3e1da376dc2079bf9d18c34944017b8551dd03f99437fdd5fb591be",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "case": "dirty_address",
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a0823100000000000000000000000128f00b510bb49ad1545d6a194ce19924d7329f05",
+                "to": "0x544028231562a43b106fbceca722b65cb5c861b0"
+              },
+              {
+                "blockHash": "0x44e274c0f3e1da376dc2079bf9d18c34944017b8551dd03f99437fdd5fb591be",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        }
+      ],
+      "layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "code_hash": "0x472f1a3e9b5b4c5108afe14c75f897d92e70c3cba332b94877e8428e0f68cde7",
+        "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "0x0000000000000000000000000000000000000000000000000000000000000006"
+        ],
+        "other_mapping_words": {},
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "0x0000000000000000000000000000000000000000000000000000000000000008",
+          "0x0000000000000000000000000000000000000000000000000000000000000009",
+          "0x000000000000000000000000000000000000000000000000000000000000000a"
+        ]
+      },
+      "metadata_controls": [
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000002",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000002": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000002"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000002",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000002": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000002"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000002",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000002": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000002"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000002",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000002": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000002"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000003",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000003": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000003",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000003": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000003",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000003": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000003",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000003": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000004",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000004": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000004"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000004",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000004": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000004"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000004",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000004": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000004"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000004",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000004": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000004"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000005",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000005": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000005"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000005",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000005": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000005"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000005",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000005": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000005"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000005",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000005": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000005"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000007",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000007": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000007"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000007",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000007": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000007"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000007",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000007": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000007"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000007",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000007": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000007"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000008",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000008": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000008"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000008",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000008": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000008"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000008",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000008": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000008"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000008",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000008": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000008"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000009",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000009": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000009"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000009",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000009": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000009"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000009",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000009": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000009"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x0000000000000000000000000000000000000000000000000000000000000009",
+          "preimages": {},
+          "state_diff": {
+            "0x0000000000000000000000000000000000000000000000000000000000000009": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x0000000000000000000000000000000000000000000000000000000000000009"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x000000000000000000000000000000000000000000000000000000000000000a",
+          "preimages": {},
+          "state_diff": {
+            "0x000000000000000000000000000000000000000000000000000000000000000a": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x000000000000000000000000000000000000000000000000000000000000000a"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "fixed-0x000000000000000000000000000000000000000000000000000000000000000a",
+          "preimages": {},
+          "state_diff": {
+            "0x000000000000000000000000000000000000000000000000000000000000000a": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x000000000000000000000000000000000000000000000000000000000000000a"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x000000000000000000000000000000000000000000000000000000000000000a",
+          "preimages": {},
+          "state_diff": {
+            "0x000000000000000000000000000000000000000000000000000000000000000a": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x000000000000000000000000000000000000000000000000000000000000000a"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "fixed-0x000000000000000000000000000000000000000000000000000000000000000a",
+          "preimages": {},
+          "state_diff": {
+            "0x000000000000000000000000000000000000000000000000000000000000000a": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x000000000000000000000000000000000000000000000000000000000000000a"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "allowance",
+          "preimages": {
+            "523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8": "000000000000000000000000000000000000000000000000000000000000deadc3b96fedaf7ca9438500c72e181b3d617e22504cbc32505bd7de14b6ab1f91fa",
+            "c3b96fedaf7ca9438500c72e181b3d617e22504cbc32505bd7de14b6ab1f91fa": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f050000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "state_diff": {
+            "0x523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "allowance",
+          "preimages": {
+            "523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8": "000000000000000000000000000000000000000000000000000000000000deadc3b96fedaf7ca9438500c72e181b3d617e22504cbc32505bd7de14b6ab1f91fa",
+            "c3b96fedaf7ca9438500c72e181b3d617e22504cbc32505bd7de14b6ab1f91fa": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f050000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "state_diff": {
+            "0x523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "allowance",
+          "preimages": {
+            "523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8": "000000000000000000000000000000000000000000000000000000000000deadc3b96fedaf7ca9438500c72e181b3d617e22504cbc32505bd7de14b6ab1f91fa",
+            "c3b96fedaf7ca9438500c72e181b3d617e22504cbc32505bd7de14b6ab1f91fa": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f050000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "state_diff": {
+            "0x523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "allowance",
+          "preimages": {
+            "523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8": "000000000000000000000000000000000000000000000000000000000000deadc3b96fedaf7ca9438500c72e181b3d617e22504cbc32505bd7de14b6ab1f91fa",
+            "c3b96fedaf7ca9438500c72e181b3d617e22504cbc32505bd7de14b6ab1f91fa": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f050000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "state_diff": {
+            "0x523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x523f13bdf14dfd99a1b179ed9c59f2ce66c87a2308fd87e2bf7923247a6892d8"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0554cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8",
+            "54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0554cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8",
+            "54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0554cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8",
+            "54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0554cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8",
+            "54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0x0000000000000000000000000000000000000000000000000000000000000000",
+          "preimages": {
+            "54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "preimages": {
+            "2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f05becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1",
+            "becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1": "fdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "preimages": {
+            "2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f05becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1",
+            "becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1": "fdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "preimages": {
+            "2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f05becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1",
+            "becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1": "fdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "preimages": {
+            "2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f05becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1",
+            "becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1": "fdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "preimages": {
+            "becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1": "fdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "preimages": {
+            "becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1": "fdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "preimages": {
+            "becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1": "fdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "preimages": {
+            "becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1": "fdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000006",
+            "d87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0563187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": true,
+          "kind": "role-membership-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000006",
+            "d87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0563187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000006",
+            "d87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0563187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": true,
+          "kind": "role-membership-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000006",
+            "d87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0563187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f"
+        },
+        {
+          "balance_of": "0",
+          "balance_word": "0",
+          "configured_metadata": false,
+          "kind": "role-admin-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f"
+        },
+        {
+          "balance_of": "123",
+          "balance_word": "123",
+          "configured_metadata": false,
+          "kind": "role-admin-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "preimages": {
+            "63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000006"
+          },
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f"
+        }
+      ],
+      "old_layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "code_hash": "0x472f1a3e9b5b4c5108afe14c75f897d92e70c3cba332b94877e8428e0f68cde7",
+        "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000001"
+        ],
+        "other_mapping_words": {
+          "0x0000000000000000000000000000000000000000000000000000000000000006": 2
+        },
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "0x0000000000000000000000000000000000000000000000000000000000000008",
+          "0x0000000000000000000000000000000000000000000000000000000000000009",
+          "0x000000000000000000000000000000000000000000000000000000000000000a"
+        ]
+      },
+      "packed_field_controls": [
+        {
+          "boolean": false,
+          "expected": "0",
+          "offset_bits": 0,
+          "rpc": "0",
+          "signature": "decimals()",
+          "slot": "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "width_bits": 8,
+          "word": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "boolean": false,
+          "expected": "255",
+          "offset_bits": 0,
+          "rpc": "255",
+          "signature": "decimals()",
+          "slot": "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "width_bits": 8,
+          "word": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        {
+          "boolean": false,
+          "expected": "9",
+          "offset_bits": 0,
+          "rpc": "9",
+          "signature": "decimals()",
+          "slot": "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "width_bits": 8,
+          "word": "0x0000000000000000000000000000000000000000000000000000000000123409"
+        }
+      ],
+      "rank": 68,
+      "raw_controls": [
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5"
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5"
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5"
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5"
+        },
+        {
+          "address": "0x000000000000000000000000000000000000dead",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0x44ad89ba62b98ff34f51403ac22759b55759460c0bb5521eb4b6ee3cff49cf83": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x44ad89ba62b98ff34f51403ac22759b55759460c0bb5521eb4b6ee3cff49cf83"
+        },
+        {
+          "address": "0x000000000000000000000000000000000000dead",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0x44ad89ba62b98ff34f51403ac22759b55759460c0bb5521eb4b6ee3cff49cf83": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x44ad89ba62b98ff34f51403ac22759b55759460c0bb5521eb4b6ee3cff49cf83"
+        },
+        {
+          "address": "0x000000000000000000000000000000000000dead",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0x44ad89ba62b98ff34f51403ac22759b55759460c0bb5521eb4b6ee3cff49cf83": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x44ad89ba62b98ff34f51403ac22759b55759460c0bb5521eb4b6ee3cff49cf83"
+        },
+        {
+          "address": "0x000000000000000000000000000000000000dead",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0x44ad89ba62b98ff34f51403ac22759b55759460c0bb5521eb4b6ee3cff49cf83": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x44ad89ba62b98ff34f51403ac22759b55759460c0bb5521eb4b6ee3cff49cf83"
+        },
+        {
+          "address": "0x28f00b510bb49ad1545d6a194ce19924d7329f05",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941"
+        },
+        {
+          "address": "0x28f00b510bb49ad1545d6a194ce19924d7329f05",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941"
+        },
+        {
+          "address": "0x28f00b510bb49ad1545d6a194ce19924d7329f05",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941"
+        },
+        {
+          "address": "0x28f00b510bb49ad1545d6a194ce19924d7329f05",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x57e6b3b41a091bf661df41966a78878d25474116450d1b8ee52c4d8eba2e8941"
+        },
+        {
+          "address": "0x544028231562a43b106fbceca722b65cb5c861b0",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0xf2b459e2f3ffe86533a7173e873e724f81db1f2c81982c44107fa84c3b04fa3f": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xf2b459e2f3ffe86533a7173e873e724f81db1f2c81982c44107fa84c3b04fa3f"
+        },
+        {
+          "address": "0x544028231562a43b106fbceca722b65cb5c861b0",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0xf2b459e2f3ffe86533a7173e873e724f81db1f2c81982c44107fa84c3b04fa3f": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xf2b459e2f3ffe86533a7173e873e724f81db1f2c81982c44107fa84c3b04fa3f"
+        },
+        {
+          "address": "0x544028231562a43b106fbceca722b65cb5c861b0",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0xf2b459e2f3ffe86533a7173e873e724f81db1f2c81982c44107fa84c3b04fa3f": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0xf2b459e2f3ffe86533a7173e873e724f81db1f2c81982c44107fa84c3b04fa3f"
+        },
+        {
+          "address": "0x544028231562a43b106fbceca722b65cb5c861b0",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0xf2b459e2f3ffe86533a7173e873e724f81db1f2c81982c44107fa84c3b04fa3f": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xf2b459e2f3ffe86533a7173e873e724f81db1f2c81982c44107fa84c3b04fa3f"
+        },
+        {
+          "address": "0xffffffffffffffffffffffffffffffffffffffff",
+          "raw": "0",
+          "rpc": "0",
+          "state_diff": {
+            "0x50c7a3d1a23c7ff4a61d37c3f2c4aeb36cf60b43ee893723db201d3eb941cbad": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x50c7a3d1a23c7ff4a61d37c3f2c4aeb36cf60b43ee893723db201d3eb941cbad"
+        },
+        {
+          "address": "0xffffffffffffffffffffffffffffffffffffffff",
+          "raw": "1",
+          "rpc": "1",
+          "state_diff": {
+            "0x50c7a3d1a23c7ff4a61d37c3f2c4aeb36cf60b43ee893723db201d3eb941cbad": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x50c7a3d1a23c7ff4a61d37c3f2c4aeb36cf60b43ee893723db201d3eb941cbad"
+        },
+        {
+          "address": "0xffffffffffffffffffffffffffffffffffffffff",
+          "raw": "123",
+          "rpc": "123",
+          "state_diff": {
+            "0x50c7a3d1a23c7ff4a61d37c3f2c4aeb36cf60b43ee893723db201d3eb941cbad": "0x000000000000000000000000000000000000000000000000000000000000007b"
+          },
+          "storage_key": "0x50c7a3d1a23c7ff4a61d37c3f2c4aeb36cf60b43ee893723db201d3eb941cbad"
+        },
+        {
+          "address": "0xffffffffffffffffffffffffffffffffffffffff",
+          "raw": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "state_diff": {
+            "0x50c7a3d1a23c7ff4a61d37c3f2c4aeb36cf60b43ee893723db201d3eb941cbad": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x50c7a3d1a23c7ff4a61d37c3f2c4aeb36cf60b43ee893723db201d3eb941cbad"
+        }
+      ],
+      "review_basis": "Complete verified inherited direct mapping getter; exact compiler/source runtime. Private RoleData mapping membership has external grant/revoke/renounce writers. Internal adminRole setter has no source caller; admin writes and all adjacent member offsets remain strict. Candidate changes only role width classification; all prior ordinary metadata remains unchanged.",
+      "role_field_controls": [
+        {
+          "expected": "0",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "0",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d"
+        },
+        {
+          "expected": "0",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "0",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9"
+        },
+        {
+          "expected": "1",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d"
+        },
+        {
+          "expected": "1",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "1",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9"
+        },
+        {
+          "expected": "1",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d"
+        },
+        {
+          "expected": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9"
+        },
+        {
+          "expected": "0",
+          "role": "0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "rpc": "0",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe"
+        },
+        {
+          "expected": "0",
+          "role": "0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "rpc": "0",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2"
+        },
+        {
+          "expected": "1",
+          "role": "0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe"
+        },
+        {
+          "expected": "1",
+          "role": "0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "rpc": "1",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2"
+        },
+        {
+          "expected": "1",
+          "role": "0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe"
+        },
+        {
+          "expected": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "role": "0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2"
+        },
+        {
+          "expected": "0",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "0",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec"
+        },
+        {
+          "expected": "0",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "0",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "storage_key": "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f"
+        },
+        {
+          "expected": "1",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec"
+        },
+        {
+          "expected": "1",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "1",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f": "0x0000000000000000000000000000000000000000000000000000000000000001"
+          },
+          "storage_key": "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f"
+        },
+        {
+          "expected": "1",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "1",
+          "signature": "hasRole(bytes32,address)",
+          "state_diff": {
+            "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec"
+        },
+        {
+          "expected": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rpc": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "signature": "getRoleAdmin(bytes32)",
+          "state_diff": {
+            "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "storage_key": "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f"
+        }
+      ],
+      "role_keys": [
+        {
+          "admin": "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f9",
+          "base": "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8",
+          "base_preimage": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006",
+          "membership": "0x3073ce045c2b74109d523d29babf4872faba79482e9f2a5727625093e103c14d",
+          "membership_preimage": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0554cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8",
+          "role": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "admin": "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb2",
+          "base": "0xbecc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1",
+          "base_preimage": "fdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba0000000000000000000000000000000000000000000000000000000000000006",
+          "membership": "0x2508209651fb019afa1ad7c3a35fd4b7538bd5fdc6cf88c60a7f2091c23c39fe",
+          "membership_preimage": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f05becc2c392e33bce1ac066e9a672746846262f4d91fb83bfa86198afd79eafeb1",
+          "role": "0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba"
+        },
+        {
+          "admin": "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588f",
+          "base": "0x63187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e",
+          "base_preimage": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000006",
+          "membership": "0xd87a1d3d6e73643f66158b2ca8bd8ef1068d975d940dd328ac9b1b168acd7fec",
+          "membership_preimage": "00000000000000000000000028f00b510bb49ad1545d6a194ce19924d7329f0563187d71e139eee983a88d0737447c7451979b3dbb75903c76b5fe430d36588e",
+          "role": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        }
+      ],
+      "role_root": "0x0000000000000000000000000000000000000000000000000000000000000006",
+      "runtime_bindings": [
+        {
+          "block": 122288005,
+          "code_hash": "0x472f1a3e9b5b4c5108afe14c75f897d92e70c3cba332b94877e8428e0f68cde7",
+          "hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf"
+        },
+        {
+          "block": 122289029,
+          "code_hash": "0x472f1a3e9b5b4c5108afe14c75f897d92e70c3cba332b94877e8428e0f68cde7",
+          "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b"
+        }
+      ],
+      "sole_setter_definition": [
+        {
+          "line": 168,
+          "source": "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
+          "text": "function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {"
+        }
+      ],
+      "source_path": "out/next50-source-review/0x544028231562a43b106fbceca722b65cb5c861b0.json",
+      "source_preparation_sha256": "1687947f243a0d37ef6f5a6c3a2bd055dcc78a082a6cb9265a2ce049180ffcfa",
+      "source_sha256": "bc135f8e71a6096626f2d396fb888244bb953738b5d5e35061eafff1c45fee8f",
+      "source_storage_layout": {
+        "storage": [
+          {
+            "astId": 540,
+            "contract": "src/OHM.sol:OLY",
+            "label": "_balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          {
+            "astId": 546,
+            "contract": "src/OHM.sol:OLY",
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+          },
+          {
+            "astId": 548,
+            "contract": "src/OHM.sol:OLY",
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 550,
+            "contract": "src/OHM.sol:OLY",
+            "label": "_name",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 552,
+            "contract": "src/OHM.sol:OLY",
+            "label": "_symbol",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 554,
+            "contract": "src/OHM.sol:OLY",
+            "label": "_decimals",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 27,
+            "contract": "src/OHM.sol:OLY",
+            "label": "_roles",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)22_storage)"
+          },
+          {
+            "astId": 1131,
+            "contract": "src/OHM.sol:OLY",
+            "label": "mainPair",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_address"
+          },
+          {
+            "astId": 1133,
+            "contract": "src/OHM.sol:OLY",
+            "label": "feeReceiver",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_address"
+          },
+          {
+            "astId": 1143,
+            "contract": "src/OHM.sol:OLY",
+            "label": "feeRatio",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1145,
+            "contract": "src/OHM.sol:OLY",
+            "label": "buyFeeRatio",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "encoding": "inplace",
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "encoding": "inplace",
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "encoding": "inplace",
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32",
+            "value": "t_bool"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32",
+            "value": "t_mapping(t_address,t_uint256)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32",
+            "value": "t_uint256"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)22_storage)": {
+            "encoding": "mapping",
+            "key": "t_bytes32",
+            "label": "mapping(bytes32 => struct AccessControl.RoleData)",
+            "numberOfBytes": "32",
+            "value": "t_struct(RoleData)22_storage"
+          },
+          "t_string_storage": {
+            "encoding": "bytes",
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)22_storage": {
+            "encoding": "inplace",
+            "label": "struct AccessControl.RoleData",
+            "members": [
+              {
+                "astId": 19,
+                "contract": "src/OHM.sol:OLY",
+                "label": "hasRole",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "astId": 21,
+                "contract": "src/OHM.sol:OLY",
+                "label": "adminRole",
+                "offset": 0,
+                "slot": "1",
+                "type": "t_bytes32"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "encoding": "inplace",
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "encoding": "inplace",
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      },
+      "symbol": "OLY"
+    }
+  ],
+  "tool_language": "Rust"
+}

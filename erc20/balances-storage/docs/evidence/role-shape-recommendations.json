@@ -1,0 +1,136 @@
+{
+  "baseline_scope": "51 published426 width>1 profiles inventoried, not 51 newly qualified profiles. Primary-source/runtime reconstruction covered26 groups/45 profiles. Four groups/six profiles remain source-unavailable with unchanged historical bytecode evidence. MUSD/OLY/NXT excluded.",
+  "callable_setter": "TaggerToken public onlyOwner setRoleAdmin accepts arbitrary bytes32 role. Preserve real admin writes with the exact-depth rule; plain-root narrowing alone is insufficient.",
+  "checks_sha256": "b0b271be9aaeee4b1a16b62ca48ded379c35296d59aea0a900288b7e012efb63",
+  "enumerable_sets": "Eight profiles use EnumerableSet at the configured root. Their valid index mapping is anchored at outer+1 and array data at keccak(outer), not at outer. The proposed boolean rule does not cover them. They need a separate typed set/array rule with validated outer preimage, actual member offsets and array length/index treatment. The344checks include80 enumerable controls: correct index/array words reject and fabricated offset-zero mapping words accept under current config. This demonstrates guard limitations, not an observed historical balance error.",
+  "helper_sha256": "b3b3acf752a784ee49e36f23ef0293423ac25680bb7a02ab315b43da62da1e64",
+  "initialization_and_creation": "SecuritiesToken17, DeepTokenOFT1 and BTRToken1 only call the setter for finite known roles during initialization. Exact precomputed admin slots plus plain membership roots can be a config-only alternative; this phase did not calculate/promote those slots or assert initialized-state locks. BASToken has a constructor-only PAUSER_ROLE admin write; postdeployment narrowing differs from creation qualification.",
+  "inventory_sha256": "5a8cd21ca48a827d96ce172878bc8be640390f0c0358da7a6bb2b27f0b24c52c",
+  "minimal_future_rule_proposal": {
+    "field_name": "other_mapping_word_paths (illustrative; not a supported config field)",
+    "matching_semantics": [
+      "Walk exactly the declared number of verified64-byte keccak preimages from the terminal key minus its allowed field offset; require the final base to equal the configured root. Do not accept arbitrary additional ancestors or apply terminal width at every depth.",
+      "Validate address/uint32 key words against their canonical ABI width. A bytes32 role key is unrestricted. All hashes must match their supplied preimages.",
+      "Keep existing persistence/revert handling, final-write semantics, runtime/proxy guards and the single RPC-free map. No protobuf or cache change is required for this recognition rule.",
+      "Only attach the outer-admin rule to a reviewed callable/initialization field; it must not become a broad two-word rule for nested membership leaves.",
+      "Do not globally reinterpret existing other_mapping_words: terminal records with genuine multiword values may rely on current nested mapping ancestry. Migrate only individually reviewed profiles after full gates."
+    ],
+    "role_data_rules": [
+      {
+        "key_types": [
+          "bytes32"
+        ],
+        "offset": 1,
+        "purpose": "outer admin field, only when reachable and reviewed",
+        "root": "reviewed RoleData root",
+        "words": 1
+      },
+      {
+        "key_types": [
+          "bytes32",
+          "address"
+        ],
+        "offset": 0,
+        "purpose": "nested membership leaf",
+        "root": "same root",
+        "words": 1
+      }
+    ],
+    "terminal_record_example": {
+      "key_types": [
+        "uint32"
+      ],
+      "offset": 0,
+      "root": "reviewed terminal record root",
+      "words": 4
+    }
+  },
+  "provenance_note": "Inventory helper was formatted after its run. The exact as-run text was reconstructed from the preserved initial helper with the recorded scope expansion and its recorded SHA256 verified. Both versions are archived; no inventory/report was rewritten.",
+  "remaining_gates": [
+    "Independent source review of each proposed correction and any setter/initialization/deployment constraints.",
+    "Fresh hash-pinned runtime and dependency checks, native complete-block replay, packaged RPC emitted parity, initialized-holder/passive carry-forward/final-state parity and combined regression gates before any promotion."
+  ],
+  "report_sha256": "eaea16f6b44710a97fb6c73f8b5cd85ba29fd1ea57b28f6f30c18a3ca33ac7bc",
+  "simple_narrowing_followup": [
+    {
+      "contracts": [
+        "0x255e746abb8d9acac00d6d023e5e63e3b8dfa7cd"
+      ],
+      "name": "Token",
+      "runtime_hash": "0x1a5493662f75deca3148455d711a9364d80668b6451aec1b128d21ace43770c9"
+    },
+    {
+      "contracts": [
+        "0x0c69199c1562233640e0db5ce2c399a88eb507c7"
+      ],
+      "name": "CYS",
+      "runtime_hash": "0x5e4b8a3cf0834753f7dd976797697e10c680c3fcb543467062982b740a7779a4"
+    },
+    {
+      "contracts": [
+        "0xc63961bf9a7d6bb5844524851d04fbd76dbe915b"
+      ],
+      "name": "PTokenV2",
+      "runtime_hash": "0x60f53552d1ab18923098e47b0d7952ae7a4a48d8bece60b20d3d41734832c15c"
+    },
+    {
+      "contracts": [
+        "0xd55c9fb62e176a8eb6968f32958fefdd0962727e"
+      ],
+      "name": "FHE",
+      "runtime_hash": "0x652b7c5764581dd0fac2d759383df2c06101f0b7edf7f4194737f5b392dcc20b"
+    },
+    {
+      "contracts": [
+        "0xac23b90a79504865d52b49b327328411a23d4db2"
+      ],
+      "name": "BurnMintERC20",
+      "runtime_hash": "0x688f1e2193eea752e7eaa2acc9607ede95429383234670d6d84c0ee3336eb3d0"
+    },
+    {
+      "contracts": [
+        "0x9b8e987e6fec8cf1380c4dca7071e2c7853aeea1",
+        "0xa9ee28c80f960b889dfbd1902055218cba016f75"
+      ],
+      "name": "GMToken",
+      "runtime_hash": "0x85d44c72e84a34f0b4a3bceca35289b10bd0c5510c5a441466a755e903edc36a"
+    },
+    {
+      "contracts": [
+        "0x826923122a8521be36358bdc53d3b4362b6f46e5"
+      ],
+      "name": "Point",
+      "runtime_hash": "0xa099dede5abb0391e457e8f49f4b61061005b3aea81cd5be261380d99b5659ec"
+    },
+    {
+      "contracts": [
+        "0x783c3f003f172c6ac5ac700218a357d2d66ee2a2"
+      ],
+      "name": "B2Token",
+      "runtime_hash": "0xb616979feee87559683543b45de4e46f31244303ab158bb343f1759a5f1ce5ab"
+    },
+    {
+      "contracts": [
+        "0xff7d6a96ae471bbcd7713af9cb1feeb16cf56b41"
+      ],
+      "name": "Bedrock",
+      "runtime_hash": "0xf5a9b1fe6edbc5caf0c7e395f1fca9d2bb67f7d232ca90e149507a8b842256c4"
+    },
+    {
+      "contracts": [
+        "0x8105743e8a19c915a604d7d9e7aa3a060a4c2c32"
+      ],
+      "name": "ArtxToken",
+      "runtime_hash": "0xf8ef8aafe948cf5240fb04631cd152673a48a13c9c6be2e638e2642250d4f03c"
+    },
+    {
+      "contracts": [
+        "0xf3d5b4c34ed623478cc5141861776e6cf7ae3a1e"
+      ],
+      "name": "KgenOFT",
+      "runtime_hash": "0xfc77b3c0763583345ead87010618488c5eb5f292e12c0857b94bd200761938cd"
+    }
+  ],
+  "status": "recommendations_only_not_implemented_or_qualified",
+  "unchanged_terminal_records": "Four source-bound profiles: two CakeToken checkpoint runtimes, DDN fee records and BridgedToken Supply. Their configured leaf fields are scalar records, so role width removal is inapplicable. Root's new USDe terminal RateLimit is outside this published426 snapshot and should follow the same exact-depth terminal-record principle, not membership narrowing."
+}

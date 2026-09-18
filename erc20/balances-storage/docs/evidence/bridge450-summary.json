@@ -1,0 +1,33 @@
+{
+  "artifacts": {
+    "holders": "out/bridge450-holder-coverage/report.json",
+    "layouts": "out/bridge450-qualified/added.json",
+    "rpc": "out/bridge450-rpc/report.json",
+    "wasm_holders": "out/bridge450-wasm-holders/report.json"
+  },
+  "carry_forward": 20,
+  "checkpoint_holders": 24,
+  "checkpoint_reads": 48,
+  "cold_unknown": 20,
+  "cold_unknown_nonzero": 7,
+  "emitted_zeros": 6,
+  "exact_control_rpc_requests": 296,
+  "final_holders": 24,
+  "final_zeros": 10,
+  "fixture_balances": 7,
+  "fixture_cases": 2,
+  "holder_observations": 54,
+  "layouts_sha256": "385c9c1aab972d2bc9f153b09018e03a09d525352e37b67e56aa4ab27b428b38",
+  "metadata_controls": 176,
+  "mismatches": 0,
+  "package_sha256": "f1d57bdff549947cd69e47d117ad8cd74933c1e065b687f958fea4de39004d81",
+  "packed_controls": 0,
+  "processing_balance_rpc_calls": 0,
+  "profiles": 2,
+  "raw_controls": 40,
+  "rpc_checks": 34,
+  "scope": "Two source-reviewed direct token layouts qualified on the fixed window with independently initialized observed holders. No global enumeration, new combined checkpoint or broad future-administrative-path claim.",
+  "start": 122288006,
+  "status": "bounded_parity",
+  "stop_exclusive": 122289030
+}

@@ -1,0 +1,48 @@
+{
+  "checkpoint_sha256": "d355b8c359f65b5214c7656c88c50e36ca62f5a1ff30598484a64adfd61846ca",
+  "checks_sha256": "3f18cc1ec46ceb076ca3e41870a01cdb8ae3f8bfd7049fa4d673ddfbd1830765",
+  "configured_tokens": 2,
+  "deployment_initialization": [],
+  "events_sha256": "4eabb8dd2efd05ca689bf2b77c40c70d40304469633ebce3e968c31432a9f208",
+  "final_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "initialized_carry_forward_matches": 136,
+  "layouts_sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0",
+  "mismatches": 0,
+  "package_sha256": "f1d57bdff549947cd69e47d117ad8cd74933c1e065b687f958fea4de39004d81",
+  "processing_balance_rpc_calls": 0,
+  "reference_observations": 340,
+  "reference_sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9",
+  "scope": "Two source-bound existing MUSD/OLY direct getters with narrowed role membership classification and unchanged ordinary metadata on the current packaged WASM. Actual output is bound to checked rows and complete canonical clocks. Reference rows never repair state. Final snapshot covers all initialized observed holders, not all possible addresses.",
+  "snapshot_holders": 88,
+  "snapshot_zeros": 25,
+  "source_report_sha256": "992d13a7d218a3d4c0c1657564ddc666fe669d64839cb660d1f75aad4be4f192",
+  "start": 122288006,
+  "status": "actual_wasm_retained_holder_parity",
+  "stop_exclusive": 122289030,
+  "tokens": [
+    {
+      "carry_forward_matches": 0,
+      "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+      "emitted_rows": 16,
+      "reference_rows": 32,
+      "seeded_matches": 32,
+      "seeded_unknown_rows": 0,
+      "seeded_value_mismatches": 0,
+      "unseeded_unknown_nonzero_rows": 2,
+      "unseeded_unknown_rows": 16,
+      "unseeded_value_mismatches": 0
+    },
+    {
+      "carry_forward_matches": 6,
+      "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+      "emitted_rows": 188,
+      "reference_rows": 308,
+      "seeded_matches": 308,
+      "seeded_unknown_rows": 0,
+      "seeded_value_mismatches": 0,
+      "unseeded_unknown_nonzero_rows": 89,
+      "unseeded_unknown_rows": 114,
+      "unseeded_value_mismatches": 0
+    }
+  ]
+}

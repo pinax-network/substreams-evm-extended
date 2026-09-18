@@ -1,0 +1,775 @@
+{
+  "cohorts": [
+    {
+      "carry_forward": 20,
+      "checkpoint_holders": 24,
+      "checkpoint_reads": 48,
+      "checkpoint_report_sha256": "e5db0e916127e517c8f4a8ea1665a40e2d4c988fac334c204b537ecd8a6fa72c",
+      "cohort": "bridge450",
+      "cold_unknown": 20,
+      "cold_unknown_nonzero": 7,
+      "emitted_zeros": 6,
+      "evidence_bindings": [
+        {
+          "path": "out/bridge450-qualified/report.json",
+          "sha256": "49273a76db1cb746bef4c7009848fffe92f6a60fcfcf9f28d079a9de0b481e9e"
+        },
+        {
+          "path": "out/bridge450-qualified/added.json",
+          "sha256": "385c9c1aab972d2bc9f153b09018e03a09d525352e37b67e56aa4ab27b428b38"
+        },
+        {
+          "path": "out/bridge450-rpc/report.json",
+          "sha256": "a8b5189d9e9d9ea383dca0e017ff39f1dc795e31ae719ed36f007cf7e53df0a0"
+        },
+        {
+          "path": "out/bridge450-qualified/report.json",
+          "sha256": "49273a76db1cb746bef4c7009848fffe92f6a60fcfcf9f28d079a9de0b481e9e"
+        },
+        {
+          "path": "out/bridge450-wasm-holders/report.json",
+          "sha256": "164c5422fb1783b317a27042fff2e310d47c814d6b34b608e230ff01aa72e787"
+        },
+        {
+          "path": "out/bridge450-holder-coverage/report.json",
+          "sha256": "e5db0e916127e517c8f4a8ea1665a40e2d4c988fac334c204b537ecd8a6fa72c"
+        },
+        {
+          "path": "out/bridge450-holder-coverage/checkpoint.jsonl",
+          "sha256": "da34e4db24d10c462c2cd0c73a171827e493df0b7349105ef5f27cd19186d54f"
+        },
+        {
+          "path": "out/bridge450-holder-coverage/holder-checks.jsonl",
+          "sha256": "c14e6c3abf240c5e74265d4a83e5f8b814e3f8893a96e9a051c67128d2b6933e"
+        },
+        {
+          "path": "out/bridge450-wasm-holders/checks.json",
+          "sha256": "4705a63ae8f6a96cfc1b992f76edbf0a4b1aaf20b6db48701c20c0c14e723e50"
+        },
+        {
+          "path": "out/bridge450-rpc/events.jsonl",
+          "sha256": "056e5b7649a6d36bb448f05ec444b68dd395c9a74d7c43bcc03c7b052c4121d4"
+        },
+        {
+          "path": "out/bridge450-rpc/rpc-checks.jsonl",
+          "sha256": "c0c45a4cd5f41166412f02b840c6b6c451815cb3939a9984d3ab5e65a9ea451d"
+        },
+        {
+          "path": "out/bridge450-rpc/events.clocks.txt",
+          "sha256": "92bbbd8f6975f925e8bdbee008380329c6a70dfb099cf4296923822407c87631"
+        },
+        {
+          "path": "out/bridge450-rpc/events.sparse.jsonl",
+          "sha256": "9271683f1cb8e557cc3f922cd911b6d103b4a43a8d918bb9e3932cebd22455eb"
+        },
+        {
+          "path": "out/bridge450-qualified/rpc-requests.json",
+          "sha256": "48b92d6aec27e7b0c678d6ff58689040b3681bf64f8ab52f2d07c1caa5b2954d"
+        }
+      ],
+      "final_holders": 24,
+      "final_zeros": 10,
+      "holder_observations": 54,
+      "holder_report_sha256": "164c5422fb1783b317a27042fff2e310d47c814d6b34b608e230ff01aa72e787",
+      "layouts_sha256": "385c9c1aab972d2bc9f153b09018e03a09d525352e37b67e56aa4ab27b428b38",
+      "native_report_sha256": "49273a76db1cb746bef4c7009848fffe92f6a60fcfcf9f28d079a9de0b481e9e",
+      "new_profiles": 2,
+      "profiles": 2,
+      "qualifier_report_sha256": "49273a76db1cb746bef4c7009848fffe92f6a60fcfcf9f28d079a9de0b481e9e",
+      "replacement": false,
+      "rpc_checks": 34,
+      "rpc_report_sha256": "a8b5189d9e9d9ea383dca0e017ff39f1dc795e31ae719ed36f007cf7e53df0a0"
+    },
+    {
+      "carry_forward": 36,
+      "checkpoint_holders": 35,
+      "checkpoint_reads": 70,
+      "checkpoint_report_sha256": "9e1d1892a707a06002c51bfbe5d0184e6e049a8dded5deae669abeff08fc7236",
+      "cohort": "trade450",
+      "cold_unknown": 36,
+      "cold_unknown_nonzero": 26,
+      "emitted_zeros": 6,
+      "evidence_bindings": [
+        {
+          "path": "out/trade450-qualified/report.json",
+          "sha256": "206b4acaf010da41a52aaad79112df6555eed88d20bfb54f11b0c7ab582ab987"
+        },
+        {
+          "path": "out/trade450-qualified/added.json",
+          "sha256": "eac75042ed0fb485df5fce1d0455dd7ecf1e90eb66b2a0be13fed878116771d8"
+        },
+        {
+          "path": "out/trade450-rpc-verified/report.json",
+          "sha256": "93bd7ebc6fa1ffc0eddcef82cd0c15401f5ac5a04ddb83bc33b5fa7d33d7198d"
+        },
+        {
+          "path": "out/trade450-qualified/report.json",
+          "sha256": "206b4acaf010da41a52aaad79112df6555eed88d20bfb54f11b0c7ab582ab987"
+        },
+        {
+          "path": "out/trade450-wasm-holders/report.json",
+          "sha256": "35eb666fd70bbd6d815eed5913aa64bfd5f26c4026a9cfdaa0483130070d7bde"
+        },
+        {
+          "path": "out/trade450-holder-coverage/report.json",
+          "sha256": "9e1d1892a707a06002c51bfbe5d0184e6e049a8dded5deae669abeff08fc7236"
+        },
+        {
+          "path": "out/trade450-holder-coverage/checkpoint.jsonl",
+          "sha256": "90e6ca8ebce31dc9586637386dfd9a535f1008663cad8e53f9ee9dd2342b27f7"
+        },
+        {
+          "path": "out/trade450-holder-coverage/holder-checks.jsonl",
+          "sha256": "68b99bc3a30818d9fb1c2b7fab85a41d61b7c103f0c9e49871a459a0b570dfc8"
+        },
+        {
+          "path": "out/trade450-wasm-holders/checks.json",
+          "sha256": "8352109a90a6336166577c2ecfa40ae9f55f7385af0418ca929c6f093dfa5b57"
+        },
+        {
+          "path": "out/trade450-rpc-verified/events.jsonl",
+          "sha256": "98da4923355085d720ddd8eca82a6d10e3ce3e0ddb751812e9a64ebf9f90769a"
+        },
+        {
+          "path": "out/trade450-rpc-verified/rpc-checks.jsonl",
+          "sha256": "733083a7a94e1bf49de5a1a1096916f96720942073ea6036b3ba5ffc229c1876"
+        },
+        {
+          "path": "out/trade450-rpc-verified/events.clocks.txt",
+          "sha256": "53638d09989fd9197d26abee743996587c1dac29ccd27423544948242399335c"
+        },
+        {
+          "path": "out/trade450-rpc-verified/events.sparse.jsonl",
+          "sha256": "d85bab3e983323b851b5337874ad03fce0db8fc000471e3e6efa544de13e6df4"
+        },
+        {
+          "path": "out/trade450-qualified/rpc-requests.json",
+          "sha256": "a0cb56ec4d36e228cd32cec8876eca9b57edb63e707dd8e1a77b8e821253ccc6"
+        }
+      ],
+      "final_holders": 35,
+      "final_zeros": 9,
+      "holder_observations": 87,
+      "holder_report_sha256": "35eb666fd70bbd6d815eed5913aa64bfd5f26c4026a9cfdaa0483130070d7bde",
+      "layouts_sha256": "eac75042ed0fb485df5fce1d0455dd7ecf1e90eb66b2a0be13fed878116771d8",
+      "native_report_sha256": "206b4acaf010da41a52aaad79112df6555eed88d20bfb54f11b0c7ab582ab987",
+      "new_profiles": 3,
+      "profiles": 3,
+      "qualifier_report_sha256": "206b4acaf010da41a52aaad79112df6555eed88d20bfb54f11b0c7ab582ab987",
+      "replacement": false,
+      "rpc_checks": 51,
+      "rpc_report_sha256": "93bd7ebc6fa1ffc0eddcef82cd0c15401f5ac5a04ddb83bc33b5fa7d33d7198d"
+    }
+  ],
+  "combined": {
+    "aggregate_emitted_zero_checks": 15259,
+    "all_balance_event_fields_equal": true,
+    "all_delivered_clocks_equal_canonical_headers": true,
+    "baseline_bindings": [
+      {
+        "path": "out/access450-combined/report.json",
+        "sha256": "0147077f08fd1059c4090aa7d6524873f7460972387068a3f6ecbfe8ab8be237"
+      },
+      {
+        "path": "tests/fixtures/bsc-access450-layouts.json",
+        "sha256": "d587f8c9a866eeec99dee8478ecc3951007994c1478ab377f8891f4d0b47c4c5"
+      },
+      {
+        "path": "out/access450-combined/events.jsonl",
+        "sha256": "95ce01c35348f56787325291168a3944f5d2198f2886bb7b0e33f40960cae58f"
+      },
+      {
+        "path": "out/top50-1024/reference.jsonl",
+        "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+      }
+    ],
+    "baseline_package_sha256": "f1d57bdff549947cd69e47d117ad8cd74933c1e065b687f958fea4de39004d81",
+    "baseline_report_sha256": "0147077f08fd1059c4090aa7d6524873f7460972387068a3f6ecbfe8ab8be237",
+    "blocks": 1024,
+    "capture": {
+      "blocks_per_second_including_startup": 3.820870498423635,
+      "empty_output_delivery": {
+        "clock_capture_sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10",
+        "empty_blocks": 0,
+        "method": "Complete finalized BlockScopedData clock capture, all IDs matched to consecutive canonical RPC headers",
+        "normalized_events_sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d",
+        "sparse_events_sha256": "accbcf004db742e04f80bbebf9a373a87243a74dadf920eea779678d3651765a"
+      },
+      "package_sha256": "f1d57bdff549947cd69e47d117ad8cd74933c1e065b687f958fea4de39004d81",
+      "seconds_including_startup": 268.001755208
+    },
+    "clock_capture_sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10",
+    "configured_profiles": 431,
+    "delivered_clock_blocks": 1024,
+    "elapsed_seconds": 447.755058416,
+    "events_sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d",
+    "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+    "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+    "fresh_balance_rpc_calls": 0,
+    "holder_observations_with_identical_event_history": 180415,
+    "initialized_carry_forward_matches": 70277,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "layouts_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+    "new_profiles": 5,
+    "new_verified_rpc_rows": 85,
+    "package_change_scope": "Same production package; five new layouts and two stricter role replacements only. Replacement evidence is recorded separately from additive totals.",
+    "profiles_with_emitted_rows": 430,
+    "replacement_observations_added_to_aggregate": 0,
+    "replacement_profiles": 2,
+    "replacement_revalidated_rpc_rows": 204,
+    "replacement_revalidation": {
+      "carry_forward": 136,
+      "checkpoint_holders": 88,
+      "checkpoint_reads": 176,
+      "checkpoint_report_sha256": "72042beb3e1b8dc1d4a7b0160699504d861ab1778b4abb001303de20464702ed",
+      "cohort": "role-width",
+      "cold_unknown": 130,
+      "cold_unknown_nonzero": 91,
+      "emitted_zeros": 26,
+      "evidence_bindings": [
+        {
+          "path": "out/role-width-final-qualified/report.json",
+          "sha256": "0956319b4e5180c0d4ef2bd92aee3ae77228be2ecfc8205d50d674058cd70651"
+        },
+        {
+          "path": "out/role-width-final-qualified/added.json",
+          "sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0"
+        },
+        {
+          "path": "out/role-width-rpc/report.json",
+          "sha256": "d2f57590caf00e82049e75d15446ac0f18ed0254a5ffef8133592eaa885402d0"
+        },
+        {
+          "path": "out/role-width-qualified/report.json",
+          "sha256": "ac4d92d3d4aa7400acfffc57473d297aa3e7f5baf0d114962c79a5df1cf9686d"
+        },
+        {
+          "path": "out/role-width-wasm-holders/report.json",
+          "sha256": "992d13a7d218a3d4c0c1657564ddc666fe669d64839cb660d1f75aad4be4f192"
+        },
+        {
+          "path": "out/role-width-holder-coverage/report.json",
+          "sha256": "72042beb3e1b8dc1d4a7b0160699504d861ab1778b4abb001303de20464702ed"
+        },
+        {
+          "path": "out/role-width-holder-coverage/checkpoint.jsonl",
+          "sha256": "d355b8c359f65b5214c7656c88c50e36ca62f5a1ff30598484a64adfd61846ca"
+        },
+        {
+          "path": "out/role-width-holder-coverage/holder-checks.jsonl",
+          "sha256": "aa5ac3e6e2017c8e4f1b7baf0f18911728b1051c2d74be7c68906c8d133b6954"
+        },
+        {
+          "path": "out/role-width-wasm-holders/checks.json",
+          "sha256": "3f18cc1ec46ceb076ca3e41870a01cdb8ae3f8bfd7049fa4d673ddfbd1830765"
+        },
+        {
+          "path": "out/role-width-rpc/events.jsonl",
+          "sha256": "4eabb8dd2efd05ca689bf2b77c40c70d40304469633ebce3e968c31432a9f208"
+        },
+        {
+          "path": "out/role-width-rpc/rpc-checks.jsonl",
+          "sha256": "3c6789cb14ca26a7291495050c5a88afd20d725eeec59e86213088cba883a3d5"
+        },
+        {
+          "path": "out/role-width-rpc/events.clocks.txt",
+          "sha256": "b0faba5f6fb012ee3785c6e708dc9bf78430c61829f5a032dbf24b973a963785"
+        },
+        {
+          "path": "out/role-width-rpc/events.sparse.jsonl",
+          "sha256": "d3359752afa308c4f9a9705bde2669ed30cefa211369c869af627a762656aef3"
+        },
+        {
+          "path": "out/role-width-qualified/control-requests.jsonl",
+          "sha256": "58dcc8dfc893be08d9c268a75e0e394ae985aeef9c4f474f1f26437669cbb0a1"
+        }
+      ],
+      "final_holders": 88,
+      "final_zeros": 25,
+      "holder_observations": 340,
+      "holder_report_sha256": "992d13a7d218a3d4c0c1657564ddc666fe669d64839cb660d1f75aad4be4f192",
+      "layouts_sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0",
+      "native_report_sha256": "ac4d92d3d4aa7400acfffc57473d297aa3e7f5baf0d114962c79a5df1cf9686d",
+      "new_profiles": 0,
+      "profiles": 2,
+      "qualifier_report_sha256": "0956319b4e5180c0d4ef2bd92aee3ae77228be2ecfc8205d50d674058cd70651",
+      "replacement": true,
+      "rpc_checks": 204,
+      "rpc_report_sha256": "d2f57590caf00e82049e75d15446ac0f18ed0254a5ffef8133592eaa885402d0"
+    },
+    "replacement_rows_equal_baseline_full_fields": true,
+    "reused_verified_rpc_rows": 110139,
+    "scope": "Fresh 431-profile actual-WASM capture against verified baseline426 plus five newly audited profiles. Two existing role layouts are independently revalidated and replace configuration only; their rows and holder observations are not added twice. No new full431 checkpoint or global holder enumeration.",
+    "sources": [
+      {
+        "carry_forward": 136,
+        "checkpoint_holders": 88,
+        "checkpoint_reads": 176,
+        "checkpoint_report_sha256": "72042beb3e1b8dc1d4a7b0160699504d861ab1778b4abb001303de20464702ed",
+        "cohort": "role-width",
+        "cold_unknown": 130,
+        "cold_unknown_nonzero": 91,
+        "emitted_zeros": 26,
+        "evidence_bindings": [
+          {
+            "path": "out/role-width-final-qualified/report.json",
+            "sha256": "0956319b4e5180c0d4ef2bd92aee3ae77228be2ecfc8205d50d674058cd70651"
+          },
+          {
+            "path": "out/role-width-final-qualified/added.json",
+            "sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0"
+          },
+          {
+            "path": "out/role-width-rpc/report.json",
+            "sha256": "d2f57590caf00e82049e75d15446ac0f18ed0254a5ffef8133592eaa885402d0"
+          },
+          {
+            "path": "out/role-width-qualified/report.json",
+            "sha256": "ac4d92d3d4aa7400acfffc57473d297aa3e7f5baf0d114962c79a5df1cf9686d"
+          },
+          {
+            "path": "out/role-width-wasm-holders/report.json",
+            "sha256": "992d13a7d218a3d4c0c1657564ddc666fe669d64839cb660d1f75aad4be4f192"
+          },
+          {
+            "path": "out/role-width-holder-coverage/report.json",
+            "sha256": "72042beb3e1b8dc1d4a7b0160699504d861ab1778b4abb001303de20464702ed"
+          },
+          {
+            "path": "out/role-width-holder-coverage/checkpoint.jsonl",
+            "sha256": "d355b8c359f65b5214c7656c88c50e36ca62f5a1ff30598484a64adfd61846ca"
+          },
+          {
+            "path": "out/role-width-holder-coverage/holder-checks.jsonl",
+            "sha256": "aa5ac3e6e2017c8e4f1b7baf0f18911728b1051c2d74be7c68906c8d133b6954"
+          },
+          {
+            "path": "out/role-width-wasm-holders/checks.json",
+            "sha256": "3f18cc1ec46ceb076ca3e41870a01cdb8ae3f8bfd7049fa4d673ddfbd1830765"
+          },
+          {
+            "path": "out/role-width-rpc/events.jsonl",
+            "sha256": "4eabb8dd2efd05ca689bf2b77c40c70d40304469633ebce3e968c31432a9f208"
+          },
+          {
+            "path": "out/role-width-rpc/rpc-checks.jsonl",
+            "sha256": "3c6789cb14ca26a7291495050c5a88afd20d725eeec59e86213088cba883a3d5"
+          },
+          {
+            "path": "out/role-width-rpc/events.clocks.txt",
+            "sha256": "b0faba5f6fb012ee3785c6e708dc9bf78430c61829f5a032dbf24b973a963785"
+          },
+          {
+            "path": "out/role-width-rpc/events.sparse.jsonl",
+            "sha256": "d3359752afa308c4f9a9705bde2669ed30cefa211369c869af627a762656aef3"
+          },
+          {
+            "path": "out/role-width-qualified/control-requests.jsonl",
+            "sha256": "58dcc8dfc893be08d9c268a75e0e394ae985aeef9c4f474f1f26437669cbb0a1"
+          }
+        ],
+        "final_holders": 88,
+        "final_zeros": 25,
+        "holder_observations": 340,
+        "holder_report_sha256": "992d13a7d218a3d4c0c1657564ddc666fe669d64839cb660d1f75aad4be4f192",
+        "layouts_sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0",
+        "native_report_sha256": "ac4d92d3d4aa7400acfffc57473d297aa3e7f5baf0d114962c79a5df1cf9686d",
+        "new_profiles": 0,
+        "profiles": 2,
+        "qualifier_report_sha256": "0956319b4e5180c0d4ef2bd92aee3ae77228be2ecfc8205d50d674058cd70651",
+        "replacement": true,
+        "rpc_checks": 204,
+        "rpc_report_sha256": "d2f57590caf00e82049e75d15446ac0f18ed0254a5ffef8133592eaa885402d0"
+      },
+      {
+        "carry_forward": 20,
+        "checkpoint_holders": 24,
+        "checkpoint_reads": 48,
+        "checkpoint_report_sha256": "e5db0e916127e517c8f4a8ea1665a40e2d4c988fac334c204b537ecd8a6fa72c",
+        "cohort": "bridge450",
+        "cold_unknown": 20,
+        "cold_unknown_nonzero": 7,
+        "emitted_zeros": 6,
+        "evidence_bindings": [
+          {
+            "path": "out/bridge450-qualified/report.json",
+            "sha256": "49273a76db1cb746bef4c7009848fffe92f6a60fcfcf9f28d079a9de0b481e9e"
+          },
+          {
+            "path": "out/bridge450-qualified/added.json",
+            "sha256": "385c9c1aab972d2bc9f153b09018e03a09d525352e37b67e56aa4ab27b428b38"
+          },
+          {
+            "path": "out/bridge450-rpc/report.json",
+            "sha256": "a8b5189d9e9d9ea383dca0e017ff39f1dc795e31ae719ed36f007cf7e53df0a0"
+          },
+          {
+            "path": "out/bridge450-qualified/report.json",
+            "sha256": "49273a76db1cb746bef4c7009848fffe92f6a60fcfcf9f28d079a9de0b481e9e"
+          },
+          {
+            "path": "out/bridge450-wasm-holders/report.json",
+            "sha256": "164c5422fb1783b317a27042fff2e310d47c814d6b34b608e230ff01aa72e787"
+          },
+          {
+            "path": "out/bridge450-holder-coverage/report.json",
+            "sha256": "e5db0e916127e517c8f4a8ea1665a40e2d4c988fac334c204b537ecd8a6fa72c"
+          },
+          {
+            "path": "out/bridge450-holder-coverage/checkpoint.jsonl",
+            "sha256": "da34e4db24d10c462c2cd0c73a171827e493df0b7349105ef5f27cd19186d54f"
+          },
+          {
+            "path": "out/bridge450-holder-coverage/holder-checks.jsonl",
+            "sha256": "c14e6c3abf240c5e74265d4a83e5f8b814e3f8893a96e9a051c67128d2b6933e"
+          },
+          {
+            "path": "out/bridge450-wasm-holders/checks.json",
+            "sha256": "4705a63ae8f6a96cfc1b992f76edbf0a4b1aaf20b6db48701c20c0c14e723e50"
+          },
+          {
+            "path": "out/bridge450-rpc/events.jsonl",
+            "sha256": "056e5b7649a6d36bb448f05ec444b68dd395c9a74d7c43bcc03c7b052c4121d4"
+          },
+          {
+            "path": "out/bridge450-rpc/rpc-checks.jsonl",
+            "sha256": "c0c45a4cd5f41166412f02b840c6b6c451815cb3939a9984d3ab5e65a9ea451d"
+          },
+          {
+            "path": "out/bridge450-rpc/events.clocks.txt",
+            "sha256": "92bbbd8f6975f925e8bdbee008380329c6a70dfb099cf4296923822407c87631"
+          },
+          {
+            "path": "out/bridge450-rpc/events.sparse.jsonl",
+            "sha256": "9271683f1cb8e557cc3f922cd911b6d103b4a43a8d918bb9e3932cebd22455eb"
+          },
+          {
+            "path": "out/bridge450-qualified/rpc-requests.json",
+            "sha256": "48b92d6aec27e7b0c678d6ff58689040b3681bf64f8ab52f2d07c1caa5b2954d"
+          }
+        ],
+        "final_holders": 24,
+        "final_zeros": 10,
+        "holder_observations": 54,
+        "holder_report_sha256": "164c5422fb1783b317a27042fff2e310d47c814d6b34b608e230ff01aa72e787",
+        "layouts_sha256": "385c9c1aab972d2bc9f153b09018e03a09d525352e37b67e56aa4ab27b428b38",
+        "native_report_sha256": "49273a76db1cb746bef4c7009848fffe92f6a60fcfcf9f28d079a9de0b481e9e",
+        "new_profiles": 2,
+        "profiles": 2,
+        "qualifier_report_sha256": "49273a76db1cb746bef4c7009848fffe92f6a60fcfcf9f28d079a9de0b481e9e",
+        "replacement": false,
+        "rpc_checks": 34,
+        "rpc_report_sha256": "a8b5189d9e9d9ea383dca0e017ff39f1dc795e31ae719ed36f007cf7e53df0a0"
+      },
+      {
+        "carry_forward": 36,
+        "checkpoint_holders": 35,
+        "checkpoint_reads": 70,
+        "checkpoint_report_sha256": "9e1d1892a707a06002c51bfbe5d0184e6e049a8dded5deae669abeff08fc7236",
+        "cohort": "trade450",
+        "cold_unknown": 36,
+        "cold_unknown_nonzero": 26,
+        "emitted_zeros": 6,
+        "evidence_bindings": [
+          {
+            "path": "out/trade450-qualified/report.json",
+            "sha256": "206b4acaf010da41a52aaad79112df6555eed88d20bfb54f11b0c7ab582ab987"
+          },
+          {
+            "path": "out/trade450-qualified/added.json",
+            "sha256": "eac75042ed0fb485df5fce1d0455dd7ecf1e90eb66b2a0be13fed878116771d8"
+          },
+          {
+            "path": "out/trade450-rpc-verified/report.json",
+            "sha256": "93bd7ebc6fa1ffc0eddcef82cd0c15401f5ac5a04ddb83bc33b5fa7d33d7198d"
+          },
+          {
+            "path": "out/trade450-qualified/report.json",
+            "sha256": "206b4acaf010da41a52aaad79112df6555eed88d20bfb54f11b0c7ab582ab987"
+          },
+          {
+            "path": "out/trade450-wasm-holders/report.json",
+            "sha256": "35eb666fd70bbd6d815eed5913aa64bfd5f26c4026a9cfdaa0483130070d7bde"
+          },
+          {
+            "path": "out/trade450-holder-coverage/report.json",
+            "sha256": "9e1d1892a707a06002c51bfbe5d0184e6e049a8dded5deae669abeff08fc7236"
+          },
+          {
+            "path": "out/trade450-holder-coverage/checkpoint.jsonl",
+            "sha256": "90e6ca8ebce31dc9586637386dfd9a535f1008663cad8e53f9ee9dd2342b27f7"
+          },
+          {
+            "path": "out/trade450-holder-coverage/holder-checks.jsonl",
+            "sha256": "68b99bc3a30818d9fb1c2b7fab85a41d61b7c103f0c9e49871a459a0b570dfc8"
+          },
+          {
+            "path": "out/trade450-wasm-holders/checks.json",
+            "sha256": "8352109a90a6336166577c2ecfa40ae9f55f7385af0418ca929c6f093dfa5b57"
+          },
+          {
+            "path": "out/trade450-rpc-verified/events.jsonl",
+            "sha256": "98da4923355085d720ddd8eca82a6d10e3ce3e0ddb751812e9a64ebf9f90769a"
+          },
+          {
+            "path": "out/trade450-rpc-verified/rpc-checks.jsonl",
+            "sha256": "733083a7a94e1bf49de5a1a1096916f96720942073ea6036b3ba5ffc229c1876"
+          },
+          {
+            "path": "out/trade450-rpc-verified/events.clocks.txt",
+            "sha256": "53638d09989fd9197d26abee743996587c1dac29ccd27423544948242399335c"
+          },
+          {
+            "path": "out/trade450-rpc-verified/events.sparse.jsonl",
+            "sha256": "d85bab3e983323b851b5337874ad03fce0db8fc000471e3e6efa544de13e6df4"
+          },
+          {
+            "path": "out/trade450-qualified/rpc-requests.json",
+            "sha256": "a0cb56ec4d36e228cd32cec8876eca9b57edb63e707dd8e1a77b8e821253ccc6"
+          }
+        ],
+        "final_holders": 35,
+        "final_zeros": 9,
+        "holder_observations": 87,
+        "holder_report_sha256": "35eb666fd70bbd6d815eed5913aa64bfd5f26c4026a9cfdaa0483130070d7bde",
+        "layouts_sha256": "eac75042ed0fb485df5fce1d0455dd7ecf1e90eb66b2a0be13fed878116771d8",
+        "native_report_sha256": "206b4acaf010da41a52aaad79112df6555eed88d20bfb54f11b0c7ab582ab987",
+        "new_profiles": 3,
+        "profiles": 3,
+        "qualifier_report_sha256": "206b4acaf010da41a52aaad79112df6555eed88d20bfb54f11b0c7ab582ab987",
+        "replacement": false,
+        "rpc_checks": 51,
+        "rpc_report_sha256": "93bd7ebc6fa1ffc0eddcef82cd0c15401f5ac5a04ddb83bc33b5fa7d33d7198d"
+      }
+    ],
+    "status": "bounded_parity",
+    "tool_language": "Rust"
+  },
+  "new_cohort_totals": {
+    "carry_forward": 56,
+    "checkpoint_holders": 59,
+    "checkpoint_reads": 118,
+    "cold_unknown": 56,
+    "cold_unknown_nonzero": 33,
+    "emitted_zeros": 12,
+    "final_holders": 59,
+    "final_zeros": 19,
+    "holder_observations": 141,
+    "profiles": 5,
+    "rpc_checks": 85
+  },
+  "new_profiles": 5,
+  "preserved_incomplete_attempt": {
+    "checked_blocks": 505,
+    "checks": 33,
+    "completed_rerun": "out/trade450-rpc-verified/report.json",
+    "failure": "RPC transport failed",
+    "included_in_aggregate": false,
+    "path": "out/trade450-rpc/report.json",
+    "sha256": "8ebec83cf0ed9c5aefb2d6e028cd7c6c0b9decb4740fed4ccf18d0df0c45cee1",
+    "status": "incomplete"
+  },
+  "qualified_profiles": 431,
+  "ranking_report_sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5",
+  "ranking_scope": 450,
+  "remaining_top450": [
+    {
+      "contract": "0x88886f0fd371dff856291badced45922bc888888",
+      "rank": 143,
+      "reference_rows": 132,
+      "unique_holders": 6
+    },
+    {
+      "contract": "0xe0ab66985c8d18fba4cbc080024341750e997777",
+      "rank": 203,
+      "reference_rows": 81,
+      "unique_holders": 25
+    },
+    {
+      "contract": "0x885584e6ee2f8bdcdd7be5898da49f63050e8899",
+      "rank": 209,
+      "reference_rows": 79,
+      "unique_holders": 30
+    },
+    {
+      "contract": "0xebc2d768147f2d058f4266bb57e34ca1b6ef1319",
+      "rank": 238,
+      "reference_rows": 66,
+      "unique_holders": 12
+    },
+    {
+      "contract": "0x26bfefbad1bc1f6979ad92e544171f0b600c8888",
+      "rank": 338,
+      "reference_rows": 38,
+      "unique_holders": 8
+    },
+    {
+      "contract": "0xc748673057861a797275cd8a068abb95a902e8de",
+      "rank": 372,
+      "reference_rows": 34,
+      "unique_holders": 19
+    },
+    {
+      "contract": "0x1f64fdad335ed784898effb5ce22d54d8f432523",
+      "rank": 377,
+      "reference_rows": 33,
+      "unique_holders": 12
+    },
+    {
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+      "rank": 401,
+      "reference_rows": 30,
+      "unique_holders": 14
+    },
+    {
+      "contract": "0x608171b27c0c2a48accb5581c0cae5c611328f7f",
+      "rank": 407,
+      "reference_rows": 30,
+      "unique_holders": 5
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "rank": 411,
+      "reference_rows": 30,
+      "unique_holders": 10
+    },
+    {
+      "contract": "0x0ae7cd10f94fd16a6f9a29a372708718144c46f8",
+      "rank": 412,
+      "reference_rows": 29,
+      "unique_holders": 9
+    },
+    {
+      "contract": "0xc2400658ba8911f535300c626e3168060c871666",
+      "rank": 415,
+      "reference_rows": 29,
+      "unique_holders": 14
+    },
+    {
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "rank": 418,
+      "reference_rows": 28,
+      "unique_holders": 9
+    },
+    {
+      "contract": "0x6e2fb83ff0c7f38eb0b84a66b63a481ceeb102f7",
+      "rank": 424,
+      "reference_rows": 28,
+      "unique_holders": 11
+    },
+    {
+      "contract": "0xac68931b666e086e9de380cfdb0fb5704a35dc2d",
+      "rank": 426,
+      "reference_rows": 28,
+      "unique_holders": 9
+    },
+    {
+      "contract": "0xfbee27c1ba3724bc1b8acb140f7138e8cf45812f",
+      "rank": 429,
+      "reference_rows": 28,
+      "unique_holders": 20
+    },
+    {
+      "contract": "0x97c1c04bbd7dbfa3d139a13dc6ac2678162d95e4",
+      "rank": 437,
+      "reference_rows": 27,
+      "unique_holders": 10
+    },
+    {
+      "contract": "0x3505bee89d3b4e351dbd4849241a6b0716ea407f",
+      "rank": 448,
+      "reference_rows": 25,
+      "unique_holders": 7
+    },
+    {
+      "contract": "0x37e94fc028903e74275478b65160d6d2c0e8880b",
+      "rank": 449,
+      "reference_rows": 25,
+      "unique_holders": 11
+    }
+  ],
+  "replacement_observations_added_to_aggregate": 0,
+  "replacement_profiles": 2,
+  "replacement_revalidation": {
+    "carry_forward": 136,
+    "checkpoint_holders": 88,
+    "checkpoint_reads": 176,
+    "checkpoint_report_sha256": "72042beb3e1b8dc1d4a7b0160699504d861ab1778b4abb001303de20464702ed",
+    "cohort": "role-width",
+    "cold_unknown": 130,
+    "cold_unknown_nonzero": 91,
+    "emitted_zeros": 26,
+    "evidence_bindings": [
+      {
+        "path": "out/role-width-final-qualified/report.json",
+        "sha256": "0956319b4e5180c0d4ef2bd92aee3ae77228be2ecfc8205d50d674058cd70651"
+      },
+      {
+        "path": "out/role-width-final-qualified/added.json",
+        "sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0"
+      },
+      {
+        "path": "out/role-width-rpc/report.json",
+        "sha256": "d2f57590caf00e82049e75d15446ac0f18ed0254a5ffef8133592eaa885402d0"
+      },
+      {
+        "path": "out/role-width-qualified/report.json",
+        "sha256": "ac4d92d3d4aa7400acfffc57473d297aa3e7f5baf0d114962c79a5df1cf9686d"
+      },
+      {
+        "path": "out/role-width-wasm-holders/report.json",
+        "sha256": "992d13a7d218a3d4c0c1657564ddc666fe669d64839cb660d1f75aad4be4f192"
+      },
+      {
+        "path": "out/role-width-holder-coverage/report.json",
+        "sha256": "72042beb3e1b8dc1d4a7b0160699504d861ab1778b4abb001303de20464702ed"
+      },
+      {
+        "path": "out/role-width-holder-coverage/checkpoint.jsonl",
+        "sha256": "d355b8c359f65b5214c7656c88c50e36ca62f5a1ff30598484a64adfd61846ca"
+      },
+      {
+        "path": "out/role-width-holder-coverage/holder-checks.jsonl",
+        "sha256": "aa5ac3e6e2017c8e4f1b7baf0f18911728b1051c2d74be7c68906c8d133b6954"
+      },
+      {
+        "path": "out/role-width-wasm-holders/checks.json",
+        "sha256": "3f18cc1ec46ceb076ca3e41870a01cdb8ae3f8bfd7049fa4d673ddfbd1830765"
+      },
+      {
+        "path": "out/role-width-rpc/events.jsonl",
+        "sha256": "4eabb8dd2efd05ca689bf2b77c40c70d40304469633ebce3e968c31432a9f208"
+      },
+      {
+        "path": "out/role-width-rpc/rpc-checks.jsonl",
+        "sha256": "3c6789cb14ca26a7291495050c5a88afd20d725eeec59e86213088cba883a3d5"
+      },
+      {
+        "path": "out/role-width-rpc/events.clocks.txt",
+        "sha256": "b0faba5f6fb012ee3785c6e708dc9bf78430c61829f5a032dbf24b973a963785"
+      },
+      {
+        "path": "out/role-width-rpc/events.sparse.jsonl",
+        "sha256": "d3359752afa308c4f9a9705bde2669ed30cefa211369c869af627a762656aef3"
+      },
+      {
+        "path": "out/role-width-qualified/control-requests.jsonl",
+        "sha256": "58dcc8dfc893be08d9c268a75e0e394ae985aeef9c4f474f1f26437669cbb0a1"
+      }
+    ],
+    "final_holders": 88,
+    "final_zeros": 25,
+    "holder_observations": 340,
+    "holder_report_sha256": "992d13a7d218a3d4c0c1657564ddc666fe669d64839cb660d1f75aad4be4f192",
+    "layouts_sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0",
+    "native_report_sha256": "ac4d92d3d4aa7400acfffc57473d297aa3e7f5baf0d114962c79a5df1cf9686d",
+    "new_profiles": 0,
+    "profiles": 2,
+    "qualifier_report_sha256": "0956319b4e5180c0d4ef2bd92aee3ae77228be2ecfc8205d50d674058cd70651",
+    "replacement": true,
+    "rpc_checks": 204,
+    "rpc_report_sha256": "d2f57590caf00e82049e75d15446ac0f18ed0254a5ffef8133592eaa885402d0"
+  },
+  "scope": "Five new independent packaged/initialized-holder qualifications, plus two stricter role-layout replacements. A fresh 431-profile actual-WASM capture matches all protobuf fields from 426 prior profiles plus five new profiles. The 204 replacement rows are independently RPC-revalidated and equal the old full-field rows; replacement rows and holder observations are counted once. All 1024 delivered block identities are canonical-header-bound. Unchanged production WASM; no new full431 holder checkpoint, global holder enumeration, or production support for OG/reflection models.",
+  "status": "bounded_parity"
+}

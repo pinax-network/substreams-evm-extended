@@ -1,0 +1,40 @@
+# BSC candidates ranked 351–400
+
+The [investigation report](evidence/ranks351-400-investigation.json) selects the
+next 50 candidates from the original immutable RPC stream for blocks
+122288006–122289029. They account for **1,685 reference observations** across
+the complete interval. The exploratory survey uses **269 sampled Extended
+blocks** and records **1,654 successful RPC value comparisons**, with no RPC
+errors or historical value mismatches. It preserves mapper errors and missing
+rows; matching candidate values are not equivalent to mapper qualification.
+
+Forty-four candidates have a unique matching mapping hypothesis. The
+[getter controls](evidence/ranks351-400-getters.json) inspect those 44 and find
+one nonzero-word transformation: XVS's `uint96` getter. Its separately verified
+[width correction and holder audit](xvs-uint96.md) add one qualified profile.
+That follow-up left 49 candidates outside its combined configuration. The
+subsequent [MUSD/GAIX source-led qualification](direct-discovery-gaps.md) adds
+two profiles, leaving 47. The later [direct and proxy qualification](ranks400-coverage.md)
+adds 27 more, leaving **20** from this group unqualified and **25** among the
+first 400 overall.
+
+Eleven historical runtime hashes matched an already reviewed family. Their
+later qualification independently checks each candidate's code, pointers,
+getter and storage dependencies, followed by complete packaged RPC and holder
+replay. Matching a shell or a sampled value alone does not promote a profile.
+
+The six candidates below the direct-mapping discovery threshold are AR (351), ARZ (354),
+ARS (364), 10SET (377), MUSD (386) and GAIX (394). That status is a discovery
+gap, not a claimed zero balance or a proven computed getter. MUSD and GAIX have
+source-bound direct getters; each matching hypothesis had only one nonzero
+holder. Their later qualification uses independent source/getter and full
+interval checks without relaxing discovery thresholds. 10SET's verified source uses reflection accounting.
+Baby Doge (372) also has a reflection getter; a sample on its excluded-account
+branch is not proof of a direct mapping for all holders. The subsequent
+[reflection diagnostic](reflection-holder-model.md) confirms that distinction
+and passive holder changes, without promoting either token.
+
+All source/runtime and diagnostic evidence remains separate from production
+qualification. Cold unknowns, emitted rows, initialized retained holders and
+global enumeration retain their distinct scopes. Ethereum, Base, HyperEVM and
+Arc still require their own qualification after the BSC work.
