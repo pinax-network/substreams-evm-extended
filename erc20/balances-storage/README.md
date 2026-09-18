@@ -32,6 +32,7 @@ mapping, or pinned proxy:
 | `other_slots` | Optional array of 32-byte `0x` hex | Explicitly qualified non-balance scalar slots |
 | `other_mapping_slots` | Optional array of 32-byte `0x` hex | Explicitly qualified non-balance mapping bases, including nested mappings |
 | `other_mapping_words` | Optional object mapping 32-byte `0x` bases to counts 1–32 | Reviewed non-balance mappings with multiword values, such as governance checkpoint structs |
+| `other_mapping_paths` | Optional array of `{root,key_types,offset,words}` | Reviewed non-balance paths with exact nesting depth and key types; offsets apply only to terminal fields. See [typed paths](docs/typed-mapping-paths.md) |
 | `voting_checkpoints` | Optional object | Reviewed OpenZeppelin `Trace208` arrays: `clock` is `block_number` or `timestamp`; `slots` lists direct array roots and `mapping_slots` lists `mapping(address => Trace208)` bases, all 32-byte hex |
 | `address_lists` | Optional array of 32-byte `0x` hex roots | Reviewed `address[]` bookkeeping, with exact persisted witnesses for appends, tail pops and swap-and-pop removals |
 | `zero_balance` | Optional object | `value` (32-byte `0x` hex uint256) replaces a zero mapping word; `storage_slot` (32 bytes) identifies its scalar dependency, omitted only for a runtime constant. Optional `excluded_addresses` lists verified runtime-constant holders (20-byte hex) whose zero words remain zero |
@@ -64,6 +65,16 @@ or through the single explicitly pinned forwarding layer described below.
 Arbitrary computed beacon resolvers remain unsupported. Diamond proxies,
 rebasing balances and computed balances outside the explicit rule below remain
 unsupported.
+
+`other_mapping_paths` can express a nested role-membership boolean separately
+from its outer admin field. Each path requires a complete verified Keccak chain
+and canonical key padding. It does not permit extra nesting or apply a field's
+offset to intermediate mappings. Existing `other_mapping_slots` and
+`other_mapping_words` retain their broader legacy semantics; migrate a profile
+only after reviewing its complete source/runtime and validating the narrower
+configuration. The new rule is currently checked offline; the committed SPKGs
+and historical qualification reports predate it. See the
+[supported shapes and validation limits](docs/typed-mapping-paths.md).
 
 For `minimal_proxy`, the implementation address is embedded in the exact
 [ERC-1167 runtime](https://eips.ethereum.org/EIPS/eip-1167), rather than a storage

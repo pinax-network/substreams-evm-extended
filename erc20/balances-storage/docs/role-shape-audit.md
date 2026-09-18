@@ -25,7 +25,7 @@ do not establish that fabricated writes are reachable or allege historical
 balance mismatches. No RPC calls or configuration changes were made by this
 audit.
 
-A future rule should recognize an exact sequence of mapping keys and allowed
+The audit proposed recognizing an exact sequence of mapping keys and allowed
 field offsets. For example, a role admin lives one word after a single
 `bytes32` mapping key, while membership is one boolean word after a second,
 address-shaped key. A terminal four-word rate record has a different shape.
@@ -33,8 +33,10 @@ Each rule must require correct preimages and canonical key widths, without
 applying a record's width to every nested leaf. Existing width rules should
 be migrated per reviewed profile, preserving legitimate scalar records.
 
-This is a follow-up design, not a supported configuration field or a production
-fix. Any replacement needs fresh runtime checks, full native replay, packaged
+The subsequent [typed mapping-path implementation](typed-mapping-paths.md)
+adds that exact-depth configuration to the Rust source, with offline regression
+tests. It does not migrate these published profiles or cover enumerable-role
+arrays and offset-one index mappings. Profile replacement still needs fresh runtime checks, full native replay, packaged
 RPC comparisons and initialized-holder/final-state checks. The current
 historical parity evidence remains bounded to its recorded intervals.
 

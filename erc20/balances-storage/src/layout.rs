@@ -1,3 +1,4 @@
+pub use crate::mapping_paths::{MappingKeyType, MappingPath, VerifiedMappingPath};
 use crate::{hash, hex_bytes, require};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -24,6 +25,9 @@ pub struct Layout {
     /// Reviewed non-balance mapping bases whose values span multiple words.
     #[serde(default)]
     pub other_mapping_words: BTreeMap<String, u8>,
+    /// Explicit key types, exact nesting depth and terminal field offsets.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub other_mapping_paths: Vec<MappingPath>,
     /// Reviewed OpenZeppelin Trace208 arrays, separate from ordinary balances.
     #[serde(default)]
     pub voting_checkpoints: Option<VotingCheckpoints>,
@@ -222,6 +226,7 @@ pub struct VerifiedLayout {
     pub other_slots: BTreeSet<[u8; 32]>,
     pub other_mapping_slots: BTreeSet<[u8; 32]>,
     pub other_mapping_words: BTreeMap<[u8; 32], u8>,
+    pub other_mapping_paths: Vec<VerifiedMappingPath>,
     pub voting_checkpoints: Option<VerifiedVotingCheckpoints>,
     pub address_lists: BTreeSet<[u8; 32]>,
     pub zero_balance: Option<VerifiedZeroBalance>,
@@ -585,6 +590,25 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
                     "unsigned balance width cannot combine with another balance rule",
                 )?;
             }
+            // All entries here belong to token storage. A beacon's own pointer
+            // and admin slots belong to another account and are not aliases.
+            let mut reserved = BTreeSet::from([balance_slot]);
+            reserved.extend(&other_slots);
+            reserved.extend(&other_mapping_slots);
+            reserved.extend(other_mapping_words.keys());
+            reserved.extend(&address_lists);
+            reserved.extend(proxy.as_ref().map(|p| p.implementation_slot));
+            reserved.extend(beacon_proxy.as_ref().map(|p| p.beacon_slot));
+            reserved.extend(zero_balance.as_ref().and_then(|p| p.storage_slot));
+            reserved.extend(balance_divisor.as_ref().map(|p| p.storage_slot));
+            if let Some(rule) = &address_hash_balance {
+                reserved.extend(rule.stored_addresses.keys());
+            }
+            if let Some(rule) = &voting_checkpoints {
+                reserved.extend(&rule.slots);
+                reserved.extend(&rule.mapping_slots);
+            }
+            let other_mapping_paths = crate::mapping_paths::parse(layout.other_mapping_paths, &reserved)?;
             Ok(VerifiedLayout {
                 contract,
                 balance_slot,
@@ -594,6 +618,7 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
                 other_slots,
                 other_mapping_slots,
                 other_mapping_words,
+                other_mapping_paths,
                 voting_checkpoints,
                 address_lists,
                 zero_balance,

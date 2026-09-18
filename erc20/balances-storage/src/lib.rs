@@ -6,6 +6,7 @@ mod deployment;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod discovery;
 pub mod layout;
+mod mapping_paths;
 #[allow(dead_code)]
 pub mod persist;
 
@@ -167,7 +168,8 @@ fn subtract_offset(mut key: [u8; 32], offset: u8) -> [u8; 32] {
     key
 }
 fn ignored_mapping(key: [u8; 32], preimages: &BTreeMap<[u8; 32], Vec<u8>>, layout: &VerifiedLayout) -> bool {
-    layout.other_mapping_slots.iter().any(|base| mapping_has_base(key, preimages, base))
+    mapping_paths::matches(key, preimages, &layout.other_mapping_paths)
+        || layout.other_mapping_slots.iter().any(|base| mapping_has_base(key, preimages, base))
         || layout
             .other_mapping_words
             .iter()
@@ -409,6 +411,8 @@ mod immutable_zero_tests;
 mod log_only_tests;
 #[cfg(test)]
 mod lp400_tests;
+#[cfg(test)]
+mod mapping_path_tests;
 #[cfg(test)]
 mod more_qualified_tests;
 #[cfg(test)]

@@ -34,11 +34,12 @@ storage module after the new home is available.
 | `proto/src/pb/evm.balances.v1.rs` | `c297dedec83a70f0cca7753c13395e9bd06307466b48fc90b3414be90bb013bd` |
 | Canonical RPC `spkg/erc20-balances-v0.3.4.spkg` | `8aaa03b551b9d67ce1ea9aa0dae4310eda1807f2bc161bd53b17f82de9d92543` |
 | Historical `spkg/reference/erc20-balances-storage-v0.1.0-before-migration.spkg` | `f1d57bdff549947cd69e47d117ad8cd74933c1e065b687f958fea4de39004d81` |
-| Rebuilt storage WASM | `36f5c502ec6546fc842ffaf8cfc692140d10e7f8cb58ff731c259a1b6d48c117` |
+| Rebuilt storage WASM at the migration baseline | `36f5c502ec6546fc842ffaf8cfc692140d10e7f8cb58ff731c259a1b6d48c117` |
 
 The schema and generated Rust types are byte-identical to the source tree.
 Only the protobuf module wrapper was reduced to the balance namespace. The
-new build also produces byte-identical production WASM. Both historical and
+build at migration commit `bffd1660c7c773db0c4e670637a96de339ee604d`
+also produces byte-identical production WASM. Both historical and
 migrated packages report module hash
 `d94199efaedeed37d58d1be9780b46138caf5576`, with one `map_events`, default `[]`,
 the Extended Ethereum block input and `evm.balances.v1.Events` output.
@@ -47,6 +48,11 @@ The migrated SPKG has different package metadata and embedded documentation.
 Its digest is recorded separately in [migration evidence](evidence/migration.json).
 Historical reports keep the digest of the package they actually tested; those
 reports are not rewritten to imply that their RPC calls used a later package.
+
+Subsequent [typed mapping-path source changes](../erc20/balances-storage/docs/typed-mapping-paths.md)
+are validated separately using offline Rust checks and captured data. They are
+not embedded in these preserved SPKGs and do not inherit live qualification from
+the migration baseline. Live chain testing remains paused at the user's request.
 
 ## Validation and retained evidence
 
