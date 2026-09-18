@@ -40,6 +40,12 @@ arrays and offset-one index mappings. Profile replacement still needs fresh runt
 RPC comparisons and initialized-holder/final-state checks. The current
 historical parity evidence remains bounded to its recorded intervals.
 
+The separate [enumerable role-set rule](enumerable-role-sets.md) now adds
+opt-in source validation for the reviewed DSG write order. It does not migrate
+these eight profiles, support their role-admin mutations automatically, or
+establish producer/package qualification. The per-profile review remains
+required before using it.
+
 - [Source-bound inventory and findings](evidence/role-shape-audit.json)
 - [All synthetic checks](evidence/role-shape-checks.json)
 - [Per-profile recommendations and proposed matching rules](evidence/role-shape-recommendations.json)

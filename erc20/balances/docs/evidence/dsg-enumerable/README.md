@@ -1,5 +1,10 @@
 # DSG enumerable role-set investigation
 
+> Historical research snapshot, preceding the opt-in
+> [enumerable role-set implementation](../../enumerable-role-sets.md).
+> Runtime/producer and token qualification remain separate requirements; the
+> synthetic cases and proof data below are unchanged.
+
 This is saved-runtime research for unfinished support, not a production
 validator or token qualification. No chain requests were made. The production
 mapper still rejects DSG role-set mutations.

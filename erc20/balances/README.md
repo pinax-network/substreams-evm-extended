@@ -33,6 +33,7 @@ mapping, or pinned proxy:
 | `other_mapping_slots` | Optional array of 32-byte `0x` hex | Explicitly qualified non-balance mapping bases, including nested mappings |
 | `other_mapping_words` | Optional object mapping 32-byte `0x` bases to counts 1–32 | Reviewed non-balance mappings with multiword values, such as governance checkpoint structs |
 | `other_mapping_paths` | Optional array of `{root,key_types,offset,words}` | Reviewed non-balance paths with exact nesting depth and key types; offsets apply only to terminal fields. See [typed paths](docs/typed-mapping-paths.md) |
+| `enumerable_address_sets` | Optional array of `{root,key_types,semantics}` | Explicit source-bound role-member sets with complete ordered array/index witnesses. Currently one `bytes32` key and `oz_3_4_2` semantics; see [prerequisites and limits](docs/enumerable-role-sets.md) |
 | `voting_checkpoints` | Optional object | Reviewed OpenZeppelin `Trace208` arrays: `clock` is `block_number` or `timestamp`; `slots` lists direct array roots and `mapping_slots` lists `mapping(address => Trace208)` bases, all 32-byte hex |
 | `address_lists` | Optional array of 32-byte `0x` hex roots | Reviewed `address[]` bookkeeping, with exact persisted witnesses for appends, tail pops and swap-and-pop removals |
 | `zero_balance` | Optional object | `value` (32-byte `0x` hex uint256) replaces a zero mapping word; `storage_slot` (32 bytes) identifies its scalar dependency, omitted only for a runtime constant. Optional `excluded_addresses` lists verified runtime-constant holders (20-byte hex) whose zero words remain zero |
@@ -75,6 +76,13 @@ only after reviewing its complete source/runtime and validating the narrower
 configuration. The new rule is currently checked offline; the committed SPKGs
 and historical qualification reports predate it. See the
 [supported shapes and validation limits](docs/typed-mapping-paths.md).
+
+`enumerable_address_sets` separately validates complete correlated role-member
+array/index operations, with event-level permissions and no persistent set
+cache. This is opt-in support for a reviewed runtime/write order, not automatic
+OpenZeppelin or DSG qualification. The initial set invariants must be verified
+by the caller. [The rule's documentation](docs/enumerable-role-sets.md) describes
+unchanged-write handling and the outstanding producer/package checks.
 
 For `minimal_proxy`, the implementation address is embedded in the exact
 [ERC-1167 runtime](https://eips.ethereum.org/EIPS/eip-1167), rather than a storage
@@ -400,6 +408,11 @@ profiles. Some have reachable admin writers and need exact storage-path
 recognition; removing every multiword rule would reject legitimate writes.
 These findings do not allege historical balance mismatches or establish
 that fabricated writes are reachable.
+
+The opt-in [enumerable role-set rule](docs/enumerable-role-sets.md) provides
+source-level validation for the reviewed DSG operation shape. The published
+431-profile cohort is unchanged; producer visibility, package parity and
+individual role-profile qualification remain separate follow-up gates.
 The preceding [ten-profile follow-up](docs/tail400-coverage.md) retains its
 packed swap/lock metadata and minimal-proxy evidence.
 The preceding [three Cake-LP profiles](docs/lp400-coverage.md) retain their

@@ -28,6 +28,9 @@ pub struct Layout {
     /// Explicit key types, exact nesting depth and terminal field offsets.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub other_mapping_paths: Vec<MappingPath>,
+    /// Explicitly reviewed role-member sets with correlated array/index writes.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub enumerable_address_sets: Vec<EnumerableAddressSet>,
     /// Reviewed OpenZeppelin Trace208 arrays, separate from ordinary balances.
     #[serde(default)]
     pub voting_checkpoints: Option<VotingCheckpoints>,
@@ -53,6 +56,19 @@ pub struct Layout {
     /// cannot write. This is not inferred from absent writes or RPC samples.
     #[serde(default)]
     pub immutable_zero_mapping: bool,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct EnumerableAddressSet {
+    pub root: String,
+    /// Currently exactly one bytes32 role key; no inferred mapping shape.
+    pub key_types: Vec<String>,
+    /// Explicit source/write-order contract, currently only `oz_3_4_2`.
+    pub semantics: String,
+}
+#[derive(Clone, Debug)]
+pub struct VerifiedEnumerableAddressSet {
+    pub(crate) root: [u8; 32],
 }
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -227,6 +243,7 @@ pub struct VerifiedLayout {
     pub other_mapping_slots: BTreeSet<[u8; 32]>,
     pub other_mapping_words: BTreeMap<[u8; 32], u8>,
     pub other_mapping_paths: Vec<VerifiedMappingPath>,
+    pub enumerable_address_sets: Vec<VerifiedEnumerableAddressSet>,
     pub voting_checkpoints: Option<VerifiedVotingCheckpoints>,
     pub address_lists: BTreeSet<[u8; 32]>,
     pub zero_balance: Option<VerifiedZeroBalance>,
@@ -608,6 +625,14 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
                 reserved.extend(&rule.slots);
                 reserved.extend(&rule.mapping_slots);
             }
+            let mut enumerable_address_sets = Vec::new();
+            for set in layout.enumerable_address_sets {
+                require(set.semantics == "oz_3_4_2", "unsupported enumerable-address-set semantics")?;
+                require(set.key_types == ["bytes32"], "enumerable-address-set requires exactly one bytes32 role key")?;
+                let root = word(&set.root)?;
+                require(reserved.insert(root), "enumerable-address-set root overlaps another configured field")?;
+                enumerable_address_sets.push(VerifiedEnumerableAddressSet { root });
+            }
             let other_mapping_paths = crate::mapping_paths::parse(layout.other_mapping_paths, &reserved)?;
             Ok(VerifiedLayout {
                 contract,
@@ -619,6 +644,7 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
                 other_mapping_slots,
                 other_mapping_words,
                 other_mapping_paths,
+                enumerable_address_sets,
                 voting_checkpoints,
                 address_lists,
                 zero_balance,

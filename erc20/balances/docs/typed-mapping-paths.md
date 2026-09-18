@@ -70,11 +70,15 @@ hashed intermediate addresses. Retained legacy rules continue to accept their
 original broader shapes, so each complete configuration needs review.
 
 Dynamic mapping keys, signed keys, fixed bytes shorter than 32, intermediate
-struct offsets, and mapping-owned enumerable arrays are unsupported. In
+struct offsets, and mapping-owned enumerable arrays are unsupported by this rule. In
 particular, an EnumerableSet's address-to-index mapping at outer offset 1 and
 its array storage cannot be represented by these paths. Unknown persisted writes
 continue to fail closed. A historical interval without such writes does not
 establish support for those operations.
+
+The separate opt-in [enumerable role-set rule](enumerable-role-sets.md) validates
+the reviewed DSG array/index operation shape. It does not broaden typed-path
+matching or inherit live qualification from an existing profile.
 
 ## Offline validation
 
@@ -86,8 +90,8 @@ fixtures preserve all 11 captured RPC event expectations. Published profile
 fixtures remain unchanged.
 
 The separate [APD/DSG review](typed450-offline-review.md) traces their saved
-strict failures to ordinary allowance writes and retains the unsupported DSG
-enumerable-role shape explicitly.
+strict failures to ordinary allowance writes and retains the DSG role shape
+and outstanding qualification requirements explicitly.
 
 The [full saved-data baseline replay](evidence/typed-path-baseline-replay.json)
 uses the production source at commit `a8270d5` with the unchanged 431-profile

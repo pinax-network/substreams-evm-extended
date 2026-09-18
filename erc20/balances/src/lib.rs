@@ -5,6 +5,7 @@ mod computed;
 mod deployment;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod discovery;
+mod enumerable_sets;
 pub mod layout;
 mod mapping_paths;
 #[allow(dead_code)]
@@ -263,6 +264,9 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
     raw.storage.sort_by_key(|c| c.ordinal);
     let checkpoint_keys = checkpoints::validate(block, layouts, &raw.storage, &preimages)?;
     let address_list_keys = address_lists::validate(layouts, &raw.storage, &raw.address_list_noops)?;
+    // Read original persisted records, including unchanged witnesses and their
+    // structural call context. Failure must precede every metadata ignore rule.
+    let enumerable_events = enumerable_sets::validate(block, layouts, &preimages, &candidates)?;
     let mut deployment_keys = BTreeSet::new();
     for c in raw.storage {
         if !configured.contains_key(&c.address) && !beacon_slots.contains_key(&c.address) {
@@ -314,12 +318,17 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
             .map(|p| p[12..32].to_vec())
             .or_else(|| candidates[&layout.balance_slot].get(&key).cloned());
         if let Some(owner) = owner {
+            require(
+                !enumerable_events.contains(&(c.address.clone(), key, c.ordinal)),
+                "enumerable-set metadata aliases balance storage",
+            )?;
             require(!layout.immutable_zero_mapping, "immutable-zero balance mapping was written; requalify layout")?;
             insert(&mut rows, &c.address, &owner, &c.old_value, &c.new_value, c.ordinal)?;
         } else if !layout.other_slots.contains(&key)
             && !ignored_mapping(key, &preimages, layout)
             && !checkpoint_keys.contains(&(c.address.clone(), key))
             && !address_list_keys.contains(&(c.address.clone(), key))
+            && !enumerable_events.contains(&(c.address.clone(), key, c.ordinal))
         {
             return Err(Error::msg(format!(
                 "unresolved storage for configured token 0x{} at key 0x{}; refusing incomplete events",
@@ -397,6 +406,8 @@ mod direct_gaps_tests;
 mod direct_source_tests;
 #[cfg(test)]
 mod divisor_tests;
+#[cfg(test)]
+mod enumerable_set_tests;
 #[cfg(test)]
 mod family450_tests;
 #[cfg(test)]

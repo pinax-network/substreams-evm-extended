@@ -63,10 +63,14 @@ build and package generation passed.
 Formatting, Clippy, WASM checking and native-sink results are recorded with
 the final migration evidence.
 
-The current source passes 375 offline Rust tests, formatting, Clippy with
+The current source passes 406 offline Rust tests, formatting, Clippy with
 warnings denied, and the workspace WASM check. The source additions have not
 been repackaged or given fresh live qualification. See the
 [follow-up tracker](follow-up.md) for the remaining work.
+
+The opt-in [enumerable role-set rule](../erc20/balances/docs/enumerable-role-sets.md)
+has independent offline operation regressions. It does not change historical
+profiles or establish new producer, token or package qualification.
 
 The final pre-migration [combined capture](../erc20/balances/docs/evidence/refined450-combined.json)
 checks 431 profiles across 1,024 consecutive BSC blocks, including all streamed

@@ -310,6 +310,7 @@ pub fn run(args: Survey) -> Result<bool> {
                     other_mapping_slots: BTreeSet::new(),
                     other_mapping_words: BTreeMap::new(),
                     other_mapping_paths: Vec::new(),
+                    enumerable_address_sets: Vec::new(),
                     voting_checkpoints: None,
                     address_lists: BTreeSet::new(),
                     zero_balance: None,

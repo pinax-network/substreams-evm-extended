@@ -30,11 +30,16 @@ DSG's root 8 is different: per-role storage contains an EnumerableSet array at
 offset 0 and an address-to-index mapping anchored at offset 1. Its admin field
 is at offset 2 and has no setter callsite. Typed terminal offsets do not model
 that intermediate mapping offset or the correlated array/index updates.
-The partial candidate leaves every role storage shape unconfigured. Valid role grant, revoke and
-renounce operations still need dedicated support; absence from a sampled window
-does not establish support. Zero address is a legal set member, and tail
-self-swaps can produce unchanged writes that a future validator must retain as
-witnesses.
+The original partial candidate leaves every role storage shape unconfigured.
+At that review, valid role grant, revoke and renounce operations still needed
+dedicated support; absence from a sampled window does not establish support.
+Zero address is a legal set member, and tail self-swaps can produce unchanged
+writes requiring explicit handling.
+
+The separate opt-in [enumerable rule](enumerable-role-sets.md) now implements
+source-bound operation checks. The original candidates and evidence retain
+their recorded configuration; no profile inherits producer or package
+qualification from the new implementation.
 
 ## Evidence and limits
 
@@ -91,6 +96,35 @@ The full local review, source copies, Rust verifiers and pending control plan
 are retained under repository-root `out/typed450-candidates/`. Earlier compact
 capture attempts remain there as superseded, unvalidated artifacts. Tests use
 the full blocks instead.
+
+## Replay with the enumerable rule enabled
+
+A separate replay at source commit
+`3eae9c839e06fec260e8717845547f21ccafa355` enabled DSG's root-8
+`enumerable_address_sets` rule with `bytes32` keys and `oz_3_4_2` semantics.
+APD's proposed fragment was unchanged. All 19 production/build inputs remained
+identical from before compilation through completion. The
+[candidate evidence](evidence/enumerable-role-candidate-replay.json) binds the
+new configuration, source and saved inputs.
+
+The earlier replay at `d5ec0b9` is preserved separately. Both full replays were
+repeated after adding a guard for observed or inferred metadata slots that
+alias a holder balance discovered without a hash preimage.
+
+All 1,024 blocks completed without projection errors. The same 10 APD and 15 DSG
+balances matched saved canonical RPC output, with zero mismatches or native-only
+rows. The same 33 cold unknown observations remain. This window contains no
+role mutations or persisted no-op records for these candidates; enabling the
+rule here is a compatibility check, not a producer-visibility test.
+
+The independent [431-profile baseline replay](evidence/enumerable-role-baseline-replay.json)
+also covered all 1,024 blocks. Its 110,139 balances, including 15,259 zeros,
+matched the full historical protobuf output exactly after normalizing row order.
+Of these, 110,138 matched captured RPC in the same block. The one historical
+native-only row had no same-block RPC observation and is not counted as a match.
+There were also 4,012 reference-only observations matching independently retained
+native state and 66,265 cold unknown observations. No profile was changed or
+promoted, and this remains native Rust evidence rather than packaged WASM parity.
 
 Fresh independent controls, actual packaged-WASM/RPC parity and initialized
 holder/final-state checks remain required before adding either token to a
