@@ -56,11 +56,17 @@ the migration baseline. Live chain testing remains paused at the user's request.
 
 ## Validation and retained evidence
 
-The minimal workspace passes 362 Rust library/binary tests. These are the
-storage module and its tools' tests; unrelated source-repository tests are
-outside this workspace. The release WASM build and package generation pass.
+At the migration baseline, the minimal workspace passed 362 Rust library/binary
+tests. These are the storage module and its tools' tests; unrelated
+source-repository tests are outside this workspace. The baseline release WASM
+build and package generation passed.
 Formatting, Clippy, WASM checking and native-sink results are recorded with
 the final migration evidence.
+
+The current source passes 375 offline Rust tests, formatting, Clippy with
+warnings denied, and the workspace WASM check. The source additions have not
+been repackaged or given fresh live qualification. See the
+[follow-up tracker](follow-up.md) for the remaining work.
 
 The final pre-migration [combined capture](../erc20/balances-storage/docs/evidence/refined450-combined.json)
 checks 431 profiles across 1,024 consecutive BSC blocks, including all streamed

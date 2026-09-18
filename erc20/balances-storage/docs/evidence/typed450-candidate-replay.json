@@ -1,0 +1,139 @@
+{
+  "status": "completed_offline_unqualified_candidate_replay_no_observed_mismatches",
+  "mode": "offline_saved_data_only",
+  "qualified": false,
+  "full_row_parity_claim": false,
+  "holder_completeness_claim": false,
+  "scope": "Native Rust replay of the unqualified APD and DSG fragments against saved canonical RPC observations. All Balance fields are compared on overlap; retained state comes only from earlier native emissions. Cold unknown observations remain unknown. This is not fresh RPC, WASM/package, runtime/source requalification or support for DSG role root 8.",
+  "source_commit": "2e35027634fe79fc5bc709dd5ee224e02eab5da9",
+  "source_unchanged_before_build_to_end": true,
+  "production_build_input_files": 18,
+  "production_input_inventory_sha256": "0f49168719a6e552ed66809892bcf69bc36741d175b8732bfbe972e47cdb6ec6",
+  "window": {
+    "chain_id": 56,
+    "start_inclusive": 122288006,
+    "stop_exclusive": 122289030,
+    "completed_blocks": 1024,
+    "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+    "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "all_cached_hashes_parent_links_and_canonical_bound_clocks_matched": true
+  },
+  "network_requests": 0,
+  "fresh_rpc_balance_controls": 0,
+  "substreams_firehose_sink_commands": 0,
+  "checkpoint_or_rpc_state_seeding": false,
+  "counter_accounting_checked": true,
+  "tokens": [
+    {
+      "symbol": "APD",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+      "qualified": false,
+      "blocks_examined": 1024,
+      "native_emitted_rows": 10,
+      "emitted_zero_rows": 0,
+      "same_block_matches": 10,
+      "same_block_mismatches": 0,
+      "reference_rows": 30,
+      "reference_only_rows": 20,
+      "cold_unknown_rows": 20,
+      "cold_unknown_zero_rows": 15,
+      "cold_unknown_nonzero_rows": 5,
+      "retained_matches": 0,
+      "retained_mismatches": 0,
+      "native_only_rows": 0,
+      "projection_error_blocks": 0,
+      "native_nonempty_blocks": 5,
+      "native_silent_blocks": 1019,
+      "reference_silent_blocks": 1019,
+      "native_rows_on_reference_silent_blocks": 0,
+      "persisted_storage_changes": 25,
+      "persisted_storage_noops": 0
+    },
+    {
+      "symbol": "DSG",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "qualified": false,
+      "blocks_examined": 1024,
+      "native_emitted_rows": 15,
+      "emitted_zero_rows": 5,
+      "same_block_matches": 15,
+      "same_block_mismatches": 0,
+      "reference_rows": 28,
+      "reference_only_rows": 13,
+      "cold_unknown_rows": 13,
+      "cold_unknown_zero_rows": 6,
+      "cold_unknown_nonzero_rows": 7,
+      "retained_matches": 0,
+      "retained_mismatches": 0,
+      "native_only_rows": 0,
+      "projection_error_blocks": 0,
+      "native_nonempty_blocks": 5,
+      "native_silent_blocks": 1019,
+      "reference_silent_blocks": 1018,
+      "native_rows_on_reference_silent_blocks": 0,
+      "persisted_storage_changes": 41,
+      "persisted_storage_noops": 0
+    }
+  ],
+  "path_base": "repository root; out artifacts are retained locally and are not committed",
+  "inputs": [
+    {
+      "path": "out/typed450-candidates/candidate-spec.json",
+      "sha256": "5a4679ca861d6960a9e72fb9f950b5831c53c3d6b1b380be30d6abf0711a1b35"
+    },
+    {
+      "path": "erc20/balances-storage/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "erc20/balances-storage/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    },
+    {
+      "path": "erc20/balances-storage/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "erc20/balances-storage/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "erc20/balances-storage/out/typed-path-baseline-replay/run-2/blocks.jsonl",
+      "sha256": "4c963d80247459fe49d88cc168f2680a56e118c8c0b9a954471308e286d3c173"
+    },
+    {
+      "path": "erc20/balances-storage/out/typed-path-baseline-replay/run-2/report.json",
+      "sha256": "000a61c3c3c16823d1524b8256342dabd61a6e6bf957fd9f2566ab75b3e4d87c"
+    }
+  ],
+  "run": {
+    "directory": "erc20/balances-storage/out/typed450-candidate-replay",
+    "summary_sha256": "c5f8c5f398205741703d0f51d36ca06c9c1b85ef075340538541d16074750f84",
+    "report_path": "run-1/report.json",
+    "report_sha256": "bc090f9ca973e8499a2ea53761645a6bd14051abbfb2e4b6c517374c22509c7a",
+    "run_log_sha256": "43cc53cc8e56240574dd76a77a3d72ccac69677f415ac30cdad3c76949388880",
+    "candidate_layouts_sha256": "6f1c3509d8deb9da3ca0fce0f1dbb7cd11380a3327676b3b3cabbf8e28fd083c",
+    "cached_block_inventory_sha256": "63ed73e12c011c7be5e13701bc0bcd43b03955d8eb49c6875f7dbe28dedc9e61",
+    "native_events_sha256": "1ea614a14afa00bc872003de9a633abc217a4a66c7882e2470dfdedf16735f10",
+    "comparisons_sha256": "ea29d0d4fe91da7b063cec84a488e1c33bec3c36d2b028fcab0863a0f878dd9d",
+    "per_token_block_counts_sha256": "2b39799fa837b2eccdfc1c6f8a1ff1ff255795f623147634a34dd12c7e4870d3",
+    "persisted_storage_inventory_sha256": "9a3cf37c53522505899bcca4e42832cf851182071cf9dfe96184dcc26a19cae2",
+    "empty_errors_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runner_source_sha256": "85667e0567955cd3e81022031568bfd344b07914e580915b2386eb6475f70c12",
+    "shared_helpers_sha256": "53ee0e3ee10565d298b9769726354e3c6b9e81fcb8e37eb691327516ff775756",
+    "runner_manifest_sha256": "78be7c15b090cd922181d1fa2e15f953a4e23e69aa6b24de0afb38094f498934",
+    "runner_lockfile_sha256": "88bf9705b4bcd3a7bdb495eca9a3333cc20ebe327eb2a57d34e4b1529cfba1f7",
+    "prebuild_helper_sha256": "efb1566dc550108262e5ced2e718980c2a19613ed01bc5ebbf24bfb50a799450",
+    "finalizer_sha256": "b0cc6d1c780db93abb4021a73d8adf0793950e330a97dbb7948b52868bef142c",
+    "elapsed_seconds": 247.396450625,
+    "exit_code": 0
+  },
+  "remaining_gates": [
+    "Independent raw-balance and ordinary-metadata controls after live testing is authorized to resume",
+    "Actual packaged-WASM emitted-row comparison and independent initialized-holder retention/final-state checks",
+    "Separate reviewed support and producer visibility evidence for DSG EnumerableSet role updates",
+    "Revalidation for any later production source or package before claiming qualification"
+  ],
+  "historical_inputs_profiles_and_packages_unchanged": true
+}

@@ -47,6 +47,9 @@ with offline checks against saved data. This change is not included in the
 preserved SPKGs. Live chain testing is paused; new token and package
 qualification remains pending.
 
+Outstanding implementation, holder coverage, packaging and network work is
+tracked in [GitHub follow-up issues](docs/follow-up.md).
+
 See [migration provenance](docs/migration.md) for the original PR, preserved
 schema/package digests and the distinction between historical qualification
 and the new repository's build and sink checks.

@@ -1,0 +1,192 @@
+{
+  "case_checks": [
+    {
+      "case": "add_empty",
+      "exact_store_pcs": [
+        6494,
+        6510,
+        6529
+      ],
+      "same_value_stores": 0,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "append_if_absent",
+      "stack_operands_match": true,
+      "trace_sha256": "13175c1ca0affdfa620a2497ce271db0a8c703b458bd5d89aaf841177da0c294"
+    },
+    {
+      "case": "add_nonempty",
+      "exact_store_pcs": [
+        6494,
+        6510,
+        6529
+      ],
+      "same_value_stores": 0,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "append_if_absent",
+      "stack_operands_match": true,
+      "trace_sha256": "0f76d1b68e67fef3ab481244a2e064440fccb850ea14b1f4d3bdc1cc72e30421"
+    },
+    {
+      "case": "add_zero",
+      "exact_store_pcs": [
+        6494,
+        6510,
+        6529
+      ],
+      "same_value_stores": 1,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "append_if_absent",
+      "stack_operands_match": true,
+      "trace_sha256": "4aa394a2b7d0d0c87b2baf537629da762a5fb767aba5583f37c6ca028bc7cc74"
+    },
+    {
+      "case": "add_duplicate",
+      "exact_store_pcs": [],
+      "same_value_stores": 0,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "append_if_absent",
+      "stack_operands_match": true,
+      "trace_sha256": "9b3a9b133e635774efb351a62c058d1c014197b0e25c943a7fe26656eb76f4af"
+    },
+    {
+      "case": "remove_singleton",
+      "exact_store_pcs": [
+        7257,
+        7277,
+        7308,
+        7310,
+        7335
+      ],
+      "same_value_stores": 2,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "swap_remove_if_present",
+      "stack_operands_match": true,
+      "trace_sha256": "9e8bb242a393c9dbbe13c454c5d8c5bc83745c6d12dec899da553dff9bbbdb23"
+    },
+    {
+      "case": "remove_tail",
+      "exact_store_pcs": [
+        7257,
+        7277,
+        7308,
+        7310,
+        7335
+      ],
+      "same_value_stores": 2,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "swap_remove_if_present",
+      "stack_operands_match": true,
+      "trace_sha256": "105e12ae821cb31515973c32e337e4bee5b012bc550d26998474aa6cde3d6bbd"
+    },
+    {
+      "case": "remove_middle",
+      "exact_store_pcs": [
+        7257,
+        7277,
+        7308,
+        7310,
+        7335
+      ],
+      "same_value_stores": 0,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "swap_remove_if_present",
+      "stack_operands_match": true,
+      "trace_sha256": "0a6af5fd77a165f773f99d2a78cb182e263e18e9f70332af06fb1786067c74e6"
+    },
+    {
+      "case": "remove_zero_singleton",
+      "exact_store_pcs": [
+        7257,
+        7277,
+        7308,
+        7310,
+        7335
+      ],
+      "same_value_stores": 3,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "swap_remove_if_present",
+      "stack_operands_match": true,
+      "trace_sha256": "7a3517b7a48147a44b1c0ccc19b0fc37a95071e9667be644fc492ec92d1a9d0b"
+    },
+    {
+      "case": "remove_middle_move_zero",
+      "exact_store_pcs": [
+        7257,
+        7277,
+        7308,
+        7310,
+        7335
+      ],
+      "same_value_stores": 1,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "swap_remove_if_present",
+      "stack_operands_match": true,
+      "trace_sha256": "273c9025bdacf914885d4e024d8a709296a68a58ec558ee82470a779ce301cb0"
+    },
+    {
+      "case": "remove_zero_middle",
+      "exact_store_pcs": [
+        7257,
+        7277,
+        7308,
+        7310,
+        7335
+      ],
+      "same_value_stores": 0,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "swap_remove_if_present",
+      "stack_operands_match": true,
+      "trace_sha256": "8f20d40074ee5feb792f0511b65a98403f82db58432a41f63dd15ea2165a15eb"
+    },
+    {
+      "case": "remove_absent",
+      "exact_store_pcs": [],
+      "same_value_stores": 0,
+      "source_model_final_state_matches": true,
+      "source_model_operation": "swap_remove_if_present",
+      "stack_operands_match": true,
+      "trace_sha256": "12951445a1f161c945afafa4ff6094b7eb8acfd2795e86e628d6c81c99d031fe"
+    }
+  ],
+  "disassembly_sha256": "7a468e645a09d6d6158d0b65932504c94df19a3efbc45a93d7a046084c26046b",
+  "interpreter_source_sha256": "f09ebb63c147c91c20ea454e98ae27fb8f9550fe060272837451b9520ea6868b",
+  "network_calls": 0,
+  "ordering_windows_sha256": "6fe1783b9d51cd0c3565eebc38a6c6159abea76cc3a1cb89f2dc0dc894f162e6",
+  "positive_static_evidence": {
+    "add": "Uninterrupted instruction range6485..6529 writes length at6494, element at6510, index at6529. No intervening branch or external call.",
+    "remove": "After valid array-bound checks, destination7257 and moved-index7277 precede pop. Pop length-nonzero JUMPI7286 leads to7288; tail clear7308 precedes length7310, then deleted-index7335. The only pop branch is the nonempty guard; no equality/self-swap check removes stores.",
+    "same_value_stores": "SSTORE opcodes remain in unconditional successful paths. Operand traces show equal old/new for zero append, self-copy/index and zero-tail clear; diagnostic records all executed stores regardless of equality."
+  },
+  "producer_trace_visibility": "Not established. An executed SSTORE is not proof that the Extended producer exports a storage_change record for a same-value write. No gas/fork model or full-EVM conformance claim for the diagnostic interpreter.",
+  "qualified": false,
+  "report_sha256": "d0bec09f1a0c94f7267ab94c1fbcf4ffd67f8fff37e9ee0217e14253f33fe20c",
+  "runtime_keccak256": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884",
+  "saved_runtime_boundaries": [
+    {
+      "file": "runtime-122288005.hex",
+      "file_sha256": "b440351c90ad73d6c255718adc29ea356fcae6b6c16efa44b6306938d4637225",
+      "saved_boundary": {
+        "block": 122288005,
+        "hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+        "runtime_bytes": 8081,
+        "runtime_hash": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884"
+      }
+    },
+    {
+      "file": "runtime-122289029.hex",
+      "file_sha256": "b440351c90ad73d6c255718adc29ea356fcae6b6c16efa44b6306938d4637225",
+      "saved_boundary": {
+        "block": 122289029,
+        "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+        "runtime_bytes": 8081,
+        "runtime_hash": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884"
+      }
+    }
+  ],
+  "source_map_sha256": "d530d83c31c410628876bf9f06eded2b119791ef1d1093510381f548351d4bbc",
+  "source_proof_sha256": "0d11f832e76e62c29335610a0ca3bb7be31f33ff94ade2ddcfa21999e5541ac7",
+  "source_response_sha256": "cd276e84539bc0158313ebafc5c54a3558d9306b1675fe8e3308026a4e71f336",
+  "source_sha256": "8eb6fe9ff8ab4d163c95db324a27e5a2ab8604a96cc49e67db7101bc8ce71dcc",
+  "status": "source_bound_static_ordering_and_diagnostic_execution_checked",
+  "verifier_source_sha256": "b355ab7392bf5d18de8235c0c71601b4c38c78aadab52e0e0f69792081028d35"
+}
