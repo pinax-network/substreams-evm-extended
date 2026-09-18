@@ -1,0 +1,60 @@
+{
+  "checkpoint_sha256": "90e6ca8ebce31dc9586637386dfd9a535f1008663cad8e53f9ee9dd2342b27f7",
+  "checks_sha256": "8352109a90a6336166577c2ecfa40ae9f55f7385af0418ca929c6f093dfa5b57",
+  "configured_tokens": 3,
+  "deployment_initialization": [],
+  "events_sha256": "98da4923355085d720ddd8eca82a6d10e3ce3e0ddb751812e9a64ebf9f90769a",
+  "final_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "initialized_carry_forward_matches": 36,
+  "layouts_sha256": "eac75042ed0fb485df5fce1d0455dd7ecf1e90eb66b2a0be13fed878116771d8",
+  "mismatches": 0,
+  "package_sha256": "f1d57bdff549947cd69e47d117ad8cd74933c1e065b687f958fea4de39004d81",
+  "processing_balance_rpc_calls": 0,
+  "reference_observations": 87,
+  "reference_sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9",
+  "scope": "Three complete source-reviewed direct getters with independent raw, allowance, scalar and packed-field controls on the current packaged WASM. Actual output is bound to checked rows and complete canonical clocks. Reference rows never repair state. Final snapshot covers all initialized observed holders, not all possible addresses.",
+  "snapshot_holders": 35,
+  "snapshot_zeros": 9,
+  "source_report_sha256": "35eb666fd70bbd6d815eed5913aa64bfd5f26c4026a9cfdaa0483130070d7bde",
+  "start": 122288006,
+  "status": "actual_wasm_retained_holder_parity",
+  "stop_exclusive": 122289030,
+  "tokens": [
+    {
+      "carry_forward_matches": 0,
+      "contract": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e",
+      "emitted_rows": 15,
+      "reference_rows": 30,
+      "seeded_matches": 30,
+      "seeded_unknown_rows": 0,
+      "seeded_value_mismatches": 0,
+      "unseeded_unknown_nonzero_rows": 7,
+      "unseeded_unknown_rows": 15,
+      "unseeded_value_mismatches": 0
+    },
+    {
+      "carry_forward_matches": 0,
+      "contract": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+      "emitted_rows": 18,
+      "reference_rows": 30,
+      "seeded_matches": 30,
+      "seeded_unknown_rows": 0,
+      "seeded_value_mismatches": 0,
+      "unseeded_unknown_nonzero_rows": 10,
+      "unseeded_unknown_rows": 12,
+      "unseeded_value_mismatches": 0
+    },
+    {
+      "carry_forward_matches": 0,
+      "contract": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf",
+      "emitted_rows": 18,
+      "reference_rows": 27,
+      "seeded_matches": 27,
+      "seeded_unknown_rows": 0,
+      "seeded_value_mismatches": 0,
+      "unseeded_unknown_nonzero_rows": 9,
+      "unseeded_unknown_rows": 9,
+      "unseeded_value_mismatches": 0
+    }
+  ]
+}

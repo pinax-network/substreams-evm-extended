@@ -1,0 +1,128 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-2/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-2/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-2/blocks.jsonl",
+      "sha256": "4c963d80247459fe49d88cc168f2680a56e118c8c0b9a954471308e286d3c173"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-2/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-2/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-2/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "command": "CARGO_TARGET_DIR=out/typed-path-baseline-replay/target cargo run --offline --locked --manifest-path out/typed-path-baseline-replay/runner/Cargo.toml --bin typed-path-saved-replay -- /Users/denis/Github/substreams-evm-extended/erc20/balances-storage /Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/FRESH_OUTPUT",
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_retained_mismatches": 0,
+    "canonical_rpc_mismatches": 0,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "historical_mismatch_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 188.77668775,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "historical_input_package_is_not_current_source_qualification": true,
+  "inputs": [
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "report_sha256": "000a61c3c3c16823d1524b8256342dabd61a6e6bf957fd9f2566ab75b3e4d87c",
+  "runner_and_attempt_bindings": [
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/runner/Cargo.toml",
+      "sha256": "7dc3f592d17a2bebe20c014e763a9c84a0088b5d6c1bac60a2e7a638a7bfd1fc"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/runner/Cargo.lock",
+      "sha256": "36ee17b9c92875db3c7cf4ad94ad88f3b8fe99ef5190765a031855003f1bfc90"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/runner/src/main.rs",
+      "sha256": "6221efc6da74ff94d896f8ebb589ef0e01de9e3a1ed89924b9913dea1f6bfab0"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/runner/src/bin/seal.rs",
+      "sha256": "0cf0b00d723ebbc5212453ac9e50b85f9ce6871a5e302a2b600d69365e69c5dc"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-1/report.json",
+      "sha256": "a13241eba9d3bf829b2928110acebc55df4eb00e0c94ca852bb677a2c65dca4d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-1.log",
+      "sha256": "89075dcaa9bbcc0f69b12d9395779c64df6d446a87ffb8dabc6be90aaf05323f"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-2.log",
+      "sha256": "8d579fd30492d5ff918900c370c78029fba4ffc8283d92673770a7f3277f34eb"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-2/report.json",
+      "sha256": "000a61c3c3c16823d1524b8256342dabd61a6e6bf957fd9f2566ab75b3e4d87c"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances-storage/out/typed-path-baseline-replay/run-2/runner-source.rs",
+      "sha256": "6221efc6da74ff94d896f8ebb589ef0e01de9e3a1ed89924b9913dea1f6bfab0"
+    }
+  ],
+  "scope": "Current native Rust replay, not a new WASM/package/live qualification. Historical output remains immutable. Canonical RPC capture is compared on overlap and on holders independently learned from native emissions; unknown cold holders are explicitly retained as unknown, with no hidden initial state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "f8eb6d1f34d5072b8e6a80be564c65462f427a18f55d9c6639b2233f58d870d7",
+  "start_inclusive": 122288006,
+  "status": "passed_offline_native_baseline_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0
+}

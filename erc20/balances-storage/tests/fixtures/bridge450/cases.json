@@ -1,0 +1,52 @@
+[
+  {
+    "balances": [
+      {
+        "address": "0x09ad820aac5779683b481c4674208a4e1b024afa",
+        "rpc": "0"
+      },
+      {
+        "address": "0x1231deb6f5749ef6ce6943a275a1d3e7486f4eae",
+        "rpc": "0"
+      },
+      {
+        "address": "0x20f6ee51340adeed01a59b0e65cb3703f3dc860c",
+        "rpc": "420331176410685400"
+      },
+      {
+        "address": "0x4cd00e387622c35bddb9b4c962c136462338bc31",
+        "rpc": "586442445418693748706"
+      },
+      {
+        "address": "0xdc35157217a3aeff3dcaf2e86327254fbf9f4601",
+        "rpc": "8946782823102343301484"
+      }
+    ],
+    "block": 122288010,
+    "contract": "0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34",
+    "fixture": "5d3a1ff2b6bab83b63cd9ad0787074081a52ef34-122288010.pb",
+    "fixture_sha256": "aa3074bf810ecaa3cc3c45f6f57f6879f1bca81fc57a7240c14f2c1d14726723",
+    "full_block_sha256": "9244c0ef4a0a9cff390b7636810ba60916cead736142a20879d8e554da5b6a72",
+    "hash": "0xd8413a8cd0d0c1f639084745c2ee2da7b7ba1ebf5f2f7c2c2607cb18a256b974",
+    "scope": "All token-writing transactions from the audited complete Extended block"
+  },
+  {
+    "balances": [
+      {
+        "address": "0x1624e8ee0617023302b01cdbfe4ceb2101a40aa5",
+        "rpc": "443916936423611111109"
+      },
+      {
+        "address": "0x823e3cf4e3c4161ee9a067d9c43734edea9e7e52",
+        "rpc": "9550800859236744"
+      }
+    ],
+    "block": 122288137,
+    "contract": "0x40af8fd127dcd302d7ffa6f37cf5a002e54ac68c",
+    "fixture": "40af8fd127dcd302d7ffa6f37cf5a002e54ac68c-122288137.pb",
+    "fixture_sha256": "0e1cad5b953e6fb3ce4281cc0dff0c836f3f29d812b7ce0a1d6819aa1b96ed43",
+    "full_block_sha256": "a897f351b4a89a8934641ab7b0a63f85adbf38770741bf21da40bda962948400",
+    "hash": "0x9314782ccbb6d481a207b5cd2ec2419a7e5c51dcb27d01cb937be705b4d0a749",
+    "scope": "All token-writing transactions from the audited complete Extended block"
+  }
+]

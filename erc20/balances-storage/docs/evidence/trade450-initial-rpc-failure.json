@@ -1,0 +1,31 @@
+{
+  "blocks": 1024,
+  "capture": {
+    "blocks_per_second_including_startup": 15.56528281016832,
+    "empty_output_delivery": {
+      "clock_capture_sha256": "552a59d1a75ee7b2e9e06a307f50fee35bd3af94c6e9bb90312f6a8f788ad3b7",
+      "empty_blocks": 1004,
+      "method": "Complete finalized BlockScopedData clock capture, all IDs matched to consecutive canonical RPC headers",
+      "normalized_events_sha256": "98da4923355085d720ddd8eca82a6d10e3ce3e0ddb751812e9a64ebf9f90769a",
+      "sparse_events_sha256": "d85bab3e983323b851b5337874ad03fce0db8fc000471e3e6efa544de13e6df4"
+    },
+    "package_sha256": "f1d57bdff549947cd69e47d117ad8cd74933c1e065b687f958fea4de39004d81",
+    "seconds_including_startup": 65.787433
+  },
+  "checked_blocks": 505,
+  "checks": 33,
+  "configured_tokens": 3,
+  "elapsed_seconds": 103.240392709,
+  "failure": "RPC transport failed",
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "layouts_sha256": "eac75042ed0fb485df5fce1d0455dd7ecf1e90eb66b2a0be13fed878116771d8",
+  "mismatches": 0,
+  "rpc_block_binding": "EIP-1898 blockHash, requireCanonical=true",
+  "scope": "Every emitted end-of-block ERC-20 balance; Events has no old value or source hash",
+  "start": 122288006,
+  "status": "incomplete",
+  "token_checks": 33,
+  "tool_language": "Rust",
+  "zero_checks": 2
+}

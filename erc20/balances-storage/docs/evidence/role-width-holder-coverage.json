@@ -1,0 +1,73 @@
+{
+  "captured_summary": {
+    "count": 1024,
+    "first": {
+      "block": 122288006,
+      "hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67"
+    },
+    "last": {
+      "block": 122289029,
+      "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b"
+    }
+  },
+  "checkpoint_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "checkpoint_holders": 88,
+  "checkpoint_rpc_reads": 176,
+  "checkpoint_scope": "Only configured holders observed in the reference test range",
+  "checkpoint_sha256": "d355b8c359f65b5214c7656c88c50e36ca62f5a1ff30598484a64adfd61846ca",
+  "checkpoint_tokens": {
+    "0x22a2c54b15287472f4adbe7587226e3c998cdd96": {
+      "holders": 7,
+      "nonzero_holders": 3,
+      "zero_word_fallback_holders": 0
+    },
+    "0x544028231562a43b106fbceca722b65cb5c861b0": {
+      "holders": 81,
+      "nonzero_holders": 63,
+      "zero_word_fallback_holders": 0
+    }
+  },
+  "computed_initialized_holders": {},
+  "deployment_initialized_holders": {},
+  "elapsed_seconds": 66.932800209,
+  "event_row_parity_claimed": false,
+  "holder_checks_sha256": "aa5ac3e6e2017c8e4f1b7baf0f18911728b1051c2d74be7c68906c8d133b6954",
+  "immutable_zero_initialized_holders": {},
+  "layouts_sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0",
+  "processing_balance_rpc_calls": 0,
+  "processing_header_rpc_calls": 1024,
+  "reference_sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9",
+  "scope": "Bounded off-chain holder-state replay; explicit RPC checkpoint, no production bootstrap or additional map",
+  "source_report_sha256": "72042beb3e1b8dc1d4a7b0160699504d861ab1778b4abb001303de20464702ed",
+  "start": 122288006,
+  "status": "bounded_parity",
+  "stop_exclusive": 122289030,
+  "tokens": [
+    {
+      "carry_forward_matches": 0,
+      "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+      "emitted_rows": 16,
+      "reference_rows": 32,
+      "seeded_matches": 32,
+      "seeded_unknown_rows": 0,
+      "seeded_value_mismatches": 0,
+      "unseeded_unknown_nonzero_rows": 2,
+      "unseeded_unknown_rows": 16,
+      "unseeded_value_mismatches": 0
+    },
+    {
+      "carry_forward_matches": 6,
+      "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+      "emitted_rows": 188,
+      "reference_rows": 308,
+      "seeded_matches": 308,
+      "seeded_unknown_rows": 0,
+      "seeded_value_mismatches": 0,
+      "unseeded_unknown_nonzero_rows": 89,
+      "unseeded_unknown_rows": 114,
+      "unseeded_value_mismatches": 0
+    }
+  ],
+  "tool_language": "Rust",
+  "unobserved_tokens": []
+}

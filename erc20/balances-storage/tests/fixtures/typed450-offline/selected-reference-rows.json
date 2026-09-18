@@ -1,0 +1,101 @@
+[
+  {
+    "balance": {
+      "address": "0xfb26cf258ad722b5e4d1b806fd07bba043d0e437",
+      "amount": "14682920812492",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    },
+    "block": 122288046,
+    "reference_line_1based": 41
+  },
+  {
+    "balance": {
+      "address": "0xa2e734199cc6fe60523670b9e4fdfa7fcdbc97a1",
+      "amount": "1669560233789246",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    },
+    "block": 122288046,
+    "reference_line_1based": 41
+  },
+  {
+    "balance": {
+      "address": "0xb9b128af4a5c423c3d3a464c457e59b09a14904e",
+      "amount": "0",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    },
+    "block": 122288046,
+    "reference_line_1based": 41
+  },
+  {
+    "balance": {
+      "address": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
+      "amount": "0",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    },
+    "block": 122288046,
+    "reference_line_1based": 41
+  },
+  {
+    "balance": {
+      "address": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "amount": "20390672839",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    },
+    "block": 122288046,
+    "reference_line_1based": 41
+  },
+  {
+    "balance": {
+      "address": "0xbc1b47c8905bdc908a051449d62f086f300460ff",
+      "amount": "9720384827765485",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+    },
+    "block": 122288154,
+    "reference_line_1based": 149
+  },
+  {
+    "balance": {
+      "address": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+      "amount": "1203955079705976",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+    },
+    "block": 122288154,
+    "reference_line_1based": 149
+  },
+  {
+    "balance": {
+      "address": "0x0ecf06daae95a9f860551cfd9ca175cc81ad90ed",
+      "amount": "736220421122028405",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+    },
+    "block": 122288154,
+    "reference_line_1based": 149
+  },
+  {
+    "balance": {
+      "address": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
+      "amount": "0",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+    },
+    "block": 122288154,
+    "reference_line_1based": 149
+  },
+  {
+    "balance": {
+      "address": "0xfe96f60686a3605039cc946eebf7f8fd78259174",
+      "amount": "0",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+    },
+    "block": 122288154,
+    "reference_line_1based": 149
+  },
+  {
+    "balance": {
+      "address": "0x0ccd96fa9146577ae232a02517c310784a890461",
+      "amount": "0",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+    },
+    "block": 122288154,
+    "reference_line_1based": 149
+  }
+]

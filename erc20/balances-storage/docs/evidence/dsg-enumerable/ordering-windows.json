@@ -1,0 +1,1442 @@
+[
+  {
+    "immediate": "",
+    "opcode": "POP",
+    "pc": 6485,
+    "source": {
+      "file_id": -1,
+      "length": -1,
+      "line": 0,
+      "start": -1,
+      "text": ""
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 6486,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SLOAD",
+    "pc": 6487,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "01",
+    "opcode": "PUSH1",
+    "pc": 6488,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 6490,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 6491,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 6492,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP5",
+    "pc": 6493,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SSTORE",
+    "pc": 6494,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "00",
+    "opcode": "PUSH1",
+    "pc": 6495,
+    "source": {
+      "file_id": 0,
+      "length": 11,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP5",
+    "pc": 6497,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 6498,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "MSTORE",
+    "pc": 6499,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "20",
+    "opcode": "PUSH1",
+    "pc": 6500,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP1",
+    "pc": 6502,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP3",
+    "pc": 6503,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "KECCAK256",
+    "pc": 6504,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 6505,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP4",
+    "pc": 6506,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 6507,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP5",
+    "pc": 6508,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 6509,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SSTORE",
+    "pc": 6510,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 283,
+      "start": 11159,
+      "text": "set._values.push(value)"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP5",
+    "pc": 6511,
+    "source": {
+      "file_id": 0,
+      "length": 18,
+      "line": 286,
+      "start": 11342,
+      "text": "set._values.length"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SLOAD",
+    "pc": 6512,
+    "source": {
+      "file_id": 0,
+      "length": 18,
+      "line": 286,
+      "start": 11342,
+      "text": "set._values.length"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP5",
+    "pc": 6513,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP3",
+    "pc": 6514,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "MSTORE",
+    "pc": 6515,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP3",
+    "pc": 6516,
+    "source": {
+      "file_id": 0,
+      "length": 12,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP7",
+    "pc": 6517,
+    "source": {
+      "file_id": 0,
+      "length": 12,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 6518,
+    "source": {
+      "file_id": 0,
+      "length": 12,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 6519,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP4",
+    "pc": 6520,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "MSTORE",
+    "pc": 6521,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "40",
+    "opcode": "PUSH1",
+    "pc": 6522,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 6524,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "KECCAK256",
+    "pc": 6525,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP2",
+    "pc": 6526,
+    "source": {
+      "file_id": 0,
+      "length": 40,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value] = set._values.length"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 6527,
+    "source": {
+      "file_id": 0,
+      "length": 40,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value] = set._values.length"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP2",
+    "pc": 6528,
+    "source": {
+      "file_id": 0,
+      "length": 40,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value] = set._values.length"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SSTORE",
+    "pc": 6529,
+    "source": {
+      "file_id": 0,
+      "length": 40,
+      "line": 286,
+      "start": 11320,
+      "text": "set._indexes[value] = set._values.length"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "JUMPDEST",
+    "pc": 7240,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "00",
+    "opcode": "PUSH1",
+    "pc": 7241,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP2",
+    "pc": 7243,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP3",
+    "pc": 7244,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "MSTORE",
+    "pc": 7245,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "20",
+    "opcode": "PUSH1",
+    "pc": 7246,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP1",
+    "pc": 7248,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP4",
+    "pc": 7249,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "KECCAK256",
+    "pc": 7250,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7251,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP2",
+    "pc": 7252,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 7253,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP3",
+    "pc": 7254,
+    "source": {
+      "file_id": 0,
+      "length": 38,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex] = lastvalue"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7255,
+    "source": {
+      "file_id": 0,
+      "length": 38,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex] = lastvalue"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP3",
+    "pc": 7256,
+    "source": {
+      "file_id": 0,
+      "length": 38,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex] = lastvalue"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SSTORE",
+    "pc": 7257,
+    "source": {
+      "file_id": 0,
+      "length": 38,
+      "line": 317,
+      "start": 12706,
+      "text": "set._values[toDeleteIndex] = lastvalue"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP3",
+    "pc": 7258,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 7259,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "MSTORE",
+    "pc": 7260,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue]"
+    }
+  },
+  {
+    "immediate": "01",
+    "opcode": "PUSH1",
+    "pc": 7261,
+    "source": {
+      "file_id": 0,
+      "length": 1,
+      "line": 319,
+      "start": 12854,
+      "text": "1"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP10",
+    "pc": 7263,
+    "source": {
+      "file_id": 0,
+      "length": 12,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 7264,
+    "source": {
+      "file_id": 0,
+      "length": 12,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 7265,
+    "source": {
+      "file_id": 0,
+      "length": 12,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7266,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP3",
+    "pc": 7267,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "MSTORE",
+    "pc": 7268,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue]"
+    }
+  },
+  {
+    "immediate": "40",
+    "opcode": "PUSH1",
+    "pc": 7269,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7271,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "KECCAK256",
+    "pc": 7272,
+    "source": {
+      "file_id": 0,
+      "length": 23,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7273,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 319,
+      "start": 12838,
+      "text": "toDeleteIndex + 1"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP5",
+    "pc": 7274,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 319,
+      "start": 12838,
+      "text": "toDeleteIndex + 1"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 7275,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 319,
+      "start": 12838,
+      "text": "toDeleteIndex + 1"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7276,
+    "source": {
+      "file_id": 0,
+      "length": 43,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue] = toDeleteIndex + 1"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SSTORE",
+    "pc": 7277,
+    "source": {
+      "file_id": 0,
+      "length": 43,
+      "line": 319,
+      "start": 12812,
+      "text": "set._indexes[lastvalue] = toDeleteIndex + 1"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP7",
+    "pc": 7278,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SLOAD",
+    "pc": 7279,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP8",
+    "pc": 7280,
+    "source": {
+      "file_id": 0,
+      "length": 3,
+      "line": 319,
+      "start": 12812,
+      "text": "set"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7281,
+    "source": {
+      "file_id": 0,
+      "length": 3,
+      "line": 319,
+      "start": 12812,
+      "text": "set"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP1",
+    "pc": 7282,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "1c78",
+    "opcode": "PUSH2",
+    "pc": 7283,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "JUMPI",
+    "pc": 7286,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "INVALID",
+    "pc": 7287,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "JUMPDEST",
+    "pc": 7288,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "01",
+    "opcode": "PUSH1",
+    "pc": 7289,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7291,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SUB",
+    "pc": 7292,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 7293,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 7294,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7295,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "00",
+    "opcode": "PUSH1",
+    "pc": 7296,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "MSTORE",
+    "pc": 7298,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "20",
+    "opcode": "PUSH1",
+    "pc": 7299,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "00",
+    "opcode": "PUSH1",
+    "pc": 7301,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "KECCAK256",
+    "pc": 7303,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 7304,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "00",
+    "opcode": "PUSH1",
+    "pc": 7305,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7307,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SSTORE",
+    "pc": 7308,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7309,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SSTORE",
+    "pc": 7310,
+    "source": {
+      "file_id": 0,
+      "length": 17,
+      "line": 322,
+      "start": 12964,
+      "text": "set._values.pop()"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP7",
+    "pc": 7311,
+    "source": {
+      "file_id": 0,
+      "length": 3,
+      "line": 325,
+      "start": 13059,
+      "text": "set"
+    }
+  },
+  {
+    "immediate": "01",
+    "opcode": "PUSH1",
+    "pc": 7312,
+    "source": {
+      "file_id": 0,
+      "length": 12,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 7314,
+    "source": {
+      "file_id": 0,
+      "length": 12,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes"
+    }
+  },
+  {
+    "immediate": "00",
+    "opcode": "PUSH1",
+    "pc": 7315,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP8",
+    "pc": 7317,
+    "source": {
+      "file_id": 0,
+      "length": 5,
+      "line": 325,
+      "start": 13072,
+      "text": "value"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 7318,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "MSTORE",
+    "pc": 7319,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "20",
+    "opcode": "PUSH1",
+    "pc": 7320,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 7322,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7323,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "DUP2",
+    "pc": 7324,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "MSTORE",
+    "pc": 7325,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "20",
+    "opcode": "PUSH1",
+    "pc": 7326,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "ADD",
+    "pc": 7328,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "00",
+    "opcode": "PUSH1",
+    "pc": 7329,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "KECCAK256",
+    "pc": 7331,
+    "source": {
+      "file_id": 0,
+      "length": 19,
+      "line": 325,
+      "start": 13059,
+      "text": "set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "00",
+    "opcode": "PUSH1",
+    "pc": 7332,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 325,
+      "start": 13052,
+      "text": "delete set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SWAP1",
+    "pc": 7334,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 325,
+      "start": 13052,
+      "text": "delete set._indexes[value]"
+    }
+  },
+  {
+    "immediate": "",
+    "opcode": "SSTORE",
+    "pc": 7335,
+    "source": {
+      "file_id": 0,
+      "length": 26,
+      "line": 325,
+      "start": 13052,
+      "text": "delete set._indexes[value]"
+    }
+  }
+]

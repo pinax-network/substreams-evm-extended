@@ -1,0 +1,1320 @@
+{
+  "compiler_evidence": "Saved Sourcify compiler inputs/outputs and transformation declarations; no new compiler execution or external verification.",
+  "compiler_rerun": false,
+  "historical_source_root": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out",
+  "live_calls": 0,
+  "qualified": false,
+  "source_followup_sha256": "af0ecff46af944fcec6b3dd7efa4ba74418dcc93c9925125b068bca46b257864",
+  "status": "offline_source_and_saved_failure_review_only",
+  "tokens": [
+    {
+      "compiler": {
+        "compiler": "solc",
+        "compilerSettings": {
+          "libraries": {},
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          }
+        },
+        "compilerVersion": "0.8.24+commit.e11b9ed9",
+        "fullyQualifiedName": "APWithPremium.sol:APWithPremium",
+        "language": "Solidity",
+        "name": "APWithPremium"
+      },
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+      "followup_record": {
+        "balance_storage_candidates": [
+          {
+            "astId": 1057,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)"
+          }
+        ],
+        "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+        "full_match": "match",
+        "generated_getter_candidates": [],
+        "historical_runtime_bound": true,
+        "initial_status": "verified_source_bound_compiled_runtime_requires_transformation_review",
+        "qualified": false,
+        "rank": 401,
+        "recompiled_exact_without_transformations": false,
+        "runtime_hash": "0x7d0c87901df63e0ee81cd5aaac3cf2b0d1a29ca31ada80792620e09598765232",
+        "runtime_match": "match",
+        "source_function_candidates": [
+          {
+            "body_present": false,
+            "candidate_only": true,
+            "line": 403,
+            "source": "APWithPremium.sol",
+            "text": "function balanceOf(address account) external view returns (uint256);"
+          },
+          {
+            "body_present": true,
+            "candidate_only": true,
+            "line": 785,
+            "source": "APWithPremium.sol",
+            "text": "function balanceOf(\r\n        address account\r\n    ) public view virtual override returns (uint256) {\r\n        return _balances[account];\r\n    }"
+          }
+        ],
+        "source_response_sha256": "4b751efc3542d9392a25f633b634e185a1fd73909c8809cbd16b1d6baa249a40",
+        "status": "declared_transformations_reconstruct_historical_runtime",
+        "symbol": "APD",
+        "transformations": [
+          {
+            "declared_location_checked": true,
+            "id": "831",
+            "length": 32,
+            "offset": 6425,
+            "reason": "immutable",
+            "value": "0xb5dc6b16c15cbd81cab8eb04a206ceec542214169d21dfb1186c3fb5254d444e"
+          },
+          {
+            "declared_location_checked": true,
+            "id": "833",
+            "length": 32,
+            "offset": 6386,
+            "reason": "immutable",
+            "value": "0x0000000000000000000000000000000000000000000000000000000000000038"
+          },
+          {
+            "declared_location_checked": true,
+            "id": "835",
+            "length": 32,
+            "offset": 6502,
+            "reason": "immutable",
+            "value": "0x0cc8ab7de9d981eca4ad7299b5443a93ffd01850d63cd6b84203336bdd4c657f"
+          },
+          {
+            "declared_location_checked": true,
+            "id": "837",
+            "length": 32,
+            "offset": 6535,
+            "reason": "immutable",
+            "value": "0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6"
+          },
+          {
+            "declared_location_checked": true,
+            "id": "839",
+            "length": 32,
+            "offset": 6469,
+            "reason": "immutable",
+            "value": "0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f"
+          },
+          {
+            "declared_location_checked": true,
+            "id": "1071",
+            "length": 32,
+            "offset": 2357,
+            "reason": "immutable",
+            "value": "0x0000000000000000000000000000000000000000000000000000000000000009"
+          },
+          {
+            "declared_location_checked": true,
+            "id": "1826",
+            "length": 32,
+            "offset": 3941,
+            "reason": "immutable",
+            "value": "0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9"
+          },
+          {
+            "declared_location_checked": true,
+            "id": "1",
+            "length": 53,
+            "offset": 14677,
+            "reason": "cborAuxdata",
+            "value": "0xa26469706673582212205a6dc8c0207036baa49093fe1e9110de8c68bb8f7afaab6bd7a557cc6155b0e364736f6c63430008180033"
+          }
+        ]
+      },
+      "qualified": false,
+      "rank": 401,
+      "report_sha256": "0605b0b5809c9a415eb1d500ea38a0d08b358c34ccc8f885aa8f4211f6359f61",
+      "runtime_bytes": 14730,
+      "runtime_keccak256": "0x7d0c87901df63e0ee81cd5aaac3cf2b0d1a29ca31ada80792620e09598765232",
+      "saved_boundaries_verified": [
+        {
+          "file": "runtime-122288005.hex",
+          "file_sha256": "1efedfc224ab09c1066d2d265334e42f3f7e4e0ac36d1aae7e10c372e8f28e27",
+          "saved_boundary": {
+            "block": 122288005,
+            "hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+            "runtime_bytes": 14730,
+            "runtime_hash": "0x7d0c87901df63e0ee81cd5aaac3cf2b0d1a29ca31ada80792620e09598765232"
+          }
+        },
+        {
+          "file": "runtime-122289029.hex",
+          "file_sha256": "1efedfc224ab09c1066d2d265334e42f3f7e4e0ac36d1aae7e10c372e8f28e27",
+          "saved_boundary": {
+            "block": 122289029,
+            "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+            "runtime_bytes": 14730,
+            "runtime_hash": "0x7d0c87901df63e0ee81cd5aaac3cf2b0d1a29ca31ada80792620e09598765232"
+          }
+        }
+      ],
+      "saved_refusal_investigation": [
+        {
+          "captured_block": {
+            "hash": "0x29c58cdb5f929f86b10b57d609964447249d29f77499c1ca75bf18539dcfd970",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288154.pb",
+            "sha256": "4a637c8760aa18d789863cc49fd203ecd94c04a8a55a483a4b10a049c54a660f"
+          },
+          "changes": [
+            {
+              "call_index": 6,
+              "new": "0x00000000000000000000000000000000ffffffffffffffffc91de07bd170643a",
+              "old": "0x00000000000000000000000000000000ffffffffffffffffc91de427d22b9aa3",
+              "ordinal": 2175,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x6d16c2ebf9b87ce065bb8ea9d8acb339a5647227cc6e5a836e127fc86157bc2e",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "prior_failure": {
+            "block": 122288154,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": false
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed"
+            },
+            {
+              "hash": "0x44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed",
+              "preimage": "0x000000000000000000000000bc1b47c8905bdc908a051449d62f086f300460ff0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        },
+        {
+          "captured_block": {
+            "hash": "0xe52995648a17952bfcb6dc17d0308447f38f3118a98d53e822c756c6a57a6498",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288350.pb",
+            "sha256": "c6705f7facb89041ca71a169affc2284f436340a9fcbfb346de27fd9a3e026cb"
+          },
+          "changes": [
+            {
+              "call_index": 6,
+              "new": "0x00000000000000000000000000000000ffffffffffffffffc91ddf830d3b4e20",
+              "old": "0x00000000000000000000000000000000ffffffffffffffffc91de07bd170643a",
+              "ordinal": 9805,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x797a8f5307464505908c75da868117bfab9ca9607a961e6561b2d42387939066",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "prior_failure": {
+            "block": 122288350,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": false
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed"
+            },
+            {
+              "hash": "0x44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed",
+              "preimage": "0x000000000000000000000000bc1b47c8905bdc908a051449d62f086f300460ff0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        },
+        {
+          "captured_block": {
+            "hash": "0x9155bf65af85fb5f672046a5764936920bd138359b248ffe9f67424842bc8359",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288573.pb",
+            "sha256": "043d5ec08f120893627f02950fc3f21a9960473e1abec981c643a5de9bf180c6"
+          },
+          "changes": [
+            {
+              "call_index": 6,
+              "new": "0x00000000000000000000000000000000ffffffffffffffffc91dde852b454391",
+              "old": "0x00000000000000000000000000000000ffffffffffffffffc91ddf830d3b4e20",
+              "ordinal": 927,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x2769cc0372858effeb89ad3810cf3cc533066133133d49107ba195e45923b202",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "prior_failure": {
+            "block": 122288573,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": true
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed"
+            },
+            {
+              "hash": "0x44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed",
+              "preimage": "0x000000000000000000000000bc1b47c8905bdc908a051449d62f086f300460ff0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        },
+        {
+          "captured_block": {
+            "hash": "0xc9123943654980516090d88a7d65609848738b479bb0bdc5020e2abf5dd36f35",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288751.pb",
+            "sha256": "d64ad3018f8ee4d6c8720122b98b6d2fb0b5502189e62b50cc67ff37364594f5"
+          },
+          "changes": [
+            {
+              "call_index": 6,
+              "new": "0x00000000000000000000000000000000ffffffffffffffffc91ddc05c4e0b350",
+              "old": "0x00000000000000000000000000000000ffffffffffffffffc91dde852b454391",
+              "ordinal": 4784,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0xb1013b0737bef7d108e303006ff16e687cb315bbf4abeb9554aa6a60df02aaeb",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "prior_failure": {
+            "block": 122288751,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": true
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed"
+            },
+            {
+              "hash": "0x44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed",
+              "preimage": "0x000000000000000000000000bc1b47c8905bdc908a051449d62f086f300460ff0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        },
+        {
+          "captured_block": {
+            "hash": "0x803549244e9621d6e8c518cc2610de877fa54dec145188a64b62e68eb56f5669",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288948.pb",
+            "sha256": "9eaed6f579e412e44e4f94e65eb777f6ebde107c378e890010317fd31adf1236"
+          },
+          "changes": [
+            {
+              "call_index": 6,
+              "new": "0x00000000000000000000000000000000ffffffffffffffffc91dd8e9349c220a",
+              "old": "0x00000000000000000000000000000000ffffffffffffffffc91ddc05c4e0b350",
+              "ordinal": 1259,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x3d554bc9feb23180053bb3b9714a89ba53aa37c90b845178f753b9a0f013751c",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "prior_failure": {
+            "block": 122288948,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": true
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed"
+            },
+            {
+              "hash": "0x44ae4667e2f2438f10e2e6a319757ac2f1e3ea1952d246e9f5720c1c0df794ed",
+              "preimage": "0x000000000000000000000000bc1b47c8905bdc908a051449d62f086f300460ff0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        }
+      ],
+      "source_file": {
+        "file": "source-0.sol",
+        "sha256": "3a8564a5eb1cdefc6b72b2e82bfb639842b8b4653fa2dc0be2fba90056281074",
+        "source_name": "APWithPremium.sol"
+      },
+      "source_metadata_keccak256": "0x5c22cd6a6a4c3d2d14a81f11e76be0550275d43992b28868a3c270084785dad1",
+      "source_response_sha256": "4b751efc3542d9392a25f633b634e185a1fd73909c8809cbd16b1d6baa249a40",
+      "storage_layout": {
+        "storage": [
+          {
+            "astId": 1057,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          {
+            "astId": 1063,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+          },
+          {
+            "astId": 1065,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1067,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_name",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 1069,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_symbol",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 1821,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_nonces",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_address,t_struct(Counter)1000_storage)"
+          },
+          {
+            "astId": 1536,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_roles",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)1531_storage)"
+          },
+          {
+            "astId": 2136,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "mainPair",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_address"
+          },
+          {
+            "astId": 2138,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "buyTaxReceiver",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_address"
+          },
+          {
+            "astId": 2140,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "sellTaxReceiver",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_address"
+          },
+          {
+            "astId": 2146,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "swapBuyTaxRatio",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2151,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "swapSellTaxRatio",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "encoding": "inplace",
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "encoding": "inplace",
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "encoding": "inplace",
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32",
+            "value": "t_bool"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32",
+            "value": "t_mapping(t_address,t_uint256)"
+          },
+          "t_mapping(t_address,t_struct(Counter)1000_storage)": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => struct Counters.Counter)",
+            "numberOfBytes": "32",
+            "value": "t_struct(Counter)1000_storage"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32",
+            "value": "t_uint256"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)1531_storage)": {
+            "encoding": "mapping",
+            "key": "t_bytes32",
+            "label": "mapping(bytes32 => struct AccessControl.RoleData)",
+            "numberOfBytes": "32",
+            "value": "t_struct(RoleData)1531_storage"
+          },
+          "t_string_storage": {
+            "encoding": "bytes",
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Counter)1000_storage": {
+            "encoding": "inplace",
+            "label": "struct Counters.Counter",
+            "members": [
+              {
+                "astId": 999,
+                "contract": "APWithPremium.sol:APWithPremium",
+                "label": "_value",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_uint256"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)1531_storage": {
+            "encoding": "inplace",
+            "label": "struct AccessControl.RoleData",
+            "members": [
+              {
+                "astId": 1528,
+                "contract": "APWithPremium.sol:APWithPremium",
+                "label": "hasRole",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "astId": 1530,
+                "contract": "APWithPremium.sol:APWithPremium",
+                "label": "adminRole",
+                "offset": 0,
+                "slot": "1",
+                "type": "t_bytes32"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "encoding": "inplace",
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      },
+      "survey": {
+        "candidate_balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "rpc_mismatches": 0,
+        "rpc_value_checks": 20,
+        "status": "candidate_matches_values_not_qualified",
+        "strict_mapper_errors": [
+          {
+            "block": 122288154,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": false
+          },
+          {
+            "block": 122288350,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": false
+          },
+          {
+            "block": 122288573,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": true
+          },
+          {
+            "block": 122288751,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": true
+          },
+          {
+            "block": 122288948,
+            "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+            "holdout": true
+          }
+        ]
+      },
+      "symbol": "APD",
+      "transformations_independently_reapplied": [
+        {
+          "id": "831",
+          "length": 32,
+          "offset": 6425,
+          "reason": "immutable",
+          "value": "0xb5dc6b16c15cbd81cab8eb04a206ceec542214169d21dfb1186c3fb5254d444e"
+        },
+        {
+          "id": "833",
+          "length": 32,
+          "offset": 6386,
+          "reason": "immutable",
+          "value": "0x0000000000000000000000000000000000000000000000000000000000000038"
+        },
+        {
+          "id": "835",
+          "length": 32,
+          "offset": 6502,
+          "reason": "immutable",
+          "value": "0x0cc8ab7de9d981eca4ad7299b5443a93ffd01850d63cd6b84203336bdd4c657f"
+        },
+        {
+          "id": "837",
+          "length": 32,
+          "offset": 6535,
+          "reason": "immutable",
+          "value": "0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6"
+        },
+        {
+          "id": "839",
+          "length": 32,
+          "offset": 6469,
+          "reason": "immutable",
+          "value": "0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f"
+        },
+        {
+          "id": "1071",
+          "length": 32,
+          "offset": 2357,
+          "reason": "immutable",
+          "value": "0x0000000000000000000000000000000000000000000000000000000000000009"
+        },
+        {
+          "id": "1826",
+          "length": 32,
+          "offset": 3941,
+          "reason": "immutable",
+          "value": "0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9"
+        },
+        {
+          "id": "1",
+          "length": 53,
+          "offset": 14677,
+          "reason": "cborAuxdata",
+          "value": "0xa26469706673582212205a6dc8c0207036baa49093fe1e9110de8c68bb8f7afaab6bd7a557cc6155b0e364736f6c63430008180033"
+        }
+      ]
+    },
+    {
+      "compiler": {
+        "compiler": "solc",
+        "compilerSettings": {
+          "libraries": {},
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          }
+        },
+        "compilerVersion": "0.7.5+commit.eb77ed08",
+        "fullyQualifiedName": "ERC20TokenX.sol:ERC20TokenX",
+        "language": "Solidity",
+        "name": "ERC20TokenX"
+      },
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "followup_record": {
+        "balance_storage_candidates": [
+          {
+            "astId": 1541,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)"
+          }
+        ],
+        "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+        "full_match": "match",
+        "generated_getter_candidates": [],
+        "historical_runtime_bound": true,
+        "initial_status": "verified_source_bound_compiled_runtime_requires_transformation_review",
+        "qualified": false,
+        "rank": 418,
+        "recompiled_exact_without_transformations": false,
+        "runtime_hash": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884",
+        "runtime_match": "match",
+        "source_function_candidates": [
+          {
+            "body_present": false,
+            "candidate_only": true,
+            "line": 760,
+            "source": "ERC20TokenX.sol",
+            "text": "function balanceOf(address account) external view returns (uint256);"
+          },
+          {
+            "body_present": true,
+            "candidate_only": true,
+            "line": 960,
+            "source": "ERC20TokenX.sol",
+            "text": "function balanceOf(address account) public view virtual override returns (uint256) {\r\n        return _balances[account];\r\n    }"
+          },
+          {
+            "body_present": false,
+            "candidate_only": true,
+            "line": 1125,
+            "source": "ERC20TokenX.sol",
+            "text": "function balanceOf(address account) external view returns (uint256);"
+          }
+        ],
+        "source_response_sha256": "cd276e84539bc0158313ebafc5c54a3558d9306b1675fe8e3308026a4e71f336",
+        "status": "declared_transformations_reconstruct_historical_runtime",
+        "symbol": "DSG",
+        "transformations": [
+          {
+            "declared_location_checked": true,
+            "id": "1",
+            "length": 53,
+            "offset": 8028,
+            "reason": "cborAuxdata",
+            "value": "0xa26469706673582212208afd02f70b302603b9563d45a4a0dde2bf98f8545f757e1ba903ddca2ddc691d64736f6c63430007050033"
+          }
+        ]
+      },
+      "qualified": false,
+      "rank": 418,
+      "report_sha256": "c25c013e2020938d16d1d93aca29e84f2978da3010c42c4474f89e60c7d76e21",
+      "runtime_bytes": 8081,
+      "runtime_keccak256": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884",
+      "saved_boundaries_verified": [
+        {
+          "file": "runtime-122288005.hex",
+          "file_sha256": "b440351c90ad73d6c255718adc29ea356fcae6b6c16efa44b6306938d4637225",
+          "saved_boundary": {
+            "block": 122288005,
+            "hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+            "runtime_bytes": 8081,
+            "runtime_hash": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884"
+          }
+        },
+        {
+          "file": "runtime-122289029.hex",
+          "file_sha256": "b440351c90ad73d6c255718adc29ea356fcae6b6c16efa44b6306938d4637225",
+          "saved_boundary": {
+            "block": 122289029,
+            "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+            "runtime_bytes": 8081,
+            "runtime_hash": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884"
+          }
+        }
+      ],
+      "saved_refusal_investigation": [
+        {
+          "captured_block": {
+            "hash": "0x614777826355f3512e6d1e2b23d5e57934820ec95ae33e92be14c071dd1392cf",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288046.pb",
+            "sha256": "9d9ba13340e958cd40d4ee011971a21744eda6d9f5f443fd31582821e36583ea"
+          },
+          "changes": [
+            {
+              "call_index": 7,
+              "new": "0x0000000000000000000000000000000000000000000000000000000304193d68",
+              "old": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "ordinal": 715,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x4abf840fb45f44ea070faa9dc31074401ff6cdf4fec26255233fa0ff2cfb78a6",
+              "tx_status": "Succeeded"
+            },
+            {
+              "call_index": 9,
+              "new": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "old": "0x0000000000000000000000000000000000000000000000000000000304193d68",
+              "ordinal": 723,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x4abf840fb45f44ea070faa9dc31074401ff6cdf4fec26255233fa0ff2cfb78a6",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "prior_failure": {
+            "block": 122288046,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": false
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda"
+            },
+            {
+              "hash": "0x5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda",
+              "preimage": "0x000000000000000000000000b9b128af4a5c423c3d3a464c457e59b09a14904e0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        },
+        {
+          "captured_block": {
+            "hash": "0xfc06c3e20b6dd10935b0f5481155298fe6c51e492f0de6cfe608deff853ded0d",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288259.pb",
+            "sha256": "be9190e888f9644d8cc101ba38cc72bb3be911ae5b5825070c3ef328e0554d5e"
+          },
+          "changes": [
+            {
+              "call_index": 1,
+              "new": "0x00000000000000000000000000000000000000000000000000000042dc4cc02e",
+              "old": "0x0000000000000000000000000000000000000000000000000000000114b28209",
+              "ordinal": 1420,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0xf7ed99218b4e185ffe298411cf9085ae9912c9468f81b23c2b862ff8c691eef2",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x964daf8f80d6388ded41230606d26c2c1beddebc35f1f4e39806e442deac0be0",
+          "prior_failure": {
+            "block": 122288259,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x964daf8f80d6388ded41230606d26c2c1beddebc35f1f4e39806e442deac0be0; refusing incomplete events",
+            "holdout": false
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x964daf8f80d6388ded41230606d26c2c1beddebc35f1f4e39806e442deac0be0",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e2f862a8656a546a66a48fd06854107ecf406c0363107b5698d110fcdc0457bd0"
+            },
+            {
+              "hash": "0x2f862a8656a546a66a48fd06854107ecf406c0363107b5698d110fcdc0457bd0",
+              "preimage": "0x0000000000000000000000005b3fe6f106b3fe3edb66696102fbe572df7304df0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        },
+        {
+          "captured_block": {
+            "hash": "0xb6783b2485cd816852040e0910731a121dc2bbb3c57ecbfcdebed880321a37f8",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288268.pb",
+            "sha256": "d4fc09603a6155d580592b85a4cb3ec1f8d8b08eb4313e004d86124496dae3c4"
+          },
+          "changes": [
+            {
+              "call_index": 7,
+              "new": "0x0000000000000000000000000000000000000000000000000000000339b80ad2",
+              "old": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "ordinal": 6180,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x487e7bd9dc351bafffdeda58735e5821da9cd8b027f570d52298bf525432a309",
+              "tx_status": "Succeeded"
+            },
+            {
+              "call_index": 9,
+              "new": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "old": "0x0000000000000000000000000000000000000000000000000000000339b80ad2",
+              "ordinal": 6188,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x487e7bd9dc351bafffdeda58735e5821da9cd8b027f570d52298bf525432a309",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "prior_failure": {
+            "block": 122288268,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": false
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda"
+            },
+            {
+              "hash": "0x5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda",
+              "preimage": "0x000000000000000000000000b9b128af4a5c423c3d3a464c457e59b09a14904e0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        },
+        {
+          "captured_block": {
+            "hash": "0x97a534a7479ed13576d199477cabcd104b566ae8cd5df32ab8a09b7f796fcfc9",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288488.pb",
+            "sha256": "8f3fada27f260e9bb3846160ce15e8464e10a9fc0673b91ee9e1d1fddd4ab7fa"
+          },
+          "changes": [
+            {
+              "call_index": 7,
+              "new": "0x0000000000000000000000000000000000000000000000000000000318fee398",
+              "old": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "ordinal": 794,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x258c061738c7e955811aa5ffd33a46ad4277ecc0e357163280062da712161d7e",
+              "tx_status": "Succeeded"
+            },
+            {
+              "call_index": 9,
+              "new": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "old": "0x0000000000000000000000000000000000000000000000000000000318fee398",
+              "ordinal": 802,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x258c061738c7e955811aa5ffd33a46ad4277ecc0e357163280062da712161d7e",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "prior_failure": {
+            "block": 122288488,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": true
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda"
+            },
+            {
+              "hash": "0x5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda",
+              "preimage": "0x000000000000000000000000b9b128af4a5c423c3d3a464c457e59b09a14904e0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        },
+        {
+          "captured_block": {
+            "hash": "0xd793648c752b72a7c4aefd376bb5705f26da6eb6fb4160cca3b8af68f49daa5a",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288720.pb",
+            "sha256": "df65139c3bf8c06b1fb6f87d81942c16dfc98e55b8b1f1ec04ab8e8394e246a6"
+          },
+          "changes": [
+            {
+              "call_index": 7,
+              "new": "0x00000000000000000000000000000000000000000000000000000002f2495097",
+              "old": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "ordinal": 6382,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0xf9136f44495c829ba489f87a798bdcf69d0dbfee9380d7a651650b6b298a2c83",
+              "tx_status": "Succeeded"
+            },
+            {
+              "call_index": 9,
+              "new": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "old": "0x00000000000000000000000000000000000000000000000000000002f2495097",
+              "ordinal": 6390,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0xf9136f44495c829ba489f87a798bdcf69d0dbfee9380d7a651650b6b298a2c83",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "prior_failure": {
+            "block": 122288720,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": true
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda"
+            },
+            {
+              "hash": "0x5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda",
+              "preimage": "0x000000000000000000000000b9b128af4a5c423c3d3a464c457e59b09a14904e0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        },
+        {
+          "captured_block": {
+            "hash": "0xcfca8947a7447cf545071e40dd0a2364c1f1fe0a8f81ec52a49e676e8fa8ede8",
+            "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288932.pb",
+            "sha256": "d10b17ed0dd0febdb4c8db0c18a838f96edeb77f908f126060733fb767dc86dd"
+          },
+          "changes": [
+            {
+              "call_index": 7,
+              "new": "0x000000000000000000000000000000000000000000000000000000033c0dc95b",
+              "old": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "ordinal": 2418,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x20103431a87c7ac727d73a423da86f24ec73e421233a832daeb80894525d3cc2",
+              "tx_status": "Succeeded"
+            },
+            {
+              "call_index": 9,
+              "new": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+              "old": "0x000000000000000000000000000000000000000000000000000000033c0dc95b",
+              "ordinal": 2426,
+              "persists": true,
+              "state_reverted": false,
+              "transaction": "0x20103431a87c7ac727d73a423da86f24ec73e421233a832daeb80894525d3cc2",
+              "tx_status": "Succeeded"
+            }
+          ],
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "prior_failure": {
+            "block": 122288932,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": true
+          },
+          "terminal_word": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "verified_preimage_chain": [
+            {
+              "hash": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+              "preimage": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda"
+            },
+            {
+              "hash": "0x5835c213cdcd9021bb7b55f033c49d08a24b524abc60fa44f9712cb81f057dda",
+              "preimage": "0x000000000000000000000000b9b128af4a5c423c3d3a464c457e59b09a14904e0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          ]
+        }
+      ],
+      "source_file": {
+        "file": "source-0.sol",
+        "sha256": "8eb6fe9ff8ab4d163c95db324a27e5a2ab8604a96cc49e67db7101bc8ce71dcc",
+        "source_name": "ERC20TokenX.sol"
+      },
+      "source_metadata_keccak256": "0x3747125289b3f0c59f78d349e70a02183a0a10c738f5117ee5f9990320ff9536",
+      "source_response_sha256": "cd276e84539bc0158313ebafc5c54a3558d9306b1675fe8e3308026a4e71f336",
+      "storage_layout": {
+        "storage": [
+          {
+            "astId": 1541,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          {
+            "astId": 1547,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+          },
+          {
+            "astId": 1549,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1551,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_name",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 1553,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_symbol",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 1555,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_decimals",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 1557,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "totalBurnt",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2092,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_nonces",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_address,t_struct(Counter)2016_storage)"
+          },
+          {
+            "astId": 827,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_roles",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)823_storage)"
+          },
+          {
+            "astId": 2429,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "mainPair",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_address"
+          },
+          {
+            "astId": 2431,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "feeReceiver",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_address"
+          },
+          {
+            "astId": 2436,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "sellFeeRatio",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2438,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "buyFeeRatio",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_uint256"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "encoding": "inplace",
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "base": "t_bytes32",
+            "encoding": "dynamic_array",
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "encoding": "inplace",
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32",
+            "value": "t_mapping(t_address,t_uint256)"
+          },
+          "t_mapping(t_address,t_struct(Counter)2016_storage)": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => struct Counters.Counter)",
+            "numberOfBytes": "32",
+            "value": "t_struct(Counter)2016_storage"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "encoding": "mapping",
+            "key": "t_address",
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32",
+            "value": "t_uint256"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)823_storage)": {
+            "encoding": "mapping",
+            "key": "t_bytes32",
+            "label": "mapping(bytes32 => struct AccessControl.RoleData)",
+            "numberOfBytes": "32",
+            "value": "t_struct(RoleData)823_storage"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "encoding": "mapping",
+            "key": "t_bytes32",
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32",
+            "value": "t_uint256"
+          },
+          "t_string_storage": {
+            "encoding": "bytes",
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)592_storage": {
+            "encoding": "inplace",
+            "label": "struct EnumerableSet.AddressSet",
+            "members": [
+              {
+                "astId": 591,
+                "contract": "ERC20TokenX.sol:ERC20TokenX",
+                "label": "_inner",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_struct(Set)327_storage"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Counter)2016_storage": {
+            "encoding": "inplace",
+            "label": "struct Counters.Counter",
+            "members": [
+              {
+                "astId": 2015,
+                "contract": "ERC20TokenX.sol:ERC20TokenX",
+                "label": "_value",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_uint256"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)823_storage": {
+            "encoding": "inplace",
+            "label": "struct AccessControl.RoleData",
+            "members": [
+              {
+                "astId": 820,
+                "contract": "ERC20TokenX.sol:ERC20TokenX",
+                "label": "members",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_struct(AddressSet)592_storage"
+              },
+              {
+                "astId": 822,
+                "contract": "ERC20TokenX.sol:ERC20TokenX",
+                "label": "adminRole",
+                "offset": 0,
+                "slot": "2",
+                "type": "t_bytes32"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(Set)327_storage": {
+            "encoding": "inplace",
+            "label": "struct EnumerableSet.Set",
+            "members": [
+              {
+                "astId": 322,
+                "contract": "ERC20TokenX.sol:ERC20TokenX",
+                "label": "_values",
+                "offset": 0,
+                "slot": "0",
+                "type": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "astId": 326,
+                "contract": "ERC20TokenX.sol:ERC20TokenX",
+                "label": "_indexes",
+                "offset": 0,
+                "slot": "1",
+                "type": "t_mapping(t_bytes32,t_uint256)"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "encoding": "inplace",
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "encoding": "inplace",
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      },
+      "survey": {
+        "candidate_balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "rpc_mismatches": 0,
+        "rpc_value_checks": 30,
+        "status": "candidate_matches_values_not_qualified",
+        "strict_mapper_errors": [
+          {
+            "block": 122288046,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": false
+          },
+          {
+            "block": 122288259,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x964daf8f80d6388ded41230606d26c2c1beddebc35f1f4e39806e442deac0be0; refusing incomplete events",
+            "holdout": false
+          },
+          {
+            "block": 122288268,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": false
+          },
+          {
+            "block": 122288488,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": true
+          },
+          {
+            "block": 122288720,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": true
+          },
+          {
+            "block": 122288932,
+            "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+            "holdout": true
+          }
+        ]
+      },
+      "symbol": "DSG",
+      "transformations_independently_reapplied": [
+        {
+          "id": "1",
+          "length": 53,
+          "offset": 8028,
+          "reason": "cborAuxdata",
+          "value": "0xa26469706673582212208afd02f70b302603b9563d45a4a0dde2bf98f8545f757e1ba903ddca2ddc691d64736f6c63430007050033"
+        }
+      ]
+    }
+  ]
+}

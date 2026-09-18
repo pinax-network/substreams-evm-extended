@@ -1,0 +1,56 @@
+[
+  {
+    "balances": [
+      {
+        "address": "0x1b1fd1bed5f5b3b8e560f6bdd51db94c3e5198ef",
+        "rpc": "0"
+      },
+      {
+        "address": "0x5eebcfe5d6906885fd0e411f57b8cae8228f4f83",
+        "rpc": "0"
+      },
+      {
+        "address": "0xd0825ec4a439e8635686b7952a78d911e99e2d23",
+        "rpc": "379913056901865283507654"
+      },
+      {
+        "address": "0xdfacdc33e913710ead31ee40f9c5363ea673c421",
+        "rpc": "255012155965329132924795"
+      }
+    ],
+    "block": 122288793,
+    "contract": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+    "fixture": "3494dfe19b721dac6c5c8d7470c8f89548177777-122288793.pb",
+    "fixture_sha256": "f87a245d1e433dae028e077cc62cb0ca887e43fa3093f09e92bad7a0da5021e8",
+    "full_block_sha256": "dc7492e09ad0a85d0da0af5e0f72912ae8f9e4d91355aee3b6b21b4a541c9e92",
+    "hash": "0x168a3b04b4d2fe881763e67a51187ac233280ef81cf3fcd23225305181f07cd7",
+    "scope": "All token-writing transactions in the two original slot6 refusal blocks, independently audited against RPC"
+  },
+  {
+    "balances": [
+      {
+        "address": "0x1b1fd1bed5f5b3b8e560f6bdd51db94c3e5198ef",
+        "rpc": "0"
+      },
+      {
+        "address": "0x5eebcfe5d6906885fd0e411f57b8cae8228f4f83",
+        "rpc": "0"
+      },
+      {
+        "address": "0xd0825ec4a439e8635686b7952a78d911e99e2d23",
+        "rpc": "379913525690207130054148"
+      },
+      {
+        "address": "0xdfacdc33e913710ead31ee40f9c5363ea673c421",
+        "rpc": "255011687176987286378301"
+      }
+    ],
+    "block": 122288855,
+    "contract": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+    "fixture": "3494dfe19b721dac6c5c8d7470c8f89548177777-122288855.pb",
+    "fixture_sha256": "a3603d38c5d0dfc24ec8d693568b8341c2ed633c12d7ce6039aef64e78170fe8",
+    "full_block_sha256": "5a21193d912aba678f1b4ebe519b95911066f67c83e7c358018a13b68be03b30",
+    "hash": "0xb8b598ada20aa34e371d6da374ef18f99a642c855d981c55721bf968f7337b4e",
+    "scope": "All token-writing transactions in the two original slot6 refusal blocks, independently audited against RPC"
+  }
+]

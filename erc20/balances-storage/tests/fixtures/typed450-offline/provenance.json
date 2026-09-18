@@ -1,0 +1,12 @@
+{
+  "candidate_spec_sha256": "5a4679ca861d6960a9e72fb9f950b5831c53c3d6b1b380be30d6abf0711a1b35",
+  "cases_sha256": "b527f69a5e118b3b05fcc8c2bd7ec37fdaee65ca656d81dd7a7c8bbd415c108b",
+  "emitted": 5,
+  "fresh_eth_call": false,
+  "gaps": 6,
+  "historical_manifest_sha256": "7cc3ee500f21aba307d5c07276fd8c1b05f48b27b309005f2c2ec908c36e4d7a",
+  "qualified": false,
+  "scope": "Derived changed holder sets independently from successful non-reverted direct-root0 state changes; expected decimal values selected exclusively from the saved canonical RPC stream. Original allowance refusal reproduced for both blocks.",
+  "source_proof_sha256": "09cc69479ccf597ddf28c03a10789fd6ced09fe0457754505fad3db4180dcda1",
+  "status": "offline_two_full_block_regressions_only"
+}

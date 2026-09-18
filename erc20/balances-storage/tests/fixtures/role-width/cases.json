@@ -1,0 +1,40 @@
+[
+  {
+    "balances": [
+      {
+        "address": "0x0663c4b19d139b9582539f6053a9c69a2bcebc9f",
+        "rpc": "46897910245160165135350421"
+      },
+      {
+        "address": "0x1f40465dce9a07a5273b4b63f5f9c31ff2bcbd9a",
+        "rpc": "0"
+      }
+    ],
+    "block": 122288023,
+    "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+    "fixture": "22a2c54b15287472f4adbe7587226e3c998cdd96-122288023.pb",
+    "fixture_sha256": "3b5f9acbbc47e193d9c5fa082b74a19e264655c7ffb6967fface32ca6adfebdd",
+    "full_block_sha256": "d63c0317c2645e588ba50dd5ccb5af67cf69e70da9979cb86342ac966ef2df50",
+    "hash": "0x2f4db30d8deade58b00eb5ce585d20e29fd6014bc75358f8a62b2ee410f83e73",
+    "scope": "All token-writing transactions from the audited complete Extended block"
+  },
+  {
+    "balances": [
+      {
+        "address": "0x28f00b510bb49ad1545d6a194ce19924d7329f05",
+        "rpc": "2886890471"
+      },
+      {
+        "address": "0x6865704ff097b1105ed42b8517020e14fe9a2abd",
+        "rpc": "3036216839432482"
+      }
+    ],
+    "block": 122288030,
+    "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+    "fixture": "544028231562a43b106fbceca722b65cb5c861b0-122288030.pb",
+    "fixture_sha256": "4a303896fe630a0b8fe1edcb6bb76479fcafcacdf85d9c21884266ddce3c980b",
+    "full_block_sha256": "d461415eeee845c4d6a5a7321d5c4ac7e6a2d9c2c801da7cadf67fa7e7bf5489",
+    "hash": "0x44e274c0f3e1da376dc2079bf9d18c34944017b8551dd03f99437fdd5fb591be",
+    "scope": "All token-writing transactions from the audited complete Extended block"
+  }
+]

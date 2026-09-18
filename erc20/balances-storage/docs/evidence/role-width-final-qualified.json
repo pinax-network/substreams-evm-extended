@@ -1,0 +1,179 @@
+{
+  "baseline_layouts_sha256": "d587f8c9a866eeec99dee8478ecc3951007994c1478ab377f8891f4d0b47c4c5",
+  "canonical_boundaries": [
+    {
+      "block": 122288005,
+      "hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf"
+    },
+    {
+      "block": 122288006,
+      "hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67"
+    },
+    {
+      "block": 122289029,
+      "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b"
+    }
+  ],
+  "completed_gates": {
+    "actual_wasm_holders": {
+      "initialized_carry_forward_matches": 136,
+      "mismatches": 0,
+      "observations": 340,
+      "report_sha256": "992d13a7d218a3d4c0c1657564ddc666fe669d64839cb660d1f75aad4be4f192",
+      "snapshot_holders": 88,
+      "snapshot_sha256": "3f18cc1ec46ceb076ca3e41870a01cdb8ae3f8bfd7049fa4d673ddfbd1830765",
+      "snapshot_zeros": 25,
+      "status": "actual_wasm_retained_holder_parity"
+    },
+    "fixtures": {
+      "cases": 2,
+      "cases_sha256": "87415893de6abf8505ac8b87f22ecb9b558f2a0fd29d7e526194812a80abf0b2",
+      "controls_sha256": "1976ae466baac957b189f87c81ed0d7e8eaf40541d27f72635cef45bfd0b1317",
+      "rpc_balances": 4
+    },
+    "native": {
+      "blocks": 1024,
+      "emitted_rows": 204,
+      "errors": 0,
+      "report_sha256": "ac4d92d3d4aa7400acfffc57473d297aa3e7f5baf0d114962c79a5df1cf9686d",
+      "status": "bounded_parity"
+    },
+    "native_holders": {
+      "checkpoint_holders": 88,
+      "checkpoint_reads": 176,
+      "checkpoint_sha256": "d355b8c359f65b5214c7656c88c50e36ca62f5a1ff30598484a64adfd61846ca",
+      "report_sha256": "72042beb3e1b8dc1d4a7b0160699504d861ab1778b4abb001303de20464702ed",
+      "status": "bounded_parity"
+    },
+    "rpc": {
+      "checked_blocks": 1024,
+      "checks": 204,
+      "checks_sha256": "3c6789cb14ca26a7291495050c5a88afd20d725eeec59e86213088cba883a3d5",
+      "clocks_sha256": "b0faba5f6fb012ee3785c6e708dc9bf78430c61829f5a032dbf24b973a963785",
+      "events_sha256": "4eabb8dd2efd05ca689bf2b77c40c70d40304469633ebce3e968c31432a9f208",
+      "mismatches": 0,
+      "report_sha256": "d2f57590caf00e82049e75d15446ac0f18ed0254a5ffef8133592eaa885402d0",
+      "status": "rpc_parity",
+      "zeros": 26
+    }
+  },
+  "elapsed_seconds": 4.632056917,
+  "focused_tests": {
+    "failed": 0,
+    "log_sha256": "e06ef2981380ec77c494c6578da17b2ecfe1d0c82bc6939ebbdd3a2bcbbdef96",
+    "passed": 7,
+    "source_sha256": "835b7f0412941c2eb90359e7c0fa35e445c49cee69b9392c84fa5315e012e0c1"
+  },
+  "independent_controls": {
+    "configured_metadata": 76,
+    "invalid_calls": 6,
+    "metadata": 100,
+    "packed": 3,
+    "raw": 40,
+    "rejected_admin": 24,
+    "requests_sha256": "58dcc8dfc893be08d9c268a75e0e394ae985aeef9c4f474f1f26437669cbb0a1",
+    "role_fields": 36
+  },
+  "layouts_sha256": "d7227597b5a13d4cede6d67e954f073bab497ce340d9f5ddcd365342b2d72de0",
+  "new_profiles": 0,
+  "package_sha256": "f1d57bdff549947cd69e47d117ad8cd74933c1e065b687f958fea4de39004d81",
+  "preserved_failures": [
+    "out/role-width-qualify.log: compile-only missing whitespace in for-loop; no qualification output created; corrected execution retained separately"
+  ],
+  "reference_sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9",
+  "replacement_profiles": 2,
+  "scope": "Completed standalone requalification of existing pinned MUSD/OLY direct getters after removing outer RoleData width2 handling while retaining ordinary role membership support. Exact primary compiler/runtime equality, fresh canonical RPC controls, full packaged emitted parity and independently initialized observed-holder parity passed. No production changes, new profiles, global-holder enumeration or combined replacement claim.",
+  "source_native_qualification_sha256": "ac4d92d3d4aa7400acfffc57473d297aa3e7f5baf0d114962c79a5df1cf9686d",
+  "source_report_sha256": "0956319b4e5180c0d4ef2bd92aee3ae77228be2ecfc8205d50d674058cd70651",
+  "start": 122288006,
+  "status": "bounded_parity",
+  "stop_exclusive": 122289030,
+  "tokens": [
+    {
+      "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+      "layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "code_hash": "0x33c553fc95d9f7270270684c02a560f36b8cf27612e572f0dccfbc2677bc5967",
+        "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000000000000000000000000000000000000000002"
+        ],
+        "other_mapping_words": {},
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005"
+        ]
+      },
+      "old_layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "code_hash": "0x33c553fc95d9f7270270684c02a560f36b8cf27612e572f0dccfbc2677bc5967",
+        "contract": "0x22a2c54b15287472f4adbe7587226e3c998cdd96",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000000000000000000000000000000000000000002"
+        ],
+        "other_mapping_words": {
+          "0x0000000000000000000000000000000000000000000000000000000000000000": 2
+        },
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005"
+        ]
+      },
+      "rank": 386,
+      "source_sha256": "342c42a5054622611bae2945689738ce6cb3b67b8e31db1bec656754b02008bf",
+      "symbol": "MUSD"
+    },
+    {
+      "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+      "layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "code_hash": "0x472f1a3e9b5b4c5108afe14c75f897d92e70c3cba332b94877e8428e0f68cde7",
+        "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "0x0000000000000000000000000000000000000000000000000000000000000006"
+        ],
+        "other_mapping_words": {},
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "0x0000000000000000000000000000000000000000000000000000000000000008",
+          "0x0000000000000000000000000000000000000000000000000000000000000009",
+          "0x000000000000000000000000000000000000000000000000000000000000000a"
+        ]
+      },
+      "old_layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "code_hash": "0x472f1a3e9b5b4c5108afe14c75f897d92e70c3cba332b94877e8428e0f68cde7",
+        "contract": "0x544028231562a43b106fbceca722b65cb5c861b0",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000001"
+        ],
+        "other_mapping_words": {
+          "0x0000000000000000000000000000000000000000000000000000000000000006": 2
+        },
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "0x0000000000000000000000000000000000000000000000000000000000000008",
+          "0x0000000000000000000000000000000000000000000000000000000000000009",
+          "0x000000000000000000000000000000000000000000000000000000000000000a"
+        ]
+      },
+      "rank": 68,
+      "source_sha256": "bc135f8e71a6096626f2d396fb888244bb953738b5d5e35061eafff1c45fee8f",
+      "symbol": "OLY"
+    }
+  ],
+  "tool_language": "Rust"
+}

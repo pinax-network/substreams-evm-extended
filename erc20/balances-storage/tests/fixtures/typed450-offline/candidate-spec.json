@@ -1,0 +1,649 @@
+{
+  "candidate_window": {
+    "final": 122289029,
+    "parent": 122288005,
+    "start_inclusive": 122288006,
+    "stop_exclusive": 122289030
+  },
+  "candidates": [
+    {
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+      "deliberately_excluded": [
+        "deployment/constructor admission",
+        "string data heads/tails and constructor-only metadata",
+        "unknown roots, record widths, extra mapping depth and malformed addresses",
+        "unreviewed runtime changes"
+      ],
+      "field_classification": [
+        {
+          "classification": "balance",
+          "compiler_field": {
+            "astId": 1057,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          "proposed_policy": "direct_uint256_mapping",
+          "reason": "The sole concrete balanceOf body reads only _balances[account], without caller, time, external call, role, allowance, nonce, fee or supply dependency."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 1063,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+          },
+          "proposed_policy": "exact_mapping_path_address_address_uint256",
+          "reason": "Allowance getter and _approve read/write exactly two canonical address keys; approve, transferFrom, increase/decreaseAllowance, permit and burnFrom reach this field."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 1065,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          "proposed_policy": "allow_fixed_word_after_live_controls",
+          "reason": "Mint/burn update total supply; balanceOf does not read it."
+        },
+        {
+          "classification": "constructor_only_metadata",
+          "compiler_field": {
+            "astId": 1067,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_name",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_string_storage"
+          },
+          "proposed_policy": "exclude_from_postdeployment_candidate",
+          "reason": "Name/symbol strings are assigned only in ERC20 construction. No reachable setter; head and any long-string tails remain guarded."
+        },
+        {
+          "classification": "constructor_only_metadata",
+          "compiler_field": {
+            "astId": 1069,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_symbol",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_string_storage"
+          },
+          "proposed_policy": "exclude_from_postdeployment_candidate",
+          "reason": "Name/symbol strings are assigned only in ERC20 construction. No reachable setter; head and any long-string tails remain guarded."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 1821,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_nonces",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_address,t_struct(Counter)1000_storage)"
+          },
+          "proposed_policy": "exact_mapping_path_address_uint256",
+          "reason": "Permit nonce Counter contains only uint256 at record offset0; permit increments it. Balance getter is independent."
+        },
+        {
+          "classification": "role_metadata",
+          "compiler_field": {
+            "astId": 1536,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "_roles",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)1531_storage)"
+          },
+          "proposed_policy": "allow_only_exact_bytes32_address_membership_path",
+          "reason": "RoleData.hasRole mapping is offset0; arbitrary bytes32 roles and address members are reachable through grant/revoke/renounce. adminRole at +1 is constructor-only and excluded."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 2136,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "mainPair",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_address"
+          },
+          "proposed_policy": "allow_fixed_word_after_live_controls",
+          "reason": "mainPair is an address in low160 bits, with no packed neighbor. Admin-only setMainPair can replace it; it selects transfer fees but does not affect balanceOf."
+        },
+        {
+          "classification": "constructor_only_metadata",
+          "compiler_field": {
+            "astId": 2138,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "buyTaxReceiver",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_address"
+          },
+          "proposed_policy": "exclude_from_postdeployment_candidate",
+          "reason": "Fee receiver address is assigned in construction only; no setter. Getter-independent, but deliberately left guarded in the narrow candidate."
+        },
+        {
+          "classification": "constructor_only_metadata",
+          "compiler_field": {
+            "astId": 2140,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "sellTaxReceiver",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_address"
+          },
+          "proposed_policy": "exclude_from_postdeployment_candidate",
+          "reason": "Fee receiver address is assigned in construction only; no setter. Getter-independent, but deliberately left guarded in the narrow candidate."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 2146,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "swapBuyTaxRatio",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256"
+          },
+          "proposed_policy": "allow_fixed_word_after_live_controls",
+          "reason": "Admin-only fee-ratio setter changes this uint256. Transfer behavior changes but every resulting balance remains an explicit root0 write."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 2151,
+            "contract": "APWithPremium.sol:APWithPremium",
+            "label": "swapSellTaxRatio",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256"
+          },
+          "proposed_policy": "allow_fixed_word_after_live_controls",
+          "reason": "Admin-only fee-ratio setter changes this uint256. Transfer behavior changes but every resulting balance remains an explicit root0 write."
+        }
+      ],
+      "getter": {
+        "body": "return _balances[account];",
+        "concrete_bodies": 1,
+        "delegation_review": "No delegatecall or arbitrary storage-write path in the complete source.",
+        "implementation_line": 785,
+        "inheritance_review": "APWithPremium -> APERC20Token -> ERC20Permit/ERC20 and VaultOwned/AccessControl; no balanceOf override.",
+        "null_account_semantics": "Same direct mapping lookup, no special zero-address branch; independent null controls still pending."
+      },
+      "historical_refusal_causes": [
+        {
+          "block": 122288154,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank401 / saved_refusal_investigation block122288154",
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "owner": "0xbc1b47c8905bdc908a051449d62f086f300460ff",
+          "persisted_changes": 1,
+          "restored_to_initial_word": false,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "block": 122288350,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank401 / saved_refusal_investigation block122288350",
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "owner": "0xbc1b47c8905bdc908a051449d62f086f300460ff",
+          "persisted_changes": 1,
+          "restored_to_initial_word": false,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "block": 122288573,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank401 / saved_refusal_investigation block122288573",
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "owner": "0xbc1b47c8905bdc908a051449d62f086f300460ff",
+          "persisted_changes": 1,
+          "restored_to_initial_word": false,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "block": 122288751,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank401 / saved_refusal_investigation block122288751",
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "owner": "0xbc1b47c8905bdc908a051449d62f086f300460ff",
+          "persisted_changes": 1,
+          "restored_to_initial_word": false,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "block": 122288948,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank401 / saved_refusal_investigation block122288948",
+          "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+          "owner": "0xbc1b47c8905bdc908a051449d62f086f300460ff",
+          "persisted_changes": 1,
+          "restored_to_initial_word": false,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        }
+      ],
+      "historical_sampling_only": {
+        "does_not_qualify_layout": true,
+        "rpc_mismatches": 0,
+        "rpc_value_checks": 20
+      },
+      "proposed_layout_fragment_NOT_QUALIFIED": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "code_hash": "0x7d0c87901df63e0ee81cd5aaac3cf2b0d1a29ca31ada80792620e09598765232",
+        "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+        "other_mapping_paths": [
+          {
+            "key_types": [
+              "address",
+              "address"
+            ],
+            "offset": 0,
+            "root": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "words": 1
+          },
+          {
+            "key_types": [
+              "address"
+            ],
+            "offset": 0,
+            "root": "0x0000000000000000000000000000000000000000000000000000000000000005",
+            "words": 1
+          },
+          {
+            "key_types": [
+              "bytes32",
+              "address"
+            ],
+            "offset": 0,
+            "root": "0x0000000000000000000000000000000000000000000000000000000000000006",
+            "words": 1
+          }
+        ],
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "0x000000000000000000000000000000000000000000000000000000000000000a",
+          "0x000000000000000000000000000000000000000000000000000000000000000b"
+        ]
+      },
+      "qualified": false,
+      "rank": 401,
+      "remaining_live_gates": "All independent raw/metadata controls, full strict native replay, immutable canonical packaged RPC comparison and initialized-holder actual-WASM retention/final checks remain pending for these proposed fragments.",
+      "role_shape": {
+        "admin": "R+1, bytes32",
+        "admin_setter": {
+          "calls": [
+            {
+              "context": "VaultOwned constructor",
+              "line": 1238,
+              "role": "keccak256(MINT)",
+              "value": "DEFAULT_ADMIN_ROLE (zero)"
+            },
+            {
+              "context": "APWithPremium constructor",
+              "line": 1323,
+              "role": "keccak256(INTERN_SYSTEM)",
+              "value": "DEFAULT_ADMIN_ROLE (zero)"
+            }
+          ],
+          "definition_line": 1095,
+          "policy": "Do not allow +1 admin writes. Constructor replay/deployment is explicitly outside this candidate and would require separate controls.",
+          "reachable_after_deployment": false
+        },
+        "membership": "keccak256(padded_address || R), bool byte0; no additional declared record fields",
+        "reachable_membership_writers": [
+          "grantRole",
+          "revokeRole",
+          "renounceRole"
+        ],
+        "record": "R=keccak256(role_bytes32 || word(6))",
+        "root": "0x0000000000000000000000000000000000000000000000000000000000000006",
+        "scope": "key shape is exact bytes32 then canonical address; terminal bool value validation is not supplied by the typed mapping matcher and is not claimed"
+      },
+      "runtime_keccak256": "0x7d0c87901df63e0ee81cd5aaac3cf2b0d1a29ca31ada80792620e09598765232",
+      "source_file": "inputs/rank401/source-0.sol",
+      "source_response_sha256": "4b751efc3542d9392a25f633b634e185a1fd73909c8809cbd16b1d6baa249a40",
+      "source_sha256": "3a8564a5eb1cdefc6b72b2e82bfb639842b8b4653fa2dc0be2fba90056281074",
+      "status": "source_supported_postdeployment_candidate_pending_all_gates",
+      "symbol_from_saved_ranking": "APD"
+    },
+    {
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "deliberately_excluded": [
+        "deployment/constructor admission",
+        "string data heads/tails and constructor-only metadata",
+        "unknown roots, record widths, extra mapping depth and malformed addresses",
+        "unreviewed runtime changes"
+      ],
+      "field_classification": [
+        {
+          "classification": "balance",
+          "compiler_field": {
+            "astId": 1541,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          "proposed_policy": "direct_uint256_mapping",
+          "reason": "The sole concrete balanceOf body reads only _balances[account], without caller, time, external call, role, allowance, nonce, fee or supply dependency."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 1547,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+          },
+          "proposed_policy": "exact_mapping_path_address_address_uint256",
+          "reason": "Allowance getter and _approve read/write exactly two canonical address keys; approve, transferFrom, increase/decreaseAllowance, permit and burnFrom reach this field."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 1549,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          "proposed_policy": "allow_fixed_word_after_live_controls",
+          "reason": "Mint/burn update total supply; balanceOf does not read it."
+        },
+        {
+          "classification": "constructor_only_metadata",
+          "compiler_field": {
+            "astId": 1551,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_name",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_string_storage"
+          },
+          "proposed_policy": "exclude_from_postdeployment_candidate",
+          "reason": "Name/symbol strings are assigned only in ERC20 construction. No reachable setter; head and any long-string tails remain guarded."
+        },
+        {
+          "classification": "constructor_only_metadata",
+          "compiler_field": {
+            "astId": 1553,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_symbol",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_string_storage"
+          },
+          "proposed_policy": "exclude_from_postdeployment_candidate",
+          "reason": "Name/symbol strings are assigned only in ERC20 construction. No reachable setter; head and any long-string tails remain guarded."
+        },
+        {
+          "classification": "constructor_only_packed_metadata",
+          "compiler_field": {
+            "astId": 1555,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_decimals",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint8"
+          },
+          "proposed_policy": "exclude_from_postdeployment_candidate",
+          "reason": "Decimals is uint8 at byte0, remaining31 bytes padding, no packed neighbor and no reachable setter. Never treat it as a boolean."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 1557,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "totalBurnt",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          },
+          "proposed_policy": "allow_fixed_word_after_live_controls",
+          "reason": "totalBurnt is uint256 incremented by _burn; balanceOf reads no burn counter."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 2092,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_nonces",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_address,t_struct(Counter)2016_storage)"
+          },
+          "proposed_policy": "exact_mapping_path_address_uint256",
+          "reason": "Permit nonce Counter contains only uint256 at record offset0; permit increments it. Balance getter is independent."
+        },
+        {
+          "classification": "role_metadata",
+          "compiler_field": {
+            "astId": 827,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "_roles",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)823_storage)"
+          },
+          "proposed_policy": "blocked_array_and_intermediate_mapping_shape_remain_guarded",
+          "reason": "RoleData.members is an AddressSet with dynamic array at +0 and index mapping at +1; adminRole is +2. Exact terminal offsets do not describe the intermediate +1 before the second hash or per-role dynamic array transitions."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 2429,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "mainPair",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_address"
+          },
+          "proposed_policy": "allow_fixed_word_after_live_controls",
+          "reason": "mainPair is an address in low160 bits, with no packed neighbor. Admin-only setMainPair can replace it; it selects transfer fees but does not affect balanceOf."
+        },
+        {
+          "classification": "constructor_only_metadata",
+          "compiler_field": {
+            "astId": 2431,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "feeReceiver",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_address"
+          },
+          "proposed_policy": "exclude_from_postdeployment_candidate",
+          "reason": "Fee receiver address is assigned in construction only; no setter. Getter-independent, but deliberately left guarded in the narrow candidate."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 2436,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "sellFeeRatio",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256"
+          },
+          "proposed_policy": "allow_fixed_word_after_live_controls",
+          "reason": "Admin-only fee-ratio setter changes this uint256. Transfer behavior changes but every resulting balance remains an explicit root0 write."
+        },
+        {
+          "classification": "metadata",
+          "compiler_field": {
+            "astId": 2438,
+            "contract": "ERC20TokenX.sol:ERC20TokenX",
+            "label": "buyFeeRatio",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_uint256"
+          },
+          "proposed_policy": "allow_fixed_word_after_live_controls",
+          "reason": "Admin-only fee-ratio setter changes this uint256. Transfer behavior changes but every resulting balance remains an explicit root0 write."
+        }
+      ],
+      "getter": {
+        "body": "return _balances[account];",
+        "concrete_bodies": 1,
+        "delegation_review": "Address library defines delegatecall/staticcall helpers but has no invocation from the concrete token inheritance. Sell transfer calls feeReceiver.triggerSwap with an ordinary external call; balanceOf has no external call. A callback may cause additional root0 writes which must all be captured, never reconstructed from logs alone.",
+        "implementation_line": 960,
+        "inheritance_review": "ERC20TokenX -> ERC20Token -> ERC20Permit/ERC20 and AccessControl; no balanceOf override.",
+        "null_account_semantics": "Same direct mapping lookup, no special zero-address branch; independent null controls still pending."
+      },
+      "historical_refusal_causes": [
+        {
+          "block": 122288046,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank418 / saved_refusal_investigation block122288046",
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "owner": "0xb9b128af4a5c423c3d3a464c457e59b09a14904e",
+          "persisted_changes": 2,
+          "restored_to_initial_word": true,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "block": 122288259,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank418 / saved_refusal_investigation block122288259",
+          "key": "0x964daf8f80d6388ded41230606d26c2c1beddebc35f1f4e39806e442deac0be0",
+          "owner": "0x5b3fe6f106b3fe3edb66696102fbe572df7304df",
+          "persisted_changes": 1,
+          "restored_to_initial_word": false,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "block": 122288268,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank418 / saved_refusal_investigation block122288268",
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "owner": "0xb9b128af4a5c423c3d3a464c457e59b09a14904e",
+          "persisted_changes": 2,
+          "restored_to_initial_word": true,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "block": 122288488,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank418 / saved_refusal_investigation block122288488",
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "owner": "0xb9b128af4a5c423c3d3a464c457e59b09a14904e",
+          "persisted_changes": 2,
+          "restored_to_initial_word": true,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "block": 122288720,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank418 / saved_refusal_investigation block122288720",
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "owner": "0xb9b128af4a5c423c3d3a464c457e59b09a14904e",
+          "persisted_changes": 2,
+          "restored_to_initial_word": true,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "block": 122288932,
+          "cause": "unconfigured_nested_allowance_root1",
+          "evidence_pointer": "proof.json / tokens rank418 / saved_refusal_investigation block122288932",
+          "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+          "owner": "0xb9b128af4a5c423c3d3a464c457e59b09a14904e",
+          "persisted_changes": 2,
+          "restored_to_initial_word": true,
+          "spender": "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+        }
+      ],
+      "historical_sampling_only": {
+        "does_not_qualify_layout": true,
+        "rpc_mismatches": 0,
+        "rpc_value_checks": 30
+      },
+      "proposed_layout_fragment_NOT_QUALIFIED": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "code_hash": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884",
+        "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+        "other_mapping_paths": [
+          {
+            "key_types": [
+              "address",
+              "address"
+            ],
+            "offset": 0,
+            "root": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "words": 1
+          },
+          {
+            "key_types": [
+              "address"
+            ],
+            "offset": 0,
+            "root": "0x0000000000000000000000000000000000000000000000000000000000000007",
+            "words": 1
+          }
+        ],
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "0x0000000000000000000000000000000000000000000000000000000000000006",
+          "0x0000000000000000000000000000000000000000000000000000000000000009",
+          "0x000000000000000000000000000000000000000000000000000000000000000b",
+          "0x000000000000000000000000000000000000000000000000000000000000000c"
+        ]
+      },
+      "qualified": false,
+      "rank": 418,
+      "remaining_live_gates": "All independent raw/metadata controls, full strict native replay, immutable canonical packaged RPC comparison and initialized-holder actual-WASM retention/final checks remain pending for these proposed fragments.",
+      "role_shape": {
+        "admin": "R+2, bytes32",
+        "admin_setter": {
+          "calls": [],
+          "definition_line": 727,
+          "policy": "Keep +2 guarded; source has no _setRoleAdmin invocation.",
+          "reachable_after_deployment": false
+        },
+        "array_element": "keccak256(word(R))+i, bytes32 containing zero-extended address",
+        "array_length": "R+0, uint256",
+        "index_mapping": "keccak256(padded_address || word(R+1)), uint256 1-based index (zero means absent)",
+        "reachable_membership_writers": [
+          "grantRole",
+          "revokeRole",
+          "renounceRole",
+          "constructor _setupRole"
+        ],
+        "record": "R=keccak256(role_bytes32 || word(8))",
+        "root": "0x0000000000000000000000000000000000000000000000000000000000000008",
+        "scope": "All root8 role writes remain unconfigured. Future broader support requires a separate reviewed set/array rule, not a terminal offset or broad recursive ignore.",
+        "set_operations": "Add pushes address and sets index=length; remove swaps last into deleted index, fixes moved index, pops tail and deletes removed index. Zero address is a legal AddressSet member and zero-valued array elements must not automatically mean absence.",
+        "unsupported_by_current_candidate": [
+          "per-role dynamic array length and witnessed element changes",
+          "intermediate +1 before hashing member index",
+          "correlated index/array updates for insert and swap-and-pop"
+        ]
+      },
+      "runtime_keccak256": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884",
+      "source_file": "inputs/rank418/source-0.sol",
+      "source_response_sha256": "cd276e84539bc0158313ebafc5c54a3558d9306b1675fe8e3308026a4e71f336",
+      "source_sha256": "8eb6fe9ff8ab4d163c95db324a27e5a2ab8604a96cc49e67db7101bc8ce71dcc",
+      "status": "partial_postdeployment_candidate_role_writes_explicitly_unsupported_pending_all_gates",
+      "symbol_from_saved_ranking": "DSG"
+    }
+  ],
+  "network_calls": 0,
+  "proof_sha256": "09cc69479ccf597ddf28c03a10789fd6ced09fe0457754505fad3db4180dcda1",
+  "qualified": false,
+  "runtime_evidence_limit": "Saved boundary runtime bytes were independently compared to saved compiler output after declared immutable/CBOR replacements. No compiler rerun, new RPC observation or claim of code stability throughout every block.",
+  "schema": "review_only_not_a_production_layout_list",
+  "status": "unqualified_offline_candidates"
+}

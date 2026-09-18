@@ -1,0 +1,52 @@
+{
+  "columns": [
+    {
+      "name": "_block_number_",
+      "type": "UInt64"
+    },
+    {
+      "name": "_block_timestamp_",
+      "type": "DateTime"
+    },
+    {
+      "name": "_version_",
+      "type": "Int64"
+    },
+    {
+      "name": "_deleted_",
+      "type": "Bool"
+    },
+    {
+      "name": "_row_id_",
+      "type": "UInt32"
+    },
+    {
+      "name": "contract",
+      "type": "String"
+    },
+    {
+      "name": "address",
+      "type": "String"
+    },
+    {
+      "name": "amount",
+      "type": "String"
+    }
+  ],
+  "tables": [
+    {
+      "create_table_query": "CREATE TABLE erc20_storage_smoke_1789694197582097000.Balance (`_block_number_` UInt64, `_block_timestamp_` DateTime, `_version_` Int64, `_deleted_` Bool, `_row_id_` UInt32, `contract` String, `address` String, `amount` String) ENGINE = ReplacingMergeTree(_version_, _deleted_) PARTITION BY toYYYYMM(_block_timestamp_) PRIMARY KEY _block_number_ ORDER BY (_block_number_, _row_id_) SETTINGS allow_experimental_replacing_merge_with_cleanup = 1, index_granularity = 8192",
+      "engine": "ReplacingMergeTree",
+      "name": "Balance",
+      "partition_key": "toYYYYMM(_block_timestamp_)",
+      "sorting_key": "_block_number_, _row_id_"
+    },
+    {
+      "create_table_query": "CREATE TABLE erc20_storage_smoke_1789694197582097000._blocks_ (`number` UInt64, `hash` String, `timestamp` DateTime, `version` Int64, `deleted` Bool) ENGINE = ReplacingMergeTree(version, deleted) PARTITION BY toYYYYMM(timestamp) PRIMARY KEY number ORDER BY number SETTINGS allow_experimental_replacing_merge_with_cleanup = 1, index_granularity = 8192",
+      "engine": "ReplacingMergeTree",
+      "name": "_blocks_",
+      "partition_key": "toYYYYMM(timestamp)",
+      "sorting_key": "number"
+    }
+  ]
+}

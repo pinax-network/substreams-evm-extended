@@ -1,0 +1,845 @@
+{
+  "baseline_layouts_sha256": "d587f8c9a866eeec99dee8478ecc3951007994c1478ab377f8891f4d0b47c4c5",
+  "controls_fixture": "tests/fixtures/trade450/controls.json",
+  "elapsed_seconds": 64.69561075,
+  "layouts_sha256": "eac75042ed0fb485df5fce1d0455dd7ecf1e90eb66b2a0be13fed878116771d8",
+  "native_scan": {
+    "blocks": 1024,
+    "counts": {
+      "0x20d6015660b3fe52e6690a889b5c51f69902ce0e": 15,
+      "0x3494dfe19b721dac6c5c8d7470c8f89548177777": 18,
+      "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf": 18
+    },
+    "errors": []
+  },
+  "reference_sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9",
+  "rpc_requests_sha256": "a0cb56ec4d36e228cd32cec8876eca9b57edb63e707dd8e1a77b8e821253ccc6",
+  "scope": "Three source/runtime-bound direct getter profiles on thefixed1024block BSC window. Fresh raw, ordinary/packed/array metadata and getter controls; full native replay. PackagedRPC and initializedholder gates remain required. No production/global/futurepath claim.",
+  "source_report_sha256": "206b4acaf010da41a52aaad79112df6555eed88d20bfb54f11b0c7ab582ab987",
+  "source_review_artifact": "trade450-source-review.json",
+  "status": "bounded_parity",
+  "tokens": [
+    {
+      "block": 122288056,
+      "contract": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e",
+      "hash": "0xef9ab3bbdca8ea17921ec0194ebe03597e516bd09f1de67936dd6f13f520548c",
+      "holder": "0x0b71d567ca211829a3bea1d96556cf7ec9f7c593",
+      "immutable_getters": [
+        {
+          "call": {
+            "data": "0x1694505e",
+            "to": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e"
+          },
+          "id": "1214",
+          "response": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e",
+          "signature": "uniswapV2Router()",
+          "value": "0x00000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e"
+        },
+        {
+          "call": {
+            "data": "0x49bd5a5e",
+            "to": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e"
+          },
+          "id": "1216",
+          "response": "0x000000000000000000000000d6b652aecb704b0aebec6317315afb90ba641d57",
+          "signature": "uniswapV2Pair()",
+          "value": "0x000000000000000000000000d6b652aecb704b0aebec6317315afb90ba641d57"
+        }
+      ],
+      "inspection": {
+        "address": "0x0b71d567ca211829a3bea1d96556cf7ec9f7c593",
+        "balance_of": "450759199336242490286",
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "block": 122288056,
+        "contract": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e",
+        "elapsed_seconds": 0.328325458,
+        "execution_code": [
+          {
+            "address": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e",
+            "checked_instructions": 1,
+            "runtime_hash": "0x744a74f840161597915e0e5bb3344a992b436b385c530cd7fd913ca790159371"
+          }
+        ],
+        "execution_contexts": {
+          "calls": [],
+          "scope": "Observed execution path only; unexecuted branches and uninitialized holder state are not qualified",
+          "storage_reads": [
+            {
+              "code_address": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e",
+              "depth": 1,
+              "key": "0x7f1d182fafe53c0d2626e4fd171c2253b9cf15a7272ba430f4eceefc446c170a",
+              "pc": 4609,
+              "storage_address": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e",
+              "value": "0x0000000000000000000000000000000000000000000000186f8a5f925c3a2bae"
+            }
+          ]
+        },
+        "hash": "0xef9ab3bbdca8ea17921ec0194ebe03597e516bd09f1de67936dd6f13f520548c",
+        "read_only_state_overrides": [
+          {
+            "balance_of": "0",
+            "overridden_mapping_word": "0"
+          },
+          {
+            "balance_of": "1",
+            "overridden_mapping_word": "1"
+          },
+          {
+            "balance_of": "123",
+            "overridden_mapping_word": "123"
+          },
+          {
+            "balance_of": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "overridden_mapping_word": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "runtime_keccak256": "0x744a74f840161597915e0e5bb3344a992b436b385c530cd7fd913ca790159371",
+        "status": "inspected",
+        "storage_key": "0x7f1d182fafe53c0d2626e4fd171c2253b9cf15a7272ba430f4eceefc446c170a",
+        "storage_reads": [
+          {
+            "depth": 1,
+            "key": "0x7f1d182fafe53c0d2626e4fd171c2253b9cf15a7272ba430f4eceefc446c170a",
+            "pc": 4609,
+            "value": "0x0000000000000000000000000000000000000000000000186f8a5f925c3a2bae"
+          }
+        ],
+        "storage_word": "450759199336242490286",
+        "tool_language": "Rust",
+        "trace_config": {
+          "disableStack": false,
+          "disableStorage": true,
+          "enableMemory": false,
+          "enableReturnData": false,
+          "timeout": "10s"
+        },
+        "trace_sha256": "7da1f189d2f5c8860f89293e20474cfff2bbb570eca8c744d218599df54dfd39"
+      },
+      "invalid_call_controls": [
+        {
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231",
+                "to": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e"
+              },
+              {
+                "blockHash": "0xef9ab3bbdca8ea17921ec0194ebe03597e516bd09f1de67936dd6f13f520548c",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                "to": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e"
+              },
+              {
+                "blockHash": "0xef9ab3bbdca8ea17921ec0194ebe03597e516bd09f1de67936dd6f13f520548c",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a082310000000000000000000000000b71d567ca211829a3bea1d96556cf7ec9f7c593",
+                "to": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e",
+                "value": "0x1"
+              },
+              {
+                "blockHash": "0xef9ab3bbdca8ea17921ec0194ebe03597e516bd09f1de67936dd6f13f520548c",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        }
+      ],
+      "layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "code_hash": "0x744a74f840161597915e0e5bb3344a992b436b385c530cd7fd913ca790159371",
+        "contract": "0x20d6015660b3fe52e6690a889b5c51f69902ce0e",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "0x0000000000000000000000000000000000000000000000000000000000000006",
+          "0x000000000000000000000000000000000000000000000000000000000000000e",
+          "0x0000000000000000000000000000000000000000000000000000000000000015",
+          "0x0000000000000000000000000000000000000000000000000000000000000016",
+          "0x0000000000000000000000000000000000000000000000000000000000000017"
+        ],
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "0x0000000000000000000000000000000000000000000000000000000000000008",
+          "0x0000000000000000000000000000000000000000000000000000000000000009",
+          "0x000000000000000000000000000000000000000000000000000000000000000a",
+          "0x000000000000000000000000000000000000000000000000000000000000000b",
+          "0x000000000000000000000000000000000000000000000000000000000000000c",
+          "0x000000000000000000000000000000000000000000000000000000000000000d",
+          "0x000000000000000000000000000000000000000000000000000000000000000f",
+          "0x0000000000000000000000000000000000000000000000000000000000000010",
+          "0x0000000000000000000000000000000000000000000000000000000000000011",
+          "0x0000000000000000000000000000000000000000000000000000000000000012",
+          "0x0000000000000000000000000000000000000000000000000000000000000013",
+          "0x0000000000000000000000000000000000000000000000000000000000000014"
+        ]
+      },
+      "rank": 404,
+      "review_basis": "Complete inherited getter returns raw _balances[address] atroot0. Transfer fees, burn paths, permission checks, reentrancy guards and price/history bookkeeping alter writes, never getter calculation. Only declared scalar words, fixed array words and ordinary address mappings admitted; no dynamic strings, derived balances, nested record widths, proxies or external getter dependencies. Declared immutable/CBOR replacements reconstruct full historical compiler runtime; no local compiler rerun claim.",
+      "runtime_bindings": [
+        {
+          "block": 122288005,
+          "code_hash": "0x744a74f840161597915e0e5bb3344a992b436b385c530cd7fd913ca790159371",
+          "hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf"
+        },
+        {
+          "block": 122288056,
+          "code_hash": "0x744a74f840161597915e0e5bb3344a992b436b385c530cd7fd913ca790159371",
+          "hash": "0xef9ab3bbdca8ea17921ec0194ebe03597e516bd09f1de67936dd6f13f520548c"
+        },
+        {
+          "block": 122289029,
+          "code_hash": "0x744a74f840161597915e0e5bb3344a992b436b385c530cd7fd913ca790159371",
+          "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b"
+        }
+      ],
+      "runtime_transformations": [
+        {
+          "id": "1214",
+          "offset": 2993,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1214",
+          "offset": 7604,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1214",
+          "offset": 10197,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1214",
+          "offset": 13756,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1214",
+          "offset": 13981,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1214",
+          "offset": 14020,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1216",
+          "offset": 4126,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1216",
+          "offset": 6012,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1216",
+          "offset": 7491,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1216",
+          "offset": 10285,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1",
+          "offset": 19812,
+          "reason": "cborAuxdata",
+          "type": "replace"
+        }
+      ],
+      "source_hashes": [
+        {
+          "keccak256": "0xc4ac8a49b5a0e79ecc30280d94f60b36c672ec55103a53b75d5267a43db440a2",
+          "name": "GIGGLE.sol"
+        }
+      ],
+      "source_response_sha256": "f39bd8c2b8cda09cf2136e5288face95ab8a3c43f97d7f7ce113bb27fe596355",
+      "symbol": "GIGGLE"
+    },
+    {
+      "block": 122288084,
+      "contract": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+      "hash": "0x50420e3fb1e6523e8b8511b836797f301684dd20d76958a73705978fdfbc8251",
+      "holder": "0xd40c6f984a79aed0d8cbd7aaa0f554227ae1d0b5",
+      "immutable_getters": [],
+      "inspection": {
+        "address": "0xd40c6f984a79aed0d8cbd7aaa0f554227ae1d0b5",
+        "balance_of": "9133071864677370034",
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "block": 122288084,
+        "contract": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+        "elapsed_seconds": 0.342999084,
+        "execution_code": [
+          {
+            "address": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+            "checked_instructions": 1,
+            "runtime_hash": "0x8ca3418b83f97f6e172dac6cfbc849031c62cff2b67b92d0c28bbe3f4342dd0f"
+          }
+        ],
+        "execution_contexts": {
+          "calls": [],
+          "scope": "Observed execution path only; unexecuted branches and uninitialized holder state are not qualified",
+          "storage_reads": [
+            {
+              "code_address": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+              "depth": 1,
+              "key": "0x5775bbfc921781d91112d59d1a2957631cfd04d32468e1825c1aa40e21854c4b",
+              "pc": 7309,
+              "storage_address": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+              "value": "0x0000000000000000000000000000000000000000000000007ebf3078ca3588b2"
+            }
+          ]
+        },
+        "hash": "0x50420e3fb1e6523e8b8511b836797f301684dd20d76958a73705978fdfbc8251",
+        "read_only_state_overrides": [
+          {
+            "balance_of": "0",
+            "overridden_mapping_word": "0"
+          },
+          {
+            "balance_of": "1",
+            "overridden_mapping_word": "1"
+          },
+          {
+            "balance_of": "123",
+            "overridden_mapping_word": "123"
+          },
+          {
+            "balance_of": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "overridden_mapping_word": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "runtime_keccak256": "0x8ca3418b83f97f6e172dac6cfbc849031c62cff2b67b92d0c28bbe3f4342dd0f",
+        "status": "inspected",
+        "storage_key": "0x5775bbfc921781d91112d59d1a2957631cfd04d32468e1825c1aa40e21854c4b",
+        "storage_reads": [
+          {
+            "depth": 1,
+            "key": "0x5775bbfc921781d91112d59d1a2957631cfd04d32468e1825c1aa40e21854c4b",
+            "pc": 7309,
+            "value": "0x0000000000000000000000000000000000000000000000007ebf3078ca3588b2"
+          }
+        ],
+        "storage_word": "9133071864677370034",
+        "tool_language": "Rust",
+        "trace_config": {
+          "disableStack": false,
+          "disableStorage": true,
+          "enableMemory": false,
+          "enableReturnData": false,
+          "timeout": "10s"
+        },
+        "trace_sha256": "f4ea0e62ad83ebba4ddb8694f6b4e354614cdbbc9bbcad93470061139a7505db"
+      },
+      "invalid_call_controls": [
+        {
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231",
+                "to": "0x3494dfe19b721dac6c5c8d7470c8f89548177777"
+              },
+              {
+                "blockHash": "0x50420e3fb1e6523e8b8511b836797f301684dd20d76958a73705978fdfbc8251",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                "to": "0x3494dfe19b721dac6c5c8d7470c8f89548177777"
+              },
+              {
+                "blockHash": "0x50420e3fb1e6523e8b8511b836797f301684dd20d76958a73705978fdfbc8251",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231000000000000000000000000d40c6f984a79aed0d8cbd7aaa0f554227ae1d0b5",
+                "to": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+                "value": "0x1"
+              },
+              {
+                "blockHash": "0x50420e3fb1e6523e8b8511b836797f301684dd20d76958a73705978fdfbc8251",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        }
+      ],
+      "layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "code_hash": "0x8ca3418b83f97f6e172dac6cfbc849031c62cff2b67b92d0c28bbe3f4342dd0f",
+        "contract": "0x3494dfe19b721dac6c5c8d7470c8f89548177777",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "0x0000000000000000000000000000000000000000000000000000000000000023",
+          "0x0000000000000000000000000000000000000000000000000000000000000024",
+          "0x0000000000000000000000000000000000000000000000000000000000000025",
+          "0x0000000000000000000000000000000000000000000000000000000000000026",
+          "0x0000000000000000000000000000000000000000000000000000000000000027",
+          "0x000000000000000000000000000000000000000000000000000000000000002a"
+        ],
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "0x0000000000000000000000000000000000000000000000000000000000000006",
+          "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "0x0000000000000000000000000000000000000000000000000000000000000008",
+          "0x0000000000000000000000000000000000000000000000000000000000000009",
+          "0x000000000000000000000000000000000000000000000000000000000000000a",
+          "0x000000000000000000000000000000000000000000000000000000000000000b",
+          "0x000000000000000000000000000000000000000000000000000000000000000c",
+          "0x000000000000000000000000000000000000000000000000000000000000000d",
+          "0x000000000000000000000000000000000000000000000000000000000000000e",
+          "0x000000000000000000000000000000000000000000000000000000000000000f",
+          "0x0000000000000000000000000000000000000000000000000000000000000010",
+          "0x0000000000000000000000000000000000000000000000000000000000000011",
+          "0x0000000000000000000000000000000000000000000000000000000000000012",
+          "0x0000000000000000000000000000000000000000000000000000000000000013",
+          "0x0000000000000000000000000000000000000000000000000000000000000014",
+          "0x0000000000000000000000000000000000000000000000000000000000000015",
+          "0x0000000000000000000000000000000000000000000000000000000000000016",
+          "0x0000000000000000000000000000000000000000000000000000000000000017",
+          "0x0000000000000000000000000000000000000000000000000000000000000018",
+          "0x0000000000000000000000000000000000000000000000000000000000000019",
+          "0x000000000000000000000000000000000000000000000000000000000000001a",
+          "0x000000000000000000000000000000000000000000000000000000000000001b",
+          "0x000000000000000000000000000000000000000000000000000000000000001c",
+          "0x000000000000000000000000000000000000000000000000000000000000001d",
+          "0x000000000000000000000000000000000000000000000000000000000000001e",
+          "0x000000000000000000000000000000000000000000000000000000000000001f",
+          "0x0000000000000000000000000000000000000000000000000000000000000020",
+          "0x0000000000000000000000000000000000000000000000000000000000000021",
+          "0x0000000000000000000000000000000000000000000000000000000000000022",
+          "0x0000000000000000000000000000000000000000000000000000000000000028",
+          "0x0000000000000000000000000000000000000000000000000000000000000029"
+        ]
+      },
+      "rank": 405,
+      "review_basis": "Complete inherited getter returns raw _balances[address] atroot0. Transfer fees, burn paths, permission checks, reentrancy guards and price/history bookkeeping alter writes, never getter calculation. Only declared scalar words, fixed array words and ordinary address mappings admitted; no dynamic strings, derived balances, nested record widths, proxies or external getter dependencies. Declared immutable/CBOR replacements reconstruct full historical compiler runtime; no local compiler rerun claim.",
+      "runtime_bindings": [
+        {
+          "block": 122288005,
+          "code_hash": "0x8ca3418b83f97f6e172dac6cfbc849031c62cff2b67b92d0c28bbe3f4342dd0f",
+          "hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf"
+        },
+        {
+          "block": 122288084,
+          "code_hash": "0x8ca3418b83f97f6e172dac6cfbc849031c62cff2b67b92d0c28bbe3f4342dd0f",
+          "hash": "0x50420e3fb1e6523e8b8511b836797f301684dd20d76958a73705978fdfbc8251"
+        },
+        {
+          "block": 122289029,
+          "code_hash": "0x8ca3418b83f97f6e172dac6cfbc849031c62cff2b67b92d0c28bbe3f4342dd0f",
+          "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b"
+        }
+      ],
+      "runtime_transformations": [
+        {
+          "id": "1",
+          "offset": 22288,
+          "reason": "cborAuxdata",
+          "type": "replace"
+        }
+      ],
+      "source_hashes": [
+        {
+          "keccak256": "0x5789c7304967d8f446671481fc352c772e1fc6caf1298efa1a66b50336555842",
+          "name": "LABUBUToken.sol"
+        }
+      ],
+      "source_response_sha256": "2008186475010031041e947734eed0c0651ad93a94657acc8e88e7c903838548",
+      "symbol": "LABUBU"
+    },
+    {
+      "block": 122288189,
+      "contract": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf",
+      "hash": "0x99e3759870371982e58ab6fee62a919751678d1b17ea57d6c1d2a85c707e4e77",
+      "holder": "0xa5612001b2a9ca134b42683d98bb94566cc375bb",
+      "immutable_getters": [
+        {
+          "call": {
+            "data": "0xd5f39488",
+            "to": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf"
+          },
+          "id": "801",
+          "response": "0x00000000000000000000000038875c07252db12e0d27b4289c0e77ac85ff3dc2",
+          "signature": "deployer()",
+          "value": "0x00000000000000000000000038875c07252db12e0d27b4289c0e77ac85ff3dc2"
+        }
+      ],
+      "inspection": {
+        "address": "0xa5612001b2a9ca134b42683d98bb94566cc375bb",
+        "balance_of": "14960418429183463463591",
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "block": 122288189,
+        "contract": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf",
+        "elapsed_seconds": 0.29094375,
+        "execution_code": [
+          {
+            "address": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf",
+            "checked_instructions": 1,
+            "runtime_hash": "0x9acf64fb1f3e9a342ae8fa5f515594848b0112dc4f5943611e820f17e641a463"
+          }
+        ],
+        "execution_contexts": {
+          "calls": [],
+          "scope": "Observed execution path only; unexecuted branches and uninitialized holder state are not qualified",
+          "storage_reads": [
+            {
+              "code_address": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf",
+              "depth": 1,
+              "key": "0xbe8d5b2e95c98c13fb0d8b39891c7b763a1a1a0e29a4b7e7d42f3bd373f8ca76",
+              "pc": 3048,
+              "storage_address": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf",
+              "value": "0x00000000000000000000000000000000000000000000032b018331a5ffbf1aa7"
+            }
+          ]
+        },
+        "hash": "0x99e3759870371982e58ab6fee62a919751678d1b17ea57d6c1d2a85c707e4e77",
+        "read_only_state_overrides": [
+          {
+            "balance_of": "0",
+            "overridden_mapping_word": "0"
+          },
+          {
+            "balance_of": "1",
+            "overridden_mapping_word": "1"
+          },
+          {
+            "balance_of": "123",
+            "overridden_mapping_word": "123"
+          },
+          {
+            "balance_of": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+            "overridden_mapping_word": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          }
+        ],
+        "runtime_keccak256": "0x9acf64fb1f3e9a342ae8fa5f515594848b0112dc4f5943611e820f17e641a463",
+        "status": "inspected",
+        "storage_key": "0xbe8d5b2e95c98c13fb0d8b39891c7b763a1a1a0e29a4b7e7d42f3bd373f8ca76",
+        "storage_reads": [
+          {
+            "depth": 1,
+            "key": "0xbe8d5b2e95c98c13fb0d8b39891c7b763a1a1a0e29a4b7e7d42f3bd373f8ca76",
+            "pc": 3048,
+            "value": "0x00000000000000000000000000000000000000000000032b018331a5ffbf1aa7"
+          }
+        ],
+        "storage_word": "14960418429183463463591",
+        "tool_language": "Rust",
+        "trace_config": {
+          "disableStack": false,
+          "disableStorage": true,
+          "enableMemory": false,
+          "enableReturnData": false,
+          "timeout": "10s"
+        },
+        "trace_sha256": "32e77507a212529780e9f0778c705f75783a682fccd63cae140284e83eb5a420"
+      },
+      "invalid_call_controls": [
+        {
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231",
+                "to": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf"
+              },
+              {
+                "blockHash": "0x99e3759870371982e58ab6fee62a919751678d1b17ea57d6c1d2a85c707e4e77",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                "to": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf"
+              },
+              {
+                "blockHash": "0x99e3759870371982e58ab6fee62a919751678d1b17ea57d6c1d2a85c707e4e77",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        },
+        {
+          "request": {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_call",
+            "params": [
+              {
+                "data": "0x70a08231000000000000000000000000a5612001b2a9ca134b42683d98bb94566cc375bb",
+                "to": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf",
+                "value": "0x1"
+              },
+              {
+                "blockHash": "0x99e3759870371982e58ab6fee62a919751678d1b17ea57d6c1d2a85c707e4e77",
+                "requireCanonical": true
+              }
+            ]
+          },
+          "response": {
+            "error": {
+              "code": 3,
+              "message": "execution reverted"
+            },
+            "id": 1,
+            "jsonrpc": "2.0"
+          }
+        }
+      ],
+      "layout": {
+        "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "code_hash": "0x9acf64fb1f3e9a342ae8fa5f515594848b0112dc4f5943611e820f17e641a463",
+        "contract": "0x6cd3025f851f36e74937d4e652f6ae9d4b2e88cf",
+        "other_mapping_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "0x000000000000000000000000000000000000000000000000000000000000000c",
+          "0x000000000000000000000000000000000000000000000000000000000000000d",
+          "0x000000000000000000000000000000000000000000000000000000000000000e"
+        ],
+        "other_slots": [
+          "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "0x0000000000000000000000000000000000000000000000000000000000000006",
+          "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "0x0000000000000000000000000000000000000000000000000000000000000008",
+          "0x0000000000000000000000000000000000000000000000000000000000000009",
+          "0x000000000000000000000000000000000000000000000000000000000000000a",
+          "0x000000000000000000000000000000000000000000000000000000000000000b"
+        ]
+      },
+      "rank": 433,
+      "review_basis": "Complete inherited getter returns raw _balances[address] atroot0. Transfer fees, burn paths, permission checks, reentrancy guards and price/history bookkeeping alter writes, never getter calculation. Only declared scalar words, fixed array words and ordinary address mappings admitted; no dynamic strings, derived balances, nested record widths, proxies or external getter dependencies. Declared immutable/CBOR replacements reconstruct full historical compiler runtime; no local compiler rerun claim.",
+      "runtime_bindings": [
+        {
+          "block": 122288005,
+          "code_hash": "0x9acf64fb1f3e9a342ae8fa5f515594848b0112dc4f5943611e820f17e641a463",
+          "hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf"
+        },
+        {
+          "block": 122288189,
+          "code_hash": "0x9acf64fb1f3e9a342ae8fa5f515594848b0112dc4f5943611e820f17e641a463",
+          "hash": "0x99e3759870371982e58ab6fee62a919751678d1b17ea57d6c1d2a85c707e4e77"
+        },
+        {
+          "block": 122289029,
+          "code_hash": "0x9acf64fb1f3e9a342ae8fa5f515594848b0112dc4f5943611e820f17e641a463",
+          "hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b"
+        }
+      ],
+      "runtime_transformations": [
+        {
+          "id": "801",
+          "offset": 660,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "801",
+          "offset": 1064,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "801",
+          "offset": 1353,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "801",
+          "offset": 2076,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "801",
+          "offset": 2815,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "801",
+          "offset": 3635,
+          "reason": "immutable",
+          "type": "replace"
+        },
+        {
+          "id": "1",
+          "offset": 6469,
+          "reason": "cborAuxdata",
+          "type": "replace"
+        }
+      ],
+      "source_hashes": [
+        {
+          "keccak256": "0x1b88b3fb3d85ba5496d7d5f396f83ee1fddcdd6762059ff65992655b67920998",
+          "name": "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol"
+        },
+        {
+          "keccak256": "0x669464167428061ee0f8618b73b3ee90aff8405683e7ddde8cd77dadaa1afe29",
+          "name": "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol"
+        },
+        {
+          "keccak256": "0x74ed01eb66b923d0d0cfe3be84604ac04b76482a55f9dd655e1ef4d367f95bc2",
+          "name": "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"
+        },
+        {
+          "keccak256": "0xd6fa4088198f04eef10c5bce8a2f4d60554b7ec4b987f684393c01bf79b94d9f",
+          "name": "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol"
+        },
+        {
+          "keccak256": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+          "name": "lib/openzeppelin-contracts/contracts/utils/Context.sol"
+        },
+        {
+          "keccak256": "0xd0151e9e789a70395f002f90e9a1d55dbafc587dae239d0cbb8120a6ce8ded54",
+          "name": "src/ArkieToken.sol"
+        }
+      ],
+      "source_response_sha256": "c441ae3229c2322e719b063d57e23ee91062609a8e868924254f7af85d7e0e6f",
+      "symbol": "ARKIE"
+    }
+  ],
+  "tool_language": "Rust"
+}
