@@ -63,7 +63,7 @@ build and package generation passed.
 Formatting, Clippy, WASM checking and native-sink results are recorded with
 the final migration evidence.
 
-The current source passes 405 offline Rust tests, formatting, Clippy with
+The current source passes 406 offline Rust tests, formatting, Clippy with
 warnings denied, and the workspace WASM check. The source additions have not
 been repackaged or given fresh live qualification. See the
 [follow-up tracker](follow-up.md) for the remaining work.

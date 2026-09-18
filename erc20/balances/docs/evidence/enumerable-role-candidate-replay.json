@@ -1,0 +1,199 @@
+{
+  "comparison": "Exact current Balance protobuf fields and saved block clock on same-block canonical RPC overlap; row ordering normalized. Retained state comes only from native emissions, with no RPC/checkpoint initialization. All 1024 blocks, including reference-silent blocks, were visited.",
+  "fresh_rpc_balance_controls": 0,
+  "full_row_parity_claim": false,
+  "helper": {
+    "path": "erc20/balances/out/enumerable-role-replay/runner-v2/src/main.rs",
+    "sha256": "a176ea3054181e58e43c7b797e258bbcf012f04d338439d360099a1cf22f7878"
+  },
+  "historical_run": {
+    "native_rows_comparisons_counters_and_storage_inventory_byte_identical": true,
+    "preserved_unchanged": true,
+    "reason_for_rerun": "Source changed for a guard covering accepted equal-value role events that collide with a candidate-derived balance slot. Run-1 evidence was not inherited.",
+    "report": {
+      "path": "erc20/balances/out/enumerable-role-replay/run-1/report.json",
+      "sha256": "16d20ef2acfb45b079c3619f2a6dc59077cbda28314bf074fe0e5373566f2c83"
+    },
+    "source_commit": "d5ec0b9fed68054da1c2b5f196bf682438e40392",
+    "summary": {
+      "path": "erc20/balances/out/enumerable-role-replay/summary.json",
+      "sha256": "641863f72d171335678aa95e5c432e49ecd85e66261502130d1912469053ad0a"
+    }
+  },
+  "inputs": [
+    {
+      "path": "out/typed450-candidates/candidate-spec.json",
+      "sha256": "5a4679ca861d6960a9e72fb9f950b5831c53c3d6b1b380be30d6abf0711a1b35"
+    },
+    {
+      "path": "erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    },
+    {
+      "path": "erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "erc20/balances/out/typed-path-baseline-replay/run-2/blocks.jsonl",
+      "sha256": "4c963d80247459fe49d88cc168f2680a56e118c8c0b9a954471308e286d3c173"
+    },
+    {
+      "path": "erc20/balances/out/typed-path-baseline-replay/run-2/report.json",
+      "sha256": "000a61c3c3c16823d1524b8256342dabd61a6e6bf957fd9f2566ab75b3e4d87c"
+    }
+  ],
+  "interval": {
+    "all_block_identities_parent_links_and_saved_canonical_bound_clocks_checked": true,
+    "cached_blocks_path": "erc20/balances/out/top50-full-holder-blocks/{height}.pb",
+    "cached_extended_blocks": 1024,
+    "chain_id": 56,
+    "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+    "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "start_inclusive": 122288006,
+    "stop_exclusive": 122289030
+  },
+  "limits": [
+    "APD and DSG remain unqualified candidates. Saved canonical RPC comparisons are not fresh balanceOf controls.",
+    "APD has 20 and DSG has 13 cold unknown reference observations; these counts are observations, not distinct holders. No full canonical row parity claim.",
+    "This transfer window provides no role-mutation or role-no-op producer qualification. It contains zero persisted storage no-ops for these tokens.",
+    "No new runtime/source binding qualification, packaged-WASM audit, initialized holder/final snapshot gate, global-holder coverage or complete metadata coverage is established."
+  ],
+  "network_requests": 0,
+  "outputs": {
+    "block_inventory": {
+      "path": "erc20/balances/out/enumerable-role-replay/run-2/blocks.jsonl",
+      "sha256": "591d523a4fa13f0bfcebbb0b5ae5e42c056945af4a92d7edcfbe7170a5e1ffd2"
+    },
+    "counter_checked_summary": {
+      "path": "erc20/balances/out/enumerable-role-replay/summary-run-2.json",
+      "sha256": "c0861ca0fcae8e4917653a013bec1505e20d9ba7ae443610d57f0ec50d78b0bd"
+    },
+    "errors": {
+      "path": "erc20/balances/out/enumerable-role-replay/run-2/errors.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native_events": {
+      "path": "erc20/balances/out/enumerable-role-replay/run-2/native-events.jsonl",
+      "sha256": "1ea614a14afa00bc872003de9a633abc217a4a66c7882e2470dfdedf16735f10"
+    },
+    "persisted_storage_inventory": {
+      "path": "erc20/balances/out/enumerable-role-replay/run-2/candidate-storage-writes.jsonl",
+      "sha256": "9a3cf37c53522505899bcca4e42832cf851182071cf9dfe96184dcc26a19cae2"
+    },
+    "report": {
+      "path": "erc20/balances/out/enumerable-role-replay/run-2/report.json",
+      "sha256": "7d4659acdb7b5fb488e36f631c32c00368b174a280cd5e13864ca0c2bd63f92e"
+    }
+  },
+  "profiles": {
+    "APD": "Original unqualified candidate unchanged.",
+    "DSG_added_rule": {
+      "key_types": [
+        "bytes32"
+      ],
+      "root": "0x0000000000000000000000000000000000000000000000000000000000000008",
+      "semantics": "oz_3_4_2"
+    },
+    "candidate_spec": {
+      "path": "out/typed450-candidates/candidate-spec.json",
+      "sha256": "5a4679ca861d6960a9e72fb9f950b5831c53c3d6b1b380be30d6abf0711a1b35"
+    },
+    "original_fragment_values_sha256": "2d870f8c272296b3400dc04e8546c5323211c0bdc875d6d82f3639064ea4a123",
+    "other_fields": "Unchanged; no tracked profile promotion.",
+    "replayed_profiles": {
+      "path": "erc20/balances/out/enumerable-role-replay/run-2/candidate-layouts-NOT-QUALIFIED.json",
+      "sha256": "b63b7e2368d09faed9621105ca70a3309edcf484bc6d6c5799bb67695f86fb3a"
+    }
+  },
+  "qualified": false,
+  "schema_version": 1,
+  "source": {
+    "commit": "3eae9c839e06fec260e8717845547f21ccafa355",
+    "helper_lockfile": {
+      "path": "erc20/balances/out/enumerable-role-replay/runner-v2/Cargo.lock",
+      "sha256": "8bca39d34e04415c5dcc047c09effc6342f210c998f821ed0795187f0eae74d6"
+    },
+    "helper_manifest": {
+      "path": "erc20/balances/out/enumerable-role-replay/runner-v2/Cargo.toml",
+      "sha256": "c9b44a4516484c908231778005c585836b539dd447c3deb888479aec0835834b"
+    },
+    "inventory_scope": "Production Rust files, shared protobuf files, workspace/crate manifests, lockfile and pinned toolchain; test-only source is excluded.",
+    "prebuild_inventory": {
+      "path": "erc20/balances/out/enumerable-role-replay/source-run-2/production-before-build.json",
+      "sha256": "29aa92a21e611a421b5ca28a2c3fbdb890554e473d48540c7ae8ce9960be6925"
+    },
+    "prebuild_runtime_start_and_completion_identical": true,
+    "production_build_input_count": 19
+  },
+  "status": "completed_offline_saved_data_candidate_replay",
+  "substreams_firehose_sink_commands": 0,
+  "tokens": [
+    {
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+      "counts": {
+        "blocks_examined": 1024,
+        "cold_unknown_nonzero_rows": 5,
+        "cold_unknown_rows": 20,
+        "cold_unknown_zero_rows": 15,
+        "emitted_zero_rows": 0,
+        "known_state_invalidations": 0,
+        "native_emitted_rows": 10,
+        "native_nonempty_blocks": 5,
+        "native_nonempty_reference_silent_blocks": 0,
+        "native_only_rows": 0,
+        "native_rows_on_reference_silent_blocks": 0,
+        "native_silent_blocks": 1019,
+        "persisted_storage_changes": 25,
+        "persisted_storage_noops": 0,
+        "projection_error_blocks": 0,
+        "reference_only_rows": 20,
+        "reference_rows": 30,
+        "reference_silent_blocks": 1019,
+        "retained_matches": 0,
+        "retained_mismatches": 0,
+        "same_block_matches": 10,
+        "same_block_mismatches": 0
+      },
+      "qualified": false,
+      "symbol": "APD"
+    },
+    {
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "counts": {
+        "blocks_examined": 1024,
+        "cold_unknown_nonzero_rows": 7,
+        "cold_unknown_rows": 13,
+        "cold_unknown_zero_rows": 6,
+        "emitted_zero_rows": 5,
+        "known_state_invalidations": 0,
+        "native_emitted_rows": 15,
+        "native_nonempty_blocks": 5,
+        "native_nonempty_reference_silent_blocks": 0,
+        "native_only_rows": 0,
+        "native_rows_on_reference_silent_blocks": 0,
+        "native_silent_blocks": 1019,
+        "persisted_storage_changes": 41,
+        "persisted_storage_noops": 0,
+        "projection_error_blocks": 0,
+        "reference_only_rows": 13,
+        "reference_rows": 28,
+        "reference_silent_blocks": 1018,
+        "retained_matches": 0,
+        "retained_mismatches": 0,
+        "same_block_matches": 15,
+        "same_block_mismatches": 0
+      },
+      "qualified": false,
+      "symbol": "DSG"
+    }
+  ]
+}

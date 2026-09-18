@@ -1,6 +1,7 @@
 # Follow-up work
 
-The completed migration and exact typed mapping-path source are on `main`.
+The completed migration, exact typed mapping-path source and opt-in enumerable
+role-set validator are on `main`.
 The historical SPKGs and qualification evidence retain their original scope;
 they do not establish parity for the newer source. No new token was qualified
 by the latest offline APD/DSG replay.

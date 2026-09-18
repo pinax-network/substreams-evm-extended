@@ -100,10 +100,20 @@ behavior, not a full-EVM conformance result or an observation of Firehose's
 unchanged-write visibility and ordinal policy. The ordinary saved transfer
 window does not establish role-operation visibility.
 
-Thirty independent Rust regressions exercise the 11 saved cases and all 26
+Thirty-one independent Rust regressions exercise the 11 saved cases and all 26
 presence/omission combinations, exact event permissions, invalid and restored
 writes, structural boundaries, full-word arithmetic, protected aliases and
-unchanged balance behavior. The full workspace passes 405 offline tests.
+unchanged balance behavior. Known holder hints protect balance leaves even
+without a preimage, including observed and omitted unchanged metadata writes.
+The full workspace passes 406 offline tests.
+
+Two [saved-data replays](typed450-offline-review.md#replay-with-the-enumerable-rule-enabled)
+at source `3eae9c839e06fec260e8717845547f21ccafa355` each cover 1,024 blocks.
+With DSG's rule explicitly enabled, all 25 APD/DSG emitted balances match saved
+RPC output; 33 reference observations remain cold unknowns. The unchanged
+431-profile baseline produces the same 110,139 historical balances with no
+protobuf differences. These are native Rust compatibility checks over saved
+inputs, not role-mutation or producer-visibility qualification.
 
 The observation model therefore permits the specific source-implied unchanged
 stages above to be absent. It never assumes that a producer can omit changing

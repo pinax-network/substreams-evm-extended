@@ -1,0 +1,142 @@
+{
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "fresh_rpc_balance_controls": 0,
+  "helper": {
+    "path": "erc20/balances/out/enumerable-role-replay/runner-v2/src/bin/baseline431.rs",
+    "sha256": "e76103db9a196aadc9aa88f4bc35edc7e2e48ba2dcbbf0029fa2759a3b761e31"
+  },
+  "historical_run": {
+    "native_events_byte_identical": true,
+    "preserved_unchanged": true,
+    "report": {
+      "path": "erc20/balances/out/enumerable-role-replay/baseline431-run-1/report.json",
+      "sha256": "8d4197b6fa6f01376dd60e5b09dc513e7e74c4aadde051772d64e78566d7ca0b"
+    },
+    "source_commit": "d5ec0b9fed68054da1c2b5f196bf682438e40392"
+  },
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "interval": {
+    "all_block_identities_parent_links_and_saved_canonical_bound_clocks_checked": true,
+    "cached_blocks_path": "erc20/balances/out/top50-full-holder-blocks/{height}.pb",
+    "cached_extended_blocks": 1024,
+    "chain_id": 56,
+    "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+    "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "start_inclusive": 122288006,
+    "stop_exclusive": 122289030
+  },
+  "limits": [
+    "Native Rust regression over saved data, not new source/package/live qualification. Historical captured RPC and storage outputs remain unchanged.",
+    "Canonical RPC coverage consists of 110138 same-block overlaps and 4012 retained observations learned only from native emissions. No reference/checkpoint state was seeded.",
+    "66265 reference observations remain unknown from a cold start; this is not a distinct-holder count or a full canonical row parity claim.",
+    "Legacy profiles do not opt into enumerable-role support; this baseline does not qualify role-mutation/no-op producer visibility or live role-operation behavior."
+  ],
+  "network_requests": 0,
+  "outputs": {
+    "block_inventory": {
+      "path": "erc20/balances/out/enumerable-role-replay/baseline431-run-2/blocks.jsonl",
+      "sha256": "a9ce61e65961b4aca40ffc9ea2105fdca90a44b27987e0ec976de20c6882e01f"
+    },
+    "differences": {
+      "path": "erc20/balances/out/enumerable-role-replay/baseline431-run-2/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native_events": {
+      "path": "erc20/balances/out/enumerable-role-replay/baseline431-run-2/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    "reference_only_observations": {
+      "path": "erc20/balances/out/enumerable-role-replay/baseline431-run-2/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    },
+    "report": {
+      "path": "erc20/balances/out/enumerable-role-replay/baseline431-run-2/report.json",
+      "sha256": "2720ad0cf5cc4c8c7d328719b04e86f34ac7f2102ca878049d0c5d880ae0fcce"
+    }
+  },
+  "profiles": {
+    "configured": 431,
+    "enumerable_role_rule_opted_in": false,
+    "layout": {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    "layout_unchanged": true,
+    "with_emitted_rows": 430
+  },
+  "results": {
+    "all_1024_events_exactly_equal_historical_storage": true,
+    "canonical_overlap_mismatches": 0,
+    "counts": {
+      "blocks": 1024,
+      "canonical_configured_reference_rows": 180415,
+      "canonical_reference_only_retained_matches": 4012,
+      "canonical_reference_only_unknown_cold_holders": 66265,
+      "canonical_rpc_reference_rows_all_tokens": 190651,
+      "canonical_same_block_rows": 110138,
+      "empty_native_blocks": 0,
+      "native_only_vs_canonical_reference_rows": 1,
+      "native_rows": 110139,
+      "native_zero_rows": 15259
+    },
+    "historical_storage_mismatches": 0,
+    "historical_storage_only_row": {
+      "balance": {
+        "address": "0xa6ee430f253057aa4de8d757f6de081bdaa75e52",
+        "amount": "100000000000000000000000000",
+        "contract": "0x32b133ca38c9b410a053f2bcfeea83831c3bcfe0"
+      },
+      "block": 122288884,
+      "historical_full_fields_matched": true
+    },
+    "historical_storage_only_row_note": "This row matches historical storage output but has no same-block row in the saved canonical RPC output. It was not freshly checked with balanceOf.",
+    "retained_state_mismatches": 0
+  },
+  "schema_version": 1,
+  "source": {
+    "commit": "3eae9c839e06fec260e8717845547f21ccafa355",
+    "helper_lockfile": {
+      "path": "erc20/balances/out/enumerable-role-replay/runner-v2/Cargo.lock",
+      "sha256": "8bca39d34e04415c5dcc047c09effc6342f210c998f821ed0795187f0eae74d6"
+    },
+    "helper_manifest": {
+      "path": "erc20/balances/out/enumerable-role-replay/runner-v2/Cargo.toml",
+      "sha256": "c9b44a4516484c908231778005c585836b539dd447c3deb888479aec0835834b"
+    },
+    "inventory_scope": "Production Rust files, shared protobuf files, workspace/crate manifests, lockfile and pinned toolchain; test-only source is excluded.",
+    "prebuild_inventory": {
+      "path": "erc20/balances/out/enumerable-role-replay/source-run-2/production-before-build.json",
+      "sha256": "29aa92a21e611a421b5ca28a2c3fbdb890554e473d48540c7ae8ce9960be6925"
+    },
+    "prebuild_runtime_start_and_completion_identical": true,
+    "production_build_input_count": 19
+  },
+  "status": "passed_offline_native_baseline_replay",
+  "substreams_firehose_sink_commands": 0
+}
