@@ -10,7 +10,7 @@ pushed commit.
 
 ## Workspace boundary
 
-The new workspace contains three crates: `proto`, `erc20/balances-storage`
+The new workspace contains three crates: `proto`, `erc20/balances`
 and its Rust diagnostic tools. The original directory depth is retained so
 captured fixtures, report links and audit commands keep their paths.
 Unrelated protocol modules, `common`, database-change dependencies, `db_out`
@@ -19,7 +19,7 @@ modules and custom database sinks are not part of this workspace.
 The canonical RPC reference is retained as an immutable standalone SPKG; its
 dependencies are embedded. Its source modules do not need to be copied here.
 The native ClickHouse sink consumes the unchanged Events protobuf directly;
-see [setup and validation](../erc20/balances-storage/clickhouse/README.md).
+see [setup and validation](../erc20/balances/clickhouse/README.md).
 
 The old PR's history and discussions remain available at their original URL.
 The source repository retains its shared balance protobuf and RPC-based balance
@@ -49,7 +49,7 @@ Its digest is recorded separately in [migration evidence](evidence/migration.jso
 Historical reports keep the digest of the package they actually tested; those
 reports are not rewritten to imply that their RPC calls used a later package.
 
-Subsequent [typed mapping-path source changes](../erc20/balances-storage/docs/typed-mapping-paths.md)
+Subsequent [typed mapping-path source changes](../erc20/balances/docs/typed-mapping-paths.md)
 are validated separately using offline Rust checks and captured data. They are
 not embedded in these preserved SPKGs and do not inherit live qualification from
 the migration baseline. Live chain testing remains paused at the user's request.
@@ -68,18 +68,38 @@ warnings denied, and the workspace WASM check. The source additions have not
 been repackaged or given fresh live qualification. See the
 [follow-up tracker](follow-up.md) for the remaining work.
 
-The final pre-migration [combined capture](../erc20/balances-storage/docs/evidence/refined450-combined.json)
+The final pre-migration [combined capture](../erc20/balances/docs/evidence/refined450-combined.json)
 checks 431 profiles across 1,024 consecutive BSC blocks, including all streamed
 block identities and 110,139 previously RPC-verified balance rows. MUSD/OLY
-revalidation is counted separately. The [coverage report](../erc20/balances-storage/docs/refined450-coverage.md)
+revalidation is counted separately. The [coverage report](../erc20/balances/docs/refined450-coverage.md)
 retains cold unknowns, observed-holder limits and remaining candidates.
 
 Captured fixtures and compact evidence are versioned. The original raw audit
 outputs and archived Rust investigation helpers are also preserved locally
-under the ignored `erc20/balances-storage/out` directory for continued work;
+under the ignored `erc20/balances/out` directory for continued work;
 offline builds and tests do not depend on that local cache. Fresh native-sink
 checks use the package built in this repository and separate output directories.
 
 Repository extraction does not broaden token or network qualification. The
 remaining role-storage, calculated-balance, initialization and cross-network
 work remains explicitly tracked by the migrated reports.
+
+## Module rename
+
+The module now lives at `erc20/balances`, with Cargo crates `erc20-balances`
+and `erc20-balances-tools`, Substreams package name `erc20_balances`, and WASM
+filename `erc20_balances.wasm`. The schema stays in repository-root `proto/`;
+its wire types, field numbers, generated Rust types and namespace are unchanged.
+
+New builds target `spkg/erc20-balances-v0.1.0.spkg`. That renamed artifact has
+not been packaged or qualified. Existing storage-named SPKGs and the canonical
+RPC reference `spkg/erc20-balances-v0.3.4.spkg` remain unchanged. Earlier
+byte-identical WASM and package qualification claims apply only to their
+recorded migration revisions, not the renamed build.
+
+Captured evidence and fixture contents are byte-identical after relocation.
+They may retain `erc20/balances-storage` paths and old crate names because those
+were recorded at capture time. Resolve those historical directory paths to
+`erc20/balances` when locating the moved files; do not rewrite captured reports
+or their hash bindings. Current commands and documentation links use the new
+names. The ignored local `out/` cache moved with the module without modification.
