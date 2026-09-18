@@ -209,7 +209,11 @@ fn protected_roots(layout: &VerifiedLayout) -> BTreeSet<Word> {
     roots
 }
 
-fn namespaces(layouts: &[VerifiedLayout], preimages: &BTreeMap<Word, Vec<u8>>) -> Result<Namespaces, Error> {
+fn namespaces(
+    layouts: &[VerifiedLayout],
+    preimages: &BTreeMap<Word, Vec<u8>>,
+    balance_candidates: &BTreeMap<Word, BTreeMap<Word, Vec<u8>>>,
+) -> Result<Namespaces, Error> {
     let mut roles = Vec::new();
     let mut names = BTreeMap::new();
     let mut protected = BTreeSet::new();
@@ -225,6 +229,12 @@ fn namespaces(layouts: &[VerifiedLayout], preimages: &BTreeMap<Word, Vec<u8>>) -
     }
     for layout in layouts.iter().filter(|layout| !layout.enumerable_address_sets.is_empty()) {
         protected.extend(protected_roots(layout).into_iter().map(|root| (layout.contract.clone(), root)));
+        // Holder hints identify balance leaves even when their hash preimages
+        // are absent. Protect logical operation keys here, before unchanged
+        // writes can be filtered from ordinary balance processing.
+        if let Some(leaves) = balance_candidates.get(&layout.balance_slot) {
+            protected.extend(leaves.keys().map(|leaf| (layout.contract.clone(), *leaf)));
+        }
         for (leaf, member) in by_parent.get(&layout.balance_slot).into_iter().flatten() {
             if member[..12] == [0; 12] {
                 protected.insert((layout.contract.clone(), *leaf));
@@ -516,7 +526,12 @@ fn constrain(known: &mut BTreeMap<Key, Word>, account: &[u8], slot: Slot) -> Res
     Ok(())
 }
 
-pub(crate) fn validate(block: &eth::Block, layouts: &[VerifiedLayout], preimages: &BTreeMap<Word, Vec<u8>>) -> Result<Accepted, Error> {
+pub(crate) fn validate(
+    block: &eth::Block,
+    layouts: &[VerifiedLayout],
+    preimages: &BTreeMap<Word, Vec<u8>>,
+    balance_candidates: &BTreeMap<Word, BTreeMap<Word, Vec<u8>>>,
+) -> Result<Accepted, Error> {
     let accounts: BTreeSet<_> = layouts
         .iter()
         .filter(|l| !l.enumerable_address_sets.is_empty())
@@ -527,7 +542,7 @@ pub(crate) fn validate(block: &eth::Block, layouts: &[VerifiedLayout], preimages
     }
     let collected = collect(block, &accounts)?;
     let events = &collected.events;
-    let Namespaces { roles, names, protected } = namespaces(layouts, preimages)?;
+    let Namespaces { roles, names, protected } = namespaces(layouts, preimages, balance_candidates)?;
     let mut sequences = BTreeMap::<(usize, Vec<u8>), Vec<usize>>::new();
     for (id, event) in events.iter().enumerate() {
         sequences.entry((event.frame, event.account.clone())).or_default().push(id);

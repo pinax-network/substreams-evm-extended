@@ -266,7 +266,7 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
     let address_list_keys = address_lists::validate(layouts, &raw.storage, &raw.address_list_noops)?;
     // Read original persisted records, including unchanged witnesses and their
     // structural call context. Failure must precede every metadata ignore rule.
-    let enumerable_events = enumerable_sets::validate(block, layouts, &preimages)?;
+    let enumerable_events = enumerable_sets::validate(block, layouts, &preimages, &candidates)?;
     let mut deployment_keys = BTreeSet::new();
     for c in raw.storage {
         if !configured.contains_key(&c.address) && !beacon_slots.contains_key(&c.address) {

@@ -242,7 +242,7 @@ fn enumerable_saved_cases_accept_all_optional_equal_subsets_and_only_observed_ev
         let equal = writes.iter().filter(|w| w["equal_value"] == true).count();
         for subset in 0..(1 << equal) {
             let block = block(saved_call(&case, subset));
-            let accepted = enumerable_sets::validate(&block, &layouts(), &hints(&block)).unwrap();
+            let accepted = enumerable_sets::validate(&block, &layouts(), &hints(&block), &BTreeMap::new()).unwrap();
             let expected: BTreeSet<_> = block.transaction_traces[0].calls[0]
                 .storage_changes
                 .iter()
@@ -673,7 +673,7 @@ fn enumerable_arbitrary_storage_never_becomes_array_permission() {
     // Unknown no-ops retain the existing mapper policy, but receive no permit.
     first(&mut b).storage_changes.last_mut().unwrap().new_value = ZERO.to_vec();
     ok(&b);
-    let accepted = enumerable_sets::validate(&b, &layouts(), &hints(&b)).unwrap();
+    let accepted = enumerable_sets::validate(&b, &layouts(), &hints(&b), &BTreeMap::new()).unwrap();
     assert!(!accepted.contains(&(account, n(999), 70)));
 }
 
@@ -880,7 +880,7 @@ fn enumerable_known_balance_leaf_alias_is_rejected_even_when_its_zero_store_is_o
             call.storage_changes.retain(|r| r.old_value != r.new_value);
         }
         let b = block(call);
-        assert!(enumerable_sets::validate(&b, &layouts(), &hints(&b)).is_err());
+        assert!(enumerable_sets::validate(&b, &layouts(), &hints(&b), &BTreeMap::new()).is_err());
         bad(&b);
     }
 }
@@ -897,6 +897,30 @@ fn enumerable_observed_balance_alias_from_candidate_address_never_emits_a_balanc
     assert!(!hints(&b).contains_key(&balance_key));
     b.transaction_traces[0].from = holder;
     bad(&b);
+}
+
+#[test]
+fn enumerable_candidate_balance_alias_rejects_observed_and_omitted_equal_array_writes() {
+    let role = n(7);
+    let holder = vec![0x45; 20];
+    let balance_key = mapping(&holder, &ZERO);
+    let length = minus(balance_key, hash(&leaf(role, n(8))));
+    for omit_equal in [false, true] {
+        let mut call = add_call(role, n(8), length, ZERO);
+        let element = &call.storage_changes[1];
+        assert_eq!(element.key, balance_key);
+        assert_eq!(element.old_value, element.new_value);
+        if omit_equal {
+            call.storage_changes.retain(|row| row.old_value != row.new_value);
+        }
+        let mut b = block(call);
+        // This known balance key comes only from an independently discovered
+        // holder. Filtering equality records must not hide the storage alias;
+        // an omitted logical equality has the same known-key contradiction.
+        assert!(!hints(&b).contains_key(&balance_key));
+        b.transaction_traces[0].from = holder.clone();
+        assert!(project(&b, &layouts()).is_err(), "candidate alias accepted with omit_equal={omit_equal}");
+    }
 }
 
 #[test]
@@ -922,7 +946,7 @@ fn enumerable_inferred_zero_slot_cannot_alias_an_explicit_protected_dependency()
         call.storage_changes.retain(|r| r.old_value != r.new_value);
         let b = block(call);
         let layouts = parse(cfg).unwrap();
-        assert!(enumerable_sets::validate(&b, &layouts, &hints(&b)).is_err());
+        assert!(enumerable_sets::validate(&b, &layouts, &hints(&b), &BTreeMap::new()).is_err());
         assert!(project(&b, &layouts).is_err());
     }
 }
