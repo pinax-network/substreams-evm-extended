@@ -20,9 +20,9 @@ resumed. Offline source review, Rust tests and saved-data analysis remain
 available. Creating these issues or merging the source does not resume live
 tests or deploy an ingestion service.
 
-The [APD/DSG review](../erc20/balances-storage/docs/typed450-offline-review.md)
+The [APD/DSG review](../erc20/balances/docs/typed450-offline-review.md)
 records 25 emitted balances matching saved canonical RPC output and 33 cold
 unknown observations across all 1,024 cached blocks. The
-[DSG runtime investigation](../erc20/balances-storage/docs/evidence/dsg-enumerable/)
+[DSG runtime investigation](../erc20/balances/docs/evidence/dsg-enumerable/)
 preserves synthetic ordering evidence for unfinished enumerable support; it is
 not a production implementation or producer-visibility qualification.

@@ -1,8 +1,8 @@
 [workspace]
 members = [
   "proto",
-  "erc20/balances-storage",
-  "erc20/balances-storage/tools",
+  "erc20/balances",
+  "erc20/balances/tools",
 ]
 resolver = "2"
 

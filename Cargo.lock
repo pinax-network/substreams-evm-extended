@@ -307,7 +307,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
-name = "erc20-balances-storage"
+name = "erc20-balances"
 version = "0.1.0"
 dependencies = [
  "hex",
@@ -323,13 +323,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "erc20-balances-storage-tools"
+name = "erc20-balances-tools"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "base64",
  "clap",
- "erc20-balances-storage",
+ "erc20-balances",
  "hex",
  "primitive-types",
  "prost 0.13.5",

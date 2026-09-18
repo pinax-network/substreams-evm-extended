@@ -2,7 +2,7 @@
 
 This repository contains EVM Substreams that consume Firehose **Extended**
 blocks. The Rust workspace has three members: the shared balances protobuf,
-`erc20/balances-storage`, and its native Rust diagnostic tools.
+`erc20/balances`, and its native Rust diagnostic tools.
 
 ## Production boundary
 
@@ -33,4 +33,4 @@ blocks. The Rust workspace has three members: the shared balances protobuf,
 Use the pinned Rust toolchain and lockfile. Offline validation consists of
 formatting, workspace library/binary tests, Clippy for all targets, and a WASM
 workspace check. Live RPC, stream and holder checks are separate from offline CI.
-See `erc20/balances-storage/README.md` for commands and qualification limits.
+See `erc20/balances/README.md` for commands and qualification limits.
