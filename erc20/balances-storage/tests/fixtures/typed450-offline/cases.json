@@ -1,0 +1,255 @@
+[
+  {
+    "allowance_writes": [
+      {
+        "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+        "new": "0x0000000000000000000000000000000000000000000000000000000304193d68",
+        "old": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+        "ordinal": 715
+      },
+      {
+        "key": "0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1",
+        "new": "0x00000000000000000000000000000000000000000000000000000002e4232db4",
+        "old": "0x0000000000000000000000000000000000000000000000000000000304193d68",
+        "ordinal": 723
+      }
+    ],
+    "block": 122288046,
+    "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+    "expected_allowance_refusal": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+    "expected_emitted": [
+      {
+        "address": "0xfb26cf258ad722b5e4d1b806fd07bba043d0e437",
+        "amount": "14682920812492",
+        "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+      },
+      {
+        "address": "0xa2e734199cc6fe60523670b9e4fdfa7fcdbc97a1",
+        "amount": "1669560233789246",
+        "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+      },
+      {
+        "address": "0xb9b128af4a5c423c3d3a464c457e59b09a14904e",
+        "amount": "0",
+        "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+      }
+    ],
+    "fixture": "rank418-122288046.pb",
+    "fixture_sha256": "9d9ba13340e958cd40d4ee011971a21744eda6d9f5f443fd31582821e36583ea",
+    "full_block_keccak256": "0x01a8b2669827b8f52261760c288ff31c3c4d592dad108206cc260c1884210129",
+    "full_block_sha256": "9d9ba13340e958cd40d4ee011971a21744eda6d9f5f443fd31582821e36583ea",
+    "hash": "0x614777826355f3512e6d1e2b23d5e57934820ec95ae33e92be14c071dd1392cf",
+    "layout": {
+      "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "code_hash": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "other_mapping_paths": [
+        {
+          "key_types": [
+            "address",
+            "address"
+          ],
+          "offset": 0,
+          "root": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "words": 1
+        },
+        {
+          "key_types": [
+            "address"
+          ],
+          "offset": 0,
+          "root": "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "words": 1
+        }
+      ],
+      "other_slots": [
+        "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "0x0000000000000000000000000000000000000000000000000000000000000006",
+        "0x0000000000000000000000000000000000000000000000000000000000000009",
+        "0x000000000000000000000000000000000000000000000000000000000000000b",
+        "0x000000000000000000000000000000000000000000000000000000000000000c"
+      ]
+    },
+    "provenance": {
+      "block": 122288046,
+      "block_hash": "0x614777826355f3512e6d1e2b23d5e57934820ec95ae33e92be14c071dd1392cf",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "expected": "rank418-122288046-expected.json",
+      "expected_sha256": "627940e71bd76cce5fecf29119a5c58da95880936bc3c7f74873d9429fb36677",
+      "fixture": "rank418-122288046.pb",
+      "fixture_bytes": 793976,
+      "fixture_sha256": "9d9ba13340e958cd40d4ee011971a21744eda6d9f5f443fd31582821e36583ea",
+      "historical_runtime_keccak256": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884",
+      "prior_allowance_failure": {
+        "block": 122288046,
+        "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+        "holdout": false
+      },
+      "rank": 418,
+      "reference_frame": {
+        "line_1based": 41,
+        "line_sha256_without_newline": "28e448ee48da528e4196728aa689b884e72176c0bd701eb70c26fa4a0f837837"
+      },
+      "reference_rows": 5,
+      "scope": "Byte-for-byte complete historical Extended block: no header, transaction, system-call, code, nonce, storage or preimage records removed. Expected rows are the selected token's saved canonical stream rows only. Native replay/row equality still pending.",
+      "source_file_sha256": "8eb6fe9ff8ab4d163c95db324a27e5a2ab8604a96cc49e67db7101bc8ce71dcc",
+      "source_full_block": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288046.pb",
+      "source_full_block_sha256": "9d9ba13340e958cd40d4ee011971a21744eda6d9f5f443fd31582821e36583ea",
+      "source_response_sha256": "cd276e84539bc0158313ebafc5c54a3558d9306b1675fe8e3308026a4e71f336",
+      "zero_rows": 2
+    },
+    "qualified": false,
+    "rank": 418,
+    "reference_only_gaps": [
+      {
+        "reason": "No persisted non-noop root0 balance write in this complete block; cold storage output cannot infer this balance. Saved canonical event-selected reference only.",
+        "reference_row": {
+          "address": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
+          "amount": "0",
+          "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+        }
+      },
+      {
+        "reason": "No persisted non-noop root0 balance write in this complete block; cold storage output cannot infer this balance. Saved canonical event-selected reference only.",
+        "reference_row": {
+          "address": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+          "amount": "20390672839",
+          "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+        }
+      }
+    ]
+  },
+  {
+    "allowance_writes": [
+      {
+        "key": "0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831",
+        "new": "0x00000000000000000000000000000000ffffffffffffffffc91de07bd170643a",
+        "old": "0x00000000000000000000000000000000ffffffffffffffffc91de427d22b9aa3",
+        "ordinal": 2175
+      }
+    ],
+    "block": 122288154,
+    "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+    "expected_allowance_refusal": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+    "expected_emitted": [
+      {
+        "address": "0xbc1b47c8905bdc908a051449d62f086f300460ff",
+        "amount": "9720384827765485",
+        "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+      },
+      {
+        "address": "0x0ecf06daae95a9f860551cfd9ca175cc81ad90ed",
+        "amount": "736220421122028405",
+        "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+      }
+    ],
+    "fixture": "rank401-122288154.pb",
+    "fixture_sha256": "4a637c8760aa18d789863cc49fd203ecd94c04a8a55a483a4b10a049c54a660f",
+    "full_block_keccak256": "0xb6692b90daf96c41addcdd253429288aa329be85c2a3d96f7ba002cb5b26e521",
+    "full_block_sha256": "4a637c8760aa18d789863cc49fd203ecd94c04a8a55a483a4b10a049c54a660f",
+    "hash": "0x29c58cdb5f929f86b10b57d609964447249d29f77499c1ca75bf18539dcfd970",
+    "layout": {
+      "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "code_hash": "0x7d0c87901df63e0ee81cd5aaac3cf2b0d1a29ca31ada80792620e09598765232",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+      "other_mapping_paths": [
+        {
+          "key_types": [
+            "address",
+            "address"
+          ],
+          "offset": 0,
+          "root": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "words": 1
+        },
+        {
+          "key_types": [
+            "address"
+          ],
+          "offset": 0,
+          "root": "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "words": 1
+        },
+        {
+          "key_types": [
+            "bytes32",
+            "address"
+          ],
+          "offset": 0,
+          "root": "0x0000000000000000000000000000000000000000000000000000000000000006",
+          "words": 1
+        }
+      ],
+      "other_slots": [
+        "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "0x0000000000000000000000000000000000000000000000000000000000000007",
+        "0x000000000000000000000000000000000000000000000000000000000000000a",
+        "0x000000000000000000000000000000000000000000000000000000000000000b"
+      ]
+    },
+    "provenance": {
+      "block": 122288154,
+      "block_hash": "0x29c58cdb5f929f86b10b57d609964447249d29f77499c1ca75bf18539dcfd970",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+      "expected": "rank401-122288154-expected.json",
+      "expected_sha256": "08f66af09faba4fd2c4fbbf49d881a964136ab12866246b7de86d4fabaa4641a",
+      "fixture": "rank401-122288154.pb",
+      "fixture_bytes": 1835737,
+      "fixture_sha256": "4a637c8760aa18d789863cc49fd203ecd94c04a8a55a483a4b10a049c54a660f",
+      "historical_runtime_keccak256": "0x7d0c87901df63e0ee81cd5aaac3cf2b0d1a29ca31ada80792620e09598765232",
+      "prior_allowance_failure": {
+        "block": 122288154,
+        "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+        "holdout": false
+      },
+      "rank": 401,
+      "reference_frame": {
+        "line_1based": 149,
+        "line_sha256_without_newline": "05938b21c48737e2c1b03a010b7b0663f8a9dbf1e6ef8145b68270d9ae4c4b12"
+      },
+      "reference_rows": 6,
+      "scope": "Byte-for-byte complete historical Extended block: no header, transaction, system-call, code, nonce, storage or preimage records removed. Expected rows are the selected token's saved canonical stream rows only. Native replay/row equality still pending.",
+      "source_file_sha256": "3a8564a5eb1cdefc6b72b2e82bfb639842b8b4653fa2dc0be2fba90056281074",
+      "source_full_block": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288154.pb",
+      "source_full_block_sha256": "4a637c8760aa18d789863cc49fd203ecd94c04a8a55a483a4b10a049c54a660f",
+      "source_response_sha256": "4b751efc3542d9392a25f633b634e185a1fd73909c8809cbd16b1d6baa249a40",
+      "zero_rows": 3
+    },
+    "qualified": false,
+    "rank": 401,
+    "reference_only_gaps": [
+      {
+        "reason": "No persisted non-noop root0 balance write in this complete block; cold storage output cannot infer this balance. Saved canonical event-selected reference only.",
+        "reference_row": {
+          "address": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+          "amount": "1203955079705976",
+          "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+        }
+      },
+      {
+        "reason": "No persisted non-noop root0 balance write in this complete block; cold storage output cannot infer this balance. Saved canonical event-selected reference only.",
+        "reference_row": {
+          "address": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
+          "amount": "0",
+          "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+        }
+      },
+      {
+        "reason": "No persisted non-noop root0 balance write in this complete block; cold storage output cannot infer this balance. Saved canonical event-selected reference only.",
+        "reference_row": {
+          "address": "0xfe96f60686a3605039cc946eebf7f8fd78259174",
+          "amount": "0",
+          "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+        }
+      },
+      {
+        "reason": "No persisted non-noop root0 balance write in this complete block; cold storage output cannot infer this balance. Saved canonical event-selected reference only.",
+        "reference_row": {
+          "address": "0x0ccd96fa9146577ae232a02517c310784a890461",
+          "amount": "0",
+          "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23"
+        }
+      }
+    ]
+  }
+]

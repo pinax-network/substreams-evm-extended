@@ -85,6 +85,34 @@ reverts and system calls. In-memory typed versions of saved MUSD/OLY and USDe
 fixtures preserve all 11 captured RPC event expectations. Published profile
 fixtures remain unchanged.
 
+The separate [APD/DSG review](typed450-offline-review.md) traces their saved
+strict failures to ordinary allowance writes and retains the unsupported DSG
+enumerable-role shape explicitly.
+
+The [full saved-data baseline replay](evidence/typed-path-baseline-replay.json)
+uses the production source at commit `a8270d5` with the unchanged 431-profile
+fixture. All 1,024 full blocks in `[122288006, 122289030)` match the saved
+canonical-bound clock identities and parent chain. All 110,139 emitted balances
+(15,259 zeros) match the historical storage protobuf output, including every
+field and optional-contract presence; only row ordering is normalized.
+
+The separate canonical RPC capture supplies 110,138 same-block matches and
+4,012 matches for balances retained from earlier native emissions. There are no
+value mismatches. The replay does not seed a holder checkpoint, so 66,265
+reference-only observations remain unknown. One storage row absent from that
+RPC capture remains explicit: contract `0x32b133ca38c9b410a053f2bcfeea83831c3bcfe0`,
+holder `0xa6ee430f253057aa4de8d757f6de081bdaa75e52`, block 122288884, amount
+`100000000000000000000000000`. It matches historical storage output and is not
+counted as a same-block RPC comparison. These differences are why unchanged
+historical output is not described as universal stream-row parity or complete
+holder initialization.
+
+The first unoptimized attempt was deliberately stopped and preserved as a
+partial run. A separate optimized native run completed in 188.78 seconds with
+zero network requests. Input, per-block, output, source and attempt hashes are
+bound in the summary; full artifacts and the Rust runner remain under
+`out/typed-path-baseline-replay/` relative to this module.
+
 Live Substreams, Firehose and RPC usage is paused. The committed storage SPKGs
 predate this source change and are preserved as historical artifacts. Offline
 native replay and WASM compilation do not qualify a newly packaged module, new

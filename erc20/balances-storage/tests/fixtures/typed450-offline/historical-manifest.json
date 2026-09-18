@@ -1,0 +1,91 @@
+{
+  "cases": [
+    {
+      "block": 122288046,
+      "block_hash": "0x614777826355f3512e6d1e2b23d5e57934820ec95ae33e92be14c071dd1392cf",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "expected": "rank418-122288046-expected.json",
+      "expected_sha256": "627940e71bd76cce5fecf29119a5c58da95880936bc3c7f74873d9429fb36677",
+      "fixture": "rank418-122288046.pb",
+      "fixture_bytes": 793976,
+      "fixture_sha256": "9d9ba13340e958cd40d4ee011971a21744eda6d9f5f443fd31582821e36583ea",
+      "historical_runtime_keccak256": "0x60cdb82077b195e34bf239223f78f452a414001e509cac48230a865895d86884",
+      "prior_allowance_failure": {
+        "block": 122288046,
+        "error": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5dea3b6d2b7244fd7b2e54ef2651977044e068b1df52f762bbba45bf567711a1; refusing incomplete events",
+        "holdout": false
+      },
+      "rank": 418,
+      "reference_frame": {
+        "line_1based": 41,
+        "line_sha256_without_newline": "28e448ee48da528e4196728aa689b884e72176c0bd701eb70c26fa4a0f837837"
+      },
+      "reference_rows": 5,
+      "scope": "Byte-for-byte complete historical Extended block: no header, transaction, system-call, code, nonce, storage or preimage records removed. Expected rows are the selected token's saved canonical stream rows only. Native replay/row equality still pending.",
+      "source_file_sha256": "8eb6fe9ff8ab4d163c95db324a27e5a2ab8604a96cc49e67db7101bc8ce71dcc",
+      "source_full_block": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288046.pb",
+      "source_full_block_sha256": "9d9ba13340e958cd40d4ee011971a21744eda6d9f5f443fd31582821e36583ea",
+      "source_response_sha256": "cd276e84539bc0158313ebafc5c54a3558d9306b1675fe8e3308026a4e71f336",
+      "zero_rows": 2
+    },
+    {
+      "block": 122288154,
+      "block_hash": "0x29c58cdb5f929f86b10b57d609964447249d29f77499c1ca75bf18539dcfd970",
+      "contract": "0x001208f7f53f78db2b32e1c68198d3e8f320aa23",
+      "expected": "rank401-122288154-expected.json",
+      "expected_sha256": "08f66af09faba4fd2c4fbbf49d881a964136ab12866246b7de86d4fabaa4641a",
+      "fixture": "rank401-122288154.pb",
+      "fixture_bytes": 1835737,
+      "fixture_sha256": "4a637c8760aa18d789863cc49fd203ecd94c04a8a55a483a4b10a049c54a660f",
+      "historical_runtime_keccak256": "0x7d0c87901df63e0ee81cd5aaac3cf2b0d1a29ca31ada80792620e09598765232",
+      "prior_allowance_failure": {
+        "block": 122288154,
+        "error": "unresolved storage for configured token 0x001208f7f53f78db2b32e1c68198d3e8f320aa23 at key 0x28f348b3ea7a76cc94c6f52ebf838e5bfacc8c8d76aaaadb1c34b1a8bc4eb831; refusing incomplete events",
+        "holdout": false
+      },
+      "rank": 401,
+      "reference_frame": {
+        "line_1based": 149,
+        "line_sha256_without_newline": "05938b21c48737e2c1b03a010b7b0663f8a9dbf1e6ef8145b68270d9ae4c4b12"
+      },
+      "reference_rows": 6,
+      "scope": "Byte-for-byte complete historical Extended block: no header, transaction, system-call, code, nonce, storage or preimage records removed. Expected rows are the selected token's saved canonical stream rows only. Native replay/row equality still pending.",
+      "source_file_sha256": "3a8564a5eb1cdefc6b72b2e82bfb639842b8b4653fa2dc0be2fba90056281074",
+      "source_full_block": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/top50-full-holder-blocks/122288154.pb",
+      "source_full_block_sha256": "4a637c8760aa18d789863cc49fd203ecd94c04a8a55a483a4b10a049c54a660f",
+      "source_response_sha256": "4b751efc3542d9392a25f633b634e185a1fd73909c8809cbd16b1d6baa249a40",
+      "zero_rows": 3
+    }
+  ],
+  "fresh_eth_call_controls": false,
+  "full_capture_bytes": 2629713,
+  "full_reference": {
+    "original_ranking_report": "original-ranking-report.json",
+    "original_ranking_report_sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5",
+    "package": "/Users/denis/Github/substreams-evm-extended/spkg/erc20-balances-v0.3.4.spkg",
+    "package_sha256": "8aaa03b551b9d67ce1ea9aa0dae4310eda1807f2bc161bd53b17f82de9d92543",
+    "path": "/Users/denis/Github/substreams-evm-balances-storage/erc20/balances-storage/out/ranks401-450-ranking/reference.jsonl",
+    "ranking_report": "ranking-report.json",
+    "ranking_report_sha256": "dfe60042e8b043f096256021a5250b25240abd916cfe935ddb322953fb5eafdc",
+    "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+  },
+  "limits": "Selected canonical RPC rows are historical, event-selected and not fresh eth_call controls or global-holder snapshots. Full block bytes equal original capture bytes; strict native projection and equality with expected selected rows remain pending. No compact/full replay equivalence is claimed.",
+  "live_calls": 0,
+  "native_projection_performed": false,
+  "qualified": false,
+  "rows": 11,
+  "rows_per_contract": {
+    "0x001208f7f53f78db2b32e1c68198d3e8f320aa23": 6,
+    "0x3a090ac70c4f453838c34490e3b1cf925c03fc71": 5
+  },
+  "selected_rows_file": "selected-reference-rows.json",
+  "selected_rows_sha256": "2f6694c0a5dd78bd43ecfb2c10e8079ebfe2b6b65996387834f7c7a2e5a4451e",
+  "source_proof": "../proof.json",
+  "source_proof_sha256": "09cc69479ccf597ddf28c03a10789fd6ced09fe0457754505fad3db4180dcda1",
+  "status": "historical_regression_inputs_only_unqualified",
+  "supersedes_unvalidated_compact_attempt": {
+    "path": "../saved-canonical-samples/manifest.json",
+    "reason": "Prefer modest complete original blocks so no guard-relevant context can be omitted. Compact/full native output equality was not tested; do not promote the compact attempt.",
+    "sha256": "e9253a660fa554a8623a8f4d16261c330fb27b07d4e91b6783478c54a883aeb4"
+  }
+}

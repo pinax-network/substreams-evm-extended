@@ -42,6 +42,11 @@ investigation. Ethereum, Base, HyperEVM and Arc require independent qualificatio
 after the BSC work; the repository name is not a claim of verified coverage on
 every EVM network.
 
+The current source adds [exact typed mapping paths](erc20/balances-storage/docs/typed-mapping-paths.md),
+with offline checks against saved data. This change is not included in the
+preserved SPKGs. Live chain testing is paused; new token and package
+qualification remains pending.
+
 See [migration provenance](docs/migration.md) for the original PR, preserved
 schema/package digests and the distinction between historical qualification
 and the new repository's build and sink checks.

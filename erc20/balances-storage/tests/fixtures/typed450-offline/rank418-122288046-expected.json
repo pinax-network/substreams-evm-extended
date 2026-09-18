@@ -1,0 +1,33 @@
+{
+  "balances": [
+    {
+      "address": "0xfb26cf258ad722b5e4d1b806fd07bba043d0e437",
+      "amount": "14682920812492",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    },
+    {
+      "address": "0xa2e734199cc6fe60523670b9e4fdfa7fcdbc97a1",
+      "amount": "1669560233789246",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    },
+    {
+      "address": "0xb9b128af4a5c423c3d3a464c457e59b09a14904e",
+      "amount": "0",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    },
+    {
+      "address": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
+      "amount": "0",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    },
+    {
+      "address": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "amount": "20390672839",
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71"
+    }
+  ],
+  "block": 122288046,
+  "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+  "fresh_eth_call": false,
+  "source": "saved_immutable_canonical_RPC_stream"
+}

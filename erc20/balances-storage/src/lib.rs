@@ -451,6 +451,8 @@ mod ranks400_tests;
 mod role_width_tests;
 #[cfg(test)]
 mod trade450_tests;
+#[cfg(test)]
+mod typed450_tests;
 
 #[cfg(test)]
 mod ranks301_350_tests;
