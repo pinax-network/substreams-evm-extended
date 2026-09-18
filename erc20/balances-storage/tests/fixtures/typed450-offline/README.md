@@ -20,7 +20,11 @@ be checked, including when isolated from balance writes.
 historical manifest. `historical-manifest.json` is retained verbatim from the
 out-only two-case capture bundle; its `../proof.json` source-proof reference maps
 to the copied `proof.json` here. Original absolute cache paths remain provenance.
-Its relative expected-row/ranking files are copied alongside it. The full source
+Its relative expected-row files are copied alongside it. The two complete
+all-token ranking reports remain under repository-root
+`out/typed450-candidates/regression-two/`, with their exact filenames and hashes
+retained in the historical manifest; the tests do not need duplicate copies of
+those large inventories. The full source
 and compiler response inputs remain in `out/typed450-candidates/inputs`; their
 content hashes and complete saved runtime reconstruction records are preserved
 in `proof.json`.
