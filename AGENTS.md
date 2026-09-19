@@ -1,14 +1,17 @@
 # Repository guidance
 
 This repository contains EVM Substreams that consume Firehose **Extended**
-blocks. The Rust workspace has three members: the shared balances protobuf,
-`erc20/balances`, and its native Rust diagnostic tools.
+blocks. The Rust workspace members are the shared balances protobuf, the
+shared `common/persist` persisted-effect rules, `erc20/balances` and
+`native/balances`, each with its native Rust diagnostic tools.
 
 ## Production boundary
 
-- Keep the storage package's single RPC-free `map_events` module and shared
-  `evm.balances.v1.Events` output. Preserve the canonical balances protobuf field
-  numbers and wire types; do not introduce a custom storage protobuf or map cache.
+- Keep one RPC-free `map_events` module per package and the shared
+  `evm.balances.v1.Events` output for balance packages. Preserve the canonical
+  balances protobuf field numbers and wire types; do not introduce a custom
+  storage protobuf or map cache. `erc20/balances` keeps its embedded copy of
+  the persistence rules; `common/persist` must not diverge from it.
 - Require Extended block data and explicit, independently qualified layouts.
   Unknown writes and unreviewed runtime or dependency changes must fail closed.
 - Do not add `db_out`, database-change modules or custom sinks. External native

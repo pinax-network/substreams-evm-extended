@@ -1,8 +1,11 @@
 [workspace]
 members = [
   "proto",
+  "common/persist",
   "erc20/balances",
   "erc20/balances/tools",
+  "native/balances",
+  "native/balances/tools",
 ]
 resolver = "2"
 

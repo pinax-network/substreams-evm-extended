@@ -1,0 +1,23 @@
+[package]
+name = "native-balances-tools"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "Offline native balance replay over captured Extended blocks"
+
+# Host tools are intentionally empty on WASM; the workspace also checks every
+# member for wasm32-unknown-unknown. None of these dependencies enter ingestion.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+anyhow = "1"
+clap = { version = "4.5", features = ["derive"] }
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+native-balances = { path = ".." }
+evm-persist = { path = "../../../common/persist" }
+prost = { workspace = true }
+substreams-ethereum = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+tempfile = "3"

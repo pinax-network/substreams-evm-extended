@@ -1,0 +1,506 @@
+{
+ "source": "Historical evm-balances-storage prototype output (module map_balances, evm.balances.storage.v1.BlockBalances) from the retained 64-block run erc20/balances/out/rpc-exhaustive-64/storage.jsonl; see erc20/balances/docs/legacy-qualification.md and docs/evidence/rpc-exhaustive-64.json",
+ "prototype_source": "https://github.com/pinax-network/substreams-evm/blob/311f9005cc8606e9cb1034562b97cf7281f30c99/evm-balances-storage/src/lib.rs",
+ "storage_jsonl_sha256": "fe8a14259f7a90a06a5904966a7ffbecdd28a8b1b9444ad1247c185926c6a398",
+ "block": {
+  "number": 122260950,
+  "hash": "0x00de5f67359c37d39e58dca906906eb8b72b3bc2fce3a087746a3acb95fcbab4",
+  "parent_hash": "0x10838bed76a3f966bc6802806c092aca99d21fe9c90b9f963d485a57d6fcfffd",
+  "timestamp": 1789579421
+ },
+ "scope": "Native rows only (contract empty); the 18 WBNB rows of that run are ERC-20 evidence. old_amount is the balance before the first persisted change in the block, amount after the last, ordinal is the last persisted change ordinal. Historical evidence, not qualification of the new package.",
+ "native_rows": [
+  {
+   "address": "0x0000000000000000000000000000000000001000",
+   "old_amount": "954950400091462209055",
+   "amount": "954951803286322533679",
+   "ordinal": 3258
+  },
+  {
+   "address": "0x0000000000000000000000000000000000001002",
+   "old_amount": "100019095068705625660",
+   "amount": "100019199784739978243",
+   "ordinal": 3253
+  },
+  {
+   "address": "0x000000000000000000000000000000000000dead",
+   "old_amount": "16497561656610292603937458",
+   "amount": "16497561656777838258901592",
+   "ordinal": 3259
+  },
+  {
+   "address": "0x0000000071727de22e5e9d8baf0edac6f37da032",
+   "old_amount": "21916427657558601101",
+   "amount": "21916315505708601101",
+   "ordinal": 1376
+  },
+  {
+   "address": "0x019bd8ed017d11af0eb24d28dcdd0f9930c85ca3",
+   "old_amount": "4048855243538190835",
+   "amount": "4048851249338190835",
+   "ordinal": 2344
+  },
+  {
+   "address": "0x04fff667f17118092384682c735caf16a8d32641",
+   "old_amount": "0",
+   "amount": "0",
+   "ordinal": 150
+  },
+  {
+   "address": "0x07cb61618b69234d954022ff738a015548715533",
+   "old_amount": "0",
+   "amount": "0",
+   "ordinal": 2725
+  },
+  {
+   "address": "0x0bc80d505fbd4508392cf0a08dcee5293b2213f3",
+   "old_amount": "56342426550000000",
+   "amount": "56321373450000000",
+   "ordinal": 557
+  },
+  {
+   "address": "0x0fb9db7aea1486ccd31ad97cb2d93d5423dfc46a",
+   "old_amount": "117947991244974796",
+   "amount": "117889675256959357",
+   "ordinal": 1878
+  },
+  {
+   "address": "0x10168749958f03a7c95432bd934058c77be787b0",
+   "old_amount": "6160922348616438942",
+   "amount": "6160918315416438942",
+   "ordinal": 2444
+  },
+  {
+   "address": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
+   "old_amount": "1",
+   "amount": "1",
+   "ordinal": 2730
+  },
+  {
+   "address": "0x11eacd2bedd700a5e21ff70dea4086305100e5e0",
+   "old_amount": "13303200394471444335",
+   "amount": "13303208074471444335",
+   "ordinal": 2496
+  },
+  {
+   "address": "0x123fac3654d298e4dbcf875bed00bff284ee1d91",
+   "old_amount": "8344989913582188",
+   "amount": "8338827713582188",
+   "ordinal": 2707
+  },
+  {
+   "address": "0x12af762eaca80a113a213bb37ddb8a432b0d6811",
+   "old_amount": "27639513113892828",
+   "amount": "27637629569892828",
+   "ordinal": 2836
+  },
+  {
+   "address": "0x1db7e50fed74630cf35f3e9c2c038c38803762f2",
+   "old_amount": "3376226041397955784",
+   "amount": "3376158334083575346",
+   "ordinal": 157
+  },
+  {
+   "address": "0x22281cb6eee189fbd648b3ebc043c5b2fc0070aa",
+   "old_amount": "978886431641840133",
+   "amount": "978680772177242281",
+   "ordinal": 1926
+  },
+  {
+   "address": "0x286da9568057420df90c5489e51cbb82b29f0301",
+   "old_amount": "734206409452833548",
+   "amount": "734208513911306675",
+   "ordinal": 2584
+  },
+  {
+   "address": "0x29586f0e0fae4c7df24baea554e6f2871911fc44",
+   "old_amount": "274555079720014664",
+   "amount": "274554026969993609",
+   "ordinal": 2974
+  },
+  {
+   "address": "0x3a0bdd7eb478f9676d57fb80c5c179a5583089e1",
+   "old_amount": "3876586474974467",
+   "amount": "3824971474974467",
+   "ordinal": 1607
+  },
+  {
+   "address": "0x3b49d1a75a83d566098786a43d766345aee69ca4",
+   "old_amount": "445520957777046500",
+   "amount": "645520957777046500",
+   "ordinal": 600
+  },
+  {
+   "address": "0x3c07633579bc81fb81353c3535ced3b1ad2c4398",
+   "old_amount": "330491991780655232",
+   "amount": "330345949775655232",
+   "ordinal": 1037
+  },
+  {
+   "address": "0x47c8e798e425febc192921b96458fcdde68ac741",
+   "old_amount": "307084129389101347",
+   "amount": "307079918389080292",
+   "ordinal": 2982
+  },
+  {
+   "address": "0x4848489f0b2bedd788c696e2d79b6b69d7484848",
+   "old_amount": "62709888752709869741",
+   "amount": "62709888752709877063",
+   "ordinal": 3233
+  },
+  {
+   "address": "0x491c3e907cf37cf83bc6fcdfcd195f47ac05da52",
+   "old_amount": "23666944220449197841",
+   "amount": "23667121937700887329",
+   "ordinal": 1922
+  },
+  {
+   "address": "0x515b72ed8a97f42c568d6a143232775018f133c8",
+   "old_amount": "5089529872932127825445",
+   "amount": "5089529867771827825445",
+   "ordinal": 592
+  },
+  {
+   "address": "0x51fc6072daca29afd73e03e3ab5cd4a1353a56a7",
+   "old_amount": "2666114462273038",
+   "amount": "2661709531638720",
+   "ordinal": 1532
+  },
+  {
+   "address": "0x572a03d597a9d1c043e33211d08004095ed21bc0",
+   "old_amount": "4294401065854011554",
+   "amount": "4294394442514013954",
+   "ordinal": 1593
+  },
+  {
+   "address": "0x57fd714755dbe55798501e1b4b2bcc355c06bf6a",
+   "old_amount": "206693143635137484",
+   "amount": "206385615837455423",
+   "ordinal": 124
+  },
+  {
+   "address": "0x582e81b01b3b87d3240dd836e028f965a63bc38d",
+   "old_amount": "1406179470529659",
+   "amount": "1388114409235659",
+   "ordinal": 132
+  },
+  {
+   "address": "0x58d14eae623d9c8ff874d67a7a1639ed198be4a4",
+   "old_amount": "315093700000000",
+   "amount": "181349600000000",
+   "ordinal": 2163
+  },
+  {
+   "address": "0x59eac6c267f4c01ce924caf4f01e9673d43c50fd",
+   "old_amount": "348696363473756978",
+   "amount": "348691129123756978",
+   "ordinal": 2855
+  },
+  {
+   "address": "0x60fa01f400be63f8dd0e963296f9ee84faf3cc37",
+   "old_amount": "496122985672752",
+   "amount": "485630355707070",
+   "ordinal": 1565
+  },
+  {
+   "address": "0x6245517f5403b276eab78a42a78edc9b144e2c97",
+   "old_amount": "23291840800544260544",
+   "amount": "23291840800544260610",
+   "ordinal": 2312
+  },
+  {
+   "address": "0x6812a6921539d7dc53b20cdae44bff2d187f651c",
+   "old_amount": "360388044761355547",
+   "amount": "360379145009014234",
+   "ordinal": 218
+  },
+  {
+   "address": "0x694fbd365620b61249fe35c6f980dde8d2c913f6",
+   "old_amount": "927602008322802657",
+   "amount": "927592479062802657",
+   "ordinal": 2824
+  },
+  {
+   "address": "0x69aaaff7419fd2ce58079f05ff06b2ff66d446d2",
+   "old_amount": "109003595502288813349",
+   "amount": "109003595562288813349",
+   "ordinal": 735
+  },
+  {
+   "address": "0x6a8bc064cb995a14b42a35c77cf48a79831b43ae",
+   "old_amount": "348921521580719864",
+   "amount": "148920377291391864",
+   "ordinal": 599
+  },
+  {
+   "address": "0x6d270a38fb8e73d09d547268f4e76b68e2de35d6",
+   "old_amount": "8035626020192515788",
+   "amount": "8035602642092515788",
+   "ordinal": 1162
+  },
+  {
+   "address": "0x6e8e11d5906f07109755b7f45ff4dc4c6d8f080c",
+   "old_amount": "44333704491687078",
+   "amount": "320459609036673285",
+   "ordinal": 370
+  },
+  {
+   "address": "0x73293e25d23468e742ad6537a38c0d28551380b1",
+   "old_amount": "699634700000000",
+   "amount": "696185600000000",
+   "ordinal": 2258
+  },
+  {
+   "address": "0x73fe60316581439707302b0ebe9a3d8cb1110db0",
+   "old_amount": "12559268310586864",
+   "amount": "71741855515210321",
+   "ordinal": 419
+  },
+  {
+   "address": "0x7a22eef00f8cace14fd4fba745c3d95ee228a2f8",
+   "old_amount": "148831311445847378",
+   "amount": "148826274745847378",
+   "ordinal": 2193
+  },
+  {
+   "address": "0x7bef16275a88bd9c3004dbd0b85da65b08705c24",
+   "old_amount": "920688042781981552",
+   "amount": "920682855474533167",
+   "ordinal": 2966
+  },
+  {
+   "address": "0x7eb8317c77de6fb2e6e3495cffaaa29fee0af69a",
+   "old_amount": "2480837385038768517",
+   "amount": "2480748272341967615",
+   "ordinal": 2658
+  },
+  {
+   "address": "0x81c4603177f1e2d8925b94de93308128e0e92f30",
+   "old_amount": "7150000000000",
+   "amount": "905232169547",
+   "ordinal": 581
+  },
+  {
+   "address": "0x92240be371374e0be68cd529088bbf27632ef17a",
+   "old_amount": "2492414871787409167",
+   "amount": "2492396800492089343",
+   "ordinal": 1420
+  },
+  {
+   "address": "0x93f9af8bc40f140f7b3c853d7f97555aa057486a",
+   "old_amount": "5875352350000000",
+   "amount": "5869514250000000",
+   "ordinal": 1424
+  },
+  {
+   "address": "0xa180fe01b906a1be37be6c534a3300785b20d947",
+   "old_amount": "3666270250839754723089",
+   "amount": "3666270245679454723089",
+   "ordinal": 1576
+  },
+  {
+   "address": "0xa59a83b2a8de64abffb3523760abffef8865dd81",
+   "old_amount": "2224306213475086194",
+   "amount": "2224297112390086194",
+   "ordinal": 2875
+  },
+  {
+   "address": "0xa70ff123a2197c53d4754ea6920bd6773372db5e",
+   "old_amount": "206418588244384",
+   "amount": "194576944244384",
+   "ordinal": 298
+  },
+  {
+   "address": "0xa757b252095f4cb289962abf40ea859e2a607657",
+   "old_amount": "84832929840846201",
+   "amount": "84831159640846201",
+   "ordinal": 3207
+  },
+  {
+   "address": "0xab2c9ef7f8779942af0a8d6ddc649e74b87406f2",
+   "old_amount": "7451070000000",
+   "amount": "5816085000000",
+   "ordinal": 318
+  },
+  {
+   "address": "0xad51eb1bfbae61e7f4799af2a7802d079ecbea62",
+   "old_amount": "3478893000000",
+   "amount": "5113218000000",
+   "ordinal": 306
+  },
+  {
+   "address": "0xaf7e351046795f3068874772eeb0f9edfc2b6501",
+   "old_amount": "305313357500",
+   "amount": "349833357500",
+   "ordinal": 2621
+  },
+  {
+   "address": "0xb01123a3718be9358e5d0e4886d4c7811e943f7d",
+   "old_amount": "350629640125132215",
+   "amount": "350622276857847045",
+   "ordinal": 1510
+  },
+  {
+   "address": "0xb01caea8c6c47bbf4f4b4c5080ca642043359c2e",
+   "old_amount": "6505845807650297887",
+   "amount": "6505840361330297887",
+   "ordinal": 2599
+  },
+  {
+   "address": "0xb07c5696a3a154da6b674b3b8cc53c8c99da116f",
+   "old_amount": "234382789750783448",
+   "amount": "7044017780459504",
+   "ordinal": 2764
+  },
+  {
+   "address": "0xb32e38df51587fe41fb343943a370dfc7a3d1f05",
+   "old_amount": "185662979511658790",
+   "amount": "185652503565845899",
+   "ordinal": 2318
+  },
+  {
+   "address": "0xb4c0bc67ed1487ca037e48e99e596e8745f68431",
+   "old_amount": "907128180520174794",
+   "amount": "907114804734217922",
+   "ordinal": 2589
+  },
+  {
+   "address": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+   "old_amount": "1589817001664672496230770",
+   "amount": "1589816893684824264925850",
+   "ordinal": 2731
+  },
+  {
+   "address": "0xbdcc079bbb23c1d9a6f36aa31309676c258abac7",
+   "old_amount": "3028593472399379465",
+   "amount": "3028593472399379465",
+   "ordinal": 3249
+  },
+  {
+   "address": "0xbf1b8dc88af9d7d3451566c0771ae36983d3ef7d",
+   "old_amount": "223634902188643618",
+   "amount": "223625189188643618",
+   "ordinal": 675
+  },
+  {
+   "address": "0xc383960159d5c5f6ad9bbc6519a9e1937ca58046",
+   "old_amount": "210189906831755448",
+   "amount": "210153183561594120",
+   "ordinal": 671
+  },
+  {
+   "address": "0xc78304acdf1f0d62b51441a38e5c1bab78f03f7a",
+   "old_amount": "3678257611644570186",
+   "amount": "3678216023934376440",
+   "ordinal": 2427
+  },
+  {
+   "address": "0xca1ef33a9522ef11265858592f0209b45473c846",
+   "old_amount": "5128497552691616031",
+   "amount": "5128535692941616031",
+   "ordinal": 1381
+  },
+  {
+   "address": "0xcb7d43706074dc1645d1b64e69fb09a9e1c2ae4b",
+   "old_amount": "12923400731706787900",
+   "amount": "12923473393439287900",
+   "ordinal": 3225
+  },
+  {
+   "address": "0xcbbab726ac360e2e3cabdfc36953ad67627f1424",
+   "old_amount": "59750060050820322",
+   "amount": "59724284329879359",
+   "ordinal": 3194
+  },
+  {
+   "address": "0xce203aa4d94c56efa41c92e73c66abf1425ff719",
+   "old_amount": "4138490624441506",
+   "amount": "4077337452491506",
+   "ordinal": 2955
+  },
+  {
+   "address": "0xd36b6d646ac6e23672e9eedec558164c7f2d6deb",
+   "old_amount": "151814844609428999",
+   "amount": "151814844609428999",
+   "ordinal": 741
+  },
+  {
+   "address": "0xd4c7878712c647d125a1ce29707aaa9d54b6d31d",
+   "old_amount": "588374512127866395",
+   "amount": "588069713927004351",
+   "ordinal": 2247
+  },
+  {
+   "address": "0xd801159b9ba7551d1e3f3034f36b146f2193cdad",
+   "old_amount": "72313586507143879",
+   "amount": "72312157857143879",
+   "ordinal": 429
+  },
+  {
+   "address": "0xda1261db58599ae2ea44c0d6e426e672ec9511f1",
+   "old_amount": "1480694475101873",
+   "amount": "1477743855938018",
+   "ordinal": 612
+  },
+  {
+   "address": "0xdac967c10444267ee2e30de4d94ad997ada96be6",
+   "old_amount": "2507643138708683990",
+   "amount": "2507640176133704990",
+   "ordinal": 305
+  },
+  {
+   "address": "0xde068ca42aef59a263522d2aa3c8291dfe0d77de",
+   "old_amount": "1106216715361047",
+   "amount": "1099770765361047",
+   "ordinal": 1464
+  },
+  {
+   "address": "0xde7df36058b500b04659470ce9c38d5a442dcb05",
+   "old_amount": "98751040904064924",
+   "amount": "98744737191064924",
+   "ordinal": 264
+  },
+  {
+   "address": "0xe0a28b9ef33a4ca552ec195c1795aa3dd947e992",
+   "old_amount": "7104176350000000",
+   "amount": "7098819350000000",
+   "ordinal": 2663
+  },
+  {
+   "address": "0xe2fc31f816a9b94326492132018c3aecc4a93ae1",
+   "old_amount": "3780418453748943898814",
+   "amount": "3780418450296243898814",
+   "ordinal": 568
+  },
+  {
+   "address": "0xe4e246fc369a0ae5a4d48b2979b970f87cdfb635",
+   "old_amount": "10681252397949676",
+   "amount": "10672411097772850",
+   "ordinal": 3026
+  },
+  {
+   "address": "0xeb1f9e59386c9e29c6b04d9a62b5c7d218a4391f",
+   "old_amount": "993461380000000",
+   "amount": "990191410000000",
+   "ordinal": 3218
+  },
+  {
+   "address": "0xeee1aefc5e1c8d7b5c8e3f33b2a4c26ab3842870",
+   "old_amount": "348722804096135690",
+   "amount": "348703792040135690",
+   "ordinal": 2500
+  },
+  {
+   "address": "0xef8783382ef80ec23b66c43575a6103deca909c3",
+   "old_amount": "526676321217588420471",
+   "amount": "526676312817588289399",
+   "ordinal": 268
+  },
+  {
+   "address": "0xfffffffffffffffffffffffffffffffffffffffe",
+   "old_amount": "0",
+   "amount": "0",
+   "ordinal": 3244
+  }
+ ]
+}

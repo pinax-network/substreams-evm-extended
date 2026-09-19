@@ -9,6 +9,12 @@ One RPC-free `map_events` reads persisted storage changes and emits
 implementation. Layouts are explicitly configured and verified; the default
 is `[]`. Blocks without the required Extended data are rejected.
 
+[Native balances](native/balances/README.md) is a second one-map package with
+the same protobuf: `Balance.contract` is absent and `amount` is the final
+persisted native balance of every account changed in the block. It ports the
+historical RPC-free native reducer and replays saved BSC blocks offline; no
+SPKG is committed and live qualification is pending.
+
 The [native ClickHouse sink supplied by the Substreams CLI](erc20/balances/clickhouse/README.md)
 consumes the protobuf directly. This workspace contains no `db_out` module,
 custom ClickHouse/PostgreSQL sink, or database-change dependency.
@@ -17,7 +23,9 @@ The shared schema stays in the repository-root `proto/` crate:
 
 - `proto/v1/balances.proto`: canonical balance schema.
 - `proto/src/pb/`: shared generated Rust types.
-- `erc20/balances/`: Extended-block balance module and native audit tools.
+- `common/persist/`: shared persisted-effect rules for Extended blocks.
+- `erc20/balances/`: Extended-block ERC-20 balance module and native audit tools.
+- `native/balances/`: Extended-block native balance module and offline replay tool.
 
 Keeping the schema separate from the module gives future Extended modules the
 same protobuf contract without copying generated types.

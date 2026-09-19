@@ -398,6 +398,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "evm-persist"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "prost 0.13.5",
+ "substreams",
+ "substreams-ethereum",
+]
+
+[[package]]
 name = "fallible-iterator"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -811,6 +821,38 @@ name = "multimap"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d87ecb2933e8aeadb3e3a02b828fed80a7528047e68b4f424523a0981a3a084"
+
+[[package]]
+name = "native-balances"
+version = "0.1.0"
+dependencies = [
+ "evm-persist",
+ "hex",
+ "prost 0.13.5",
+ "prost-types 0.13.5",
+ "proto",
+ "serde",
+ "serde_json",
+ "substreams",
+ "substreams-ethereum",
+]
+
+[[package]]
+name = "native-balances-tools"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "evm-persist",
+ "hex",
+ "native-balances",
+ "prost 0.13.5",
+ "serde",
+ "serde_json",
+ "sha2",
+ "substreams-ethereum",
+ "tempfile",
+]
 
 [[package]]
 name = "num-bigint"
