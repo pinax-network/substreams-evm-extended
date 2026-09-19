@@ -16,6 +16,26 @@ by the latest offline APD/DSG replay.
 | Cold-start initialization and holder completeness | [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7) | High |
 | Ethereum, Base, HyperEVM and Arc | [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8) | High |
 
+The [extraction roadmap](https://github.com/pinax-network/substreams-evm-extended/issues/21)
+adds focused balance-state and execution-fact packages. Its requirements are
+recorded in [extraction coverage](extraction-coverage.md).
+
+| Work | GitHub issue | Effort |
+| --- | --- | --- |
+| Chain, asset and action coverage requirements | [#11](https://github.com/pinax-network/substreams-evm-extended/issues/11) | Low |
+| Versioned holder/global balance-state contract | [#12](https://github.com/pinax-network/substreams-evm-extended/issues/12) | Medium |
+| Aave aToken basis and reserve inputs | [#13](https://github.com/pinax-network/substreams-evm-extended/issues/13) | High |
+| Compound v2 shares and exchange-rate dependencies | [#14](https://github.com/pinax-network/substreams-evm-extended/issues/14) | High |
+| Compound III principal and market inputs | [#15](https://github.com/pinax-network/substreams-evm-extended/issues/15) | High |
+| Rust conformance models for time-dependent balances | [#16](https://github.com/pinax-network/substreams-evm-extended/issues/16) | High |
+| Native balances package (`native/balances`) | [#17](https://github.com/pinax-network/substreams-evm-extended/issues/17) | High |
+| EVM call trees and persisted execution facts | [#18](https://github.com/pinax-network/substreams-evm-extended/issues/18) | High |
+| Standard ERC-20 transfer and approval evidence | [#19](https://github.com/pinax-network/substreams-evm-extended/issues/19) | Medium |
+| Aave lending-action evidence adapter | [#20](https://github.com/pinax-network/substreams-evm-extended/issues/20) | Medium |
+| Non-Transfer ERC-20 balance regression coverage | [#22](https://github.com/pinax-network/substreams-evm-extended/issues/22) | Medium |
+| stETH shares and global rebase state | [#23](https://github.com/pinax-network/substreams-evm-extended/issues/23) | High |
+| ERC-4626 shares and conversion state | [#24](https://github.com/pinax-network/substreams-evm-extended/issues/24) | High |
+
 The matching GitHub labels estimate the full remaining scope, not urgency or
 readiness. Low is reserved for small localized changes; none of these current
 issues fits that category. Medium work uses established validation paths;

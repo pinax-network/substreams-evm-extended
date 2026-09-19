@@ -66,7 +66,9 @@ preserved SPKGs. Live chain testing is paused; new token and package
 qualification remains pending.
 
 Outstanding implementation, holder coverage, packaging and network work is
-tracked in [GitHub follow-up issues](docs/follow-up.md).
+tracked in [GitHub follow-up issues](docs/follow-up.md). The requested chains,
+asset scopes, protocol deployments and action-evidence mapping for the
+extraction roadmap are recorded in [extraction coverage](docs/extraction-coverage.md).
 
 See [migration provenance](docs/migration.md) for the original PR, preserved
 schema/package digests and the distinction between historical qualification
