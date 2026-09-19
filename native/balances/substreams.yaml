@@ -1,0 +1,26 @@
+specVersion: v0.1.0
+package:
+  name: native_balances
+  version: v0.1.0
+  url: https://github.com/pinax-network/substreams-evm-extended
+  description: RPC-free native account balances from persisted Extended block state.
+protobuf:
+  files: [balances.proto]
+  importPaths: [../../proto/v1]
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ../../target/wasm32-unknown-unknown/release/native_balances.wasm
+modules:
+  - name: map_events
+    kind: map
+    inputs:
+      - params: string
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:evm.balances.v1.Events
+params:
+  # Only the Extended producer version replayed from saved BSC fixtures. Other
+  # producer versions and networks require their own qualification (#8).
+  map_events: '{"producer_versions":[5]}'
+network: bsc
