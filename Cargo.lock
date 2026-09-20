@@ -456,6 +456,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "erc4626-balance-state"
+version = "0.1.0"
+dependencies = [
+ "evm-persist",
+ "hex",
+ "prost 0.13.5",
+ "prost-types 0.13.5",
+ "proto",
+ "serde",
+ "serde_json",
+ "sha2",
+ "substreams",
+ "substreams-ethereum",
+ "tiny-keccak",
+]
+
+[[package]]
 name = "errno"
 version = "0.3.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,0 +1,50 @@
+{
+  "chain_id": 1,
+  "producer_versions": [5],
+  "heartbeat_blocks": 1000,
+  "vaults": [
+    {
+      "vault": "0x83F20F44975D03b1b09e64809B757c47f942BEeA",
+      "epoch": 1,
+      "model": "maker-savings-dai",
+      "model_id": "erc4626/maker-savings-dai/rpow-chi",
+      "source_pin": "sky-ecosystem/sdai@665879762f8b5df5d234463f45d1d6a49bd4fbeb src/SavingsDai.sol; makerdao/dss src/pot.sol; chainlog MCD_POT",
+      "activation_block": 1,
+      "asset": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "asset_decimals": 18,
+      "vault_decimals": 18,
+      "balances_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "total_supply_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "other_mapping_slots": [
+        "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "0x0000000000000000000000000000000000000000000000000000000000000003"
+      ],
+      "pot": {
+        "address": "0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7",
+        "dsr_slot": "0x0000000000000000000000000000000000000000000000000000000000000003",
+        "chi_slot": "0x0000000000000000000000000000000000000000000000000000000000000004",
+        "rho_slot": "0x0000000000000000000000000000000000000000000000000000000000000007"
+      }
+    },
+    {
+      "vault": "0x0000000000000000000000000000000000004626",
+      "epoch": 1,
+      "model": "oz-virtual-offset",
+      "model_id": "erc4626/openzeppelin-v5/virtual-offset",
+      "source_pin": "OpenZeppelin/openzeppelin-contracts@932fddf69a699a9a80fd2396fd1a2ab91cdda123 (v5.0.0) contracts/token/ERC20/extensions/ERC4626.sol; placeholder vault, synthetic tests only",
+      "activation_block": 1,
+      "asset": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "asset_decimals": 6,
+      "vault_decimals": 18,
+      "balances_slot": "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace00",
+      "total_supply_slot": "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace02",
+      "other_mapping_slots": [
+        "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace01"
+      ],
+      "oz": {
+        "asset_balances_slot": "0x0000000000000000000000000000000000000000000000000000000000000009",
+        "decimals_offset": 12
+      }
+    }
+  ]
+}

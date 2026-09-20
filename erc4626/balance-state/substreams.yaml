@@ -1,0 +1,25 @@
+specVersion: v0.1.0
+package:
+  name: erc4626_balance_state
+  version: v0.1.0
+  url: https://github.com/pinax-network/substreams-evm-extended
+  description: RPC-free ERC-4626 vault shares, total supply and source-bound conversion inputs (Aave static aToken, Savings DAI, OpenZeppelin virtual offset) for explicitly qualified vault epochs.
+protobuf:
+  files: [balance_state.proto]
+  importPaths: [../../proto/v1]
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ../../target/wasm32-unknown-unknown/release/erc4626_balance_state.wasm
+modules:
+  - name: map_events
+    kind: map
+    inputs:
+      - params: string
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:evm.balance_state.v1.Events
+params:
+  # No vault is bound by default; the manifest network must match the binding.
+  map_events: '{"chain_id":56,"producer_versions":[5],"vaults":[]}'
+network: bsc
