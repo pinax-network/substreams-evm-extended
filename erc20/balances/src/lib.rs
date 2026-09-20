@@ -498,4 +498,6 @@ mod voting_tests;
 #[cfg(test)]
 mod vsd_tests;
 #[cfg(test)]
+mod wbnb_mutation_tests;
+#[cfg(test)]
 mod xvs_tests;

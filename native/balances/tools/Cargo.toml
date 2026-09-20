@@ -21,3 +21,5 @@ substreams-ethereum = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 tempfile = "3"
+erc20-balances = { path = "../../../erc20/balances" }
+substreams = { workspace = true }

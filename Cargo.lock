@@ -316,6 +316,7 @@ dependencies = [
  "proto",
  "serde",
  "serde_json",
+ "sha2",
  "substreams",
  "substreams-abis",
  "substreams-ethereum",
@@ -843,6 +844,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "erc20-balances",
  "evm-persist",
  "hex",
  "native-balances",
@@ -850,6 +852,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "substreams",
  "substreams-ethereum",
  "tempfile",
 ]
