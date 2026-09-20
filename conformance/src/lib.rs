@@ -5,6 +5,8 @@
 //! never zero. Rounding follows the pinned source of each epoch.
 
 pub mod aave;
+pub mod comet;
+pub mod compound_v2;
 
 /// Why a reference evaluation cannot produce a number.
 #[derive(Clone, Debug, PartialEq, Eq)]

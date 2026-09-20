@@ -35,7 +35,7 @@ The shared schema stays in the repository-root `proto/` crate:
 - `aave/balance-state/`: Aave V3 aToken holder basis and reserve state module.
 - `aave/actions/`: Aave V3 Pool lending-action evidence.
 - `evm/executions/`: call trees, logs, code changes and SetCode authorizations.
-- `conformance/`: host-only exact integer reference models (Aave V3).
+- `conformance/`: host-only exact integer reference models (Aave V3, Comet, Compound v2).
 
 Keeping the schema separate from the module gives future Extended modules the
 same protobuf contract without copying generated types.
