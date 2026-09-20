@@ -1,0 +1,26 @@
+specVersion: v0.1.0
+package:
+  name: aave_actions
+  version: v0.1.0
+  url: https://github.com/pinax-network/substreams-evm-extended
+  description: Aave V3 Pool lending-action evidence for one explicitly bound Pool epoch; not wallet labels.
+protobuf:
+  files: [aave_actions.proto]
+  importPaths: [../../proto/v1]
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ../../target/wasm32-unknown-unknown/release/aave_actions.wasm
+modules:
+  - name: map_events
+    kind: map
+    inputs:
+      - params: string
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:aave.actions.v1.Events
+params:
+  # No Pool is bound by default: only BlockClock rows are emitted. Supply a
+  # reviewed binding such as tests/fixtures/bsc-aave-v3-pool.json.
+  map_events: '{"chain_id":56,"producer_versions":[5],"pools":[]}'
+network: bsc
