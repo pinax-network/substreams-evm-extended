@@ -33,6 +33,7 @@ The shared schema stays in the repository-root `proto/` crate:
 - `erc20/events/`: standard ERC-20 Transfer and Approval log evidence.
 - `native/balances/`: Extended-block native balance module and offline replay tool.
 - `aave/balance-state/`: Aave V3 aToken holder basis and reserve state module.
+- `compound-v3/balance-state/`: Compound III (Comet) signed principal and market index module.
 - `aave/actions/`: Aave V3 Pool lending-action evidence.
 - `evm/executions/`: call trees, logs, code changes and SetCode authorizations.
 - `conformance/`: host-only exact integer reference models (Aave V3, Comet, Compound v2).
