@@ -1,0 +1,48 @@
+{
+  "chain_id": 56,
+  "producer_versions": [5],
+  "heartbeat_blocks": 1000,
+  "pool": {
+    "address": "0x6807dc923806fE8Fd134338EABCA509979a7e0cB",
+    "reserves_slot": "0x0000000000000000000000000000000000000000000000000000000000000034",
+    "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+    "implementation": "0x5e2B0FcC5b9734C7Ec0A03401ee9e6805F783B6d",
+    "source_pin": "bgd-labs/aave-address-book@4e13aa197ca74e84c7e878bc752e519c260d6f30 AaveV3BNB; reserves slot 52 observed from Pool writes keyed keccak(asset, 52) in saved BSC blocks"
+  },
+  "markets": [
+    {
+      "atoken": "0xa9251ca9DE909CB71783723713B21E4233fbf1B1",
+      "underlying": "0x55d398326f99059fF775485246999027B3197955",
+      "epoch": 1,
+      "model_id": "aave-v3/atoken/scaled-floor",
+      "source_pin": "aave-dao/aave-v3-origin@8305565ae342f1773c42cd2e4593f175fe5968a0",
+      "implementation_revision": "5",
+      "activation_block": 122288006,
+      "balance_decimals": 18,
+      "rounding": "floor",
+      "basis_bits": 120,
+      "user_state_slot": "0x0000000000000000000000000000000000000000000000000000000000000034",
+      "total_supply_slot": "0x0000000000000000000000000000000000000000000000000000000000000036",
+      "other_mapping_slots": ["0x0000000000000000000000000000000000000000000000000000000000000035"],
+      "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+      "implementation": "0x7e199Fc666368d95B9EaEfA7D2d8081AcAb74134"
+    },
+    {
+      "atoken": "0x00901a076785e0906d1028c7d6372d247bec7d61",
+      "underlying": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+      "epoch": 1,
+      "model_id": "aave-v3/atoken/scaled-floor",
+      "source_pin": "aave-dao/aave-v3-origin@8305565ae342f1773c42cd2e4593f175fe5968a0",
+      "implementation_revision": "5",
+      "activation_block": 122288006,
+      "balance_decimals": 18,
+      "rounding": "floor",
+      "basis_bits": 120,
+      "user_state_slot": "0x0000000000000000000000000000000000000000000000000000000000000034",
+      "total_supply_slot": "0x0000000000000000000000000000000000000000000000000000000000000036",
+      "other_mapping_slots": ["0x0000000000000000000000000000000000000000000000000000000000000035"],
+      "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+      "implementation": "0x7e199Fc666368d95B9EaEfA7D2d8081AcAb74134"
+    }
+  ]
+}

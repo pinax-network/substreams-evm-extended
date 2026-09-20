@@ -263,6 +263,8 @@ enum StateField {
   // Packed reserve configuration word (active/paused/frozen bits); gates
   // withdrawability, not conversion.
   STATE_FIELD_AAVE_RESERVE_CONFIGURATION = 6;
+  // aToken `_totalSupply` in scaled units (`key` = aToken).
+  STATE_FIELD_AAVE_SCALED_TOTAL_SUPPLY = 7;
 
   // Compound v2 `CTokenStorage` and the cross-contract cash input.
   // Mantissas are 1e18-scaled; block numbers and totals are scale 1.

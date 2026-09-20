@@ -1,0 +1,38 @@
+{
+  "source": "Unmodified transaction traces from the locally retained BSC Extended block captures (erc20/balances/out/top50-full-holder-blocks, producer version 5). Each fixture keeps the block header, hash and number and one TransactionTrace; other transactions and block-level records are omitted.",
+  "extraction": "Decoded with prost from the captured <height>.pb, filtered transaction_traces to the listed index, re-encoded. No field edits.",
+  "configuration": "tests/fixtures/bsc-aave-v3-epochs.json (Aave V3 BNB Pool 0x6807dc923806fE8Fd134338EABCA509979a7e0cB, aBnbUSDT 0xa9251ca9DE909CB71783723713B21E4233fbf1B1, aBnbUSDC 0x00901a076785e0906d1028c7d6372d247bec7d61); reserves mapping slot 52 and aToken slots 0x34/0x35/0x36 observed from Keccak preimages in the saved blocks and consistent with the pinned source declaration order.",
+  "scope": "Saved-data tests of the Rust map (issue #13). Not packaged WASM execution, not RPC qualification; runtime code hashes and activation blocks remain unbound.",
+  "cases": [
+    {
+      "file": "122288220-tx71-ausdt-withdraw.pb",
+      "block": 122288220,
+      "block_hash": "0xa20c17c45150003f0af3eee8f352f04cc4f6d1073bc294f0151afbb2f392838b",
+      "source_block_sha256": "1b11ef12c9e294e581aec20cc26eeabcf4f4a5a5173dcd8b183758208f75447f",
+      "transaction": "0xce3e86573c74a1c1bcd2da57ad87c799caa819c47ecff3cfeb145d1582de6d5d",
+      "transaction_index": 71,
+      "fixture_sha256": "327dc3b6a850b33cf5847a404c97021fae07ba130d21d078b9aaca1855ebce82",
+      "demonstrates": "aBnbUSDT holder burns to a known zero (two writes to the same _userState word: index then balance); Pool writes the USDT reserve index/rate word twice and the clock word once; scaled total supply falls"
+    },
+    {
+      "file": "122288734-tx81-ausdt-supply.pb",
+      "block": 122288734,
+      "block_hash": "0xc26f2c17fab44273a080ec2ee73ed95c8e1a0603614f5ae4d926b90bb3df5a5f",
+      "source_block_sha256": "a81ff7b93be1a4c39ac4ac71a0253cb5eaff6f8e5c53e76fa5c52c488affd911",
+      "transaction": "0xe55c48135ccc3e58c19535c2ca027897edde41986f3bf442ab67b20c74670e9b",
+      "transaction_index": 81,
+      "fixture_sha256": "309974bc2835b6dba5cb2247e22275f610581af328ffa6ce813d30857a128951",
+      "demonstrates": "aBnbUSDT holder scaled balance decreases by a withdrawal; the reserve index written here equals rayMul(linearInterest(previous rate, previous timestamp, block timestamp), previous index), the conformance oracle"
+    },
+    {
+      "file": "122288932-tx1-ausdt-ausdc-two-reserves.pb",
+      "block": 122288932,
+      "block_hash": "0xcfca8947a7447cf545071e40dd0a2364c1f1fe0a8f81ec52a49e676e8fa8ede8",
+      "source_block_sha256": "d10b17ed0dd0febdb4c8db0c18a838f96edeb77f908f126060733fb767dc86dd",
+      "transaction": "0x75d1f932e1ce0fcbecd2c6d60a0a98699ffa81962e99d93f71cc1cac5e1672f0",
+      "transaction_index": 1,
+      "fixture_sha256": "e88130759070683f63f810ef02b4209ce7de51ee1d292259c303e0d65b0bc47a",
+      "demonstrates": "one holder touches both aBnbUSDT and aBnbUSDC in one transaction; both reserves' index/rate/clock words update (USDC index written three times); rows stay separated per market"
+    }
+  ]
+}
