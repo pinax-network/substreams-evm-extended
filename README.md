@@ -22,6 +22,8 @@ custom ClickHouse/PostgreSQL sink, or database-change dependency.
 The shared schema stays in the repository-root `proto/` crate:
 
 - `proto/v1/balances.proto`: canonical balance schema.
+- `proto/v1/balance_state.proto`: versioned holder/global balance-state
+  companion schema for protocol packages ([contract](docs/balance-state-contract.md)).
 - `proto/src/pb/`: shared generated Rust types.
 - `common/persist/`: shared persisted-effect rules for Extended blocks.
 - `erc20/balances/`: Extended-block ERC-20 balance module and native audit tools.

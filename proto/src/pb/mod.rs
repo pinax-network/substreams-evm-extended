@@ -4,4 +4,9 @@ pub mod evm {
             include!("evm.balances.v1.rs");
         }
     }
+    pub mod balance_state {
+        pub mod v1 {
+            include!("evm.balance_state.v1.rs");
+        }
+    }
 }

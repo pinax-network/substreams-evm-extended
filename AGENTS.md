@@ -10,8 +10,10 @@ shared `common/persist` persisted-effect rules, `erc20/balances` and
 - Keep one RPC-free `map_events` module per package and the shared
   `evm.balances.v1.Events` output for balance packages. Preserve the canonical
   balances protobuf field numbers and wire types; do not introduce a custom
-  storage protobuf or map cache. `erc20/balances` keeps its embedded copy of
-  the persistence rules; `common/persist` must not diverge from it.
+  storage protobuf or map cache. Protocol balance-state packages emit the
+  companion `evm.balance_state.v1.Events` instead, never a replacement for
+  `Balance.amount`. `erc20/balances` keeps its embedded copy of the
+  persistence rules; `common/persist` must not diverge from it.
 - Require Extended block data and explicit, independently qualified layouts.
   Unknown writes and unreviewed runtime or dependency changes must fail closed.
 - Do not add `db_out`, database-change modules or custom sinks. External native
