@@ -15,3 +15,10 @@ pub mod evm {
         }
     }
 }
+pub mod erc20 {
+    pub mod events {
+        pub mod v1 {
+            include!("erc20.events.v1.rs");
+        }
+    }
+}
