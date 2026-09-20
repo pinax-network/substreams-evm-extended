@@ -24,11 +24,13 @@ The shared schema stays in the repository-root `proto/` crate:
 - `proto/v1/balances.proto`: canonical balance schema.
 - `proto/v1/balance_state.proto`: versioned holder/global balance-state
   companion schema for protocol packages ([contract](docs/balance-state-contract.md)).
+- `proto/v1/executions.proto`: execution-fact schema (`evm/executions`).
 - `proto/src/pb/`: shared generated Rust types.
 - `common/persist/`: shared persisted-effect rules for Extended blocks.
 - `erc20/balances/`: Extended-block ERC-20 balance module and native audit tools.
 - `native/balances/`: Extended-block native balance module and offline replay tool.
 - `aave/balance-state/`: Aave V3 aToken holder basis and reserve state module.
+- `evm/executions/`: call trees, logs, code changes and SetCode authorizations.
 - `conformance/`: host-only exact integer reference models (Aave V3).
 
 Keeping the schema separate from the module gives future Extended modules the

@@ -1,0 +1,292 @@
+syntax = "proto3";
+
+// evm.executions.v1: chain-observed execution facts from Extended blocks for
+// downstream activity interpretation (issue #18). This is not a wallet
+// activity classifier: wallet-relative direction, grouping, intent, protocol
+// priority and labels stay with the consumer.
+//
+// Contract rules (shared with evm.balance_state.v1):
+// * Every top-level `repeated` field of `Events` is one table in the native
+//   Substreams ClickHouse sink. Rows are flat: no nested messages, repeated
+//   fields, `oneof` or `optional` inside a row. Log topics are therefore four
+//   fixed fields plus a count.
+// * Exact integers are decimal strings; addresses, hashes, selectors and raw
+//   payloads are `bytes`. No floats.
+// * Attempted execution and persisted effect are different facts. Every call,
+//   log and code change carries `persisted`: the effect survived (the
+//   transaction succeeded and the frame was not reverted, or the record is a
+//   system or block record). Reverted frames are still emitted as attempted
+//   execution with `persisted = false` and are never completed actions.
+// * Rows carry no finality. Forks arrive through the stream's
+//   `BlockUndoSignal`; `final_blocks_only` suppresses them. A sink cursor is
+//   not a complete-block manifest.
+// * A selector or ABI match is never an economic outcome; unknown selectors
+//   keep their raw facts. Mempool replacement and unseen signatures are not
+//   on-chain facts and are not modeled.
+package evm.executions.v1;
+
+// One `Events` per delivered block. Every list is sorted deterministically
+// (sort keys per message) because the sink's `_row_id_` is the element index.
+message Events {
+  // Exactly one row per delivered block, including blocks without transactions.
+  repeated BlockClock clocks = 1;
+  repeated Transaction transactions = 2;
+  repeated Call calls = 3;
+  repeated Log logs = 4;
+  repeated CodeChange code_changes = 5;
+  repeated SetCodeAuthorization set_code_authorizations = 6;
+}
+
+// Execution status of a transaction as recorded by the producer.
+enum TransactionStatus {
+  TRANSACTION_STATUS_UNSPECIFIED = 0;
+  TRANSACTION_STATUS_SUCCEEDED = 1;
+  // Execution failed and all gas was consumed. Fee and nonce effects persist.
+  TRANSACTION_STATUS_FAILED = 2;
+  // Execution reverted; unused gas refunded. Fee and nonce effects persist.
+  TRANSACTION_STATUS_REVERTED = 3;
+}
+
+// EIP-2718 transaction type as recorded by the producer. `type_raw` keeps the
+// producer's number so chain-specific types decode even when unnamed here.
+enum TransactionType {
+  TRANSACTION_TYPE_UNSPECIFIED = 0;
+  TRANSACTION_TYPE_LEGACY = 1;
+  TRANSACTION_TYPE_ACCESS_LIST = 2;
+  TRANSACTION_TYPE_DYNAMIC_FEE = 3;
+  TRANSACTION_TYPE_BLOB = 4;
+  TRANSACTION_TYPE_SET_CODE = 5;
+  TRANSACTION_TYPE_OPTIMISM_DEPOSIT = 6;
+  TRANSACTION_TYPE_ARBITRUM = 7;
+  TRANSACTION_TYPE_OTHER = 8;
+}
+
+enum CallType {
+  CALL_TYPE_UNSPECIFIED = 0;
+  CALL_TYPE_CALL = 1;
+  CALL_TYPE_CALLCODE = 2;
+  CALL_TYPE_DELEGATE = 3;
+  CALL_TYPE_STATIC = 4;
+  // CREATE and CREATE2; `address` is the created account.
+  CALL_TYPE_CREATE = 5;
+}
+
+// Where a record was executed. Rows outside TRANSACTION scope have an empty
+// `transaction_hash`.
+enum Scope {
+  SCOPE_UNSPECIFIED = 0;
+  SCOPE_TRANSACTION = 1;
+  // `Block.system_calls[]`: executed outside any transaction (EIP-4788 /
+  // EIP-7002 style system calls, chain system transactions as recorded).
+  SCOPE_SYSTEM_CALL = 2;
+  // `Block.code_changes`: block-level records (hard-fork system contract
+  // upgrades).
+  SCOPE_BLOCK = 3;
+}
+
+// What a persisted code change did to the account.
+enum CodeChangeKind {
+  CODE_CHANGE_KIND_UNSPECIFIED = 0;
+  // Empty code before, non-delegation code after: a contract deployment.
+  CODE_CHANGE_KIND_CREATED = 1;
+  // Non-empty code before and after (system contract upgrade, metamorphic
+  // redeploy in the same transaction after SELFDESTRUCT).
+  CODE_CHANGE_KIND_REPLACED = 2;
+  // Non-empty code before, empty after: SELFDESTRUCT deletion, which after
+  // EIP-6780 happens only within the creating transaction.
+  CODE_CHANGE_KIND_CLEARED = 3;
+  // EIP-7702 delegation indicator `0xef0100 || target` written; `delegation_target` set.
+  CODE_CHANGE_KIND_DELEGATION_SET = 4;
+  // EIP-7702 delegation cleared (authorization to the zero address).
+  CODE_CHANGE_KIND_DELEGATION_CLEARED = 5;
+}
+
+// One row per delivered block.
+message BlockClock {
+  // Caller-qualified chain id; the block carries none.
+  uint64 chain_id = 1;
+  uint64 number = 2;
+  bytes hash = 3;
+  bytes parent_hash = 4;
+  uint64 timestamp = 5;
+  bytes state_root = 6;
+  bytes coinbase = 7;
+  uint64 gas_used = 8;
+  uint64 gas_limit = 9;
+  // Block base fee per gas as a decimal string; "" when the header has none.
+  string base_fee_per_gas = 10;
+  uint32 producer_version = 11;
+  uint32 spec_revision = 12;
+  string package = 13;
+  string package_version = 14;
+  string parameters_sha256 = 15;
+  uint32 transaction_count = 16;
+  uint32 call_count = 17;
+  uint32 log_count = 18;
+  uint32 code_change_count = 19;
+  uint32 set_code_authorization_count = 20;
+  uint32 system_call_count = 21;
+}
+
+// Transaction identity and status.
+// Sort: (index).
+message Transaction {
+  uint64 chain_id = 1;
+  bytes hash = 2;
+  uint32 index = 3;
+  TransactionType type = 4;
+  // Producer's raw type number.
+  uint32 type_raw = 5;
+  TransactionStatus status = 6;
+  bytes from = 7;
+  // As recorded by the producer: for a creation transaction this is the
+  // created account, whether or not its code persisted; `created_contract` is
+  // the persisted fact.
+  bytes to = 8;
+  uint64 nonce = 9;
+  string value = 10;
+  uint64 gas_limit = 11;
+  uint64 gas_used = 12;
+  string gas_price = 13;
+  string max_fee_per_gas = 14;
+  string max_priority_fee_per_gas = 15;
+  // First four bytes of the input; empty when the input is shorter.
+  bytes input_selector = 16;
+  // Full input when the package parameter `include_input` is true, else empty.
+  bytes input = 17;
+  uint32 input_size = 18;
+  // Root-call return data when `include_return_data` is true, else empty.
+  bytes return_data = 19;
+  uint64 begin_ordinal = 20;
+  uint64 end_ordinal = 21;
+  // Account created by a root CREATE whose code persisted; empty otherwise.
+  bytes created_contract = 22;
+  uint32 call_count = 23;
+  // Logs recorded in the receipt (persisted logs only).
+  uint32 receipt_log_count = 24;
+  // Calls whose state was reverted (attempted, not persisted).
+  uint32 reverted_call_count = 25;
+  uint32 set_code_authorization_count = 26;
+  // Blob transactions: blob gas used and blob hash count.
+  uint64 blob_gas = 27;
+  uint32 blob_count = 28;
+}
+
+// One node of the call tree. Root calls have `parent_index == index` semantics
+// of the producer (index 0 with depth 0). System calls carry SCOPE_SYSTEM_CALL
+// and an empty transaction hash.
+// Sort: (scope, transaction_index, index).
+message Call {
+  uint64 chain_id = 1;
+  Scope scope = 2;
+  bytes transaction_hash = 3;
+  uint32 transaction_index = 4;
+  uint32 index = 5;
+  uint32 parent_index = 6;
+  uint32 depth = 7;
+  CallType call_type = 8;
+  bytes caller = 9;
+  // Code/context address of the frame; the created account for CREATE.
+  bytes address = 10;
+  // EIP-7702 delegation target when the frame executed delegated code; empty
+  // otherwise.
+  bytes address_delegates_to = 11;
+  string value = 12;
+  uint64 gas_limit = 13;
+  uint64 gas_consumed = 14;
+  bytes input_selector = 15;
+  bytes input = 16;
+  uint32 input_size = 17;
+  bytes return_data = 18;
+  uint32 return_data_size = 19;
+  bool executed_code = 20;
+  // The frame executed SELFDESTRUCT. This is not code deletion: see
+  // CodeChange and EIP-6780.
+  bool suicide = 21;
+  bool status_failed = 22;
+  bool status_reverted = 23;
+  string failure_reason = 24;
+  // The producer's flag: the frame's state changes were rolled back.
+  bool state_reverted = 25;
+  // The frame's effects persisted: the transaction succeeded and the frame
+  // was not reverted, or the frame is a non-reverted system call. A failed
+  // transaction's root call is `false` even though its fee effects persist.
+  bool persisted = 26;
+  uint64 begin_ordinal = 27;
+  uint64 end_ordinal = 28;
+  uint32 storage_change_count = 29;
+  uint32 balance_change_count = 30;
+  uint32 nonce_change_count = 31;
+  uint32 code_change_count = 32;
+  uint32 log_count = 33;
+}
+
+// One emitted log, including logs of reverted frames (`persisted = false`,
+// receipt index 0). Persisted logs are exactly the receipt logs.
+// Sort: (scope, transaction_index, ordinal).
+message Log {
+  uint64 chain_id = 1;
+  Scope scope = 2;
+  bytes transaction_hash = 3;
+  uint32 transaction_index = 4;
+  uint32 call_index = 5;
+  // Index within the transaction's logs as recorded by the producer; only
+  // persisted logs are receipt logs.
+  uint32 receipt_index = 6;
+  // Index within the block's persisted logs; 0 for attempted logs.
+  uint32 block_index = 7;
+  uint64 ordinal = 8;
+  bytes address = 9;
+  uint32 topic_count = 10;
+  bytes topic0 = 11;
+  bytes topic1 = 12;
+  bytes topic2 = 13;
+  bytes topic3 = 14;
+  bytes data = 15;
+  uint32 data_size = 16;
+  bool persisted = 17;
+}
+
+// A code change record with its persistence and lifecycle kind.
+// Sort: (scope, transaction_index, ordinal).
+message CodeChange {
+  uint64 chain_id = 1;
+  Scope scope = 2;
+  bytes transaction_hash = 3;
+  uint32 transaction_index = 4;
+  uint32 call_index = 5;
+  uint64 ordinal = 6;
+  bytes address = 7;
+  bytes old_code_hash = 8;
+  bytes new_code_hash = 9;
+  uint32 old_code_size = 10;
+  uint32 new_code_size = 11;
+  CodeChangeKind kind = 12;
+  // Target of an EIP-7702 delegation indicator; empty otherwise.
+  bytes delegation_target = 13;
+  // The change survived under the persistence rules: non-reverted frame of a
+  // succeeded transaction, accepted authorization of a SetCode transaction
+  // (even when the transaction failed), system call or block record.
+  bool persisted = 14;
+}
+
+// One EIP-7702 authorization tuple as carried by a SetCode transaction, with
+// the producer's validity verdict. `applied` authorizations change the
+// authority's code and nonce even when the transaction fails.
+// Sort: (transaction_index, position).
+message SetCodeAuthorization {
+  uint64 chain_id = 1;
+  bytes transaction_hash = 2;
+  uint32 transaction_index = 3;
+  uint32 position = 4;
+  // Recovered signer; empty when recovery failed (then `discarded` is true).
+  bytes authority = 5;
+  // Delegation target; the zero address clears the delegation.
+  bytes address = 6;
+  uint64 nonce = 7;
+  // Authorization chain id as a decimal string ("0" means any chain).
+  string authorization_chain_id = 8;
+  bool discarded = 9;
+  // Not discarded: the producer applied it.
+  bool applied = 10;
+}

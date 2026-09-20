@@ -8,6 +8,7 @@ members = [
   "native/balances/tools",
   "aave/balance-state",
   "aave/balance-state/tools",
+  "evm/executions",
   "conformance",
 ]
 resolver = "2"

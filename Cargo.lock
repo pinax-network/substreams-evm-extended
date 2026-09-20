@@ -443,6 +443,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "evm-executions"
+version = "0.1.0"
+dependencies = [
+ "evm-persist",
+ "hex",
+ "prost 0.13.5",
+ "prost-types 0.13.5",
+ "proto",
+ "serde",
+ "serde_json",
+ "sha2",
+ "substreams",
+ "substreams-ethereum",
+ "tiny-keccak",
+]
+
+[[package]]
 name = "evm-persist"
 version = "0.1.0"
 dependencies = [
