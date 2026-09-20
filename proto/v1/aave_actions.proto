@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+// aave.actions.v1: chain-observed Aave V3 Pool lending-action facts for one
+// explicitly selected Pool deployment and event family (issue #20). Separate
+// from aToken balance state (evm.balance_state.v1) and from wallet labels.
+//
+// Contract rules (shared with evm.executions.v1): flat rows, one sink table
+// per top-level repeated field; exact integers as decimal strings; bytes for
+// addresses and hashes; `persisted` separates receipt logs from attempts in
+// reverted frames; no finality; explicit enums with an UNSPECIFIED zero.
+//
+// Every row keeps the protocol's own event kind and every actor field the
+// event carries. Caller, beneficiary and recipient are distinct; a single
+// transaction may produce many rows; nothing here asserts economic success
+// beyond the log having persisted.
+package aave.actions.v1;
+
+message Events {
+  // Exactly one row per delivered block.
+  repeated BlockClock clocks = 1;
+  repeated Action actions = 2;
+}
+
+// The Pool event the row was decoded from.
+enum ActionKind {
+  ACTION_KIND_UNSPECIFIED = 0;
+  // Supply(address indexed reserve, address user, address indexed onBehalfOf, uint256 amount, uint16 indexed referralCode)
+  ACTION_KIND_SUPPLY = 1;
+  // Withdraw(address indexed reserve, address indexed user, address indexed to, uint256 amount)
+  ACTION_KIND_WITHDRAW = 2;
+  // Borrow(address indexed reserve, address user, address indexed onBehalfOf, uint256 amount, uint8 interestRateMode, uint256 borrowRate, uint16 indexed referralCode)
+  ACTION_KIND_BORROW = 3;
+  // Repay(address indexed reserve, address indexed user, address indexed repayer, uint256 amount, bool useATokens)
+  ACTION_KIND_REPAY = 4;
+  // LiquidationCall(address indexed collateralAsset, address indexed debtAsset, address indexed user, uint256 debtToCover, uint256 liquidatedCollateralAmount, address liquidator, bool receiveAToken)
+  ACTION_KIND_LIQUIDATION_CALL = 5;
+  // FlashLoan(address indexed target, address initiator, address indexed asset, uint256 amount, uint8 interestRateMode, uint256 premium, uint16 indexed referralCode)
+  ACTION_KIND_FLASH_LOAN = 6;
+}
+
+enum Scope {
+  SCOPE_UNSPECIFIED = 0;
+  SCOPE_TRANSACTION = 1;
+  SCOPE_SYSTEM_CALL = 2;
+}
+
+message BlockClock {
+  uint64 chain_id = 1;
+  uint64 number = 2;
+  bytes hash = 3;
+  bytes parent_hash = 4;
+  uint64 timestamp = 5;
+  bytes state_root = 6;
+  uint32 producer_version = 7;
+  uint32 spec_revision = 8;
+  string package = 9;
+  string package_version = 10;
+  string parameters_sha256 = 11;
+  uint32 action_count = 12;
+}
+
+// One decoded Pool event. Fields not carried by the event kind are empty.
+// Identity: (scope, transaction_hash, ordinal). Sort: (scope,
+// transaction_index, ordinal, call_index, log_index).
+message Action {
+  uint64 chain_id = 1;
+  Scope scope = 2;
+  bytes transaction_hash = 3;
+  uint32 transaction_index = 4;
+  uint32 call_index = 5;
+  uint32 log_index = 6;
+  uint32 block_index = 7;
+  uint64 ordinal = 8;
+  // Emitting Pool proxy.
+  bytes pool = 9;
+  // Caller-assigned epoch of the bound Pool implementation and event family.
+  uint32 epoch = 10;
+  ActionKind kind = 11;
+  // Reserve (underlying asset) for supply, withdraw, borrow, repay; the debt
+  // asset for a liquidation; the flash-loaned asset for a flash loan.
+  bytes reserve = 12;
+  // Address that initiated the action: `user` for supply, withdraw, borrow;
+  // `repayer` for repay; `liquidator` for a liquidation; `initiator` for a
+  // flash loan.
+  bytes actor = 13;
+  // Position affected: `onBehalfOf` for supply and borrow, `user` (aToken
+  // owner) for withdraw, `user` (debtor) for repay and liquidation, `target`
+  // for a flash loan.
+  bytes beneficiary = 14;
+  // Recipient of the underlying: `to` for withdraw; empty otherwise.
+  bytes recipient = 15;
+  // Raw amount in the reserve's units: amount, debtToCover for a liquidation,
+  // the flash-loaned amount.
+  string amount = 16;
+  // Raw `interestRateMode` for borrow and flash loan (2 variable; 1 stable,
+  // deprecated since v3.2; 0 flash loan without debt).
+  uint32 interest_rate_mode = 17;
+  // Borrow rate in ray for a borrow.
+  string borrow_rate = 18;
+  bool use_atokens = 19;
+  // Liquidation only.
+  bytes collateral_asset = 20;
+  string liquidated_collateral_amount = 21;
+  bool receive_atoken = 22;
+  // Flash loan only: fee in the asset's units.
+  string premium = 23;
+  uint32 referral_code = 24;
+  // The log survived: succeeded transaction and non-reverted frame, or a
+  // non-reverted system call.
+  bool persisted = 25;
+}

@@ -22,3 +22,10 @@ pub mod erc20 {
         }
     }
 }
+pub mod aave {
+    pub mod actions {
+        pub mod v1 {
+            include!("aave.actions.v1.rs");
+        }
+    }
+}

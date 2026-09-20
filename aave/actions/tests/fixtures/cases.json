@@ -1,0 +1,32 @@
+{
+  "source": "Unmodified transaction traces from the locally retained BSC Extended block captures (erc20/balances/out/top50-full-holder-blocks, producer version 5). Each fixture keeps the block header, hash and number and one TransactionTrace.",
+  "extraction": "Decoded with prost from the captured <height>.pb, filtered transaction_traces to the listed index, re-encoded. No field edits.",
+  "configuration": "tests/fixtures/bsc-aave-v3-pool.json (Aave V3 BNB Pool proxy 0x6807dc923806fE8Fd134338EABCA509979a7e0cB); event shapes from IPool.sol at aave-v3-origin v3.7.0.",
+  "scope": "Saved-data tests of the Rust adapter (issue #20). Not packaged WASM execution, not RPC qualification; the Pool runtime code hash is unbound offline. Repay, LiquidationCall and FlashLoan do not occur in the saved window and are covered synthetically.",
+  "shared_fixtures": [
+    "../../balance-state/tests/fixtures/122288220-tx71-ausdt-withdraw.pb (Withdraw)",
+    "../../balance-state/tests/fixtures/122288932-tx1-ausdt-ausdc-two-reserves.pb (Supply, Withdraw, Borrow attempted in reverted frames and then persisted)"
+  ],
+  "cases": [
+    {
+      "file": "122288242-tx32-borrow-usdt.pb",
+      "block": 122288242,
+      "block_hash": "0xb03e1925bf23f9ed19514a3477d4eaf3b7d7e37c6ec79e71a32af4700e937a6d",
+      "source_block_sha256": "df7abf0af5b4ef9ef96035251d44fe367d5df1c1987e65ed98e03e1c70327238",
+      "transaction": "0x64685fdbcf6a979587742ad6589ee58ee73f2167a27f32c8a17a1ac110a58f87",
+      "transaction_index": 32,
+      "fixture_sha256": "b875660a6bda29adcd719bd5ade9715f1fa51c321cd1df04e3952c4a90f3cbed",
+      "demonstrates": "variable-rate Borrow of 50 USDT with the borrow rate in ray and referral code 0"
+    },
+    {
+      "file": "122288773-tx51-supply-btcb.pb",
+      "block": 122288773,
+      "block_hash": "0x7c2250594b455eb3af9968c937bdde052cc17840a342d7addd6a280313d2f005",
+      "source_block_sha256": "efcd0dd0e92d095c0fcb8a2a63d8d05d88b5174a7e1a32bbee2270d1459b2644",
+      "transaction": "0x167d5401d16362a7226da35a411051090160c6d375ab2dd7fbed811dfbf0ec68",
+      "transaction_index": 51,
+      "fixture_sha256": "bda7b234fbb8442aeb6a99378aa818e92f1853cb82954ebfe481499a1e544355",
+      "demonstrates": "Supply of BTCB where user and onBehalfOf are the same account"
+    }
+  ]
+}
