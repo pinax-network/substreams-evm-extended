@@ -108,8 +108,11 @@ From `sf.ethereum.type.v2` at `streamingfast/firehose-ethereum@9485efe2e6290e525
   scale from transaction ordinals and zeroed root-call `begin_ordinal`
   (tracer comments, CHANGELOG v2.10.0); cross-scope ordinal reduction requires
   version 4 or 5. Version 5 additionally drops no-op state changes and gas
-  changes. Each package lists the versions it accepts explicitly; the block
-  carries no chain id, so the manifest binds the network.
+  changes; it is what the saved BSC captures carry, while its semantics are
+  documented only in the Rust tracer releases (`evm-firehose-tracer-rs`
+  v5.x) and the unreleased Go tracer line, not yet on the Substreams data
+  model page. Each package lists the versions it accepts explicitly; the
+  block carries no chain id, so the manifest binds the network.
 - Reason enum through value 20: `REWARD_BLOB_FEE` 17 (BNB), `INCREASE_MINT`
   18 and `REVERT` 19 (Optimism family), `MONAD_TX_POST_STATE` 20. The pinned
   `substreams-ethereum` 0.11.1 bindings name values 0–16 only.
@@ -232,13 +235,25 @@ Comptroller/Unitroller `0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B`; Timelock `0
 
 Ethereum mainnet, `docs.lido.fi/deployed-contracts` (protocol version v4.0.1) and `lidofinance/core` tag v4.0.1 (`2da0f48f1a2a103a394dcf8760810fe9165697fb`).
 
-- stETH/Lido proxy `0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84`; implementation listed `0x028271E30a695c0527A0C50cA30603feD004cDb0`; wstETH `0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0`; WithdrawalQueueERC721 proxy `0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1`; Accounting proxy `0x23ED611be0e1a820978875C0122F92260804cdDf`; VaultHub proxy `0x1d201BE093d847f6446530Efb0E8Fb426d176709`.
+- stETH/Lido proxy `0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84`; implementation listed `0x028271E30a695c0527A0C50cA30603feD004cDb0`; wstETH `0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0`; WithdrawalQueueERC721 proxy `0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1` (deploy record implementation `0xE42C659Dc09109566720EA8b2De186c2Be7D94D9`); Accounting proxy `0x23ED611be0e1a820978875C0122F92260804cdDf`; VaultHub proxy `0x1d201BE093d847f6446530Efb0E8Fb426d176709`.
 - **Epoch**: Lido contract version 4 (V3 stVaults with external shares are live; `ContractVersionSet(uint256)` logs mark upgrade boundaries). `balanceOf = shares[holder] × totalPooledEther / totalShares`; since V3 `totalShares` occupies the low 128 bits of `keccak256("lido.StETH.totalAndExternalShares")` with external shares in the high 128 bits, and the pre-V3 slot `keccak256("lido.StETH.totalShares")` is zeroed at migration. `totalPooledEther = internalEther + externalShares × internalEther / internalShares`, so the share rate is unchanged by external shares. CL balances reach the execution layer only through `Accounting.handleOracleReport` (`CLBalancesUpdated`, `TokenRebased`), so every passive balance is piecewise-constant between reports.
 - wstETH conversion, withdrawal-request NFTs and validator balances are separate models.
 
 ### ERC-4626 (issue #24)
 
-- **First BSC candidate**: Aave v3 BNB StataTokenV2 for USDT `0x0471D185cc7Be61E154277cAB2396cD397663da6` (address book pin above; factory `0x929B8a21a604b93DD7e95d5b9aAa3aDf5bE250ae`). `convertToAssets = floor(shares × POOL.getReserveNormalizedIncome(asset) / 1e27)`; `previewRedeem` inherits the same floor conversion; `maxRedeem` is 0 while the reserve is inactive or paused, so `maxWithdraw` can be 0 with a nonzero conversion. Whether the listed token was deployed by the V2 or legacy factory must be confirmed.
+- **First BSC candidate**: the legacy Aave static aToken for BNB USDT
+  `0x0471D185cc7Be61E154277cAB2396cD397663da6` (`stataBnbUSDT`, address-book
+  key `USDT_STATIC_A_TOKEN`, created by `LEGACY_STATIC_A_TOKEN_FACTORY`
+  `0x326aB0868bD279382Be2DF5E228Cb8AF38649AB4`; the address book registers no
+  `StataTokenV2` for any BNB reserve). Its implementation is
+  `StaticATokenLM.sol` from the archived `bgd-labs/static-a-token-v3`
+  (`101f5d977889254ca2d2711b9582b45f832d10a0`), an upgradeable proxy under
+  Aave governance: `convertToAssets = previewRedeem = floor(shares × POOL.getReserveNormalizedIncome(underlying) / 1e27)`,
+  `maxWithdraw` applies the same conversion to `maxRedeem`, which is 0 while
+  the reserve is inactive or paused, and `totalAssets = aToken.balanceOf(vault)`.
+  The current `StataTokenV2` (`ERC4626StataTokenUpgradeable`, aave-v3-origin
+  pin above) uses the numerically identical conversion but is a different
+  runtime; the adapter binds to the deployed implementation.
 - **Cross-chain reference**: Savings DAI `0x83f20f44975d03b1b09e64809b757c47f942beea` (Ethereum; `sky-ecosystem/sdai`, deployed commit `665879762f8b5df5d234463f45d1d6a49bd4fbeb`): `convertToAssets = shares × chi′ / RAY` with `chi′ = rpow(dsr, now − rho) × chi / RAY` from `MCD_POT` `0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7`; `previewRedeem == convertToAssets`; `previewWithdraw` rounds up.
 - OpenZeppelin ERC4626 (v5.0.0) derived vaults use the virtual-offset formula
   `shares × (totalAssets + 1) / (totalSupply + 10^offset)`; Venus ERC4626 on
@@ -302,8 +317,8 @@ that will close it.
    recorded (#8, #17).
 6. Aave: activation blocks and code hashes of aToken revisions 4 and 5 and of
    the Pool implementation on BSC and Ethereum; compiler storage-layout dump
-   for `ReserveData`; whether the BSC USDT stata token is a V2 factory
-   deployment (#13, #24).
+   for `ReserveData`; the live implementation behind the legacy BNB static
+   aToken proxy at the chosen epoch (#13, #24).
 7. Compound v2: implementation and interest-rate model in force for cDAI and
    cUSDC at the chosen epoch; slot-level layout of the 2019 cUSDC runtime
    (#14).
@@ -320,6 +335,13 @@ that will close it.
     (#17).
 12. EIP-7702 `SetCodeAuthorization.address` backfill status on the endpoints
     used (#18).
+13. Per-chain reorg policy (final-blocks-only versus cursor plus undo) and
+    assumed depth; Base Flashblocks partial-block delivery; whether HyperEVM
+    Core→EVM system transactions and Arc system-emitter logs appear as
+    ordinary transactions and logs in Extended blocks (#8, #17, #18).
+14. Aave V3 Base market addresses, Aave V4 scope, bridged wstETH on Base and
+    BSC, Compound v2 CToken event signatures, and any lending or staking
+    candidate on HyperEVM and Arc are not yet inventoried (#11 follow-up).
 
 ## 7. Boundary
 

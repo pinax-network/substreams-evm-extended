@@ -186,3 +186,70 @@ fn unqualified_producer_versions_are_refused_and_reported_separately() {
     assert_eq!(report["continuity"]["skipped_across_gaps"], 1);
     assert_eq!(report["rows"], 2);
 }
+
+/// WETH9-style wrapping: the holder's WBNB balance is an ERC-20 balance and
+/// the wrapper contract's BNB is native account state. Neither is the other,
+/// and neither is a second native wallet balance for the holder (issue #22).
+mod wrapper_backing {
+    use native_balances::{changes as native_changes, parse_params};
+    use prost::Message;
+    use substreams::scalar::BigInt;
+    use substreams_ethereum::pb::eth::v2 as eth;
+
+    const WBNB: &str = "bb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c";
+    const FIXTURES: &str = "../../../erc20/balances/tests/fixtures/wbnb-mutations";
+
+    fn load(name: &str) -> (eth::Block, erc20_balances::layout::VerifiedLayout) {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        let block = eth::Block::decode(std::fs::read(root.join(FIXTURES).join(name)).unwrap().as_slice()).unwrap();
+        let layout =
+            erc20_balances::layout::parse(&std::fs::read_to_string(root.join("../../../erc20/balances/tests/fixtures/bsc-reviewed-layouts.json")).unwrap())
+                .unwrap()
+                .into_iter()
+                .find(|l| hex::encode(&l.contract) == WBNB)
+                .unwrap();
+        (block, layout)
+    }
+    fn delta(old: &str, new: &str) -> BigInt {
+        new.parse::<BigInt>().unwrap() - old.parse::<BigInt>().unwrap()
+    }
+
+    #[test]
+    fn deposit_moves_native_bnb_into_the_wrapper_and_erc20_units_to_the_holder() {
+        let (block, layout) = load("122288015-tx18-deposit-nested-no-transfer.pb");
+        let erc20 = erc20_balances::changes(&block, std::slice::from_ref(&layout)).unwrap();
+        let native = native_changes(&block, &parse_params(r#"{"producer_versions":[5]}"#).unwrap()).unwrap();
+        let wad = BigInt::from(100971252078042364u64);
+        assert_eq!(erc20.len(), 1);
+        assert_eq!(delta(&erc20[0].old_amount, &erc20[0].amount), wad);
+        let wrapper = native.iter().find(|r| hex::encode(&r.address) == WBNB).unwrap();
+        assert_eq!(delta(&wrapper.old_amount, &wrapper.amount), wad);
+        // The wrapper is not an ERC-20 holder row; the holder's own native
+        // balance nets to zero (received then forwarded the BNB it wrapped).
+        assert!(!erc20.iter().any(|r| hex::encode(&r.address) == WBNB));
+        let holder = native.iter().find(|r| r.address == erc20[0].address).unwrap();
+        assert_eq!((holder.old_amount.as_str(), holder.records), (holder.amount.as_str(), 2));
+    }
+
+    #[test]
+    fn withdrawal_releases_native_bnb_from_the_wrapper() {
+        let (block, layout) = load("122288035-tx9-withdrawal-no-transfer.pb");
+        let erc20 = erc20_balances::changes(&block, std::slice::from_ref(&layout)).unwrap();
+        let native = native_changes(&block, &parse_params(r#"{"producer_versions":[5]}"#).unwrap()).unwrap();
+        let wad = BigInt::from(69434307925719935u64);
+        assert_eq!(erc20.len(), 1);
+        assert_eq!(delta(&erc20[0].old_amount, &erc20[0].amount), -wad.clone());
+        let wrapper = native.iter().find(|r| hex::encode(&r.address) == WBNB).unwrap();
+        assert_eq!(delta(&wrapper.old_amount, &wrapper.amount), -wad);
+    }
+
+    #[test]
+    fn reverted_deposit_leaves_neither_erc20_nor_wrapper_native_rows() {
+        let (block, layout) = load("122288021-tx35-reverted-transaction-deposit.pb");
+        assert!(erc20_balances::changes(&block, std::slice::from_ref(&layout)).unwrap().is_empty());
+        let native = native_changes(&block, &parse_params(r#"{"producer_versions":[5]}"#).unwrap()).unwrap();
+        assert!(!native.iter().any(|r| hex::encode(&r.address) == WBNB));
+        // Only the sender's gas debit and the system fee credit persist.
+        assert_eq!(native.len(), 2);
+    }
+}

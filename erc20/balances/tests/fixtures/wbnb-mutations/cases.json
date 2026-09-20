@@ -1,0 +1,59 @@
+{
+  "source": "Unmodified transaction traces from the locally retained BSC Extended block captures (erc20/balances/out/top50-full-holder-blocks, producer version 5, endpoint bsc.firehose.pinax.network:443 at capture time). Each fixture keeps the block header, hash, number and one TransactionTrace; other transactions, system calls and block-level records are omitted to keep files small.",
+  "extraction": "Decoded with prost from the captured <height>.pb, filtered transaction_traces to the listed index, re-encoded. No field edits.",
+  "token": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+  "layout": "tests/fixtures/bsc-reviewed-layouts.json (WBNB direct mapping at slot 3, runtime 0xb7d84205eaaf83ce7b3940c6beaad6d22790255e34a9a2b486aa8cdfff118fe6)",
+  "scope": "Regression evidence for non-Transfer balance mutations (issue #22). These are saved-data tests of the Rust mapper, not packaged WASM execution or fresh RPC qualification.",
+  "cases": [
+    {
+      "file": "122288015-tx18-deposit-nested-no-transfer.pb",
+      "block": 122288015,
+      "block_hash": "0x03813d090496922b3836f884a41127e2d09de9918bf8a87766da36e10f327f39",
+      "source_block_sha256": "6cac58fdc427aa53846973dcce1dbd8b2a5bf7fccd22259eb923f68b57307aff",
+      "transaction": "0x592f84f843a6ee69c67201dc52a11e2569349ca6e7574fe584af509bc75e6239",
+      "transaction_index": 18,
+      "fixture_sha256": "1f4848702bd35d7c998a0b6345ed85de4acf18370844dc41bbe2e7509bef171a",
+      "demonstrates": "deposit() by a contract five frames deep; Deposit event only, no WBNB Transfer; the holder is resolved from the storage write, not the sender; the WBNB contract's native balance rises by the same wad"
+    },
+    {
+      "file": "122288032-tx47-deposit-withdraw-zero-final.pb",
+      "block": 122288032,
+      "block_hash": "0xdf0219f244ea83dd8f21770ff883d53b68dc24fffe70560cb4fa2f05390b286a",
+      "source_block_sha256": "86f7f71eea840620b7feff182409faa5cc8c66f4f01a9c11e806a36aa730bb9e",
+      "transaction": "0x6d0bd0cbb44484f0946e593840490aced5529832977490129f80dbc4a36c9582",
+      "transaction_index": 47,
+      "fixture_sha256": "dc254ce5f787fe07cc0e5ccebd80e60967f94d67d4101e287c4e966d36cfa75e",
+      "demonstrates": "deposit() then full withdraw() by a router in one transaction; the holder ends at a known zero and is emitted as 0; the wrapper's native backing returns to its starting value"
+    },
+    {
+      "file": "122288035-tx9-withdrawal-no-transfer.pb",
+      "block": 122288035,
+      "block_hash": "0x35678ad4f89c7f35e53df4e3f7fa8a05fbef3792309b0ce457f59d1dcd850e21",
+      "source_block_sha256": "a0d7f3aa28b0929a3ea6c15effb6b56a9c503abd42e4c17b926522d927317057",
+      "transaction": "0x4847511277bff8216b9ccca10c7112348546ddca39702c28f5b0f4ff2215c2fa",
+      "transaction_index": 9,
+      "fixture_sha256": "3133e240fe86f8287530baa8d5f2563650ec996fc24dc63c0c8e558fe944ba97",
+      "demonstrates": "withdraw() by a contract that is not the sender; Withdrawal event only; the holder's balance word is debited and the WBNB contract's native balance falls by the same wad"
+    },
+    {
+      "file": "122288021-tx35-reverted-transaction-deposit.pb",
+      "block": 122288021,
+      "block_hash": "0x83c80eec11458071ce1a88b686c54bf4ca2c3b8dfb04b8e433026b9802527bcc",
+      "source_block_sha256": "ddf5de79fdaf48fe318bc01ba7272203123fe326460e6c93e0b7664ced6891ab",
+      "transaction": "0x41b8b4efd51675ec0f6e4cfd899000bb91f7afd21041b0b52cab7ff3860e9435",
+      "transaction_index": 35,
+      "fixture_sha256": "6f553e520d08859ea8864d82a4ec50711cba4d80a97bebaad77e58c90ea8fc0c",
+      "demonstrates": "reverted transaction (status 3) containing a Deposit event, a Transfer event and WBNB storage writes; nothing persists, no ERC-20 row and no WBNB native row is emitted"
+    },
+    {
+      "file": "122288007-tx22-succeeded-with-reverted-child-write.pb",
+      "block": 122288007,
+      "block_hash": "0xf2c938a57bcc37a4adbb20c7f77476f1d05e03c84d54482e193744ec49277bce",
+      "source_block_sha256": "d6d0ce13703261a7aae8de4ad6f75ec8fa456f4eaccd04f645fc8013f59cd198",
+      "transaction": "0xe306cfc1aa484141693ef22868e381509c07610c1558857c5fcd10c1ded2d084",
+      "transaction_index": 22,
+      "fixture_sha256": "548830e00db1207f80be34da3bb1a5fd669e20d82cd5818fa2ea4d71f3765184",
+      "demonstrates": "succeeded transaction whose reverted child frame (ordinals 778-779) repeats WBNB writes later persisted at 802-803; a WBNB call made through Permit2 debits a holder that is neither the sender nor the caller; one holder nets to a known zero"
+    }
+  ]
+}

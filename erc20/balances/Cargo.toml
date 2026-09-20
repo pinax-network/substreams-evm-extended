@@ -21,3 +21,4 @@ serde_json = "1"
 
 [dev-dependencies]
 prost-types = { workspace = true }
+sha2 = "0.10"

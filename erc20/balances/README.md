@@ -270,6 +270,9 @@ Tests call extraction functions directly in Rust. They cover two arbitrary token
 addresses with different mapping bases (including a full-width 256-bit base),
 zero/max values, allowances, malformed configuration, code changes, reverted and
 failed transactions, real captured blocks, RPC failures and schema compatibility.
+Captured WBNB `deposit()`/`withdraw()` transactions without any `Transfer`
+event, including reverted frames and a Permit2-mediated transfer, are the
+[non-Transfer mutation corpus](docs/non-transfer-mutations.md).
 The native tools' HTTP/SQLite dependencies do not enter the mapper's WASM.
 
 ## Compare and audit
