@@ -27,7 +27,7 @@ recorded in [extraction coverage](extraction-coverage.md).
 | Aave aToken basis and reserve inputs ([`aave/balance-state`](../aave/balance-state/README.md)) | [#13](https://github.com/pinax-network/substreams-evm-extended/issues/13) | High |
 | Compound v2 shares and exchange-rate dependencies | [#14](https://github.com/pinax-network/substreams-evm-extended/issues/14) | High |
 | Compound III principal and market inputs | [#15](https://github.com/pinax-network/substreams-evm-extended/issues/15) | High |
-| Rust conformance models for time-dependent balances | [#16](https://github.com/pinax-network/substreams-evm-extended/issues/16) | High |
+| Rust conformance models for time-dependent balances ([`conformance`](../conformance/README.md)) | [#16](https://github.com/pinax-network/substreams-evm-extended/issues/16) | High |
 | Native balances package (`native/balances`) | [#17](https://github.com/pinax-network/substreams-evm-extended/issues/17) | High |
 | EVM call trees and persisted execution facts ([`evm/executions`](../evm/executions/README.md)) | [#18](https://github.com/pinax-network/substreams-evm-extended/issues/18) | High |
 | Standard ERC-20 transfer and approval evidence ([`erc20/events`](../erc20/events/README.md)) | [#19](https://github.com/pinax-network/substreams-evm-extended/issues/19) | Medium |
