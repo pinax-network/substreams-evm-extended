@@ -1,0 +1,26 @@
+specVersion: v0.1.0
+package:
+  name: aave_balance_state
+  version: v0.1.0
+  url: https://github.com/pinax-network/substreams-evm-extended
+  description: RPC-free Aave V3 aToken holder basis and reserve accrual state for explicitly qualified epochs.
+protobuf:
+  files: [balance_state.proto]
+  importPaths: [../../proto/v1]
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ../../target/wasm32-unknown-unknown/release/aave_balance_state.wasm
+modules:
+  - name: map_events
+    kind: map
+    inputs:
+      - params: string
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:evm.balance_state.v1.Events
+params:
+  # No market is bound by default: only BlockClock rows are emitted. Supply a
+  # reviewed epoch configuration such as tests/fixtures/bsc-aave-v3-epochs.json.
+  map_events: '{"chain_id":56,"producer_versions":[5],"markets":[]}'
+network: bsc

@@ -947,6 +947,8 @@ pub enum StateField {
     /// Packed reserve configuration word (active/paused/frozen bits); gates
     /// withdrawability, not conversion.
     AaveReserveConfiguration = 6,
+    /// aToken `_totalSupply` in scaled units (`key` = aToken).
+    AaveScaledTotalSupply = 7,
     /// Compound v2 `CTokenStorage` and the cross-contract cash input.
     /// Mantissas are 1e18-scaled; block numbers and totals are scale 1.
     /// TOTAL_CASH is read from the cash source (underlying ERC-20 balance of the
@@ -1031,6 +1033,7 @@ impl StateField {
             StateField::AaveVariableBorrowIndex => "STATE_FIELD_AAVE_VARIABLE_BORROW_INDEX",
             StateField::AaveCurrentVariableBorrowRate => "STATE_FIELD_AAVE_CURRENT_VARIABLE_BORROW_RATE",
             StateField::AaveReserveConfiguration => "STATE_FIELD_AAVE_RESERVE_CONFIGURATION",
+            StateField::AaveScaledTotalSupply => "STATE_FIELD_AAVE_SCALED_TOTAL_SUPPLY",
             StateField::CompoundV2TotalCash => "STATE_FIELD_COMPOUND_V2_TOTAL_CASH",
             StateField::CompoundV2TotalBorrows => "STATE_FIELD_COMPOUND_V2_TOTAL_BORROWS",
             StateField::CompoundV2TotalReserves => "STATE_FIELD_COMPOUND_V2_TOTAL_RESERVES",
@@ -1091,6 +1094,7 @@ impl StateField {
             "STATE_FIELD_AAVE_VARIABLE_BORROW_INDEX" => Some(Self::AaveVariableBorrowIndex),
             "STATE_FIELD_AAVE_CURRENT_VARIABLE_BORROW_RATE" => Some(Self::AaveCurrentVariableBorrowRate),
             "STATE_FIELD_AAVE_RESERVE_CONFIGURATION" => Some(Self::AaveReserveConfiguration),
+            "STATE_FIELD_AAVE_SCALED_TOTAL_SUPPLY" => Some(Self::AaveScaledTotalSupply),
             "STATE_FIELD_COMPOUND_V2_TOTAL_CASH" => Some(Self::CompoundV2TotalCash),
             "STATE_FIELD_COMPOUND_V2_TOTAL_BORROWS" => Some(Self::CompoundV2TotalBorrows),
             "STATE_FIELD_COMPOUND_V2_TOTAL_RESERVES" => Some(Self::CompoundV2TotalReserves),

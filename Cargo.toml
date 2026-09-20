@@ -6,6 +6,9 @@ members = [
   "erc20/balances/tools",
   "native/balances",
   "native/balances/tools",
+  "aave/balance-state",
+  "aave/balance-state/tools",
+  "conformance",
 ]
 resolver = "2"
 

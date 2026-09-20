@@ -1,0 +1,15 @@
+[package]
+name = "conformance"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "Exact integer reference models for time-dependent protocol balances (host-only)"
+
+[lib]
+crate-type = ["rlib"]
+
+# Reference arithmetic stays outside the WASM ingestion path.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+num-bigint = "0.4"
+num-traits = "0.2"
+num-integer = "0.1"
