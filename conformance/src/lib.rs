@@ -7,6 +7,7 @@
 pub mod aave;
 pub mod comet;
 pub mod compound_v2;
+pub mod erc4626;
 pub mod lido;
 
 /// Why a reference evaluation cannot produce a number.
