@@ -29,7 +29,7 @@ recorded in [extraction coverage](extraction-coverage.md).
 | Compound III principal and market inputs | [#15](https://github.com/pinax-network/substreams-evm-extended/issues/15) | High |
 | Rust conformance models for time-dependent balances | [#16](https://github.com/pinax-network/substreams-evm-extended/issues/16) | High |
 | Native balances package (`native/balances`) | [#17](https://github.com/pinax-network/substreams-evm-extended/issues/17) | High |
-| EVM call trees and persisted execution facts | [#18](https://github.com/pinax-network/substreams-evm-extended/issues/18) | High |
+| EVM call trees and persisted execution facts ([`evm/executions`](../evm/executions/README.md)) | [#18](https://github.com/pinax-network/substreams-evm-extended/issues/18) | High |
 | Standard ERC-20 transfer and approval evidence | [#19](https://github.com/pinax-network/substreams-evm-extended/issues/19) | Medium |
 | Aave lending-action evidence adapter | [#20](https://github.com/pinax-network/substreams-evm-extended/issues/20) | Medium |
 | Non-Transfer ERC-20 balance regression coverage | [#22](https://github.com/pinax-network/substreams-evm-extended/issues/22) | Medium |

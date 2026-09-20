@@ -1,0 +1,26 @@
+specVersion: v0.1.0
+package:
+  name: evm_executions
+  version: v0.1.0
+  url: https://github.com/pinax-network/substreams-evm-extended
+  description: Chain-observed EVM execution facts from Extended blocks; not a wallet activity classifier.
+protobuf:
+  files: [executions.proto]
+  importPaths: [../../proto/v1]
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ../../target/wasm32-unknown-unknown/release/evm_executions.wasm
+modules:
+  - name: map_events
+    kind: map
+    inputs:
+      - params: string
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:evm.executions.v1.Events
+params:
+  # Selectors and sizes only by default; set include_input / include_return_data
+  # to carry raw payloads. Producer versions are explicit.
+  map_events: '{"chain_id":56,"producer_versions":[5]}'
+network: bsc

@@ -3,8 +3,9 @@
 This repository contains EVM Substreams that consume Firehose **Extended**
 blocks. The Rust workspace members are the shared protobuf crate, the shared
 `common/persist` persisted-effect rules, the host-only `conformance` reference
-models, and the packages `erc20/balances`, `native/balances` and
-`aave/balance-state`, each with its native Rust diagnostic tools.
+models, and the packages `erc20/balances`, `native/balances`,
+`aave/balance-state` and `evm/executions`, each with its native Rust
+diagnostic tools.
 
 ## Production boundary
 
