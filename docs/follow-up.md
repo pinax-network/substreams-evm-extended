@@ -13,7 +13,7 @@ by the latest offline APD/DSG replay.
 | Migration of legacy role profiles to exact paths | [#4](https://github.com/pinax-network/substreams-evm-extended/issues/4) | High |
 | Remaining 19 sampled BSC candidates | [#5](https://github.com/pinax-network/substreams-evm-extended/issues/5) | High |
 | New versioned package and native sink qualification | [#6](https://github.com/pinax-network/substreams-evm-extended/issues/6) | Medium |
-| Cold-start initialization and holder completeness | [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7) | High |
+| Cold-start initialization and holder completeness ([spec](initialization-and-completeness.md), [`common/retention`](../common/retention/src/lib.rs)) | [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7) | High |
 | Ethereum, Base, HyperEVM and Arc | [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8) | High |
 
 The [extraction roadmap](https://github.com/pinax-network/substreams-evm-extended/issues/21)

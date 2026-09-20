@@ -28,6 +28,7 @@ The shared schema stays in the repository-root `proto/` crate:
 - `proto/v1/erc20_events.proto`: ERC-20 event evidence schema (`erc20/events`).
 - `proto/v1/aave_actions.proto`: Aave lending-action evidence schema (`aave/actions`).
 - `proto/src/pb/`: shared generated Rust types.
+- `common/retention/`: host-side retained holder state (origins, unknown vs known zero, undo, completeness report; [spec](docs/initialization-and-completeness.md)).
 - `common/persist/`: shared persisted-effect rules for Extended blocks.
 - `erc20/balances/`: Extended-block ERC-20 balance module and native audit tools.
 - `erc20/events/`: standard ERC-20 Transfer and Approval log evidence.
