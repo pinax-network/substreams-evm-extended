@@ -1,0 +1,41 @@
+{
+  "chain_id": 1,
+  "producer_versions": [5],
+  "heartbeat_blocks": 1000,
+  "markets": [
+    {
+      "comet": "0xc3d688B66703497DAA19211EEdff47f25384cdc3",
+      "base_token": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "base_decimals": 6,
+      "epoch": 1,
+      "model_id": "comet/base-supply-index",
+      "source_pin": "compound-finance/comet@f766f51583c23acc33b2a7824654ef2029a96804 CometWithExtendedAssetList.sol, CometStorage.sol; deployments/mainnet/usdc/roots.json + configuration.json",
+      "activation_block": 1,
+      "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+      "implementation": "0x0000000000000000000000000000000000000001",
+      "indices_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "totals_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "user_basic_slot": "0x0000000000000000000000000000000000000000000000000000000000000005",
+      "other_mapping_slots": [
+        "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "0x0000000000000000000000000000000000000000000000000000000000000003",
+        "0x0000000000000000000000000000000000000000000000000000000000000004",
+        "0x0000000000000000000000000000000000000000000000000000000000000006",
+        "0x0000000000000000000000000000000000000000000000000000000000000007"
+      ],
+      "immutables": {
+        "supply_kink": "800000000000000000",
+        "supply_rate_slope_low": "1030568239",
+        "supply_rate_slope_high": "12683916793",
+        "supply_rate_base": "0",
+        "borrow_kink": "800000000000000000",
+        "borrow_rate_slope_low": "1109842719",
+        "borrow_rate_slope_high": "7927447995",
+        "borrow_rate_base": "475646879",
+        "base_scale": "1000000",
+        "base_index_scale": "1000000000000000",
+        "factor_scale": "1000000000000000000"
+      }
+    }
+  ]
+}

@@ -11,6 +11,7 @@ members = [
   "aave/balance-state",
   "aave/balance-state/tools",
   "evm/executions",
+  "compound-v3/balance-state",
   "conformance",
 ]
 resolver = "2"
