@@ -1,0 +1,45 @@
+{
+  "chain_id": 1,
+  "producer_versions": [
+    5
+  ],
+  "heartbeat_blocks": 1000,
+  "epochs": [
+    {
+      "steth": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+      "epoch": 4,
+      "contract_version": 4,
+      "model_id": "lido/steth/v4/internal-share-rate",
+      "source_pin": "lidofinance/core@2da0f48f1a2a103a394dcf8760810fe9165697fb (v4.0.1) contracts/0.4.24/StETH.sol, Lido.sol, utils/Versioned.sol, utils/UnstructuredStorageExt.sol; docs.lido.fi/deployed-contracts",
+      "activation_block": 1,
+      "implementation": "0x028271E30a695c0527A0C50cA30603feD004cDb0",
+      "shares_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "other_mapping_slots": [
+        "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "0x0000000000000000000000000000000000000000000000000000000000000002"
+      ],
+      "total_and_external_shares_slot": "0x6038150aecaa250d524370a0fdcdec13f2690e0723eaf277f41d7cae26b359e6",
+      "buffered_ether_and_deposited_post_report_slot": "0x81a11fa1111afa59b50051f60ccf604a39d96acb484dc467ad8eadb4a63f0a5f",
+      "cl_validators_balance_and_cl_pending_balance_slot": "0x096e465397f38e659238ccd5d5a2c434ced54a63fd8d694045bfb058ab9d8112",
+      "contract_version_slot": "0x4dd0f6662ba1d6b081f08b350f5e9a6a7b15cf586926ba66f753594928fa64a6",
+      "other_slots": [
+        "0xd92bc31601d11a10411d08f59b7146d8a5915af253cde25f8e66b67beb4be223",
+        "0x8d3ed945c7718edcdb639b1235f2bbe3fa81f4a6cec7a436d8ea13fbc502d957",
+        "0x3f0eaa2c0f16ff9775c078f3df30470d8c042317b24ad1defa240b1c3e10b238",
+        "0xa3678de4a579be090bed1177e0a24f77cc29d181ac22fd7688aca344d8938015",
+        "0xafe016039542d12eec0183bb0b1ffc2ca45b027126a494672fba4154ee77facb",
+        "0xda4fbe3b9cbd98dfae5dff538bbff4ba61f38979d4d7419bcd006f3e6250ec13",
+        "0x3d3e9bd6e90e5d1f1c6839835bcbe5746a47c9a013d1eae6e80c248264c06a81",
+        "0x644132c4ddd5bb6f0655d5fe2870dcec7870e6be4758890f366b83441f9fdece"
+      ],
+      "accounting": "0x23ED611be0e1a820978875C0122F92260804cdDf",
+      "other_slot_names": [
+        "aragonOS.reentrancyGuard.mutex",
+        "aragonOS.appStorage.kernel",
+        "aragonOS.appStorage.appId",
+        "aragonOS.initializable.initializationBlock",
+        "lido.StETHPermit.eip712StETH"
+      ]
+    }
+  ]
+}

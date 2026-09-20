@@ -33,7 +33,7 @@ recorded in [extraction coverage](extraction-coverage.md).
 | Standard ERC-20 transfer and approval evidence ([`erc20/events`](../erc20/events/README.md)) | [#19](https://github.com/pinax-network/substreams-evm-extended/issues/19) | Medium |
 | Aave lending-action evidence adapter ([`aave/actions`](../aave/actions/README.md)) | [#20](https://github.com/pinax-network/substreams-evm-extended/issues/20) | Medium |
 | Non-Transfer ERC-20 balance regression coverage | [#22](https://github.com/pinax-network/substreams-evm-extended/issues/22) | Medium |
-| stETH shares and global rebase state | [#23](https://github.com/pinax-network/substreams-evm-extended/issues/23) | High |
+| stETH shares and global rebase state ([`lido/balance-state`](../lido/balance-state/README.md)) | [#23](https://github.com/pinax-network/substreams-evm-extended/issues/23) | High |
 | ERC-4626 shares and conversion state | [#24](https://github.com/pinax-network/substreams-evm-extended/issues/24) | High |
 
 The matching GitHub labels estimate the full remaining scope, not urgency or

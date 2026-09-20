@@ -35,10 +35,11 @@ The shared schema stays in the repository-root `proto/` crate:
 - `native/balances/`: Extended-block native balance module and offline replay tool.
 - `aave/balance-state/`: Aave V3 aToken holder basis and reserve state module.
 - `compound-v2/balance-state/`: Compound v2 cToken shares, market words, cash and rate-model dependency module.
+- `lido/balance-state/`: Lido stETH holder shares, packed global words, derived pooled ether and report evidence module.
 - `compound-v3/balance-state/`: Compound III (Comet) signed principal and market index module.
 - `aave/actions/`: Aave V3 Pool lending-action evidence.
 - `evm/executions/`: call trees, logs, code changes and SetCode authorizations.
-- `conformance/`: host-only exact integer reference models (Aave V3, Comet, Compound v2).
+- `conformance/`: host-only exact integer reference models (Aave V3, Comet, Compound v2, Lido stETH).
 
 Keeping the schema separate from the module gives future Extended modules the
 same protobuf contract without copying generated types.
