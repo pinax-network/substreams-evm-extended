@@ -1,0 +1,25 @@
+specVersion: v0.1.0
+package:
+  name: lido_balance_state
+  version: v0.1.0
+  url: https://github.com/pinax-network/substreams-evm-extended
+  description: RPC-free Lido stETH holder shares, packed total/external shares, internal-ether components and TokenRebased report evidence for one explicitly qualified contract-version epoch.
+protobuf:
+  files: [balance_state.proto]
+  importPaths: [../../proto/v1]
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ../../target/wasm32-unknown-unknown/release/lido_balance_state.wasm
+modules:
+  - name: map_events
+    kind: map
+    inputs:
+      - params: string
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:evm.balance_state.v1.Events
+params:
+  # No epoch is bound by default; the manifest network must match the binding.
+  map_events: '{"chain_id":1,"producer_versions":[5],"epochs":[]}'
+network: mainnet
