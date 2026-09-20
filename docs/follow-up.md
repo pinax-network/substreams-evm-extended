@@ -23,7 +23,7 @@ recorded in [extraction coverage](extraction-coverage.md).
 | Work | GitHub issue | Effort |
 | --- | --- | --- |
 | Chain, asset and action coverage requirements | [#11](https://github.com/pinax-network/substreams-evm-extended/issues/11) | Low |
-| Versioned holder/global balance-state contract | [#12](https://github.com/pinax-network/substreams-evm-extended/issues/12) | Medium |
+| Versioned holder/global balance-state contract ([contract](balance-state-contract.md)) | [#12](https://github.com/pinax-network/substreams-evm-extended/issues/12) | Medium |
 | Aave aToken basis and reserve inputs | [#13](https://github.com/pinax-network/substreams-evm-extended/issues/13) | High |
 | Compound v2 shares and exchange-rate dependencies | [#14](https://github.com/pinax-network/substreams-evm-extended/issues/14) | High |
 | Compound III principal and market inputs | [#15](https://github.com/pinax-network/substreams-evm-extended/issues/15) | High |
