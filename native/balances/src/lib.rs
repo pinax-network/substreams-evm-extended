@@ -233,7 +233,11 @@ pub fn project(block: &eth::Block, params: &Params) -> Result<balances_pb::Event
 }
 
 // The SDK macro generates raw-pointer parameter decoding and discards function
-// attributes. Keep its ABI-specific lint exception scoped to this wrapper.
+// attributes. Keep its ABI-specific lint exception scoped to this wrapper. The
+// exported `map_events` symbol exists only in the WASM build so host test
+// binaries can link this crate next to `erc20-balances`, which exports the
+// same C symbol name.
+#[cfg(target_arch = "wasm32")]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 mod handler {
     use super::*;
