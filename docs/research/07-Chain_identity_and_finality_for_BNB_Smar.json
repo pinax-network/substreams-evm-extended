@@ -1,0 +1,335 @@
+{
+ "topic": "Chain identity and finality for BNB Smart Chain, Ethereum mainnet, Base mainnet, HyperEVM mainnet, and Arc mainnet (vs Arc testnet), including execution-layer specifics affecting native-balance semantics",
+ "facts": [
+  {
+   "key": "bsc_chain_id",
+   "value": "56",
+   "source_url": "https://docs.bnbchain.org/bnb-smart-chain/developers/json_rpc/json-rpc-endpoint/",
+   "source_pin": null,
+   "note": "Official docs: Mainnet ChainID \"0x38, 56 in decimal\"; Testnet \"0x61, 97 in decimal\". Cross-checked: ethereum-lists/chains eip155-56.json chainId 56 (commit e62bf82b24b6) and bnb-chain/bsc params/config.go BSCChainConfig ChainID big.NewInt(56) (commit c5533ab5b724)."
+  },
+  {
+   "key": "bsc_native_asset",
+   "value": "BNB; base unit 1e-18 BNB (wei-like), 18 decimals",
+   "source_url": "https://raw.githubusercontent.com/ethereum-lists/chains/master/_data/chains/eip155-56.json",
+   "source_pin": "ethereum-lists/chains@e62bf82b24b6",
+   "note": "nativeCurrency: name \"BNB Chain Native Token\", symbol \"BNB\", decimals 18."
+  },
+  {
+   "key": "bsc_consensus_finality",
+   "value": "Parlia (Proof of Staked Authority) with BEP-126 fast finality: block finalized when it and its direct child are both justified (attestation with >=2/3 validator BLS votes in child header) -> 'within two blocks in most cases'; docs: finality 'approximately 1.125 seconds' at 0.45 s blocks",
+   "source_url": "https://raw.githubusercontent.com/bnb-chain/BEPs/master/BEPs/BEP126.md",
+   "source_pin": "bnb-chain/BEPs@8b2538756da9",
+   "note": "BEP-126 (status Enabled): 'A block is called justified if (1) it is the root, or (2) there exists attestation for this block in its direct child's header'; finalized when 'it is justified and its direct child is justified'; 'The finality of a block can be achieved within two blocks in most cases'. Fork choice: 'The fork that includes the higher justified block is considered as the longest chain', falling back to difficulty sum. Docs introduction page (https://docs.bnbchain.org/bnb-smart-chain/introduction/): PoSA, 45 validators (21 Cabinet + 24 Candidates), 'Finality is achieved in approximately 1.125 seconds' or 'within two blocks if 2/3*N or more validators vote normally'. Pre-fast-finality blocks are only probabilistically final. Follow-on BEPs: BEP-319, BEP-590, BEP-648 (BEPs README)."
+  },
+  {
+   "key": "bsc_finalized_tag",
+   "value": "yes - 'finalized' (and 'safe') block tags supported on eth_getBlockByNumber / eth_getHeaderByNumber; plus BSC-specific eth_getFinalizedHeader, eth_getFinalizedBlock (verifiedValidatorNum: -1 => >=1/2, -2 => >=2/3, -3 => all validators) and eth_newFinalizedHeaderFilter",
+   "source_url": "https://docs.bnbchain.org/bnb-smart-chain/developers/json_rpc/bsc-api-list/",
+   "source_pin": null,
+   "note": "In bnb-chain/bsc consensus/parlia/parlia.go (commit c5533ab5b724): vote attestations are only parsed/assembled when chainConfig.IsLuban(header.Number); GetFinalizedHeader returns the genesis header pre-Plato (`if !chain.Config().IsPlato(header.Number)`); params/config.go: LubanBlock 29020050, PlatoBlock 30720096. So the finalized head is meaningful only from Plato onward."
+  },
+  {
+   "key": "bsc_genesis",
+   "value": "Genesis header timestamp 0x5e9da7ce = 1587390414 = 2020-04-20T13:46:54Z (DefaultBSCGenesisBlock, GasLimit 40000000, Difficulty 1); docs state the network 'Officially launched on September 1, 2020'",
+   "source_url": "https://raw.githubusercontent.com/bnb-chain/bsc/master/core/genesis.go",
+   "source_pin": "bnb-chain/bsc@c5533ab5b724",
+   "note": "Launch-date quote is from https://docs.bnbchain.org/bnb-smart-chain/overview/. The genesis header timestamp precedes the public launch; timing of block 1 was not verified (explorer not used as a source)."
+  },
+  {
+   "key": "bsc_block_time",
+   "value": "450 ms since Fermi (FermiTime 1768357800 = 2026-01-14T02:30:00Z); history: 3000 ms default -> 1500 ms Lorentz (BEP-520, LorentzTime 1745903100 = 2025-04-29T05:05:00Z) -> 750 ms Maxwell (BEP-524, MaxwellTime 1751250600 = 2025-06-30T02:30:00Z) -> 450 ms Fermi (BEP-619)",
+   "source_url": "https://raw.githubusercontent.com/bnb-chain/bsc/master/consensus/parlia/parlia.go",
+   "source_pin": "bnb-chain/bsc@c5533ab5b724",
+   "note": "parlia.go constants: defaultBlockInterval 3000, lorentzBlockInterval 1500, maxwellBlockInterval 750, fermiBlockInterval 450 (ms); interval selected by IsFermi/IsMaxwell/IsLorentz. Hardfork timestamps from params/config.go (same commit). BEP titles/status from https://raw.githubusercontent.com/bnb-chain/BEPs/master/README.md: BEP-520 'Short Block Interval Phase One: 1.5 seconds', BEP-524 'Phase Two: 0.75 seconds', BEP-619 'Phase Three: 0.45 Seconds' (all Enabled). Docs overview says 'approximately 0.45 seconds'. Post-Lorentz the header MixDigest encodes millisecond timestamp."
+  },
+  {
+   "key": "bsc_exec_fee_flow_system_address",
+   "value": "Tx gas fees (and, post-Cancun, blob fees) are credited to consensus.SystemAddress 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE instead of the coinbase; at block finalization Parlia reads that balance, resets it to zero (BalanceDecreaseBSCDistributeReward), credits the coinbase (BalanceIncreaseBSCDistributeReward) and then moves it via system transactions: 1/16 (systemRewardPercent=4) to SystemReward 0x...1002 (capped) and the rest via deposit(validator) into ValidatorSet 0x...1000; BEP-95 burns burnRatio (initially 10%) of the gas fee to 0x000000000000000000000000000000000000dead inside deposit()",
+   "source_url": "https://raw.githubusercontent.com/bnb-chain/bsc/master/core/state_transition.go",
+   "source_pin": "bnb-chain/bsc@c5533ab5b724",
+   "note": "state_transition.go: `if st.evm.ChainConfig().IsInBSC() { st.state.AddBalance(consensus.SystemAddress, fee, tracing.BalanceIncreaseRewardTransactionFee)` and blob fee `st.state.AddBalance(consensus.SystemAddress, blobFeeU256, ...)` under IsCancun. parlia.go distributeIncoming: `balance := state.GetBalance(consensus.SystemAddress)`, `state.SetBalance(consensus.SystemAddress, common.U2560, tracing.BalanceDecreaseBSCDistributeReward)`, `state.AddBalance(coinbase, balance, tracing.BalanceIncreaseBSCDistributeReward)`, `rewards.Rsh(balance, systemRewardPercent)`, validatorSetABI.Pack(\"deposit\", validator). BEP-95 (https://raw.githubusercontent.com/bnb-chain/BEPs/master/BEPs/BEP95.md): 'burnRatio = 10%', burning 'implemented within the deposit function' of ValidatorSet, sent to 0x...dead. Balance-tracking implication: within a block the system address balance rises per tx and is zeroed at block end; system txs (from coinbase to 0x1000/0x1002) appear as block-end transactions."
+  },
+  {
+   "key": "bsc_system_contracts",
+   "value": "ValidatorSet 0x0000000000000000000000000000000000001000; SlashIndicator 0x...1001; SystemReward 0x...1002; LightClient 0x...1003; TokenHub 0x...1004; RelayerIncentivize 0x...1005; RelayerHub 0x...1006; GovHub 0x...1007; TokenManager 0x...1008; CrossChain 0x0000000000000000000000000000000000002000; Staking 0x...2001; StakeHub 0x...2002; StakeCredit 0x...2003; Governor 0x...2004; GovToken 0x...2005; Timelock 0x...2006; TokenRecoverPortal 0x0000000000000000000000000000000000003000",
+   "source_url": "https://raw.githubusercontent.com/bnb-chain/bsc/master/core/systemcontracts/const.go",
+   "source_pin": "bnb-chain/bsc@c5533ab5b724",
+   "note": "17 genesis/system contract constants in core/systemcontracts/const.go. Contract sources live in https://github.com/bnb-chain/bsc-genesis-contract (README does not list addresses)."
+  },
+  {
+   "key": "eth_chain_id",
+   "value": "1",
+   "source_url": "https://raw.githubusercontent.com/ethereum-lists/chains/master/_data/chains/eip155-1.json",
+   "source_pin": "ethereum-lists/chains@e62bf82b24b6",
+   "note": "name 'Ethereum Mainnet', shortName 'eth'."
+  },
+  {
+   "key": "eth_native_asset",
+   "value": "ETH (Ether); base unit wei, 18 decimals",
+   "source_url": "https://raw.githubusercontent.com/ethereum-lists/chains/master/_data/chains/eip155-1.json",
+   "source_pin": "ethereum-lists/chains@e62bf82b24b6",
+   "note": "nativeCurrency: name 'Ether', symbol 'ETH', decimals 18. Consensus-layer withdrawals are denominated in Gwei (1e9 wei), see eth_exec_withdrawals."
+  },
+  {
+   "key": "eth_consensus_finality",
+   "value": "Proof-of-stake (Gasper: Casper FFG checkpoints + LMD-GHOST): slots of 12 s, epochs of 32 slots (6.4 min); a checkpoint pair with >=2/3 of staked ETH voting upgrades target to 'justified', then 'finalized' the following epoch -> finality typically ~2 epochs (~12.8-13 min)",
+   "source_url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/",
+   "source_pin": null,
+   "note": "Quotes: 'Time in proof-of-stake Ethereum is divided into slots (12 seconds) and epochs (32 slots)'; 'If a pair of checkpoints attracts votes representing at least two-thirds of the total staked ETH, the checkpoints are upgraded. The more recent of the two (target) becomes justified... Now it is upgraded to finalized'; supermajority links only demonstrable between epochs."
+  },
+  {
+   "key": "eth_finalized_tag",
+   "value": "yes - execution-apis BlockTag enum: earliest, finalized, safe, latest, pending",
+   "source_url": "https://raw.githubusercontent.com/ethereum/execution-apis/main/src/schemas/block.yaml",
+   "source_pin": "ethereum/execution-apis@465d1b98d43e",
+   "note": "'finalized: The most recent crypto-economically secure block, cannot be re-orged outside of manual intervention driven by community coordination; safe: The most recent block that is safe from re-orgs under honest majority and certain synchronicity assumptions; latest: ... may be re-orged out of the canonical chain even under healthy/normal conditions ... If the safe or finalized tag cannot be resolved to a block, the method responds as it does for an unknown block.'"
+  },
+  {
+   "key": "eth_genesis",
+   "value": "Frontier genesis block 0 at Jul 30, 2015 3:26:13 PM UTC",
+   "source_url": "https://ethereum.org/en/history/",
+   "source_pin": null,
+   "note": "Relevant later forks (same page): Paris/The Merge Sep 15 2022 block 15,537,394; Shanghai-Capella Apr 12 2023 block 17,034,870 / epoch 194,048 (EIP-4895 withdrawals); Cancun-Deneb 'Dencun' Mar 13 2024 block 19,426,587 (EIP-4844, EIP-6780, EIP-4788); Prague-Electra 'Pectra' May 7 2025 block 22,431,084 / epoch 364,032 (EIP-7702, EIP-7251, EIP-7002); Fusaka (Fulu-Osaka) Dec 3 2025 block 23,935,694 / epoch 411,392."
+  },
+  {
+   "key": "eth_block_time",
+   "value": "12 s slot interval (one block per slot; slots may be missed)",
+   "source_url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/",
+   "source_pin": null,
+   "note": "Pre-Merge block times were variable PoW (~13 s average); post-Merge fixed 12 s slots."
+  },
+  {
+   "key": "eth_exec_withdrawals",
+   "value": "EIP-4895 (Final): beacon-chain withdrawals are system-level operations in execution_payload.withdrawals; for each, the address balance is increased by amount (Gwei, uint64, converted to wei); processed after all user transactions; no gas, unconditional, MUST not fail; not a transaction and not an EVM call",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4895",
+   "source_pin": null,
+   "note": "Balance-tracking implication: native balance increases occur outside any transaction/call trace; Firehose Extended blocks must be read for the withdrawals list (Shanghai+, from block 17,034,870)."
+  },
+  {
+   "key": "eth_exec_blob_fees",
+   "value": "EIP-4844 (Final): type 0x03 blob transactions pay blob_gas_used * base_fee_per_blob_gas (GAS_PER_BLOB * number of blobs); blob fee is 'deducted from the sender balance before transaction execution and burned, and is not refunded in case of transaction failure'; sender must also cover max_fee_per_blob_gas * total blob gas in the balance check",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4844",
+   "source_pin": null,
+   "note": "Blob fee is a burn not visible in the receipt's gasUsed*effectiveGasPrice; active since Dencun (block 19,426,587). Base fee per gas under EIP-1559 is likewise burned (https://eips.ethereum.org/EIPS/eip-1559: 'The base fee is always burned (i.e. it is destroyed by the protocol)'; miner 'only receives the priority fee')."
+  },
+  {
+   "key": "eth_exec_eip6780",
+   "value": "EIP-6780 (Final, Dencun): SELFDESTRUCT only deletes code/storage/account when executed in the same transaction the contract was created; otherwise it only transfers the entire balance to the target and the account persists; same-tx self-target burns the ether, otherwise self-target yields no net balance change",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-6780",
+   "source_pin": null,
+   "note": "Quotes: 'SELFDESTRUCT does not delete any data (including storage keys, code, or the account itself)' but still 'transfers the entire account balance to the target'; same-tx case: 'Ether will be burnt' if target == self; otherwise 'no net change in balances'."
+  },
+  {
+   "key": "eth_exec_system_calls",
+   "value": "Protocol system calls run from SYSTEM_ADDRESS 0xfffffffffffffffffffffffffffffffffffffffe outside transactions: EIP-4788 (Dencun) calls BEACON_ROOTS_ADDRESS 0x000F3df6D732807Ef1319fB7B8bB8522d0Beac02 before any transactions ('does not count against the block's gas limit', 'no value should be transferred'); EIP-7002 (Pectra) calls WITHDRAWAL_REQUEST_PREDEPLOY_ADDRESS 0x00000961Ef480Eb55e80D19ad83579A64c007002 at end of block; user withdrawal requests pay a fee via msg.value that is retained by the predeploy ('Overpaid fees are not returned to the caller')",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4788",
+   "source_pin": null,
+   "note": "EIP-7002 details from https://eips.ethereum.org/EIPS/eip-7002 (Final): 'call WITHDRAWAL_REQUEST_PREDEPLOY_ADDRESS as SYSTEM_ADDRESS with no calldata'; 'If the call to the contract fails or returns an error, the block MUST be invalidated'. Balance implication: system calls do not move native value, but the 7002 predeploy accumulates ETH fees from user calls; Firehose Extended exposes system calls separately from transactions."
+  },
+  {
+   "key": "base_chain_id",
+   "value": "8453",
+   "source_url": "https://docs.base.org/base-chain/quickstart/connecting-to-base",
+   "source_pin": null,
+   "note": "Docs: Chain ID 8453, RPC https://mainnet.base.org, currency ETH. Cross-checked: ethereum-lists eip155-8453.json (commit e62bf82b24b6) and base/base crates/common/chains/src/config.rs 'chain_id: 8453' (commit d8a2a42398cc)."
+  },
+  {
+   "key": "base_native_asset",
+   "value": "ETH (Ether); wei, 18 decimals (bridged from L1 via deposit 'mint')",
+   "source_url": "https://raw.githubusercontent.com/ethereum-lists/chains/master/_data/chains/eip155-8453.json",
+   "source_pin": "ethereum-lists/chains@e62bf82b24b6",
+   "note": "nativeCurrency: name 'Ether', symbol 'ETH', decimals 18."
+  },
+  {
+   "key": "base_consensus_finality",
+   "value": "OP Stack rollup: L2 head has three labels - unsafe (sequencer-built, ~2 s, not yet on L1), safe (derivable entirely from L1 data, minutes after L1 batch inclusion), finalized ('The highest L2 block that can be derived from finalized L1 blocks - i.e., L1 blocks older than two L1 epochs'); OP docs give ~15-30 min to finalized; Base docs: L1 batch inclusion ~2 min, 'L1 Batch Finality (~20m)' when the batch is 'older than 2 epochs, or 64 L1 blocks'",
+   "source_url": "https://docs.optimism.io/op-stack/transactions/transaction-finality",
+   "source_pin": null,
+   "note": "Glossary definitions from https://specs.optimism.io/glossary.html (Unsafe/Safe/Finalized L2 Head). Base-specific stages from https://docs.base.org/base-chain/network-information/transaction-finality: Flashblock preconfirmation ~200 ms, L2 block ~2 s, L1 batch ~2 min, L1 finality ~20 min; 'A reorg of Ethereum L1 does not require a reorg of the Base L2 chain'. Note: OP docs cite 'roughly two to three epochs' (~13-19 min) for L1 finality; unsafe blocks can be reorged by the sequencer."
+  },
+  {
+   "key": "base_finalized_tag",
+   "value": "yes - 'the unsafe head is served as the latest block, and the safe and finalized heads back the safe and finalized block tags'",
+   "source_url": "https://docs.optimism.io/op-stack/transactions/transaction-finality",
+   "source_pin": null,
+   "note": "'finalized' on Base means derived from L1 data in an L1 block that is itself finalized (2 L1 epochs), not an L2-native finality gadget."
+  },
+  {
+   "key": "base_genesis",
+   "value": "L2 genesis block 0, hash 0xf712aa9241cc24369b143cf6dce85f0902a9731e70d66818a3a5845b296c73dd, l2_time 1686789347 = 2023-06-15T00:35:47Z; L1 genesis anchor block 17,481,768",
+   "source_url": "https://raw.githubusercontent.com/base/base/main/crates/common/chains/src/config.rs",
+   "source_pin": "base/base@d8a2a42398cc",
+   "note": "Official Base node monorepo config: 'genesis_l2_number: 0', 'genesis_l2_time: 1_686_789_347', 'genesis_l1_number: 17_481_768', 'block_time: 2'. Hardfork activations (unix): Canyon 1704992401 (2024-01-11), Delta 1708560000, Ecotone 1710374401, Fjord 1720627201, Granite 1726070401, Holocene 1736445601, Isthmus 1746806401 (2025-05-09T16:00:01Z), Jovian 1764691201 (2025-12-02T16:00:01Z). At research time ethereum-optimism/superchain-registry main had no superchain/configs/mainnet/base.toml (32 mainnet configs, none matching 'base'), so the base/base repo was used instead."
+  },
+  {
+   "key": "base_block_time",
+   "value": "2 seconds",
+   "source_url": "https://specs.optimism.io/glossary.html",
+   "source_pin": null,
+   "note": "Glossary 'L2 Block Time: 2 second'; base/base config.rs 'block_time: 2'; Base fees doc (https://docs.base.org/base-chain/network-information/network-fees) uses '18 blocks x 2 seconds = 36 seconds' and EIP-1559 params elasticity 6, denominator 125 (max +4%/block)."
+  },
+  {
+   "key": "base_exec_deposit_transactions",
+   "value": "Deposit transactions (EIP-2718 type 0x7E = 126; fields sourceHash, from, to, mint, value, gas, isSystemTx, data): 'the balance of the from account MUST be increased by the amount of mint. This is unconditional, and does not revert on deposit failure'; no L1-cost fee, no base fee, no ETH gas refund; every L2 block starts with an L1-attributes deposit from 0xDeaDDEaDDeAdDeAdDEAdDEaddeAddEAdDEAd0001 to L1Block 0x4200000000000000000000000000000000000015 (mint 0, value 0); deposits increment the sender nonce and (post-Regolith) receipts carry depositNonce",
+   "source_url": "https://specs.optimism.io/protocol/deposits.html",
+   "source_pin": null,
+   "note": "Balance implication: L1->L2 ETH arrives as a native balance increase (mint) on a type-0x7E tx before EVM execution, with no fee deduction; user deposits derive from L1 OptimismPortal 0x49048044D57e1C92A77f79988d21Fa8fAF74E97e (Base docs contract list). Deposits are exempt from the operator fee."
+  },
+  {
+   "key": "base_exec_fee_vaults",
+   "value": "Fees are not burned and not paid via internal calls: base fee -> BaseFeeVault 0x4200000000000000000000000000000000000019 ('not burnt on L2'); priority fee -> SequencerFeeVault 0x4200000000000000000000000000000000000011 (= block.coinbase); L1 data fee 'charged from the L2 transaction-sender ETH balance' -> L1FeeVault 0x420000000000000000000000000000000000001a; operator fee (Isthmus) -> OperatorFeeVault 0x420000000000000000000000000000000000001B; 'fee payments are not registered as internal EVM calls'",
+   "source_url": "https://specs.optimism.io/protocol/exec-engine.html",
+   "source_pin": null,
+   "note": "Addresses from https://specs.optimism.io/protocol/predeploys.html; Base docs contract page (https://docs.base.org/base-chain/network-information/base-contracts) lists SequencerFeeVault 0x...11, BaseFeeVault 0x...19, L1FeeVault 0x...1a, L1Block 0x...15, GasPriceOracle 0x420000000000000000000000000000000000000F. Balance implication: sender balance decreases by execution fee + L1 data fee (+ operator fee) with vault balances increasing outside any call trace."
+  },
+  {
+   "key": "base_exec_operator_fee",
+   "value": "Isthmus operator fee = gas * operatorFeeScalar / 1e6 + operatorFeeConstant (uint32 / uint64 set by the chain operator, stored in L1Block 0x...15 storage slot 8: scalar at offset 0, constant at offset 4); worst case charged pre-execution using gas_limit, refunded post-execution (opFeeRefund = opFeeWorstCase - opFeeActual); deposits pay zero; collected in OperatorFeeVault 0x420000000000000000000000000000000000001B",
+   "source_url": "https://specs.optimism.io/protocol/isthmus/exec-engine.html",
+   "source_pin": null,
+   "note": "Isthmus active on Base mainnet since 1746806401 (2025-05-09T16:00:01Z) per base/base config.rs. Whether Base has configured a nonzero operatorFeeScalar/operatorFeeConstant was not confirmed (would require reading the L1 SystemConfig)."
+  },
+  {
+   "key": "hyperevm_chain_id",
+   "value": "999",
+   "source_url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm",
+   "source_pin": null,
+   "note": "Official docs: Mainnet 999, Testnet 998; mainnet JSON-RPC https://rpc.hyperliquid.xyz/evm. Cross-check: chainlist.org/chain/999 shows 'HyperEVM', '999(0x3e7)', HYPE. Caution: ethereum-lists/chains master (commit e62bf82b24b6) _data/chains/eip155-999.json still registers 'Wanchain Testnet' (WAN) for chainId 999, so the registry conflicts with Hyperliquid's official assignment."
+  },
+  {
+   "key": "hyperevm_native_asset",
+   "value": "HYPE; 18 decimals (wei-like base unit)",
+   "source_url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm",
+   "source_pin": null,
+   "note": "'HYPE is the native gas token' with 18 decimals on both mainnet and testnet. HYPE on HyperCore has different (fewer) decimals; evmExtraWeiDecimals handles the difference for linked tokens."
+  },
+  {
+   "key": "hyperevm_consensus_finality",
+   "value": "HyperBFT (HotStuff-derived) - 'one-block finality inherited from HyperBFT'; HyperEVM blocks are 'built as part of Hyperliquid's execution, inheriting all security from HyperBFT consensus' and 'not a separate chain'; time to commit is 'usually 2 blocks in pipelined HyperBFT consensus'; median end-to-end 0.2 s, p99 0.9 s",
+   "source_url": "https://hyperliquid.gitbook.io/hyperliquid-docs",
+   "source_pin": null,
+   "note": "Supporting quotes: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/optimizing-latency ('time to commit (usually 2 blocks in pipelined HyperBFT consensus)'); https://hyperliquid.gitbook.io/hyperliquid-docs/hypercore/overview ('HyperBFT, a variant of HotStuff'; 'median 0.2 seconds and 99th percentile 0.9 seconds'); https://hyperliquid.gitbook.io/hyperliquid-docs/hyperevm ('secured by the same HyperBFT consensus as HyperCore'). Raw block archive (s3://hl-mainnet-evm-blocks, MessagePack+LZ4) is 'written after committed blocks are verified by the node' (https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm/raw-hyperevm-block-data). Committed EVM blocks are therefore final; no reorg model is documented."
+  },
+  {
+   "key": "hyperevm_finalized_tag",
+   "value": null,
+   "source_url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm/json-rpc",
+   "source_pin": null,
+   "note": "Official JSON-RPC page lists supported methods (eth_blockNumber, eth_getBlockByNumber, eth_getBlockReceipts, eth_getLogs, etc.) and says for eth_call/eth_estimateGas/eth_getBalance/eth_getCode/eth_getStorageAt/eth_getTransactionCount 'only the latest block is supported'; no 'safe'/'finalized' tag semantics are documented. Custom methods: eth_bigBlockGasPrice, eth_usingBigBlocks."
+  },
+  {
+   "key": "hyperevm_genesis",
+   "value": null,
+   "source_url": "https://hyperliquid.gitbook.io/hyperliquid-docs/hyperevm",
+   "source_pin": null,
+   "note": "Official docs do not state a mainnet launch date or genesis block; they describe HyperEVM as alpha with phased rollout. Third-party coverage of the Hyper Foundation announcement dates HyperEVM mainnet (alpha) to 2025-02-18, but this could not be confirmed from an official Hyperliquid source."
+  },
+  {
+   "key": "hyperevm_block_time",
+   "value": "Dual-block: small blocks every 1 s with 3M gas limit; large blocks every 1 minute with 30M gas limit; both interleaved into one strictly increasing EVM block-number sequence",
+   "source_url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm/dual-block-architecture",
+   "source_pin": null,
+   "note": "Quotes: small blocks '1 seconds' / '3M gas limit', large blocks '1 minute' / '30M gas limit'; 'interleaved with a unique increasing sequence of EVM block numbers'; 'the first L1 block for each value l1_block_time % x produces an EVM block'. Users opt into big blocks with HyperCore action {'type':'evmUserModify','usingBigBlocks':true} (set per HyperCore user, must be unset to return to small blocks); separate mempools; onchain mempool 'accepts only the next 8 nonces for each address'; txs older than 1 day pruned. Implication: EVM block timestamps are irregular (1 s cadence plus 60 s big blocks); block number is not a proxy for time."
+  },
+  {
+   "key": "hyperevm_exec_fee_burn",
+   "value": "Cancun hardfork without blobs, EIP-1559 enabled; base fee burned and 'priority fees are also burned because the HyperEVM uses HyperBFT consensus' - burned priority fees are credited to the zero address's EVM balance",
+   "source_url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm",
+   "source_pin": null,
+   "note": "Balance implication: no coinbase/validator receives EVM fees; 0x0000000000000000000000000000000000000000 accumulates burned priority fees."
+  },
+  {
+   "key": "hyperevm_core_evm_boundary",
+   "value": "HyperCore<->HyperEVM transfers use per-asset system addresses: HYPE = 0x2222222222222222222222222222222222222222 (system contract with payable receive() emitting 'event Received(address indexed user, uint256 amount)'); other tokens = 0x20 first byte + big-endian token index (e.g. token 200 -> 0x20000000000000000000000000000000000000c8). EVM->Core: send HYPE as tx value to 0x222...2 or ERC-20 transfer to the token's system address (credited from the emitted Transfer event). Core->EVM: sendAsset to the system address; tokens are 'credited by a system transaction that calls transfer(recipient, amount) on the linked contract as the system address'; 'A transfer from HyperCore to HyperEVM costs 200k gas at the base gas price of the next HyperEVM block'",
+   "source_url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm/hypercore-less-than-greater-than-hyperevm-transfers",
+   "source_pin": null,
+   "note": "Linking requires the system address to hold the entire EVM spot supply; spot deployer sends requestEvmContract (token, ERC20 address, evmExtraWeiDecimals) and EVM deployer sends finalizeEvmContract. Warning quoted: 'There are currently no checks that the system address has sufficient supply or that the contract is a valid ERC20, so be careful when sending funds.' Cross-boundary failures surface as HyperCore error code 10055. Also: CoreWriter 0x3333333333333333333333333333333333333333 'burns ~25,000 gas before emitting a log to be processed by HyperCore as an action' (orders/vault transfers delayed a few seconds); read precompiles from 0x0000000000000000000000000000000000000800 return values 'guaranteed to match the latest HyperCore state at the time the EVM block is constructed' (https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm/interacting-with-hypercore). Balance implication: native HYPE credits on EVM arrive via system transactions originating from the 0x2222 system address; EVM-side HYPE supply is only what has crossed the boundary."
+  },
+  {
+   "key": "arc_chain_id",
+   "value": "5042",
+   "source_url": "https://docs.arc.io/arc/references/connect-to-arc",
+   "source_pin": null,
+   "note": "Arc mainnet: chain ID 5042 (0x13BA), network name 'Arc', RPC https://rpc.mainnet.arc.io, explorer https://explorer.arc.io. Arc TESTNET is distinct: chain ID 5042002 (0x4D0012), RPC https://rpc.testnet.arc.io, explorer https://explorer.testnet.arc.io. docs.arc.network now 301-redirects to docs.arc.io. Cross-checked in ethereum-lists/chains (commit e62bf82b24b6): eip155-5042.json 'Arc' (shortName arc-mainnet, USDC 18 decimals) and eip155-5042002.json 'Arc Network Testnet' (arc-testnet)."
+  },
+  {
+   "key": "arc_testnet_chain_id",
+   "value": "5042002",
+   "source_url": "https://docs.arc.io/arc/references/connect-to-arc",
+   "source_pin": null,
+   "note": "Hex 0x4D0012; network name 'Arc Testnet'; native currency USDC 18 decimals. Public testnet launched 2025-10-28 (Circle press release https://www.circle.com/pressroom/circle-launches-arc-public-testnet). Do not conflate with mainnet 5042."
+  },
+  {
+   "key": "arc_native_asset",
+   "value": "USDC as native gas token, native representation 18 decimals (eth_getBalance / addr.balance); the same balance is exposed via an ERC-20 interface with 6 decimals",
+   "source_url": "https://docs.arc.io/arc/concepts/stablecoin-native-model",
+   "source_pin": null,
+   "note": "Quotes: native uses '18 decimals, consistent with how ETH works on Ethereum'; 'USDC.balanceOf(addr) (6 decimals) and addr.balance / eth_getBalance (18 decimals) represent the same underlying balance'; amounts below 1e-6 USDC 'are not represented in balanceOf but are still present in the native balance'. EVM differences page: 'To display a native value as USDC, divide by 10^12. Don't use the 6-decimal value when crediting or recording balances; truncation at the 6-decimal boundary records less than was transferred.' Connect page warns not to display native and ERC-20 USDC as separate balances."
+  },
+  {
+   "key": "arc_usdc_erc20_interface",
+   "value": "0x3600000000000000000000000000000000000000",
+   "source_url": "https://docs.arc.io/arc/references/contract-addresses",
+   "source_pin": null,
+   "note": "Listed as 'USDC (ERC-20 interface)' for BOTH Arc mainnet and Arc testnet; also cited on https://docs.arc.io/arc/concepts/stablecoin-native-model ('uses 6 decimals to match the standard USDC representation on other EVM networks'). It is an interface over the native balance, not a separate token: 'An ERC-20 transfer directly moves the native balance, and a native send is reflected in the ERC-20 balance.' Mainnet EURC 0xbEf5f6d51CB62b58e6A8f77868681825C6fe21c1 (testnet EURC 0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a) are ordinary ERC-20s."
+  },
+  {
+   "key": "arc_consensus_finality",
+   "value": "Malachite (Tendermint-style BFT) with a permissioned, known-institution validator set: rotating proposer, two voting rounds (pre-vote, pre-commit); block is final when >=2/3 of validators pre-commit - 'Transactions finalize on inclusion'; deterministic finality in under one second (benchmarked <350 ms with 20 validators); 'no confirmation windows, no reorganization risk'",
+   "source_url": "https://docs.arc.io/arc/concepts/consensus-layer",
+   "source_pin": null,
+   "note": "Also https://docs.arc.io/arc/concepts/deterministic-finality ('irreversible transaction settlement in under one second'; 'A confirmed transaction stays confirmed'), https://docs.arc.io/arc/references/evm-compatibility ('Transactions finalize on inclusion; offchain systems can act after a single confirmation'), https://docs.arc.io/integrate/exchanges/deposits ('Credit the user once the block containing their transaction is produced'). Execution layer is Reth (https://docs.arc.io/arc/concepts/system-overview). Founding mainnet validators per Circle press release: BlackRock, DTCC, Galaxy, ICE, Mastercard, MoneyGram, SBI Group, Standard Chartered, Sumitomo, Visa, Worldpay. Effective finality depth: 1 block."
+  },
+  {
+   "key": "arc_finalized_tag",
+   "value": null,
+   "source_url": "https://docs.arc.io/arc/concepts/deterministic-finality",
+   "source_pin": null,
+   "note": "Official docs do not document how the 'safe'/'finalized' JSON-RPC block tags resolve on Arc; given finality-on-inclusion they should coincide with 'latest', but this is not stated. Treat as unconfirmed."
+  },
+  {
+   "key": "arc_genesis",
+   "value": "Arc mainnet launched 2026-09-16 (Circle press release); Arc public testnet launched 2025-10-28",
+   "source_url": "https://www.circle.com/pressroom/circle-launches-arc-mainnet-an-economic-operating-system-for-the-internet",
+   "source_pin": null,
+   "note": "Press release dated September 16, 2026: 'Sub-second finality. Deterministic, instant settlement. Final means final.'; 'Fees are paid in USDC'. Genesis block number/timestamp are not given in the docs read. Testnet date from https://www.circle.com/pressroom/circle-launches-arc-public-testnet."
+  },
+  {
+   "key": "arc_block_time",
+   "value": "No fixed interval - 'blocks are produced as fast as the network permits, with no artificial delays or extra timeouts' (sub-second); block timestamps have one-second granularity and are non-decreasing, so multiple blocks may share a timestamp",
+   "source_url": "https://docs.arc.io/arc/references/evm-compatibility",
+   "source_pin": null,
+   "note": "Quote: 'Timestamps come from the proposer's wall clock at one-second granularity, so sub-second blocks may share a timestamp.' EVM differences page: 'Block timestamps non-decreasing (not strictly increasing)'. Optimistic-responsiveness statement from https://docs.arc.io/arc/concepts/consensus-layer. Implication: block.timestamp is not unique per block."
+  },
+  {
+   "key": "arc_exec_native_value_rules",
+   "value": "Native USDC transfers can revert even with sufficient balance: transfers to the zero address forbidden (except zero value), burning prohibited, blocklist enforced at runtime, transfers to self-destructed accounts revert; SELFDESTRUCT reverts if its value transfer violates these rules and emits a Transfer log on success (EIP-7708); native transfers emit ERC-20-style Transfer logs from the system emitter 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE with 18-decimal amounts, while the 0x3600...0000 contract emits Transfer only for ERC-20-interface activity",
+   "source_url": "https://docs.arc.io/arc/references/evm-differences",
+   "source_pin": null,
+   "note": "Deposit-detection guide (https://docs.arc.io/integrate/exchanges/deposits): 'Plain native USDC sends emit no Transfer on the ERC-20 contract (0x3600...0000)'; 'Filter the system emitter (0xffff...fffe) instead'; 'Store and credit the raw 18-decimal value. Don't truncate to 6-decimal ERC-20 units: amounts smaller than 1x10^-6 USDC are valid and spendable as gas.' Also: withdrawals (EIP-4895) 'Always empty'; parentBeaconBlockRoot set to parent execution block hash (no beacon-roots contract); PREVRANDAO always 0; BLOBHASH 0; BLOBBASEFEE 1; type-3 blob txs rejected; EIP-7702 supported; hardfork baseline Osaka with select Amsterdam features (https://docs.arc.io/arc/references/evm-compatibility)."
+  },
+  {
+   "key": "arc_exec_fee_model",
+   "value": "Fees in native USDC (18 decimals): EIP-1559 with EWMA smoothing; base fee is paid to the block beneficiary, NOT burned; minimum base fee 20 Gwei (txs with maxFeePerGas below it are 'silently dropped' / may pend indefinitely), maximum base fee 20,000 Gwei; next block's base fee is carried in the parent header's extra_data; priority fee of 0 accepted",
+   "source_url": "https://docs.arc.io/arc/references/evm-differences",
+   "source_pin": null,
+   "note": "Gas-and-fees page (https://docs.arc.io/arc/references/gas-and-fees): 'Minimum base fee (testnet): 20 Gwei', 'Maximum base fee: 20,000 Gwei', base fee target '~$0.001 per ERC-20 transfer'. Balance implication: unlike Ethereum, no fee burn - beneficiary balance increases by base+priority fees; the fee-recipient identity is not specified in the docs read."
+  }
+ ],
+ "open_questions": [
+  "HyperEVM mainnet launch/genesis date is not stated in official Hyperliquid docs; third-party coverage of the Hyper Foundation announcement gives 2025-02-18 for the mainnet alpha - confirm from an official Hyperliquid/Hyper Foundation channel before recording it, and determine EVM block 0's timestamp/mapping to HyperCore height.",
+  "HyperEVM: no official statement on 'safe'/'finalized' JSON-RPC tag semantics; the JSON-RPC docs say state queries support only 'latest'. Verify against a node implementation (not an RPC endpoint) whether finalized == latest given one-block HyperBFT finality.",
+  "HyperEVM: ethereum-lists/chains master still assigns chainId 999 to 'Wanchain Testnet' while Hyperliquid docs and chainlist.org show HyperEVM = 999; decide which registry the project treats as canonical and note the conflict in the requirements doc.",
+  "HyperEVM: exact on-chain form of the Core->EVM HYPE credit (system transaction from 0x2222...2222 with value vs. direct balance mutation) and whether the 0x2222 system address' EVM balance represents the bridged supply is not explicitly quoted in docs; confirm from Firehose extended block traces.",
+  "Arc: 'safe'/'finalized' block-tag behaviour is not documented; genesis block number/timestamp for mainnet (launched 2026-09-16) and testnet not found in docs; whether the 20 Gwei minimum base fee applies to mainnet (gas-and-fees page labels it 'testnet') and who the block beneficiary/fee recipient is (validator vs. protocol account) are unconfirmed.",
+  "Arc: system emitter address 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE emits Transfer logs for native transfers (EIP-7708); confirm whether it also emits for fee payments / gas refunds and for the base-fee credit to the beneficiary, since that determines whether native-balance deltas can be reconstructed purely from logs.",
+  "Base: ethereum-optimism/superchain-registry main branch had no superchain/configs/mainnet/base.toml at research time (32 mainnet configs, none named base); genesis values were taken from base/base crates/common/chains/src/config.rs (commit d8a2a42398cc) - cross-check with the op-geth embedded genesis if the registry is required as the source of truth.",
+  "Base: whether Base mainnet has configured a nonzero operatorFeeScalar/operatorFeeConstant since Isthmus (1746806401) is unknown without reading the L1 SystemConfig / L1Block slot 8; also confirm how Jovian (1764691201) changed fee/L1-attributes semantics.",
+  "Base: public launch date (widely cited as 2023-08-09, base.mirror.xyz) could not be fetched (HTTP 403); only the L2 genesis time 2023-06-15T00:35:47Z is sourced.",
+  "BSC: docs say the chain 'Officially launched on September 1, 2020' while the genesis header timestamp in bnb-chain/bsc core/genesis.go is 0x5e9da7ce = 2020-04-20T13:46:54Z; block 1 timing was not verified (explorers were not used).",
+  "BSC: EIP-1559 base-fee handling under Parlia (whether header baseFee is zero / whether any portion is burned at the protocol level vs. BEP-95's 10% burn inside ValidatorSet.deposit) was not confirmed from source; verify in bnb-chain/bsc consensus/misc/eip1559 for Parlia.",
+  "BSC: the mapping of BEP-126 to the Luban (block 29020050, vote attestations) and Plato (block 30720096, finalized head) hardforks is inferred from IsLuban/IsPlato gating in parlia.go rather than quoted from BEP text; also verify the current systemReward cap and finality-reward flows (BEP-319) for complete native-balance accounting of system transactions.",
+  "Ethereum: Fusaka (2025-12-03) blob-fee changes (e.g. EIP-7918 blob base fee bound) were not reviewed; confirm they do not alter how blob fees are deducted from sender balances."
+ ]
+}

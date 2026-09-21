@@ -19,6 +19,9 @@ The [native ClickHouse sink supplied by the Substreams CLI](erc20/balances/click
 consumes the protobuf directly. This workspace contains no `db_out` module,
 custom ClickHouse/PostgreSQL sink, or database-change dependency.
 
+Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (state,
+evidence, open findings, next steps) and the procedures in [`skills/`](skills/README.md).
+
 The shared schema stays in the repository-root `proto/` crate:
 
 - `proto/v1/balances.proto`: canonical balance schema.

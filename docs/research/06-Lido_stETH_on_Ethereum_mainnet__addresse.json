@@ -1,0 +1,197 @@
+{
+ "topic": "Lido stETH on Ethereum mainnet: addresses, protocol version epoch (V3 stVaults / external shares, core release v4.0.1), StETH.sol/Lido.sol share math, storage positions, TokenRebased event, oracle-reported CL balance",
+ "facts": [
+  {
+   "key": "network",
+   "value": "Ethereum Mainnet (chainId 1)",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "docs.lido.fi deployed-contracts page section header reads '\ud83c\udf10 Mainnet' / 'Production Lido Protocol Deployment'. The page itself does not print the numeric chainId; 1 is the canonical Ethereum mainnet id and was not read from chainlist.org in this run (see open_questions)."
+  },
+  {
+   "key": "steth_proxy",
+   "value": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Exact docs text: 'Lido and stETH token: 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84 (proxy)'. Same address stated on https://docs.lido.fi/contracts/lido. The Lido contract (Aragon app proxy) IS the stETH token; there is no separate token contract."
+  },
+  {
+   "key": "lido_implementation",
+   "value": "0x028271E30a695c0527A0C50cA30603feD004cDb0",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Exact docs text: 'Lido: 0x028271E30a695c0527A0C50cA30603feD004cDb0 (impl)' on the same row as the stETH proxy. Docs header on the page states '\u2693 Lido protocol version: v4.0.1' linking to github.com/lidofinance/core/releases/tag/v4.0.1. Bytecode-to-tag correspondence not verified (no RPC/explorer used)."
+  },
+  {
+   "key": "wsteth",
+   "value": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Docs text: 'wstETH token: 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0'. Also stated (lowercase) on https://docs.lido.fi/contracts/wsteth. Non-upgradeable (no proxy/impl split listed). Source: contracts/0.6.12/WstETH.sol, `pragma solidity 0.6.12; contract WstETH is ERC20Permit`, ERC20 name 'Wrapped liquid staked Ether 2.0', symbol 'wstETH'. wrap() mints stETH.getSharesByPooledEth(_stETHAmount); integration guide: 'For wstETH, 1 wei in shares equals to 1 wei in balance' (https://docs.lido.fi/guides/lido-tokens-integration-guide)."
+  },
+  {
+   "key": "withdrawal_queue_erc721_proxy",
+   "value": "0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Docs text: 'Withdrawal Queue ERC721: 0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1 (proxy)'. Same address on https://docs.lido.fi/contracts/withdrawal-queue-erc721, which describes it as 'responsible for managing a queue of withdrawal requests, committing withdrawal request finalization as a part of the AccountingOracle report, storing stETH before and ether after the finalization, transfer reserved ether to the user upon the claim'. Source path at v4.0.1: contracts/0.8.9/WithdrawalQueueERC721.sol (plus WithdrawalQueue.sol, WithdrawalQueueBase.sol)."
+  },
+  {
+   "key": "withdrawal_queue_erc721_impl",
+   "value": null,
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Two separate reads of the deployed-contracts page found only the proxy address for 'Withdrawal Queue ERC721'; no '(impl)' entry is printed for it, unlike Lido/Accounting/AccountingOracle. Not inventing a value."
+  },
+  {
+   "key": "lido_locator_proxy",
+   "value": "0xC1d0b3DE6792Bf6b4b37EccdcC24e45978Cfd2Eb",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Docs text: 'Lido Locator: 0xC1d0b3DE6792Bf6b4b37EccdcC24e45978Cfd2Eb (proxy)'. Lido.sol resolves Accounting, VaultHub, AccountingOracle etc. via the locator (source path contracts/0.8.9/LidoLocator.sol)."
+  },
+  {
+   "key": "accounting_proxy",
+   "value": "0x23ED611be0e1a820978875C0122F92260804cdDf",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Docs: 'Accounting' Proxy 0x23ED611be0e1a820978875C0122F92260804cdDf / Implementation 0x3aa937Ac2ab89CDd363EdC6b5A4d4A42dF5bc043. Also on https://docs.lido.fi/contracts/accounting. Accounting.handleOracleReport() is the V3+ entry point that calls Lido.processClStateUpdate(), Lido.collectRewardsAndProcessWithdrawals(), mints fee shares, 'internalizes bad debt from stVaults via VaultHub', and 'Emits token rebase event via emitTokenRebase()'. Source path: contracts/0.8.9/Accounting.sol."
+  },
+  {
+   "key": "accounting_oracle_proxy",
+   "value": "0x852deD011285fe67063a08005c71a85690503Cee",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Docs: 'Accounting Oracle' Proxy 0x852deD011285fe67063a08005c71a85690503Cee / Implementation 0xe4f03D1107d1905B6F2A28FCb6Af221E0CE19136; 'Hash Consensus for Accounting Oracle': 0xD624B08C83bAECF0807Dd2c6880C3154a5F0B288. Source path: contracts/0.8.9/oracle/AccountingOracle.sol."
+  },
+  {
+   "key": "vault_hub_proxy",
+   "value": "0x1d201BE093d847f6446530Efb0E8Fb426d176709",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Docs text: 'Vault Hub: 0x1d201BE093d847f6446530Efb0E8Fb426d176709 (proxy) / Vault Hub: 0x6330fE7756FBE8649adfb9A541d61C5edB8B4D70 (impl)'. Also on https://docs.lido.fi/contracts/vault-hub: vault owners 'mint stETH shares against their vault's total value as collateral'; vault reports applied via applyVaultReport() 'only callable by LazyOracle'. VaultHub is the only caller authorized for Lido.mintExternalShares/burnExternalShares (_auth(_vaultHub())). Source path at v4.0.1: contracts/0.8.25/vaults/VaultHub.sol."
+  },
+  {
+   "key": "stvaults_stack_addresses",
+   "value": "LazyOracle proxy 0x5DB427080200c235F2Ae8Cd17A7be87921f7AD6c (impl 0x96c9a897D116ef660086d3aA67b3af653324aB37); OperatorGrid proxy 0xC69685E89Cefc327b43B7234AC646451B27c544d (impl 0xA612E30D71d7D54aEaf4e5A21023F3F270932C2C); PredepositGuarantee proxy 0xF4bF42c6D6A0E38825785048124DBAD6c9eaaac3 (impl 0xE78717192C45736DF0E4be55c0219Ee7f9aDdd0D); StakingVault Factory 0x02Ca7772FF14a9F6c1a08aF385aA96bb1b34175A, Beacon 0x5FbE8cEf9CCc56ad245736D3C5bAf82ad54Ca789, Impl 0x06A56487494aa080deC7Bf69128EdA9225784553",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "stVaults (Lido V3) components listed on the mainnet deployed-contracts page under Core Protocol (no separate 'Lido V3' section). StakingVault beacon/impl also stated on https://docs.lido.fi/contracts/staking-vault (vaults are beacon proxies deployed by VaultFactory)."
+  },
+  {
+   "key": "related_core_addresses",
+   "value": "Burner proxy 0xE76c52750019b80B43E36DF30bf4060EB73F573a (impl 0xEe1E3B4f047122650086985f794f0dB5f10Ae49D); Withdrawal Vault proxy 0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f (impl 0xfB4521BD151BFB45DB6045D2d07e58e0f597e340); Execution Layer Rewards Vault 0x388C818CA8B9251b393131C08a736A67ccB19297; Staking Router proxy 0xFdDf38947aFB03C621C71b06C9C70bce73f12999 (impl 0xDD76927045435C7605cf6f5F978cfb8CABDb5F80)",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": null,
+   "note": "Contracts that touch stETH share/ether accounting during a report (Burner burns shares; withdrawal/EL-rewards vaults are pulled into buffered ether by collectRewardsAndProcessWithdrawals)."
+  },
+  {
+   "key": "protocol_version_epoch",
+   "value": "Lido V3 (stVaults / external shares) is live; docs state core release v4.0.1; Lido.sol contract version = 4",
+   "source_url": "https://docs.lido.fi/deployed-contracts/",
+   "source_pin": "lidofinance/core tag v4.0.1 = 2da0f48f1a2a103a394dcf8760810fe9165697fb",
+   "note": "Docs header: '\u2693 Lido protocol version: v4.0.1' (links github.com/lidofinance/core/releases/tag/v4.0.1). Release history (https://api.github.com/repos/lidofinance/core/releases): v3.0.0 published 2025-12-24 = LIP-31 'Expanding stETH liquidity layer with over-collateralized minting' (Lido V3, staking vaults, VaultHub, PDG); v4.0.0 published 2026-07-24 = LIP-35 Staking Router v3 / MaxEB deposits / accounting improvements; v4.0.1 published 2026-08-18 = LIP-36 NEST (TokenRateNotifier/LidoLocator artifacts). Lido.sol at v4.0.1: initialize() `_setContractVersion(4)`; finalizeUpgrade_v4(): `_checkContractVersion(3); _setContractVersion(4);`. At v3.0.0: finalizeUpgrade_v3(): `_checkContractVersion(2); _setContractVersion(3);`. At v2.0.0: `_setContractVersion(2)` in _initialize_v2, finalizeUpgrade_v2 `_checkContractVersion(0)`. Contract version stored at CONTRACT_VERSION_POSITION = 0x4dd0f6662ba1d6b081f08b350f5e9a6a7b15cf586926ba66f753594928fa64a6 // keccak256(\"lido.Versioned.contractVersion\") (contracts/0.4.24/utils/Versioned.sol), event `ContractVersionSet(uint256 version)` topic0 0xfddcded6b4f4730c226821172046b48372d3cd963c159701ae1b7c3bcac541bb (computed locally)."
+  },
+  {
+   "key": "lido_v3_external_shares_docs_citation",
+   "value": "'Lido V3 introduces external shares, which represent stETH minted against stVault collateral.'",
+   "source_url": "https://docs.lido.fi/contracts/lido",
+   "source_pin": null,
+   "note": "Docs continue: external shares are 'tracked separately from core pool shares to keep the core pool solvent while allowing overcollateralized minting'; methods getExternalShares(), getExternalEther(), getMaxExternalRatioBP(); totalPooledEther = buffered + CL validators balance + CL pending balance + deposited-since-report + 'External ether (backing external/stVault shares, tracked separately via VaultHub)'. LIP-31 (https://github.com/lidofinance/lido-improvement-proposals/blob/develop/LIPS/lip-31.md), status 'Implemented': 'This proposal introduces an over-collateralized accounting system for stETH, enabling the token to be backed by ether supplied outside the Lido Core pool while preserving full fungibility and 1:1 redeemability'; 'stETH share rate is now calculated based on internal ether and internal shares'. Integration guide: 'stETH minted via stVaults is the same canonical stETH token'."
+  },
+  {
+   "key": "core_repo_pin",
+   "value": "lidofinance/core tag v4.0.1 = 2da0f48f1a2a103a394dcf8760810fe9165697fb; master head b71ac05c1546cc7bc37d4fcd6eafec5d2b7f3593 (2026-09-17)",
+   "source_url": "https://api.github.com/repos/lidofinance/core/tags",
+   "source_pin": "v4.0.1 = 2da0f48f1a2a103a394dcf8760810fe9165697fb",
+   "note": "Other tags used for historical slots: v3.0.0 = d5d92266b5bb305044c5dcf3e407463f776a4def, v2.0.0 = cadffa46a2b8ed6cfa1127fca2468bae1a82d6bf; v4.0.0 = 17005714f151e5502c559932319a3f2f74ac2436. Master head read from https://api.github.com/repos/lidofinance/core/commits/master (merge of dependabot PR #1962). package.json at v4.0.1: name 'lido-on-ethereum', @aragon/os 4.4.0, openzeppelin-solidity 2.0.0."
+  },
+  {
+   "key": "steth_sol_path",
+   "value": "contracts/0.4.24/StETH.sol",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/StETH.sol",
+   "source_pin": "v4.0.1 (2da0f48f1a2a103a394dcf8760810fe9165697fb)",
+   "note": "`pragma solidity 0.4.24; contract StETH is IERC20, Pausable`. Path confirmed via https://api.github.com/repos/lidofinance/core/git/trees/v4.0.1?recursive=1. Regular state variables in source order: `mapping (address => uint256) private shares;` then `mapping (address => mapping (address => uint256)) private allowances;` \u2014 no others. Constants: INITIAL_TOKEN_HOLDER = 0xdead, INFINITE_ALLOWANCE = ~uint256(0), UINT128_MAX = ~uint128(0), UINT128_HIGH_MASK = ~uint256(0) << 128."
+  },
+  {
+   "key": "lido_sol_path",
+   "value": "contracts/0.4.24/Lido.sol",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/Lido.sol",
+   "source_pin": "v4.0.1 (2da0f48f1a2a103a394dcf8760810fe9165697fb)",
+   "note": "`pragma solidity 0.4.24; contract Lido is Versioned, StETHPermit, AragonApp`. NatSpec: 'Liquid staking pool implementation. Lido is an Ethereum liquid staking protocol solving the problem of frozen staked ether on the Consensus Layer being unavailable for transfers and DeFi on the Execution Layer.' StETHPermit (contracts/0.4.24/StETHPermit.sol): `contract StETHPermit is IERC2612, StETH`, adds one regular var `mapping(address => uint256) internal noncesByAddress;`."
+  },
+  {
+   "key": "get_pooled_eth_by_shares_formula",
+   "value": "getPooledEthByShares(shares) = shares * totalPooledEther / totalShares",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/StETH.sol",
+   "source_pin": "v4.0.1",
+   "note": "v4.0.1 verbatim: `function getPooledEthByShares(uint256 _sharesAmount) public view returns (uint256) { require(_sharesAmount < UINT128_MAX, \"SHARES_TOO_LARGE\"); return (_sharesAmount * _getShareRateNumerator()) / _getShareRateDenominator(); }` with `_getShareRateNumerator() { return _getTotalPooledEther(); }` and `_getShareRateDenominator() { return _getTotalShares(); }`. Inverse: `getSharesByPooledEth(_ethAmount) = (_ethAmount * _getShareRateDenominator()) / _getShareRateNumerator()`. v2.0.0 verbatim (https://raw.githubusercontent.com/lidofinance/core/v2.0.0/contracts/0.4.24/StETH.sol): `return _sharesAmount.mul(_getTotalPooledEther()).div(_getTotalShares());`. Storage comment above `shares`: balance 'equals to: shares[account] * _getTotalPooledEther() / _getTotalShares()'. `_getTotalPooledEther()` is declared abstract in StETH.sol (`function _getTotalPooledEther() internal view returns (uint256);`) and implemented in Lido.sol."
+  },
+  {
+   "key": "total_shares_storage_current",
+   "value": "slot 0x6038150aecaa250d524370a0fdcdec13f2690e0723eaf277f41d7cae26b359e6 = keccak256(\"lido.StETH.totalAndExternalShares\"); low 128 bits = totalShares, high 128 bits = externalShares",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/StETH.sol",
+   "source_pin": "v4.0.1",
+   "note": "Verbatim: `bytes32 internal constant TOTAL_SHARES_POSITION_LOW128 = 0x6038150aecaa250d524370a0fdcdec13f2690e0723eaf277f41d7cae26b359e6;` // keccak256(\"lido.StETH.totalAndExternalShares\"); comment: '@dev Since version 3, high 128 bits can be used to store the external shares from Lido contract'. `_getTotalShares() { return TOTAL_SHARES_POSITION_LOW128.getLowUint128(); }`; `_mintShares`/`_burnShares` write `TOTAL_SHARES_POSITION_LOW128.setLowUint128(newTotalShares)`. Lido.sol aliases it: `TOTAL_AND_EXTERNAL_SHARES_POSITION = TOTAL_SHARES_POSITION_LOW128` with layout comment '|----- 128 bit -----|------ 128 bit -------| | external shares | total shares |'; `_getExternalShares() { return TOTAL_AND_EXTERNAL_SHARES_POSITION.getHighUint128(); }`. Same slot present at v3.0.0. Hash verified locally with keccak256 (pycryptodome); matches source comment."
+  },
+  {
+   "key": "total_shares_storage_pre_v3",
+   "value": "slot 0xe3b4b636e601189b5f4c6742edf2538ac12bb61ed03e6da26949d69838fa447e = keccak256(\"lido.StETH.totalShares\") (full uint256), used until the V3 upgrade",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v2.0.0/contracts/0.4.24/StETH.sol",
+   "source_pin": "v2.0.0 (cadffa46a2b8ed6cfa1127fca2468bae1a82d6bf)",
+   "note": "Verbatim v2.0.0: `bytes32 internal constant TOTAL_SHARES_POSITION = 0xe3b4b636e601189b5f4c6742edf2538ac12bb61ed03e6da26949d69838fa447e;` // keccak256(\"lido.StETH.totalShares\"); `_getTotalShares() { return TOTAL_SHARES_POSITION.getStorageUint256(); }`. Migrated in Lido.sol v3.0.0 `_migrateStorage_v2_to_v3()` (https://raw.githubusercontent.com/lidofinance/core/v3.0.0/contracts/0.4.24/Lido.sol): `bytes32 TOTAL_SHARES_POSITION = keccak256(\"lido.StETH.totalShares\"); uint256 totalShares = TOTAL_SHARES_POSITION.getStorageUint256(); assert(totalShares > 0); TOTAL_AND_EXTERNAL_SHARES_POSITION.setLowUint128(totalShares); TOTAL_SHARES_POSITION.setStorageUint256(0);`. A storage-tracking indexer must switch slots at the finalizeUpgrade_v3 transaction (old slot is zeroed). Hash verified locally."
+  },
+  {
+   "key": "shares_holder_storage",
+   "value": "mapping (address => uint256) private shares; regular Solidity mapping \u2014 inferred slot index 0, so shares[holder] lives at keccak256(abi.encode(holder, uint256(0)))",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/StETH.sol",
+   "source_pin": "v4.0.1",
+   "note": "Inheritance analysis for `Lido is Versioned, StETHPermit, AragonApp`: Versioned (contracts/0.4.24/utils/Versioned.sol) declares only constants; Pausable (contracts/0.4.24/utils/Pausable.sol) only `ACTIVE_FLAG_POSITION = 0x644132c4ddd5bb6f0655d5fe2870dcec7870e6be4758890f366b83441f9fdece` // keccak256(\"lido.Pausable.activeFlag\"); IERC20/IERC2612 are interfaces; StETH declares `shares` then `allowances`; StETHPermit adds `noncesByAddress`; @aragon/os 4.4.0 AragonApp/AppStorage/Initializable/Petrifiable/ReentrancyGuard use only unstructured-storage constants (KERNEL_POSITION 0x4172f0f7..., APP_ID_POSITION 0xd625496..., INITIALIZATION_BLOCK_POSITION 0xebb05b38..., REENTRANCY_MUTEX_POSITION 0xe855346...). Hence expected layout: slot 0 = shares, slot 1 = allowances, slot 2 = noncesByAddress. Not yet confirmed against a compiled storage-layout artifact (see open_questions). Writes: `_transferShares`: `shares[_sender] = currentSenderShares.sub(_sharesAmount); shares[_recipient] = shares[_recipient].add(_sharesAmount);`; `_mintShares`: `shares[_recipient] = shares[_recipient].add(_sharesAmount)`; `_burnShares`: `shares[_account] = accountShares.sub(_sharesAmount)`."
+  },
+  {
+   "key": "token_rebased_event",
+   "value": "event TokenRebased(uint256 indexed reportTimestamp, uint256 timeElapsed, uint256 preTotalShares, uint256 preTotalEther, uint256 postTotalShares, uint256 postTotalEther, uint256 sharesMintedAsFees); topic0 = 0xff08c3ef606d198e316ef5b822193c489965899eb4e3c248cea1a4626c3eda50",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/Lido.sol",
+   "source_pin": "v4.0.1",
+   "note": "Declared in Lido.sol (not StETH.sol); identical declaration at v2.0.0, v3.0.0 and v4.0.1. Emitted by the stETH proxy 0xae7ab965... In V3+/V4 it is emitted from `emitTokenRebase(uint256 _reportTimestamp, uint256 _timeElapsed, uint256 _preTotalShares, uint256 _preTotalEther, uint256 _postTotalShares, uint256 _postTotalEther, uint256 _postInternalShares, uint256 _postInternalEther, uint256 _sharesMintedAsFees) external { _auth(_accounting()); ... }` called by Accounting.handleOracleReport; in V2 it was emitted inside Lido.handleOracleReport (auth `msg.sender == contracts.accountingOracle`). postTotalEther/postTotalShares give the post-report share rate directly. topic0 computed locally via keccak256 of the canonical signature. Other share events (StETH.sol): `TransferShares(address indexed from, address indexed to, uint256 sharesValue)` topic0 0x9d9c909296d9c674451c0c24f02cb64981eb3b727f99865939192f880a755dcb; `SharesBurnt(address indexed account, uint256 preRebaseTokenAmount, uint256 postRebaseTokenAmount, uint256 sharesAmount)` topic0 0x8b2a1e1ad5e0578c3dd82494156e985dade827a87c573b5c1c7716a32162ad64. Integration guide: rebase does not 'emit Transfer() on rebase as ERC-20 standard requires' (https://docs.lido.fi/guides/lido-tokens-integration-guide)."
+  },
+  {
+   "key": "external_shares_in_current_impl",
+   "value": "yes \u2014 getExternalShares(), getExternalEther(), getMaxExternalRatioBP(), _getExternalEther(), mintExternalShares(), burnExternalShares() present in Lido.sol at v3.0.0, v4.0.1 and master",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/Lido.sol",
+   "source_pin": "v4.0.1",
+   "note": "Verbatim v4.0.1: `function _getTotalPooledEther() internal view returns (uint256) { uint256 internalEther = _getInternalEther(); return internalEther.add(_getExternalEther(internalEther)); }`; `function _getExternalEther(uint256 _internalEther) internal view returns (uint256) { (uint256 totalShares, uint256 externalShares) = _getTotalAndExternalShares(); uint256 internalShares = totalShares - externalShares; return (externalShares * _internalEther) / internalShares; }`; `function getExternalShares() external view returns (uint256) { return _getExternalShares(); }`; `function getExternalEther() external view returns (uint256) { return _getExternalEther(_getInternalEther()); }`. `mintExternalShares(address _recipient, uint256 _amountOfShares)`: `_auth(_vaultHub()); ... require(_amountOfShares <= _getMaxMintableExternalShares(), \"EXTERNAL_BALANCE_LIMIT_EXCEEDED\"); _setExternalShares(_getExternalShares() + _amountOfShares); _mintShares(_recipient, _amountOfShares); ... emit ExternalSharesMinted(_recipient, _amountOfShares);`. `burnExternalShares(uint256 _amountOfShares)`: `_auth(_vaultHub()); ... _setExternalShares(externalShares - _amountOfShares); _burnShares(msg.sender, _amountOfShares); ... emit ExternalSharesBurnt(_amountOfShares);`. Events: `ExternalSharesMinted(address indexed receiver, uint256 amountOfShares)` topic0 0xee473f96486a2f4b93ccb6729f121223e96975db6e0d6a5ef01f56477e3eab3b; `ExternalSharesBurnt(uint256 amountOfShares)` topic0 0xad21467656c56eb8c99f7916faa12f7a657a04d8802100acec62e92451ac5606 (computed locally). Max external ratio packed with locator: `LOCATOR_AND_MAX_EXTERNAL_RATIO_POSITION = 0xd92bc31601d11a10411d08f59b7146d8a5915af253cde25f8e66b67beb4be223` // keccak256(\"lido.Lido.lidoLocatorAndMaxExternalRatio\") (verified locally). Because external ether is defined as externalShares * internalEther / internalShares, share rate = internalEther/internalShares = totalPooledEther/totalShares, so balanceOf math is unchanged by external shares."
+  },
+  {
+   "key": "internal_ether_composition_current",
+   "value": "_getInternalEther() = bufferedEther + clValidatorsBalance + clPendingBalance + depositedPostReport",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/Lido.sol",
+   "source_pin": "v4.0.1",
+   "note": "Verbatim: `function _getInternalEther() internal view returns (uint256) { (uint256 bufferedEther, uint256 depositedPostReport) = _getBufferedEtherAndDepositedPostReport(); (uint256 clValidatorsBalance, uint256 clPendingBalance) = _getClValidatorsBalanceAndClPendingBalance(); return bufferedEther.add(clValidatorsBalance).add(clPendingBalance).add(depositedPostReport); }`. Storage: `BUFFERED_ETHER_AND_DEPOSITED_POST_REPORT_POSITION = 0x81a11fa1111afa59b50051f60ccf604a39d96acb484dc467ad8eadb4a63f0a5f` // keccak256(\"lido.Lido.bufferedEtherAndDepositedPostReport\"); `STAKING_STATE_POSITION = 0xa3678de4a579be090bed1177e0a24f77cc29d181ac22fd7688aca344d8938015` // keccak256(\"lido.Lido.stakeLimit\"). v3.0.0 form: `bufferedEther.add(clBalance).add(transientEther)` with `transientEther = (depositedValidators - clValidators) * DEPOSIT_SIZE`, slots `BUFFERED_ETHER_AND_DEPOSITED_VALIDATORS_POSITION = 0xa84c096ee27e195f25d7b6c7c2a03229e49f1a2a5087e57ce7d7127707942fe3` // keccak256(\"lido.Lido.bufferedEtherAndDepositedValidators\"). v2.0.0 form: `_getBufferedEther().add(CL_BALANCE_POSITION.getStorageUint256()).add(_getTransientBalance())`, slots `BUFFERED_ETHER_POSITION = 0xed310af23f61f96daefbcd140b306c0bdbf8c178398299741687b90e794772b0` // keccak256(\"lido.Lido.bufferedEther\"), `DEPOSITED_VALIDATORS_POSITION = 0xe6e35175eb53fc006520a2a9c3e9711a7c00de6ff2c32dd31df8c5a24cac1b5c` // keccak256(\"lido.Lido.depositedValidators\"), `LIDO_LOCATOR_POSITION = 0x9ef78dff90f100ea94042bd00ccb978430524befc391d3e510b5f55ff3166df7` // keccak256(\"lido.Lido.lidoLocator\"). All hashes verified locally. v4 migration `_migrateStorage_v3_to_v4()` reads the two v3 slots, writes the v4 slots, and zeroes the v3 slots; v3 migration `_migrateStorage_v2_to_v3()` does the same for the v2 slots."
+  },
+  {
+   "key": "cl_balance_storage_and_oracle_reporting",
+   "value": "CL beacon balance is consensus-layer state; the EL only learns it via the AccountingOracle report, which Accounting.handleOracleReport writes into Lido storage once per report. Current slot: 0x096e465397f38e659238ccd5d5a2c434ced54a63fd8d694045bfb058ab9d8112 = keccak256(\"lido.Lido.clValidatorsBalanceAndClPendingBalance\")",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/Lido.sol",
+   "source_pin": "v4.0.1",
+   "note": "Verbatim v4.0.1: `bytes32 internal constant CL_VALIDATORS_BALANCE_AND_CL_PENDING_BALANCE_POSITION = 0x096e465397f38e659238ccd5d5a2c434ced54a63fd8d694045bfb058ab9d8112;` // keccak256(\"lido.Lido.clValidatorsBalanceAndClPendingBalance\"). `function processClStateUpdate(uint256 _reportTimestamp, uint256 _clValidatorsBalance, uint256 _clPendingBalance) external { _whenNotStopped(); _auth(_accounting()); ... _setClValidatorsBalanceAndClPendingBalance(_clValidatorsBalance, _clPendingBalance); emit CLBalancesUpdated(_reportTimestamp, _clValidatorsBalance, _clPendingBalance); }` (NatSpec: 'Replaces validator counting in v3 with direct balance tracking for EIP-7251 support'); event `CLBalancesUpdated(uint256 indexed reportTimestamp, uint256 clValidatorsBalance, uint256 clPendingBalance)` topic0 0xc091cf4d34e62bb075bf8dadd00496528c94b8f3fdec3affd7414840847017d2; `DepositedPostReportUpdated(uint256 depositedPostReport)` topic0 0xd87d7ff193e5d1560bdbe21e4e14d13dde0de4e49a03812517640af0a2d5c42c (computed locally). v3.0.0: `processClStateUpdate(_reportTimestamp, _preClValidators, _reportClValidators, _reportClBalance)` writes `CL_BALANCE_AND_CL_VALIDATORS_POSITION = 0xc36804a03ec742b57b141e4e5d8d3bd1ddb08451fd0f9983af8aaab357a78e2f` // keccak256(\"lido.Lido.clBalanceAndClValidators\") and emits `CLValidatorsUpdated(uint256,uint256,uint256)`. v2.0.0: `_processClStateUpdate` writes `CL_BALANCE_POSITION = 0xa66d35f054e68143c18f32c990ed5cb972bb68a68f500cd2dd3a16bbf3686483` // keccak256(\"lido.Lido.beaconBalance\") and `CL_VALIDATORS_POSITION = 0x9f70001d82b6ef54e9d3725b46581c3eb9ee3aa02b941b6aa54d678a9ca35b10` // keccak256(\"lido.Lido.beaconValidators\"), inside handleOracleReport authorized by `msg.sender == contracts.accountingOracle`. Oracle side (https://docs.lido.fi/contracts/accounting-oracle): report's CL value is 'Sum of balances (validator.balance) of all Lido validators on the Ethereum Consensus Layer, excluding pending deposits, nominated in gwei'; committee reaches quorum via HashConsensus then one member calls submitReportData(); processed by Accounting.handleOracleReport(). Consequence for an EL indexer: validator balance changes/rewards/penalties are NOT visible as EL storage writes between reports; the only EL-observable writes are the per-report slot update plus TokenRebased/CLBalancesUpdated logs, and totalPooledEther (hence every stETH balance) is piecewise-constant between reports except for submits, withdrawals finalization and external share mint/burn."
+  },
+  {
+   "key": "steth_balance_change_sources_for_indexer",
+   "value": "balanceOf = shares[holder] * totalPooledEther / totalShares; changes come from (a) shares writes: Transfer/TransferShares, mint (Submitted, mintExternalShares, fee minting in report), burn (SharesBurnt via Burner, burnExternalShares); (b) totalPooledEther writes: submit()/receive (buffered ether), deposits to validators, per-report processClStateUpdate + collectRewardsAndProcessWithdrawals; (c) totalShares writes at the packed slot",
+   "source_url": "https://raw.githubusercontent.com/lidofinance/core/v4.0.1/contracts/0.4.24/Lido.sol",
+   "source_pin": "v4.0.1",
+   "note": "Derived from the quoted source. `Submitted(address,uint256,address)` topic0 0x96a25c8ce0baabc1fdefd93e9ed25d8e092a3332f3aa9a41722b5697231d1d1a (computed locally; declared in Lido.sol). getBeaconStat() v4.0.1: `depositedValidators = _getSeedDepositsCount(); ... return (depositedValidators, depositedValidators, clValidatorsBalance.add(clPendingBalance));`. Public wstETH/stETH share rate can be reproduced from TokenRebased(postTotalEther, postTotalShares) without storage reads."
+  }
+ ],
+ "open_questions": [
+  "WithdrawalQueueERC721 implementation address: docs.lido.fi/deployed-contracts lists only the proxy 0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1 with no '(impl)' entry; left null. Would need the lidofinance/core deployed-mainnet.json artifact or an explorer cross-check (explorer alone is disallowed as sole source).",
+  "chainId 1 was not read from chainlist.org or an official chain-docs page in this run; the docs page only says 'Ethereum Mainnet'. Confirm from https://chainlist.org if the requirements doc needs a cited source.",
+  "Mainnet enactment blocks/txs for the V2 (contract version 2), V3 (finalizeUpgrade_v3, LIP-31) and V4 (finalizeUpgrade_v4, LIP-35) upgrades were not collected (no RPC allowed). For a Substreams indexer these boundaries can be derived on-chain from `ContractVersionSet(uint256)` logs (topic0 0xfddcded6...) on the stETH proxy, and they determine which storage slots hold totalShares / CL balance / buffered ether (slots change at each upgrade and the old slots are zeroed).",
+  "The `shares` mapping slot index (expected 0) is inferred from inheritance-order analysis of Versioned, StETH, StETHPermit, Pausable and @aragon/os 4.4.0 AppStorage/Initializable/Petrifiable/ReentrancyGuard; the remaining Aragon bases (Autopetrified, VaultRecoverable, EVMScriptRunner, ACLSyntaxSugar, TimeHelpers) and Lido.sol's own body were not individually checked for regular state variables. They are more derived than StETH in the layout so would not shift slot 0, but confirm against the compiled storage-layout artifact before relying on keccak256(abi.encode(holder, 0)).",
+  "Whether the docs-listed Lido implementation 0x028271E30a695c0527A0C50cA30603feD004cDb0 is compiled from exactly tag v4.0.1 (2da0f48f...) vs v4.0.0 was not verified (docs state 'Lido protocol version: v4.0.1'; v4.0.1 release notes describe LIP-36 NEST artifacts, which may not change Lido.sol).",
+  "docs.lido.fi pages are not versioned/pinned; all docs facts were read on 2026-09-18. master head b71ac05c1546cc7bc37d4fcd6eafec5d2b7f3593 (2026-09-17) was spot-checked for StETH.sol/Lido.sol structure but not diffed against v4.0.1.",
+  "Event topic0 values were computed locally (keccak256 of canonical signatures quoted from source) rather than read from an ABI artifact; cross-check against lidofinance/core lib/abi or the deployed ABI if exactness is critical.",
+  "Whether Accounting.handleOracleReport always emits TokenRebased on every report (including zero-delta reports) was not verified from Accounting.sol; an indexer should not assume exactly one TokenRebased per day."
+ ]
+}

@@ -1,0 +1,141 @@
+{
+ "topic": "Compound v2 (Ethereum mainnet) cToken markets for the first explicitly selected cToken balance-state epoch: addresses, proxy pattern, pinned-repo file paths, storage layout, exchange-rate / interest-accrual formulas, and BSC non-deployment",
+ "facts": [
+  {
+   "key": "compound_v2_network",
+   "value": "Ethereum mainnet only (plus Ethereum testnets goerli, kovan, rinkeby, ropsten)",
+   "source_url": "https://github.com/compound-finance/compound-protocol/tree/a3214f67b73310d547e00fc578e8355911c9d376/networks",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "networks/ directory at the pinned commit contains only: mainnet.json, mainnet-abi.json, mainnet-fork.json, goerli(.json/-abi.json), kovan(.json/-abi.json/-fork.json), rinkeby(.json/-abi.json), ropsten(.json/-abi.json), README.md, .gitkeep. No file references bsc/binance/bnb. Mainnet addresses below come from networks/mainnet.json in this directory."
+  },
+  {
+   "key": "cusdc_address",
+   "value": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/networks/mainnet.json",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "Contracts.cUSDC. cTokens.cUSDC: \"contract\": \"CErc20\" (direct, non-proxy legacy market), \"underlying\": \"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48\" (USDC), \"initial_exchange_rate_mantissa\": \"200000000000000\" (2e14; USDC has 6 decimals, cToken 8). Blocks: deployed at block 7710760. Same address confirmed in compound-config master networks/mainnet.json."
+  },
+  {
+   "key": "cdai_address",
+   "value": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/networks/mainnet.json",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "Contracts.cDAI. cTokens.cDAI: \"contract\": \"CErc20Delegator\" (upgradeable proxy), \"delegate\": \"0xbB8bE4772fAA655C255309afc3c5207aA7b896Fd\", \"underlying\": \"0x6B175474E89094C44Da98b954EedeAC495271d0F\" (MCD DAI), \"initial_exchange_rate_mantissa\": \"200000000000000000000000000\" (2e26). Blocks: deployed at block 8983575. Same address confirmed in compound-config master networks/mainnet.json."
+  },
+  {
+   "key": "ceth_address",
+   "value": "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/networks/mainnet.json",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "Contracts.cETH. cTokens.cETH: \"contract\": \"CEther\" (direct, non-proxy; native ETH underlying, no underlying address), \"initial_exchange_rate_mantissa\": \"200000000000000000000000000\" (2e26). Blocks: deployed at block 7710758. Same address confirmed in compound-config master networks/mainnet.json."
+  },
+  {
+   "key": "comptroller_unitroller_address",
+   "value": "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/networks/mainnet.json",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "Both Contracts.Comptroller and Contracts.Unitroller point to this address (Unitroller is the storage/proxy; Comptroller logic is delegated). Contracts.StdComptroller (implementation recorded at the pinned commit) = 0x62F18C451af964197341d3c86D27e98C41BB8fcC. Blocks: Unitroller deployed at block 7710671. Same address confirmed in compound-config master networks/mainnet.json. Source files: contracts/Comptroller.sol, contracts/Unitroller.sol."
+  },
+  {
+   "key": "cdai_delegate_implementation",
+   "value": "0xbB8bE4772fAA655C255309afc3c5207aA7b896Fd",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/networks/mainnet.json",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "Contracts.cDaiDelegate; also the cTokens.cDAI.delegate value. This is the CDaiDelegate contract (contracts/CDaiDelegate.sol: \"contract CDaiDelegate is CErc20Delegate\", \"@notice CToken which wraps Multi-Collateral DAI\") whose getCashPrior() reads MakerDAO's DSR Pot: `PotLike pot = PotLike(potAddress); uint pie = pot.pie(address(this)); return mul(pot.chi(), pie) / RAY;` -- i.e. cDAI's totalCash is NOT DAI.balanceOf(cDAI) while this delegate is active. compound-config master still lists cDaiDelegate at the same address. Other delegates recorded: cUsdtDelegate 0x976aa93ca5Aaa569109f4267589c619a097f001D (pinned mainnet.json); standard CErc20Delegate 0xa035b9e130f2b1aedc733eefb1c67ba4c503491f (compound-config master only)."
+  },
+  {
+   "key": "market_proxy_pattern",
+   "value": "cUSDC = direct CErc20 (legacy, non-upgradeable); cDAI = CErc20Delegator proxy -> cDaiDelegate; cETH = direct CEther (non-upgradeable)",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/networks/mainnet.json",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "From the cTokens.*.contract fields: cUSDC \"CErc20\", cDAI \"CErc20Delegator\" (with \"delegate\"), cETH \"CEther\". CErc20Delegator.sol (pinned): `contract CErc20Delegator is CTokenInterface, CErc20Interface, CDelegatorInterface`; constructor(address underlying_, ComptrollerInterface comptroller_, InterestRateModel interestRateModel_, uint initialExchangeRateMantissa_, string memory name_, string memory symbol_, uint8 decimals_, address payable admin_, address implementation_, bytes memory becomeImplementationData); `function _setImplementation(address implementation_, bool allowResign, bytes memory becomeImplementationData) override public`; fallback does `implementation.delegatecall(msg.data)`; storage lives in the delegator (CTokenStorage + CErc20Storage + CDelegationStorage.implementation)."
+  },
+  {
+   "key": "repo_file_paths",
+   "value": "contracts/CToken.sol; contracts/CErc20.sol; contracts/CErc20Delegator.sol; contracts/CErc20Delegate.sol; contracts/CDaiDelegate.sol; contracts/CErc20Immutable.sol; contracts/CEther.sol; contracts/CTokenInterfaces.sol; contracts/JumpRateModelV2.sol; contracts/BaseJumpRateModelV2.sol; contracts/InterestRateModel.sol; contracts/ExponentialNoError.sol; contracts/Comptroller.sol; contracts/Unitroller.sol; contracts/DAIInterestRateModelV3.sol; networks/mainnet.json",
+   "source_url": "https://github.com/compound-finance/compound-protocol/tree/a3214f67b73310d547e00fc578e8355911c9d376/contracts",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "All listed files exist in contracts/ at the pinned commit (also present: JumpRateModel.sol, WhitePaperInterestRateModel.sol, ComptrollerG7.sol, ComptrollerStorage.sol, ComptrollerInterface.sol, EIP20Interface.sol, ErrorReporter.sol, Maximillion.sol, PriceOracle.sol, Reservoir.sol, Timelock.sol, Governance/, Lens/). All contracts use `pragma solidity ^0.8.10;`. Note: LegacyJumpRateModelV2 (referenced by mainnet.json for the USDC IRM) is NOT a file at this commit."
+  },
+  {
+   "key": "ctoken_storage_layout",
+   "value": "CTokenStorage (in declaration order): bool internal _notEntered; string public name; string public symbol; uint8 public decimals; address payable public admin; address payable public pendingAdmin; ComptrollerInterface public comptroller; InterestRateModel public interestRateModel; uint internal initialExchangeRateMantissa; uint public reserveFactorMantissa; uint public accrualBlockNumber; uint public borrowIndex; uint public totalBorrows; uint public totalReserves; uint public totalSupply; mapping (address => uint) internal accountTokens; mapping (address => mapping (address => uint)) internal transferAllowances; mapping(address => BorrowSnapshot) internal accountBorrows. CErc20Storage: address public underlying. CDelegationStorage: address public implementation.",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/contracts/CTokenInterfaces.sol",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "Constants (no storage slot): `uint internal constant borrowRateMaxMantissa = 0.0005e16;` `uint internal constant reserveFactorMaxMantissa = 1e18;` `uint public constant protocolSeizeShareMantissa = 2.8e16;`. `struct BorrowSnapshot { uint principal; uint interestIndex; }`. accountTokens is the cToken balance mapping (ERC-20 balanceOf); accountBorrows[account] = {principal, interestIndex} with borrowBalanceStored = principal * borrowIndex / interestIndex (CToken.sol borrowBalanceStoredInternal: `uint principalTimesIndex = borrowSnapshot.principal * borrowIndex; return principalTimesIndex / borrowSnapshot.interestIndex;`). Slot indices were not computed here (see open_questions)."
+  },
+  {
+   "key": "exchange_rate_formula_source",
+   "value": "exchangeRate = (totalCash + totalBorrows - totalReserves) * 1e18 / totalSupply; if totalSupply == 0 return initialExchangeRateMantissa",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/contracts/CToken.sol",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "Verbatim: `function exchangeRateStoredInternal() virtual internal view returns (uint) { uint _totalSupply = totalSupply; if (_totalSupply == 0) { return initialExchangeRateMantissa; } else { uint totalCash = getCashPrior(); uint cashPlusBorrowsMinusReserves = totalCash + totalBorrows - totalReserves; uint exchangeRate = cashPlusBorrowsMinusReserves * expScale / _totalSupply; return exchangeRate; } }` where `uint constant expScale = 1e18;` (contracts/ExponentialNoError.sol). `function exchangeRateStored() override public view returns (uint)` returns this without accruing; `function exchangeRateCurrent() override public nonReentrant returns (uint)` accrues first. getCashPrior(): CErc20 = `EIP20Interface(underlying).balanceOf(address(this))`; CEther = `address(this).balance - msg.value`; CDaiDelegate = DSR pot balance `mul(pot.chi(), pie) / RAY`."
+  },
+  {
+   "key": "exchange_rate_formula_docs",
+   "value": "exchangeRate = (getCash() + totalBorrows() - totalReserves()) / totalSupply()",
+   "source_url": "https://docs.compound.finance/v2/ctokens/",
+   "source_pin": null,
+   "note": "Official v2 docs cToken page, Exchange Rate section (verbatim). Docs also state: \"cTokens accumulates interest through their exchange rate \u2014 over time, each cToken becomes convertible into an increasing amount of it's underlying asset.\" and, on docs.compound.finance/v2/, the decimals helper `oneCTokenInUnderlying = exchangeRateCurrent / (1 * 10 ^ (18 + underlyingDecimals - cTokenDecimals))`. borrowRatePerBlock()/supplyRatePerBlock() are documented as per-block rates scaled by 1e18."
+  },
+  {
+   "key": "accrue_interest_formula",
+   "value": "blockDelta = block.number - accrualBlockNumber; simpleInterestFactor = borrowRate * blockDelta; interestAccumulated = simpleInterestFactor * totalBorrows / 1e18; totalBorrowsNew = interestAccumulated + totalBorrows; totalReservesNew = reserveFactorMantissa * interestAccumulated / 1e18 + totalReserves; borrowIndexNew = simpleInterestFactor * borrowIndex / 1e18 + borrowIndex",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/contracts/CToken.sol",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "Verbatim key lines of accrueInterest(): `uint currentBlockNumber = getBlockNumber(); uint accrualBlockNumberPrior = accrualBlockNumber; if (accrualBlockNumberPrior == currentBlockNumber) { return NO_ERROR; }` ... `uint borrowRateMantissa = interestRateModel.getBorrowRate(cashPrior, borrowsPrior, reservesPrior); require(borrowRateMantissa <= borrowRateMaxMantissa, \"borrow rate is absurdly high\");` `uint blockDelta = currentBlockNumber - accrualBlockNumberPrior;` `Exp memory simpleInterestFactor = mul_(Exp({mantissa: borrowRateMantissa}), blockDelta); uint interestAccumulated = mul_ScalarTruncate(simpleInterestFactor, borrowsPrior); uint totalBorrowsNew = interestAccumulated + borrowsPrior; uint totalReservesNew = mul_ScalarTruncateAddUInt(Exp({mantissa: reserveFactorMantissa}), interestAccumulated, reservesPrior); uint borrowIndexNew = mul_ScalarTruncateAddUInt(simpleInterestFactor, borrowIndexPrior, borrowIndexPrior);` then writes `accrualBlockNumber = currentBlockNumber; borrowIndex = borrowIndexNew; totalBorrows = totalBorrowsNew; totalReserves = totalReservesNew; emit AccrueInterest(cashPrior, interestAccumulated, borrowIndexNew, totalBorrowsNew);`. `function getBlockNumber() virtual internal view returns (uint) { return block.number; }` -- accrual is block-number based (not timestamp). Interest accrues only when a state-changing method triggers accrueInterest (docs.compound.finance/v2/: mint/redeem/borrow/repay invoke accrueInterest)."
+  },
+  {
+   "key": "jump_rate_model_v2_formulas",
+   "value": "util = borrows * 1e18 / (cash + borrows - reserves) (0 if borrows==0); borrowRate = util <= kink ? util*multiplierPerBlock/1e18 + baseRatePerBlock : (util-kink)*jumpMultiplierPerBlock/1e18 + (kink*multiplierPerBlock/1e18 + baseRatePerBlock); supplyRate = util * (borrowRate * (1e18 - reserveFactorMantissa) / 1e18) / 1e18; blocksPerYear = 2102400",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/contracts/BaseJumpRateModelV2.sol",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "`abstract contract BaseJumpRateModelV2 is InterestRateModel`; state: `address public owner; uint public constant blocksPerYear = 2102400; uint public multiplierPerBlock; uint public baseRatePerBlock; uint public jumpMultiplierPerBlock; uint public kink;`. utilizationRate: `if (borrows == 0) { return 0; } return borrows * BASE / (cash + borrows - reserves);`. getBorrowRateInternal: `uint util = utilizationRate(cash, borrows, reserves); if (util <= kink) { return ((util * multiplierPerBlock) / BASE) + baseRatePerBlock; } else { uint normalRate = ((kink * multiplierPerBlock) / BASE) + baseRatePerBlock; uint excessUtil = util - kink; return ((excessUtil * jumpMultiplierPerBlock) / BASE) + normalRate; }`. getSupplyRate: `uint oneMinusReserveFactor = BASE - reserveFactorMantissa; uint borrowRate = getBorrowRateInternal(cash, borrows, reserves); uint rateToPool = borrowRate * oneMinusReserveFactor / BASE; return utilizationRate(cash, borrows, reserves) * rateToPool / BASE;`. updateJumpRateModelInternal: `baseRatePerBlock = baseRatePerYear / blocksPerYear; multiplierPerBlock = (multiplierPerYear * BASE) / (blocksPerYear * kink_); jumpMultiplierPerBlock = jumpMultiplierPerYear / blocksPerYear; kink = kink_;`. contracts/JumpRateModelV2.sol: `contract JumpRateModelV2 is InterestRateModel, BaseJumpRateModelV2` with constructor(baseRatePerYear, multiplierPerYear, jumpMultiplierPerYear, kink_, owner_) and `getBorrowRate(cash, borrows, reserves)` returning getBorrowRateInternal(...). Rates are per-block mantissas scaled by 1e18."
+  },
+  {
+   "key": "interest_rate_model_addresses_pinned_snapshot",
+   "value": "IRM_USDC_Updateable 0xD8EC56013EA119E7181d231E5048f90fBbe753c0 (LegacyJumpRateModelV2; base 0, multiplier 40000000000000000, jump 1090000000000000000, kink 800000000000000000); cETH Base0bps_Slope2000bps 0xc64C4cBA055eFA614CE01F4BAD8A9F519C4f8FaB; DAI DSR_Updateable 0xfeD941d39905B23D6FAf02C8301d40bD4834E27F; IRM_USDT_Updateable 0xFB564da37B41b2F6B6EDcc3e56FbF523bD9F2012 (JumpRateModelV2); IRM_COMP_Updateable 0xd956188795ca6F4A74092ddca33E0Ea4cA3a1395 (JumpRateModelV2)",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/networks/mainnet.json",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "Historical deployment records only. mainnet.json does NOT include an interestRateModel field per cToken; the live model is the `interestRateModel` storage variable in each cToken (governance-mutable via _setInterestRateModel / NewMarketInterestRateModel event). Other DAI models listed: DSR_Kink_9000bps_Jump_12000bps_AssumedRF_500bps 0xec163986cC9a6593D6AdDcBFf5509430D348030F, DSR_Kink_9000bps_Jump_12000bps_AssumedRF_20000bps 0x000000007675b5E1dA008f037A0800B309e0C493. Governance: Timelock 0x6d903f6003cca6255D85CcA4D3B5E5146dC33925 (cToken admin), GovernorBravo 0xc0da02939e1441f497fd74f78ce7decb17b66529, GovernorAlpha 0xc0dA01a04C3f3E0be433606045bB7017A7323E38."
+  },
+  {
+   "key": "cerc20_constructor_pattern",
+   "value": "CErc20.sol at pinned commit has NO constructor (initialize()-only base); CErc20Immutable.sol adds a constructor for direct deployments; CErc20Delegate.sol has `constructor() {}` and is used behind CErc20Delegator",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/contracts/CErc20.sol",
+   "source_pin": "a3214f67b73310d547e00fc578e8355911c9d376",
+   "note": "CErc20: `contract CErc20 is CToken, CErc20Interface`; `function initialize(address underlying_, ComptrollerInterface comptroller_, InterestRateModel interestRateModel_, uint initialExchangeRateMantissa_, string memory name_, string memory symbol_, uint8 decimals_) public`. CErc20Immutable (\"CTokens which wrap an EIP-20 underlying and are immutable\"): constructor(underlying_, comptroller_, interestRateModel_, initialExchangeRateMantissa_, name_, symbol_, decimals_, admin_) sets admin=msg.sender, calls initialize(...), then admin=admin_. CErc20Delegate: `contract CErc20Delegate is CErc20, CDelegateInterface`, `_becomeImplementation(bytes memory data)`, `_resignImplementation()`. CEther: `contract CEther is CToken` with constructor(comptroller_, interestRateModel_, initialExchangeRateMantissa_, name_, symbol_, decimals_, admin_) \u2014 direct contract. The deployed legacy cUSDC (block 7710760, May 2019) predates this refactor; see open_questions."
+  },
+  {
+   "key": "compound_v2_on_bsc",
+   "value": "false",
+   "source_url": "https://github.com/compound-finance/compound-config/tree/master/networks",
+   "source_pin": "master (unpinned; fetched 2026-09-18)",
+   "note": "docs.compound.finance/v2/ Networks section says \"The Compound Protocol is currently deployed on the following networks:\" and links \"a full list of all deployed contract addresses\" to https://github.com/compound-finance/compound-config. That repo's README: \"This repository contains all configuration for the Compound Protocol on Ethereum.\" Its networks/ directory contains only goerli, kovan, mainnet, rinkeby, ropsten (.json + -abi.json) \u2014 no bsc/bnb/binance file. The pinned compound-protocol networks/ directory likewise has only Ethereum mainnet + Ethereum testnets. No official Compound source lists a BNB Smart Chain deployment of Compound v2."
+  },
+  {
+   "key": "venus_is_separate_bnb_chain_protocol",
+   "value": "Venus Protocol is a separate BNB Chain protocol built on Compound's money-market design (vToken/VBep20/VBNB mirror CToken/CErc20/CEther); it is not a Compound Labs deployment",
+   "source_url": "https://docs-v4.venus.io/getting-started/faq",
+   "source_pin": null,
+   "note": "Venus FAQ (official docs): \"Venus Protocol is a trusted decentralized finance lending and borrowing protocol that's deployed on the BNB Chain.\" and \"It combines the stablecoin minting facility of Maker and the algorithmic money markets developed by Compound\". Venus overview (https://docs-v4.venus.io/): \"By combining the stablecoin minting facility introduced by Maker and algorithmic money markets developed by Compound\" ... \"deployment on BNB chain\". Official repo README (https://github.com/VenusProtocol/venus-protocol): \"The Venus Protocol is a BNB Chain collection of smart contracts for supplying or borrowing assets.\" and \"VToken contains the core logic and VBep20, VBUSD, and VBNB add public interfaces for BEP-20 tokens and bnb, respectively.\" The official Venus docs do not literally use the word \"fork\"; the code lineage is evident from the mirrored contract structure."
+  },
+  {
+   "key": "docs_v2_root",
+   "value": "https://docs.compound.finance/v2/",
+   "source_url": "https://docs.compound.finance/v2/",
+   "source_pin": null,
+   "note": "Official Compound v2 docs. States interest accrues when cToken methods (mint, redeem, borrow, repay) are invoked, via accrueInterest, adding interest to supplier and borrower balances. The cToken reference page is https://docs.compound.finance/v2/ctokens/ (exchange rate formula, borrowRatePerBlock, supplyRatePerBlock, exchangeRateStored/Current). The Networks address table on the root page did not render in a static fetch; addresses were taken from the repos above instead."
+  }
+ ],
+ "open_questions": [
+  "Live cDAI implementation: the pinned networks/mainnet.json records cDaiDelegate 0xbB8bE4772fAA655C255309afc3c5207aA7b896Fd (DSR-integrated CDaiDelegate), but CErc20Delegator implementations are governance-upgradeable. Confirm the implementation in force at the chosen epoch start from the delegator's NewImplementation events / `implementation` storage (CDelegationStorage) during replay; this research did not call any RPC.",
+  "cDAI totalCash semantics: while a CDaiDelegate-style implementation is active, getCashPrior() = pot.chi*pie/RAY (MakerDAO DSR Pot), not DAI.balanceOf(cDAI). Exchange-rate replay for cDAI therefore requires Pot state (chi, pie) or the emitted AccrueInterest(cashPrior,...) values, unless the live implementation has since become a plain CErc20Delegate. Determine which applies for the epoch.",
+  "Legacy cUSDC storage layout: cUSDC (deployed block 7710760) was compiled from a 2019 CErc20 revision with a constructor; the pinned commit's CErc20.sol is initialize()-only and the storage declarations come from CTokenInterfaces.sol. Verify slot-level equivalence (esp. ordering/packing of _notEntered, decimals, admin, pendingAdmin) against cUSDC's verified deployed source before hard-coding storage slot indices; no slot indices were computed here.",
+  "Live Comptroller implementation: StdComptroller 0x62F18C451af964197341d3c86D27e98C41BB8fcC is the snapshot at the pinned commit; the Unitroller's current implementation is governance-mutable and must be confirmed from NewImplementation events if Comptroller state is needed.",
+  "Per-market interestRateModel: mainnet.json does not map cToken -> IRM; the IRM addresses recorded (IRM_USDC_Updateable LegacyJumpRateModelV2 0xD8EC..., cETH Base0bps_Slope2000bps 0xc64C..., DSR_Updateable 0xfeD9...) are historical deployments. The effective model at the epoch must be read from each cToken's `interestRateModel` storage / NewMarketInterestRateModel events. LegacyJumpRateModelV2.sol is not present at the pinned commit (only JumpRateModelV2.sol, JumpRateModel.sol, BaseJumpRateModelV2.sol, DAIInterestRateModelV3.sol, WhitePaperInterestRateModel.sol).",
+  "docs.compound.finance/v2 'Networks' table is rendered client-side and could not be read via static fetch; the BSC non-deployment conclusion rests on the pinned compound-protocol networks/ directory, the compound-config networks/ directory and README ('Compound Protocol on Ethereum'). compound-config was read at unpinned master (2026-09-18).",
+  "Venus official docs describe Venus as combining Maker's stablecoin minting with 'algorithmic money markets developed by Compound' and being deployed on BNB Chain; they do not literally use the word 'fork'. If the requirements doc needs that exact wording, cite it as an inference from the mirrored contract structure (VToken/VBep20/VBNB vs CToken/CErc20/CEther).",
+  "Ethereum mainnet chain_id (1) was not fetched from chainlist.org / EIP-155 in this pass; add a citation if the requirements doc records chain_id explicitly."
+ ]
+}

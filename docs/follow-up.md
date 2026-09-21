@@ -55,3 +55,6 @@ preserves synthetic ordering evidence. The opt-in
 [enumerable rule](../erc20/balances/docs/enumerable-role-sets.md) implements
 source-level operation checks; this evidence is not producer-visibility or
 token qualification, and issue #2 remains open for those checks.
+
+Session state, open review findings and the ordered next steps are kept in
+[`handoff.md`](handoff.md); procedures are in [`../skills/`](../skills/README.md).

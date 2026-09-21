@@ -1,0 +1,693 @@
+syntax = "proto3";
+
+// Versioned holder and global balance-state outputs for Extended-block
+// Substreams (issue #12). This package is ADDITIVE: `evm.balances.v1` in
+// `proto/v1/balances.proto` is untouched, and `erc20/balances` /
+// `native/balances` keep their single `map_events` and their existing output
+// type. Each balance-state companion package (aave/balance-state,
+// compound-v2/balance-state, compound-v3/balance-state, and later
+// lido/balance-state and erc4626/balance-state) has one RPC-free `map_events`
+// whose output type is `evm.balance_state.v1.Events`.
+//
+// Design contract
+// ---------------
+// * Every top-level `repeated` field of `Events` becomes exactly one table in
+//   the native Substreams ClickHouse sink. There are five, and there are no
+//   nested repeated fields and no `oneof` inside any row, so every table is
+//   flat and every row is self-describing.
+// * Exact integers are decimal strings (`uint256` and `int256` range, sign
+//   allowed). Addresses, hashes and storage slots are `bytes`. No floating
+//   point anywhere.
+// * No proto3 `optional` is used. The native sink stores an optional `bytes`
+//   as `String` and cannot represent absence, so presence is carried by an
+//   explicit enum (`Scope`, `Evidence`, `PositionSide`) instead of by field
+//   presence. Empty `bytes` and an empty string mean "not applicable for this
+//   row kind", never "zero".
+// * These rows are PERSISTED state only. Reverted frames and the
+//   non-persisted writes of failed transactions never produce a state row
+//   (`common/persist` rules). A persisted write to a bound slot that the
+//   pinned model cannot explain fails the block; it is never guessed and
+//   never silently dropped.
+// * A map cannot infer finality and cannot see future undo events. Fork
+//   handling is the stream's contract: `BlockUndoSignal.last_valid_block` /
+//   `last_valid_cursor`, or `final_blocks_only`. No field here asserts
+//   finality.
+// * Checkpoints, holder coverage and rollback are NOT re-invented here. Rows
+//   carry `checkpoint_id` as a reference into the shared mechanism owned by
+//   issue #7.
+package evm.balance_state.v1;
+
+// ---------------------------------------------------------------------------
+// Output
+// ---------------------------------------------------------------------------
+
+// The module output. `block_headers` carries exactly one element on every
+// delivered block (including blocks with no relevant state write), so the
+// sink's block markers and the `BlockHeader` table are a complete clock for
+// the streamed range rather than a list of nonempty-output blocks. Rows in
+// every list are sorted deterministically; the sort keys are documented per
+// message.
+message Events {
+  repeated BlockHeader block_headers = 1;
+  repeated HolderBasis holder_basis = 2;
+  repeated GlobalState global_state = 3;
+  repeated ModelBinding model_bindings = 4;
+  repeated AssetAlias asset_aliases = 5;
+}
+
+// ---------------------------------------------------------------------------
+// Enums. Values are prefixed with the enum name because protobuf enum values
+// share the package scope. Every enum has an UNSPECIFIED = 0 value, and
+// UNSPECIFIED always means "not set by the producer", never a real state.
+// Enums are open: a consumer reading a value it does not know must treat it
+// as unknown and refuse to interpret the row, never coerce it to 0.
+// ---------------------------------------------------------------------------
+
+// What a value row asserts. Used by `HolderBasis` and `GlobalState`.
+enum StateKind {
+  STATE_KIND_UNSPECIFIED = 0;
+
+  // A persisted write to this subject's bound storage was observed in this
+  // block; `value` is the post-write value of THIS metric only. It asserts
+  // nothing about any other metric of the same subject and is never a
+  // complete state of the market, the token or the holder.
+  STATE_KIND_OBSERVED_DELTA = 1;
+
+  // `value` is a complete, verified value of this metric at this block, read
+  // in full rather than inferred from a partial write. Used for initial
+  // snapshots, for values restated in full by a log (for example a Lido
+  // report's post-report totals), and for qualified constants. A set of
+  // VERIFIED_SNAPSHOT rows is a complete subject snapshot only when it covers
+  // every metric the pinned model requires; that completeness claim belongs
+  // to the checkpoint mechanism of issue #7, not to any single row.
+  STATE_KIND_VERIFIED_SNAPSHOT = 2;
+
+  // Computed by the map from values observed in THIS SAME BLOCK. A map holds
+  // no cross-block state, so a derived row is emitted only when every input
+  // of the formula was observed in the same block. Otherwise no derived row
+  // is emitted and the consumer derives the value from its own retained
+  // state. A derived row is never a substitute for its inputs; the inputs are
+  // always emitted as their own rows.
+  STATE_KIND_DERIVED = 3;
+
+  // An observed or verified zero. Distinct from "no row" (no observation) and
+  // from an uninitialized subject.
+  STATE_KIND_KNOWN_ZERO = 4;
+
+  // An attempted change that was NOT persisted (reverted frame, or a
+  // non-persisted write of a failed transaction). Balance-state maps do not
+  // emit this into state by default; it exists so that attempted-execution
+  // diagnostics can never be mistaken for state under OBSERVED_DELTA, and it
+  // may be emitted only when a package's `emit_reverted_attempts` parameter
+  // is explicitly enabled (default off). Consumers must never apply it.
+  // Persisted execution facts are owned by issue #18.
+  STATE_KIND_REVERTED_ATTEMPT = 5;
+}
+
+// What the integer in `value` counts. Combined with `scale_pow10`, this is
+// the unit/scale of the exact integer; the integer is always raw, never
+// rescaled by the producer.
+enum Unit {
+  UNIT_UNSPECIFIED = 0;
+  // Smallest unit of a named ERC-20 token; `scale_pow10` is that token's
+  // decimals.
+  UNIT_TOKEN = 1;
+  // Smallest unit of the chain's native asset; `scale_pow10` is the native
+  // precision (18 wei-style, including Arc's 18-decimal native USDC).
+  UNIT_NATIVE = 2;
+  // A protocol basis unit that is not a spendable token amount: shares,
+  // scaled balances, signed principal. `scale_pow10` is the precision the
+  // protocol stores it at.
+  UNIT_SHARE = 3;
+  // A dimensionless fixed-point factor or index; `scale_pow10` is its
+  // precision (27 for Aave/Maker RAY, 18 for Compound v2 mantissas, 15 for
+  // Comet BASE_INDEX_SCALE).
+  UNIT_RATIO = 4;
+  UNIT_RATE_PER_SECOND = 5;
+  UNIT_RATE_PER_YEAR = 6;
+  UNIT_RATE_PER_BLOCK = 7;
+  // Unix seconds; `scale_pow10` is 0.
+  UNIT_UNIX_SECONDS = 8;
+  // A block height; `scale_pow10` is 0.
+  UNIT_BLOCK_NUMBER = 9;
+  // A plain integer: a literal scale constant, a count, or a packed bit
+  // field. `scale_pow10` is 0.
+  UNIT_COUNT = 10;
+}
+
+// The execution scope a row was observed in. This, not field presence,
+// decides which identity fields are meaningful, because the native sink
+// cannot distinguish an absent numeric field from zero.
+enum Scope {
+  SCOPE_UNSPECIFIED = 0;
+  // Inside a transaction: `tx_hash`, `tx_index`, `call_index` and `ordinal`
+  // are meaningful.
+  SCOPE_TRANSACTION = 1;
+  // A system call outside any transaction: there is no transaction hash.
+  // `tx_hash` is empty, `tx_index` and `call_index` are 0 and meaningless;
+  // `ordinal` is meaningful.
+  SCOPE_SYSTEM_CALL = 2;
+  // A block-level record outside any transaction or call: `tx_hash` is
+  // empty, `tx_index` and `call_index` are 0 and meaningless; `ordinal` is
+  // meaningful.
+  SCOPE_BLOCK = 3;
+  // Not observed in this block at all: a qualified constant or a declaration
+  // carried by package parameters. `ordinal` is 0 and meaningless.
+  SCOPE_QUALIFICATION = 4;
+}
+
+// What the row was read from.
+enum Evidence {
+  EVIDENCE_UNSPECIFIED = 0;
+  // A persisted `StorageChange` at an explicitly qualified slot.
+  EVIDENCE_STORAGE_CHANGE = 1;
+  // A decoded log; `log_index` is meaningful.
+  EVIDENCE_LOG = 2;
+  // A persisted `CodeChange` (proxy implementation swap, EIP-7702
+  // delegation).
+  EVIDENCE_CODE_CHANGE = 3;
+  // A persisted native `BalanceChange` record; used where a protocol input is
+  // the native balance of a contract (Compound v2 cETH cash, Arc native).
+  EVIDENCE_BALANCE_CHANGE = 4;
+  // A value the caller pinned at qualification: a contract immutable, a
+  // protocol constant, or a declared identity. It is configuration, not an
+  // observation of this block.
+  EVIDENCE_QUALIFIED_CONSTANT = 5;
+  // Computed inside the map from other rows of the same block; pairs with
+  // STATE_KIND_DERIVED.
+  EVIDENCE_DERIVED_IN_BLOCK = 6;
+}
+
+// What the number in a holder row is. Debt is never an unsigned ERC-20
+// balance: it is either a signed principal or an explicitly debt-typed
+// basis, and it always carries `PositionSide`.
+enum BasisType {
+  BASIS_TYPE_UNSPECIFIED = 0;
+  // A stored, unsigned balance that already is the ERC-20 `balanceOf`
+  // result; no conversion needed.
+  BASIS_TYPE_RAW_BALANCE = 1;
+  // An unsigned scaled balance: multiply by a supply index to obtain the
+  // token amount (Aave aToken `_userState.balance`, low 120 bits).
+  BASIS_TYPE_SCALED_BALANCE = 2;
+  // An unsigned share count converted by a conversion rate (Compound v2
+  // `accountTokens`, stETH `shares`, ERC-4626 vault shares).
+  BASIS_TYPE_SHARE = 3;
+  // A signed principal where a negative number is debt and a positive number
+  // is supply (Comet `UserBasic.principal`, int104). `value` keeps the sign.
+  BASIS_TYPE_SIGNED_PRINCIPAL = 4;
+  // An unsigned scaled DEBT basis (Aave variable-debt token). Debt-specific
+  // rounding differs from supply rounding; it is never reported as a
+  // supply-side balance.
+  BASIS_TYPE_SCALED_DEBT = 5;
+}
+
+// Which side of a market a value belongs to. Also disambiguates metrics that
+// exist once per side (indices, rates, kinks, totals).
+enum PositionSide {
+  POSITION_SIDE_UNSPECIFIED = 0;
+  POSITION_SIDE_SUPPLY = 1;
+  POSITION_SIDE_BORROW = 2;
+  // One signed number covers both sides (Comet principal).
+  POSITION_SIDE_SIGNED_NET = 3;
+  // The metric has no side (cash, reserves, accrual clock, scale constants).
+  POSITION_SIDE_NOT_APPLICABLE = 4;
+}
+
+// Whether a row is a change boundary or an end-of-block state. Always set, so
+// a consumer never has to guess which semantics a table carries.
+enum Boundary {
+  BOUNDARY_UNSPECIFIED = 0;
+  // One row per persisted write; `ordinal` identifies the boundary and takes
+  // part in the row's identity.
+  BOUNDARY_CHANGE = 1;
+  // The value after the LAST persisted write of this subject and metric in
+  // this block; `ordinal` is that last write's ordinal, `change_count` is how
+  // many persisted writes were reduced into the row, and `previous_value` is
+  // the value before the FIRST write of the block. This is the default and
+  // matches the end-of-block semantics of `evm.balances.v1`.
+  BOUNDARY_END_OF_BLOCK = 2;
+}
+
+// Shared global state that a balance model reads. One enum across all
+// protocols: a consumer selects by (model_id, metric, side) rather than by a
+// per-protocol message type. `side` disambiguates supply and borrow.
+enum GlobalMetric {
+  GLOBAL_METRIC_UNSPECIFIED = 0;
+
+  // Stored accrual index. Aave `liquidityIndex` / `variableBorrowIndex`
+  // (RAY), Comet `baseSupplyIndex` / `baseBorrowIndex` (1e15), Compound v2
+  // `borrowIndex` (1e18, side BORROW).
+  GLOBAL_METRIC_ACCRUAL_INDEX = 1;
+  // Stored or derived interest rate. Aave `currentLiquidityRate` (RAY per
+  // year), Compound v2 per-block borrow rate, Comet per-second rate.
+  GLOBAL_METRIC_INTEREST_RATE = 2;
+  // Timestamp the index was last accrued to. Aave `lastUpdateTimestamp`,
+  // Comet `lastAccrualTime`, Maker Pot `rho`, a Lido report timestamp.
+  GLOBAL_METRIC_ACCRUAL_TIMESTAMP = 3;
+  // Block height the index was last accrued to. Compound v2
+  // `accrualBlockNumber`.
+  GLOBAL_METRIC_ACCRUAL_BLOCK = 4;
+
+  // Total expressed in the SAME unit as the holder basis: Compound v2
+  // `totalSupply` (shares), Comet `totalSupplyBase` / `totalBorrowBase`
+  // (principal), stETH `totalShares`, ERC-4626 `totalSupply`, Aave scaled
+  // total supply.
+  GLOBAL_METRIC_TOTAL_BASIS = 5;
+  // Total expressed in underlying token units: Compound v2 `totalBorrows`,
+  // ERC-4626 `totalAssets`, Lido `totalPooledEther`.
+  GLOBAL_METRIC_TOTAL_UNDERLYING = 6;
+  // Protocol reserves in underlying units (Compound v2 `totalReserves`).
+  GLOBAL_METRIC_RESERVES = 7;
+  // Cash held by the market, in underlying units. Frequently CROSS-CONTRACT:
+  // `source_contract` is the underlying ERC-20 (or Maker Pot, or a native
+  // balance record), not the market.
+  GLOBAL_METRIC_CASH = 8;
+
+  // Compound v2 `reserveFactorMantissa`.
+  GLOBAL_METRIC_RESERVE_FACTOR = 9;
+  // The conversion rate used when the basis total is zero (Compound v2
+  // `initialExchangeRateMantissa`).
+  GLOBAL_METRIC_INITIAL_CONVERSION_RATE = 10;
+  // Assets per share / underlying per basis unit. Maker Pot `chi`, Aave
+  // `getReserveNormalizedIncome` restated, Compound v2 `exchangeRateStored`
+  // when derivable in-block.
+  GLOBAL_METRIC_CONVERSION_RATE = 11;
+  // Per-second growth of the conversion rate (Maker Pot `dsr`).
+  GLOBAL_METRIC_CONVERSION_RATE_PER_SECOND = 12;
+
+  // Literal scale constants of the pinned model: RAY 1e27, Comet
+  // BASE_INDEX_SCALE 1e15, Compound v2 expScale 1e18.
+  GLOBAL_METRIC_INDEX_SCALE = 13;
+  // The base-token scale (Comet `baseScale`, 10**decimals).
+  GLOBAL_METRIC_BASE_SCALE = 14;
+  // Periods per year used by a rate model: Compound v2 `blocksPerYear`
+  // 2102400, Comet/Aave SECONDS_PER_YEAR 31536000.
+  GLOBAL_METRIC_RATE_PERIODS_PER_YEAR = 15;
+
+  // Kinked rate-model inputs, per side. Comet immutables, Compound v2
+  // JumpRateModelV2 storage.
+  GLOBAL_METRIC_RATE_KINK = 16;
+  GLOBAL_METRIC_RATE_SLOPE_LOW = 17;
+  GLOBAL_METRIC_RATE_SLOPE_HIGH = 18;
+  GLOBAL_METRIC_RATE_BASE = 19;
+
+  // Lido V3+ external shares (high 128 bits of the packed shares slot).
+  GLOBAL_METRIC_EXTERNAL_SHARES = 20;
+  // Lido internal ether, and its components. `totalPooledEther` is reported
+  // as TOTAL_UNDERLYING; these are the inputs it is built from.
+  GLOBAL_METRIC_INTERNAL_ETHER = 21;
+  GLOBAL_METRIC_BUFFERED_ETHER = 22;
+  GLOBAL_METRIC_CL_VALIDATORS_BALANCE = 23;
+  GLOBAL_METRIC_CL_PENDING_BALANCE = 24;
+  GLOBAL_METRIC_DEPOSITED_POST_REPORT = 25;
+  // Lido `maxExternalRatioBP`.
+  GLOBAL_METRIC_MAX_EXTERNAL_RATIO = 26;
+
+  // OpenZeppelin ERC-4626 virtual-offset terms: the +1 virtual asset and the
+  // 10**_decimalsOffset() virtual shares. Absent for vaults that override the
+  // conversion (Aave StataTokenV2, sDAI).
+  GLOBAL_METRIC_VIRTUAL_ASSET_OFFSET = 27;
+  GLOBAL_METRIC_VIRTUAL_SHARE_OFFSET = 28;
+
+  // Packed pause / configuration bits that gate withdrawals and limits
+  // (Comet `pauseFlags`, Aave reserve configuration). They do not change a
+  // conversion; they change what is withdrawable.
+  GLOBAL_METRIC_PAUSE_FLAGS = 29;
+}
+
+// Lifecycle of a pinned model binding.
+enum BindingStatus {
+  BINDING_STATUS_UNSPECIFIED = 0;
+  // The binding is qualified and in force from `epoch_block`.
+  BINDING_STATUS_ACTIVE = 1;
+  // Replaced by a later binding of the same subject with a higher
+  // `epoch_block`; state derived under it up to that block stays valid.
+  BINDING_STATUS_SUPERSEDED = 2;
+  // A pinned implementation, slot, dependency or rate model changed.
+  // Retained consumer state for this subject is unusable from
+  // `invalidated_from_block` onward and must be rebuilt through issue #7.
+  BINDING_STATUS_INVALIDATED = 3;
+  // The subject is named but its model is NOT qualified. No `HolderBasis` or
+  // `GlobalState` row is emitted for it. This is different from a subject
+  // that is simply absent, and different from a zero value.
+  BINDING_STATUS_UNSUPPORTED = 4;
+}
+
+// What a `ModelBinding` row describes: the binding itself, or one dependency
+// edge of it. A binding with several dependencies produces several flat rows
+// rather than a nested repeated field.
+enum DependencyKind {
+  DEPENDENCY_KIND_UNSPECIFIED = 0;
+  // The self row: the binding itself, not a dependency edge.
+  DEPENDENCY_KIND_SELF = 1;
+  // The contract holding the accrual index and rate (Aave Pool for an
+  // aToken).
+  DEPENDENCY_KIND_INDEX_SOURCE = 2;
+  // The source of the market's cash (Compound v2: the underlying ERC-20, or
+  // the Maker Pot under a DSR delegate, or the market's native balance).
+  DEPENDENCY_KIND_CASH_SOURCE = 3;
+  // The governance-mutable interest-rate model contract (Compound v2
+  // `interestRateModel`).
+  DEPENDENCY_KIND_RATE_MODEL = 4;
+  // The contract supplying an ERC-4626 conversion input (Maker Pot, Aave
+  // Pool, a vToken).
+  DEPENDENCY_KIND_CONVERSION_SOURCE = 5;
+  // The oracle/accounting path through which off-chain state reaches the
+  // execution layer (Lido Accounting and AccountingOracle).
+  DEPENDENCY_KIND_ORACLE_REPORT = 6;
+  // The runtime implementation whose storage layout and immutables are bound.
+  DEPENDENCY_KIND_IMPLEMENTATION = 7;
+  // The underlying asset identity of the market.
+  DEPENDENCY_KIND_UNDERLYING_TOKEN = 8;
+  // A qualified Extended producer version; `dependency_value` holds the
+  // version number and `dependency_contract` is empty.
+  DEPENDENCY_KIND_PRODUCER_VERSION = 9;
+  // A pinned storage-layout fact; `dependency_value` holds the base slot
+  // index or packing description key.
+  DEPENDENCY_KIND_STORAGE_LAYOUT = 10;
+}
+
+// Why a binding was invalidated. Set only when `status` is
+// BINDING_STATUS_INVALIDATED.
+enum InvalidationReason {
+  INVALIDATION_REASON_UNSPECIFIED = 0;
+  INVALIDATION_REASON_IMPLEMENTATION_UPGRADED = 1;
+  INVALIDATION_REASON_STORAGE_LAYOUT_CHANGED = 2;
+  INVALIDATION_REASON_RATE_MODEL_CHANGED = 3;
+  INVALIDATION_REASON_DEPENDENCY_REPLACED = 4;
+  INVALIDATION_REASON_PRODUCER_VERSION_UNQUALIFIED = 5;
+  INVALIDATION_REASON_QUALIFICATION_WITHDRAWN = 6;
+}
+
+// How one underlying balance is exposed.
+enum AliasRepresentation {
+  ALIAS_REPRESENTATION_UNSPECIFIED = 0;
+  // The chain's native account balance.
+  ALIAS_REPRESENTATION_NATIVE = 1;
+  // An ERC-20 interface over the very same balance.
+  ALIAS_REPRESENTATION_ERC20_INTERFACE = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Rows
+// ---------------------------------------------------------------------------
+
+// One row per delivered block, including blocks with no relevant state write,
+// so the clock is carried explicitly instead of being inferred from nonempty
+// output or from sink cursor progress. The native sink adds `_block_number_`
+// and its own ingestion timestamp to every table but keeps no block hash;
+// this table is where the canonical hash, parent hash and block timestamp
+// enter the database, and it is the join target that binds every other row to
+// an independently capturable clock.
+//
+// A package parameter may disable header rows on blocks with no other output
+// for very high cadence chains; clock completeness then falls back to the
+// stream cursor, which is not a complete-block publication manifest.
+//
+// This row asserts nothing about finality. Undo is the stream's
+// `BlockUndoSignal`.
+message BlockHeader {
+  // Bound by the manifest network and the package parameters; the Extended
+  // block itself carries no chain id.
+  uint64 chain_id = 1;
+  uint64 number = 2;
+  // 32 bytes.
+  bytes hash = 3;
+  // 32 bytes.
+  bytes parent_hash = 4;
+  // Canonical header timestamp, unix seconds. Not monotonic-strict on every
+  // chain: Arc allows consecutive blocks to share a timestamp.
+  uint64 timestamp_seconds = 5;
+  // `Block.ver` of the Extended producer that made this block. The package
+  // fails the block when this is not one of the qualified versions.
+  uint32 producer_version = 6;
+
+  // How many rows of each other table this block carries. ClickHouse writes
+  // are not multi-table transactions, so these counts let a consumer detect a
+  // partially applied block. They are an expectation to check, not a
+  // publication guarantee.
+  uint32 holder_basis_rows = 7;
+  uint32 global_state_rows = 8;
+  uint32 model_binding_rows = 9;
+  uint32 asset_alias_rows = 10;
+
+  // Provenance of the producing package, for databases fed by more than one
+  // balance-state package over time (for example "aave-balance-state").
+  string emitter_package = 11;
+  string emitter_version = 12;
+}
+
+// Per-holder basis state. One row per (subject, holder, basis_type, side),
+// either per persisted write or reduced to end-of-block, as `boundary` says.
+//
+// A holder row is emitted ONLY when that holder's own storage was written.
+// A shared index, rate or conversion change is a `GlobalState` row and is
+// never expanded into synthetic per-holder rows: the consumer retains each
+// holder's basis and re-evaluates it against the shared state at whichever
+// canonical block clock it selects.
+//
+// Absence of a row is no observation. It is not zero, not uninitialized and
+// not unchanged; only `STATE_KIND_KNOWN_ZERO` states a zero.
+//
+// Sort key: (model_id, market, token, underlying, holder, basis_type, side,
+// ordinal).
+message HolderBasis {
+  uint64 chain_id = 1;
+  // Registry identifier of the pinned balance model, for example
+  // "aave.v3.atoken", "compound.v2.ctoken", "compound.v3.comet",
+  // "lido.steth", "erc4626.sdai". Model ids and the exact formula, rounding
+  // chain and required metric set of each are a documented package registry
+  // plus the Rust conformance models of issue #16, not protobuf fields.
+  string model_id = 2;
+  // Activation block of the `ModelBinding` in force for this subject. This is
+  // the runtime-epoch reference: (chain_id, model_id, market, token,
+  // underlying, epoch_block) selects the binding that states the
+  // implementation, revision, rounding profile and dependencies this row was
+  // produced under.
+  uint64 epoch_block = 3;
+
+  // Contract owning the shared state of the market (Aave Pool, Comet proxy,
+  // cToken, stETH proxy, ERC-4626 vault).
+  bytes market = 4;
+  // Contract holding the holder basis (aToken proxy, cToken, Comet proxy,
+  // stETH proxy, vault). Equal to `market` for single-contract protocols.
+  bytes token = 5;
+  // Underlying asset. Empty for a native underlying (Compound v2 cETH,
+  // Lido ETH).
+  bytes underlying = 6;
+  // 20-byte account.
+  bytes holder = 7;
+
+  BasisType basis_type = 8;
+  PositionSide side = 9;
+
+  // Exact integer, decimal, signed. Never rescaled, never rounded, never a
+  // float. A negative value is only valid with a signed basis type and
+  // preserves debt as debt.
+  string value = 10;
+  Unit unit = 11;
+  // Fixed-point exponent of `value`.
+  uint32 scale_pow10 = 12;
+  // The value before this block's first persisted write of this row's
+  // subject, when the producer records it. Empty string means "not recorded",
+  // which is different from "0".
+  string previous_value = 13;
+
+  StateKind state_kind = 14;
+  Boundary boundary = 15;
+  // Persisted writes reduced into this row. 1 in BOUNDARY_CHANGE mode.
+  uint32 change_count = 16;
+
+  Evidence evidence = 17;
+  // Decides which of the identity fields below are meaningful.
+  Scope scope = 18;
+  // 32 bytes. Empty unless `scope` is SCOPE_TRANSACTION.
+  bytes tx_hash = 19;
+  // Meaningful only when `scope` is SCOPE_TRANSACTION.
+  uint32 tx_index = 20;
+  // Meaningful only when `scope` is SCOPE_TRANSACTION; 0 is the root call.
+  uint32 call_index = 21;
+  // Meaningful only when `evidence` is EVIDENCE_LOG.
+  uint32 log_index = 22;
+  // Execution ordinal, the in-block order across transaction, system-call and
+  // block scopes. Requires Extended producer version 4 or 5; version 3 put
+  // system-call ordinals on a separate scale and is refused.
+  uint64 ordinal = 23;
+
+  // Contract whose storage or balance was actually written. Usually `token`,
+  // but explicitly recorded so cross-contract sources are visible.
+  bytes source_contract = 24;
+  // 32-byte storage key. Empty when `evidence` is not
+  // EVIDENCE_STORAGE_CHANGE.
+  bytes storage_slot = 25;
+
+  // Reference into the shared checkpoint mechanism of issue #7. Empty when
+  // this row is not part of a checkpoint. This package defines no bootstrap
+  // of its own.
+  string checkpoint_id = 26;
+}
+
+// Shared, non-holder state a balance model needs: stored indices, rates,
+// accrual clocks, totals, constants and cross-contract inputs.
+//
+// One row states ONE metric. A set of rows for a subject in one block is
+// whatever that block wrote; it is not a market snapshot unless every row
+// carries STATE_KIND_VERIFIED_SNAPSHOT and the checkpoint of issue #7 says
+// the metric set is complete.
+//
+// Sort key: (model_id, market, token, underlying, metric, side, ordinal).
+message GlobalState {
+  uint64 chain_id = 1;
+  string model_id = 2;
+  uint64 epoch_block = 3;
+
+  bytes market = 4;
+  // The holder-basis token this state governs, so holder rows and global rows
+  // join on the same subject key. Equal to `market` for single-contract
+  // protocols.
+  bytes token = 5;
+  bytes underlying = 6;
+
+  GlobalMetric metric = 7;
+  PositionSide side = 8;
+
+  string value = 9;
+  Unit unit = 10;
+  uint32 scale_pow10 = 11;
+  string previous_value = 12;
+
+  StateKind state_kind = 13;
+  Boundary boundary = 14;
+  uint32 change_count = 15;
+
+  Evidence evidence = 16;
+  Scope scope = 17;
+  bytes tx_hash = 18;
+  uint32 tx_index = 19;
+  uint32 call_index = 20;
+  uint32 log_index = 21;
+  uint64 ordinal = 22;
+
+  // The contract actually read. Differs from `market` for every
+  // cross-contract input: the underlying ERC-20 for Compound v2 cash, the
+  // Maker Pot for sDAI and cDAI, the Aave Pool for a StataToken.
+  bytes source_contract = 23;
+  bytes storage_slot = 24;
+
+  string checkpoint_id = 25;
+}
+
+// A pinned model binding, or one dependency edge of it. One flat row per
+// dependency keeps the table free of nested repeated fields; the self row
+// (DEPENDENCY_KIND_SELF) carries the binding's own identity and every
+// dependency row repeats it so each row is self-describing.
+//
+// Emitted at the binding's activation block, at every block where an observed
+// code change or dependency change alters or invalidates it, and on the
+// package's configured heartbeat interval so a consumer joining mid-stream
+// receives the binding without a competing bootstrap mechanism. A consumer
+// that needs bindings before its first heartbeat reads them from the package
+// parameters or from an issue #7 checkpoint.
+//
+// Sort key: (model_id, market, token, underlying, epoch_block,
+// dependency_kind, dependency_contract).
+message ModelBinding {
+  uint64 chain_id = 1;
+  string model_id = 2;
+  // The block from which this binding is in force. Deterministic and
+  // stateless: it comes from the caller's qualification, not from a counter.
+  uint64 epoch_block = 3;
+
+  bytes market = 4;
+  bytes token = 5;
+  bytes underlying = 6;
+
+  BindingStatus status = 7;
+
+  // Runtime implementation behind the proxy at this epoch.
+  bytes implementation = 8;
+  // 32-byte runtime code hash bound at qualification. Empty when not bound.
+  bytes code_hash = 9;
+  // Protocol-declared revision: Aave `ATOKEN_REVISION`, Lido contract
+  // version. 0 when the protocol declares none.
+  uint64 revision = 10;
+  // Pinned source identity the model follows, for example
+  // "aave-v3-origin@8305565ae342f1773c42cd2e4593f175fe5968a0".
+  string source_pin = 11;
+  // Registry identifier of the rounding chain in force, for example
+  // "aave.v3.5.norm_half_up_then_floor" versus
+  // "aave.v3.3.norm_half_up_then_half_up". A single enum cannot express a
+  // multi-step rounding chain; the executable definition is the Rust
+  // conformance model of issue #16.
+  string rounding_profile = 12;
+
+  DependencyKind dependency_kind = 13;
+  // The dependency's contract. Empty for DEPENDENCY_KIND_SELF and for
+  // non-address dependencies.
+  bytes dependency_contract = 14;
+  // Exact integer or identifier for non-address dependencies: a producer
+  // version, a base slot index, a chain id.
+  string dependency_value = 15;
+
+  // Set only when `status` is BINDING_STATUS_INVALIDATED.
+  InvalidationReason invalidation_reason = 16;
+  // First block from which retained consumer state for this subject is
+  // unusable and must be rebuilt through issue #7. 0 when not invalidated.
+  uint64 invalidated_from_block = 17;
+
+  // An upgrade or dependency change is usually observed as a CODE_CHANGE, or
+  // as a LOG such as a proxy `Upgraded` or Lido `ContractVersionSet`. A
+  // binding declared from package parameters uses EVIDENCE_QUALIFIED_CONSTANT
+  // with SCOPE_QUALIFICATION and leaves the identity fields below empty.
+  Evidence evidence = 18;
+  Scope scope = 19;
+  bytes tx_hash = 20;
+  uint32 tx_index = 21;
+  uint32 call_index = 22;
+  // Meaningful only when `evidence` is EVIDENCE_LOG.
+  uint32 log_index = 23;
+  uint64 ordinal = 24;
+
+  string checkpoint_id = 25;
+}
+
+// One representation of a balance that is exposed through more than one
+// interface at more than one precision. Rows sharing `alias_id` are views of
+// ONE balance and must never be summed or treated as separate assets: Arc's
+// native USDC at 18 decimals and its ERC-20 interface at 6 decimals are the
+// same balance.
+//
+// Emitted by the chain-scoped companion package at its epoch block and on the
+// heartbeat. `erc20/balances` and `native/balances` are unchanged and emit
+// nothing here.
+//
+// Sort key: (alias_id, representation, contract).
+message AssetAlias {
+  uint64 chain_id = 1;
+  // Stable identity of the single underlying balance, for example "arc.usdc".
+  string alias_id = 2;
+  AliasRepresentation representation = 3;
+  // The contract exposing this representation. Empty when `representation` is
+  // ALIAS_REPRESENTATION_NATIVE.
+  bytes contract = 4;
+  // Precision of THIS representation.
+  uint32 decimals = 5;
+  // Exactly one representation per `alias_id` is canonical: the one carrying
+  // full precision. Amounts finer than a non-canonical representation's unit
+  // exist only in the canonical one.
+  bool canonical = 6;
+  // Address that emits ERC-20 style `Transfer` logs for this representation,
+  // where one exists: Arc's system emitter for native sends, the token itself
+  // for ERC-20 activity. Empty when this representation emits none. Recorded
+  // so transfer evidence is attributed to one representation instead of being
+  // double counted.
+  bytes log_emitter = 7;
+
+  string model_id = 8;
+  uint64 epoch_block = 9;
+  StateKind state_kind = 10;
+  Evidence evidence = 11;
+  Scope scope = 12;
+
+  string checkpoint_id = 13;
+}
