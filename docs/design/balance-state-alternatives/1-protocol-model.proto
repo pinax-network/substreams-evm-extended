@@ -1,0 +1,941 @@
+syntax = "proto3";
+
+// Versioned holder and global balance-state outputs for the focused protocol
+// packages of the extraction roadmap (issue #12).
+//
+// This package is ADDITIVE. `evm.balances.v1` is untouched, not imported and
+// not reinterpreted: `erc20/balances` and `native/balances` keep emitting
+// `evm.balances.v1.Events` with the same field numbers and wire types. A
+// balance-state package is a separate one-`map_events` package
+// (`aave/balance-state`, `compound-v2/balance-state`, `compound-v3/balance-state`,
+// later `lido/balance-state` and `erc4626/balance-state`) whose output type is
+// `proto:evm.balance_state.v1.Events`.
+//
+// SCHEMA RULES (all of them load-bearing for the native Substreams sink)
+//
+//  1. Every top-level `repeated` field of `Events` becomes exactly one table in
+//     the native ClickHouse sink, named after its message. There are no nested
+//     repeated fields, no `map` fields and no `oneof` anywhere below the
+//     `Events` wrapper: a row is a flat tuple of scalars, enums and `bytes`.
+//  2. There are no `optional` fields. The sink renders an absent `optional
+//     bytes` and an empty `bytes` as the same empty `String`
+//     (erc20/balances/clickhouse/README.md), so presence is never encoded by
+//     field presence. Presence is carried explicitly:
+//       - every exact protocol integer is a `string` holding a decimal integer.
+//         `""` means "not carried by this row"; `"0"` means an observed zero.
+//         This is the only presence signal for values, and it survives the
+//         protobuf -> ClickHouse `String` mapping unchanged.
+//       - every address that may be absent is paired with an enum that says
+//         what the absence means (`UnderlyingKind`, `AliasEndpointKind`,
+//         `CashSource`). An empty address is never self-describing.
+//  3. Exact integers are decimal strings (`uint256`, `int256`, `int104`,
+//     `uint120`, `uint104`, `uint64` indices, `uint40` timestamps read from
+//     storage). Signed values carry a leading `-`. Integer fields
+//     (`uint32`/`uint64`) are used only for frame identity, ordinals, decimals
+//     and chain id, which are always present when a row exists. There is no
+//     floating point anywhere in this file.
+//  4. Addresses, hashes and code hashes are `bytes` (20 or 32 bytes).
+//  5. Every enum has `UNSPECIFIED = 0`. A correct package never emits an
+//     `UNSPECIFIED` value; a consumer must treat it as unusable rather than as
+//     a default.
+//  6. Field numbers 1..13 are the common identity block of every observation
+//     row and mean the same thing in every message that has them. 14 and 15 are
+//     reserved in those messages so a future common field lands at one number
+//     everywhere. Family-specific fields start at 16.
+//
+// WHAT A ROW IS NOT
+//
+//  - Not a finality statement. A map cannot observe finality and cannot predict
+//    an undo. Forks are the stream's contract: `BlockUndoSignal` carries
+//    `last_valid_block`/`last_valid_cursor` and every row above that block must
+//    be discarded by the consumer; `final_blocks_only` suppresses undo signals
+//    by streaming irreversible blocks only. No field of this schema asserts
+//    finality, and `BlockClock` deliberately has no finality column.
+//  - Not a holder snapshot. A holder row exists only where a holder's own basis
+//    storage changed. A shared index/rate/report change emits global-state rows
+//    and no holder rows; consumers retain bases and re-evaluate the getter at a
+//    selected canonical block clock. Initialization, holder coverage,
+//    checkpoints and rollback are issue #7's mechanism and are not duplicated
+//    here.
+//  - Not a completeness manifest. `BlockClock` gives one row per delivered
+//    block, so the sink's `_blocks_` markers become a complete clock history for
+//    this package, but sink cursor progress alone still does not prove that the
+//    rows of a block were published atomically: ClickHouse writes are not
+//    multi-table transactions.
+//
+// THE SIX EPISTEMIC STATES REQUIRED BY #12, AND WHERE EACH LIVES
+//
+//    missing / uninitialized  -> no row at all. Absence is never zero, and this
+//                                schema has no "zero by default" row.
+//    known zero               -> a value row with `state_kind =
+//                                STATE_KIND_KNOWN_ZERO` and value `"0"`.
+//    unsupported model        -> `STATE_KIND_UNSUPPORTED_MODEL` with empty
+//                                values, plus a `StateInvalidation` row. Only
+//                                for a recognized non-projection dependency the
+//                                parameters allow to be reported; an unknown
+//                                write to a modelled slot fails the block.
+//    invalidated dependency   -> `STATE_KIND_INVALIDATED_DEPENDENCY` plus a
+//                                `StateInvalidation` row naming what changed.
+//    reverted                 -> `STATE_KIND_REVERTED`, empty value. No package
+//                                in this repository emits it: `common/persist`
+//                                drops reverted frames. Reserved so attempted-
+//                                but-not-persisted evidence (#18) can be joined
+//                                later without a schema break.
+//    observed value           -> `STATE_KIND_VALUE`.
+//
+// Rust bindings are generated with buf + the neoeinstein-prost plugin and the
+// generated file is committed at `proto/src/pb/evm.balance_state.v1.rs`.
+
+package evm.balance_state.v1;
+
+// ---------------------------------------------------------------------------
+// Output wrapper. One table per repeated field, named after the message.
+// A package fills only the fields of the families it models; the other tables
+// exist in the sink schema and stay empty.
+// ---------------------------------------------------------------------------
+message Events {
+  // Exactly one row per delivered block, always, including blocks with no
+  // modelled state change. Carries the canonical clock the other rows are
+  // keyed by.
+  repeated BlockClock blocks = 1;
+
+  // Which implementation, revision, rounding era and parameter set produced the
+  // rows of this block. Emitted at the first block of a stream and at every
+  // epoch boundary.
+  repeated ModelEpoch model_epochs = 2;
+
+  // Declared identity linkages such as Arc native USDC and its ERC-20
+  // interface: one balance at two precisions, never two assets.
+  repeated AssetAlias asset_aliases = 3;
+
+  // The shared per-holder basis: the exact integer a protocol stores against a
+  // holder, in that protocol's own unit. One message for every family.
+  repeated HolderBasis holder_bases = 4;
+
+  // Per-family global state. One message per family so every field is typed
+  // exactly as the getter reads it.
+  repeated AaveReserveState aave_reserves = 5;
+  repeated CompoundV2MarketState compound_v2_markets = 6;
+  repeated CometMarketState comet_markets = 7;
+  repeated LidoPoolState lido_pools = 8;
+  repeated MakerPotState maker_pots = 9;
+  repeated Erc4626VaultState erc4626_vaults = 10;
+
+  // Upgrade and dependency invalidation, and recognized-but-unmodelled writes.
+  repeated StateInvalidation invalidations = 11;
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+// Where in the block a change was persisted. Block and system scopes have no
+// transaction hash, so `tx_hash` is empty and `tx_index`/`call_index` are 0.
+enum StateScope {
+  STATE_SCOPE_UNSPECIFIED = 0;
+  // Inside a transaction: `tx_hash`, `tx_index`, `call_index` and `ordinal`
+  // are all meaningful.
+  STATE_SCOPE_TRANSACTION = 1;
+  // `Block.system_calls[]`: no transaction hash, `ordinal` orders it against
+  // transaction ordinals on producer versions 4 and 5 only.
+  STATE_SCOPE_SYSTEM_CALL = 2;
+  // `Block`-level records: no transaction hash and no call index.
+  STATE_SCOPE_BLOCK = 3;
+  // Not a chain event: a declaration bound to the package and its parameters
+  // (epoch rows, alias rows, implementation-constant rows).
+  STATE_SCOPE_PACKAGE = 4;
+}
+
+// Whether a row is a change boundary or an end-of-block value.
+enum ObservationKind {
+  OBSERVATION_KIND_UNSPECIFIED = 0;
+  // The value immediately after the persisted change at `ordinal`. Several
+  // rows for one key in one block are ordered by `ordinal`.
+  OBSERVATION_KIND_CHANGE_BOUNDARY = 1;
+  // The value after the last persisted change of the block for this key;
+  // `ordinal` is that last change's ordinal. At most one such row per key per
+  // block.
+  OBSERVATION_KIND_END_OF_BLOCK = 2;
+  // Not a state observation: an epoch, alias or constant declaration.
+  OBSERVATION_KIND_DECLARATION = 3;
+}
+
+// The epistemic status of the values in this row. See the header table.
+enum StateKind {
+  STATE_KIND_UNSPECIFIED = 0;
+  STATE_KIND_VALUE = 1;
+  STATE_KIND_KNOWN_ZERO = 2;
+  STATE_KIND_UNSUPPORTED_MODEL = 3;
+  STATE_KIND_INVALIDATED_DEPENDENCY = 4;
+  STATE_KIND_REVERTED = 5;
+}
+
+// How the values in this row were obtained. A row is homogeneous: one
+// provenance for every value it carries.
+enum ValueProvenance {
+  VALUE_PROVENANCE_UNSPECIFIED = 0;
+  // New value of a persisted `StorageChange` on a qualified slot.
+  VALUE_PROVENANCE_OBSERVED_WRITE = 1;
+  // Value carried by a persisted log of a qualified emitter (Lido
+  // `TokenRebased`, `CLBalancesUpdated`).
+  VALUE_PROVENANCE_OBSERVED_LOG = 2;
+  // Value at a verified initialization witness (a pinned CREATE or an
+  // initializer call), not a delta. This is the same witness mechanism
+  // `erc20/balances` already uses; it is not a bootstrap competing with #7.
+  VALUE_PROVENANCE_VERIFIED_INITIAL = 3;
+  // Computed inside the map from other observations of the same block. The row
+  // must name its inputs through its dependency fields. Example: cDAI
+  // `totalCash = pot.chi * pot.pie(cDAI) / RAY`.
+  VALUE_PROVENANCE_DERIVED = 4;
+  // An immutable or constant of the pinned runtime (Comet per-second rate
+  // immutables, `BASE_INDEX_SCALE`, `RAY`, `SECONDS_PER_YEAR`).
+  VALUE_PROVENANCE_IMPLEMENTATION_CONSTANT = 5;
+  // Caller-declared and independently qualified off-stream, with no in-block
+  // witness (alias identities, epoch bindings).
+  VALUE_PROVENANCE_DECLARED = 6;
+}
+
+enum ProtocolFamily {
+  PROTOCOL_FAMILY_UNSPECIFIED = 0;
+  PROTOCOL_FAMILY_AAVE_V3 = 1;
+  PROTOCOL_FAMILY_COMPOUND_V2 = 2;
+  PROTOCOL_FAMILY_COMPOUND_III = 3;
+  PROTOCOL_FAMILY_LIDO_STETH = 4;
+  PROTOCOL_FAMILY_ERC4626 = 5;
+  PROTOCOL_FAMILY_MAKER_POT = 6;
+  PROTOCOL_FAMILY_ASSET_ALIAS = 7;
+}
+
+// How much of a family's projection formula this row carries. A partial delta
+// is never labelled complete.
+enum ModelCoverage {
+  MODEL_COVERAGE_UNSPECIFIED = 0;
+  // Only the listed fields changed or were read at this ordinal. The row is a
+  // delta of some inputs, not a snapshot of the model.
+  MODEL_COVERAGE_PARTIAL = 1;
+  // Every mutable input the family's projection formula needs is carried in
+  // this row and was observed at this same ordinal. Constants still come from
+  // the row with `MODEL_COVERAGE_CONSTANTS_ONLY` for the same
+  // `model_epoch_id`.
+  MODEL_COVERAGE_MODEL_COMPLETE = 2;
+  // The row carries implementation constants and immutables only, no mutable
+  // storage.
+  MODEL_COVERAGE_CONSTANTS_ONLY = 3;
+}
+
+// What the holder's stored integer is. This is the field that keeps a signed
+// debt principal from ever being read as an unsigned ERC-20 balance.
+enum BasisKind {
+  BASIS_KIND_UNSPECIFIED = 0;
+  // Aave V3 aToken `_userState[user].balance` (low 120 bits since v3.4, low
+  // 128 bits at v3.3 and earlier; the 8 delegation bits are zero for non-AAVE
+  // aTokens, so a 120-bit mask is correct in both eras). Unsigned. RAY-indexed:
+  // balance = rayMulFloor(scaled, getReserveNormalizedIncome) since aToken
+  // revision 4; half-up rayMul at revisions <= 3.
+  BASIS_KIND_SCALED_BALANCE_RAY = 1;
+  // An unsigned share count that is also the share token's own `balanceOf`:
+  // Compound v2 `accountTokens` (8 decimals), an ERC-4626 vault share balance.
+  BASIS_KIND_SHARES = 2;
+  // Lido `shares[holder]`. Unsigned, and NOT `balanceOf`: stETH `balanceOf` is
+  // shares * totalPooledEther / totalShares, and a rebase writes no holder
+  // slot.
+  BASIS_KIND_POOLED_SHARES = 3;
+  // Compound III `UserBasic.principal`, `int104`. NEGATIVE MEANS BORROW DEBT.
+  // The value is emitted with its sign and is never clamped: clamping to
+  // `principal > 0 ? presentValueSupply : 0` is the consumer's `balanceOf`
+  // projection, not an extraction fact.
+  BASIS_KIND_SIGNED_PRINCIPAL = 4;
+  // MakerDAO Pot `pie[account]`: a normalized DSR deposit, converted by chi.
+  BASIS_KIND_NORMALIZED_PIE = 5;
+}
+
+// Says what an empty `underlying`/`asset` address means. Never infer native
+// from an empty address.
+enum UnderlyingKind {
+  UNDERLYING_KIND_UNSPECIFIED = 0;
+  UNDERLYING_KIND_ERC20 = 1;
+  UNDERLYING_KIND_NATIVE = 2;
+}
+
+enum RoundingDirection {
+  ROUNDING_DIRECTION_UNSPECIFIED = 0;
+  ROUNDING_DIRECTION_FLOOR = 1;
+  ROUNDING_DIRECTION_CEIL = 2;
+  ROUNDING_DIRECTION_HALF_UP = 3;
+}
+
+enum EpochStatus {
+  EPOCH_STATUS_UNSPECIFIED = 0;
+  EPOCH_STATUS_ACTIVE = 1;
+  EPOCH_STATUS_SUPERSEDED = 2;
+  // Declared but not qualified: the package must not project balances under
+  // this epoch.
+  EPOCH_STATUS_UNQUALIFIED = 3;
+}
+
+enum AliasRelation {
+  ALIAS_RELATION_UNSPECIFIED = 0;
+  // One stored balance exposed at two precisions. Not two assets, and never
+  // two rows to be summed.
+  ALIAS_RELATION_SAME_BALANCE_DIFFERENT_PRECISION = 1;
+}
+
+enum AliasEndpointKind {
+  ALIAS_ENDPOINT_KIND_UNSPECIFIED = 0;
+  ALIAS_ENDPOINT_KIND_NATIVE = 1;
+  ALIAS_ENDPOINT_KIND_ERC20_INTERFACE = 2;
+}
+
+// Where a Compound v2 market's `getCashPrior()` reads from. The cash dependency
+// is cross-contract, so this names the contract whose storage must be watched.
+enum CashSource {
+  CASH_SOURCE_UNSPECIFIED = 0;
+  // `CErc20`: `EIP20Interface(underlying).balanceOf(address(this))`.
+  CASH_SOURCE_UNDERLYING_ERC20_BALANCE = 1;
+  // `CEther`: `address(this).balance - msg.value`.
+  CASH_SOURCE_NATIVE_BALANCE = 2;
+  // `CDaiDelegate`: `mul(pot.chi(), pot.pie(address(this))) / RAY`, i.e. NOT
+  // `DAI.balanceOf(cDAI)`.
+  CASH_SOURCE_MAKER_POT = 3;
+}
+
+enum AccrualKind {
+  ACCRUAL_KIND_UNSPECIFIED = 0;
+  // `rate * (now - last) / SECONDS_PER_YEAR` applied with half-up `rayMul`
+  // (Aave `calculateLinearInterest` then `rayMul`).
+  ACCRUAL_KIND_LINEAR_PER_YEAR_RAY = 1;
+  // `index + index * rate_per_second * elapsed / FACTOR_SCALE`, truncating
+  // (Comet `mulFactor`).
+  ACCRUAL_KIND_LINEAR_PER_SECOND_FACTOR = 2;
+  // `rpow(rate, elapsed) * acc / RAY` with half-up rounding at each squaring
+  // step (Maker Pot / sDAI).
+  ACCRUAL_KIND_COMPOUND_PER_SECOND_RPOW_HALF_UP = 3;
+  // `borrowRate * blockDelta` with truncating `Exp` arithmetic, block-number
+  // based (Compound v2 `accrueInterest`).
+  ACCRUAL_KIND_LINEAR_PER_BLOCK_EXP = 4;
+}
+
+// Which exact conversion an ERC-4626 vault implements. EIP-4626 allows
+// `convertTo*` to be inexact or time-weighted, so an adapter binds to one
+// implementation, never to the interface.
+enum ConversionModel {
+  CONVERSION_MODEL_UNSPECIFIED = 0;
+  // sDAI: `shares * chi' / RAY` with `chi' = rpow(dsr, now - rho) * chi / RAY`,
+  // floor. Depends only on Pot state.
+  CONVERSION_MODEL_MAKER_POT_CHI = 1;
+  // Aave StataTokenV2: `floor(shares * POOL.getReserveNormalizedIncome(asset) /
+  // 1e27)`. No virtual offset.
+  CONVERSION_MODEL_AAVE_NORMALIZED_INCOME = 2;
+  // OpenZeppelin v4.9+/v5 base: `shares * (totalAssets + 1) / (totalSupply +
+  // 10**decimalsOffset)`, floor.
+  CONVERSION_MODEL_OZ_VIRTUAL_OFFSET = 3;
+}
+
+enum InvalidationKind {
+  INVALIDATION_KIND_UNSPECIFIED = 0;
+  // A recognized contract wrote a slot the pinned model does not describe.
+  INVALIDATION_KIND_UNSUPPORTED_MODEL = 1;
+  // A pinned proxy implementation changed (Aave `Upgraded`, Comet proxy
+  // upgrade, Compound `NewImplementation`, Lido `ContractVersionSet`).
+  INVALIDATION_KIND_IMPLEMENTATION_UPGRADED = 2;
+  // A storage layout or slot binding of the pinned model no longer applies
+  // (Lido V2->V3 `totalShares` slot move and zeroing).
+  INVALIDATION_KIND_LAYOUT_CHANGED = 3;
+  // Compound v2 `NewMarketInterestRateModel`, or a Comet implementation whose
+  // rate immutables differ.
+  INVALIDATION_KIND_RATE_MODEL_CHANGED = 4;
+  // A cross-contract dependency the model reads changed identity (a market's
+  // cash source, a vault's dependency contract).
+  INVALIDATION_KIND_DEPENDENCY_CHANGED = 5;
+  // The parameters the package ran with do not match the runtime it observed.
+  INVALIDATION_KIND_PARAMETER_MISMATCH = 6;
+}
+
+enum InvalidationEffect {
+  INVALIDATION_EFFECT_UNSPECIFIED = 0;
+  // Retained holder bases and global state for this key are no longer valid
+  // and must be rebuilt from an #7 checkpoint.
+  INVALIDATION_EFFECT_RETAINED_STATE_INVALID = 1;
+  // Retained state stays valid, but no projection may be produced for this key
+  // until a new `ModelEpoch` row with `EPOCH_STATUS_ACTIVE` appears.
+  INVALIDATION_EFFECT_PROJECTION_SUSPENDED = 2;
+}
+
+// ---------------------------------------------------------------------------
+// BlockClock: one row per delivered block, always.
+// ---------------------------------------------------------------------------
+message BlockClock {
+  // Declared by the manifest network and package parameters. A block carries no
+  // chain id; this is never inferred from block content.
+  uint64 chain_id = 1;
+
+  // Canonical block identity, copied from the Extended block header. This is
+  // the map's copy of the stream clock, not an independent source. The sink
+  // adds `_block_number_`; `number` is repeated here so a row exported as
+  // JSONL is self-describing and so a sink/clock mismatch is detectable.
+  uint64 number = 2;
+  bytes hash = 3;
+  bytes parent_hash = 4;
+  uint64 timestamp_seconds = 5;
+
+  // `Block.ver`, the Extended producer version this row was reduced under. The
+  // package rejects versions its parameters do not list; version 3 is never
+  // acceptable because its tracer put system-call ordinals on a different scale
+  // and zeroed root-call begin ordinals.
+  uint64 producer_version = 6;
+
+  // False when the package observed no modelled state change in this block. The
+  // row still exists, so the clock advances and the sink's `_blocks_` markers
+  // become a complete clock history for this package.
+  bool modelled_state_changed = 7;
+
+  // Total rows this package emitted for this block across every table,
+  // `BlockClock` excluded. Lets an audit detect rows lost between the map and
+  // the sink; it does not make the sink's writes atomic.
+  uint32 emitted_rows = 8;
+
+  // Keccak-256 of the exact `map_events` parameter bytes this block was reduced
+  // with. Binds every row of the block to its configuration.
+  bytes parameters_digest = 9;
+
+  // There is deliberately no finality, reorg-depth or undo field. Finality is
+  // not observable from a block, and undos arrive out of band as
+  // `BlockUndoSignal`.
+}
+
+// ---------------------------------------------------------------------------
+// ModelEpoch: which implementation, revision and rounding era produced rows.
+// ---------------------------------------------------------------------------
+message ModelEpoch {
+  uint64 chain_id = 1;
+  ProtocolFamily family = 2;
+
+  // Stable, human-readable join key repeated on every value row. Construction
+  // rule: "<family>/<chain_id>/<contract hex>/<epoch_index>", lowercase hex,
+  // `epoch_index` a monotonically increasing decimal per contract.
+  string model_epoch_id = 3;
+
+  // The state contract this epoch binds (Pool proxy, cToken, Comet proxy, stETH
+  // proxy, vault, Pot) and its sub-key when the family has one (Aave: the
+  // reserve's underlying asset; otherwise empty).
+  bytes contract = 4;
+  bytes contract_key = 5;
+
+  // The implementation in force behind the proxy and the runtime hashes that
+  // were qualified. `proxy_code_hash` is the forwarder's own runtime.
+  bytes implementation = 6;
+  bytes implementation_code_hash = 7;
+  bytes proxy_code_hash = 8;
+
+  // Family revision constant: Aave `ATOKEN_REVISION`, Lido contract version,
+  // Compound delegate generation, Comet implementation generation.
+  uint32 revision = 9;
+
+  // The pinned source the reference model was read from, for example
+  // "aave-dao/aave-v3-origin@8305565ae342f1773c42cd2e4593f175fe5968a0".
+  string source_revision = 10;
+
+  // Rounding applied by the family getter when converting the holder basis into
+  // a balance. Aave revisions >= 4 floor; revisions <= 3 round half-up. Comet,
+  // Compound v2, Lido and the three ERC-4626 models floor.
+  RoundingDirection balance_rounding = 11;
+
+  // Verified activation witness of this epoch. `activation_block_hash` binds it
+  // to a canonical clock.
+  uint64 activation_block = 12;
+  bytes activation_block_hash = 13;
+  uint64 activation_ordinal = 14;
+
+  EpochStatus status = 15;
+  bytes parameters_digest = 16;
+
+  // The epoch this one replaces, empty for the first.
+  string superseded_epoch_id = 17;
+
+  // Deterministic emission order within this block's `model_epochs`.
+  uint32 sequence = 18;
+}
+
+// ---------------------------------------------------------------------------
+// AssetAlias: one balance, two precisions. Never two assets.
+// ---------------------------------------------------------------------------
+message AssetAlias {
+  uint64 chain_id = 1;
+  string model_epoch_id = 2;
+  AliasRelation relation = 3;
+
+  // The full-precision representation. For Arc this is the native USDC balance
+  // at 18 decimals, so `base_contract` is empty and `base_kind` says why.
+  AliasEndpointKind base_kind = 4;
+  bytes base_contract = 5;
+  uint32 base_decimals = 6;
+  // Contract that emits ERC-20-style `Transfer` logs for base-side activity.
+  // On Arc this is the system emitter 0xffff...fffe for plain native sends.
+  bytes base_transfer_log_emitter = 7;
+
+  // The reduced-precision interface over the same balance. On Arc this is the
+  // ERC-20 interface at 0x3600...0000 with 6 decimals.
+  AliasEndpointKind alias_kind = 8;
+  bytes alias_contract = 9;
+  uint32 alias_decimals = 10;
+  // Contract that emits `Transfer` logs for alias-side activity only. On Arc,
+  // 0x3600...0000 logs only ERC-20-interface activity.
+  bytes alias_transfer_log_emitter = 11;
+
+  // alias_amount = round(base_amount / conversion_divisor). Exact decimal
+  // integer; for Arc "1000000000000" (10^12) with floor rounding.
+  string conversion_divisor = 12;
+  RoundingDirection conversion_rounding = 13;
+
+  // True when amounts smaller than one alias unit exist on the base side only,
+  // so the alias reading is lossy and the base reading is authoritative.
+  bool sub_unit_only_on_base = 14;
+
+  uint32 sequence = 15;
+}
+
+// ---------------------------------------------------------------------------
+// HolderBasis: the shared per-holder message for every family.
+// ---------------------------------------------------------------------------
+message HolderBasis {
+  // Common identity block (1..13), identical in every observation message.
+  uint64 chain_id = 1;
+  StateScope scope = 2;
+  // Empty for `STATE_SCOPE_BLOCK`, `STATE_SCOPE_SYSTEM_CALL` and
+  // `STATE_SCOPE_PACKAGE`. A row is never required to have a transaction hash.
+  bytes tx_hash = 3;
+  uint32 tx_index = 4;
+  uint32 call_index = 5;
+  // Log index inside the transaction; meaningful only for
+  // `VALUE_PROVENANCE_OBSERVED_LOG`.
+  uint32 log_index = 6;
+  // Execution ordinal, the single ordering key across all scopes. Trustworthy
+  // only on producer versions 4 and 5.
+  uint64 ordinal = 7;
+  ObservationKind observation = 8;
+  StateKind state_kind = 9;
+  ValueProvenance provenance = 10;
+  string model_epoch_id = 11;
+  // Deterministic emission order within this block's `holder_bases`.
+  uint32 sequence = 12;
+  ProtocolFamily family = 13;
+  reserved 14, 15;
+
+  // The contract whose holder storage was read: the aToken proxy, the cToken,
+  // the Comet proxy, the stETH proxy, the ERC-4626 vault, the Pot.
+  bytes token = 16;
+  bytes holder = 17;
+
+  BasisKind basis_kind = 18;
+  // Exact decimal integer, signed for `BASIS_KIND_SIGNED_PRINCIPAL`. Never
+  // empty on a row whose `state_kind` is `STATE_KIND_VALUE` or
+  // `STATE_KIND_KNOWN_ZERO`; always empty otherwise.
+  string basis_value = 19;
+  // Decimals of the basis integer itself: Aave scaled balance -> underlying
+  // decimals; cToken shares -> 8; stETH shares -> 18; Comet principal -> base
+  // token decimals; ERC-4626 shares -> vault decimals.
+  uint32 basis_decimals = 20;
+  // A per-holder index stored beside the basis: Aave `additionalData`, the
+  // user's last liquidity index in RAY. Empty for families that store none.
+  // Compound v2 `accountBorrows.interestIndex` is debt-only and is not carried.
+  string holder_index = 21;
+
+  // Join identity to the global-state row this basis needs. `state_contract` is
+  // the family table's contract column and `state_key` its sub-key: Aave ->
+  // (Pool proxy, reserve asset); Compound v2 -> (cToken, empty); Comet ->
+  // (Comet proxy, empty); Lido -> (stETH proxy, empty); ERC-4626 -> (vault,
+  // empty); Pot -> (Pot, empty).
+  bytes state_contract = 22;
+  bytes state_key = 23;
+
+  // The asset the basis converts into, and the decimals of that result.
+  bytes underlying = 24;
+  UnderlyingKind underlying_kind = 25;
+  uint32 result_decimals = 26;
+}
+
+// ---------------------------------------------------------------------------
+// AaveReserveState (#13). Also the conversion dependency of Aave StataTokenV2
+// ERC-4626 vaults (#24): no second table, no copied values.
+// ---------------------------------------------------------------------------
+message AaveReserveState {
+  uint64 chain_id = 1;
+  StateScope scope = 2;
+  bytes tx_hash = 3;
+  uint32 tx_index = 4;
+  uint32 call_index = 5;
+  uint32 log_index = 6;
+  uint64 ordinal = 7;
+  ObservationKind observation = 8;
+  StateKind state_kind = 9;
+  ValueProvenance provenance = 10;
+  string model_epoch_id = 11;
+  uint32 sequence = 12;
+  ProtocolFamily family = 13;
+  reserved 14, 15;
+
+  ModelCoverage coverage = 16;
+  // True when the values in this row are inputs to a holder projection bound to
+  // this state key, so every initialized holder is repriced without any holder
+  // storage write.
+  bool reprices_dependents = 17;
+
+  // Join key of the reserve: the Pool proxy and the reserve's underlying asset.
+  bytes pool = 18;
+  bytes reserve_asset = 19;
+  // The aToken proxy of this reserve, for convenience; empty when not declared.
+  bytes a_token = 20;
+
+  // `DataTypes.ReserveData.liquidityIndex`, uint128 in RAY. Shares one slot
+  // with `currentLiquidityRate`, so both are observed together.
+  string liquidity_index = 21;
+  // `currentLiquidityRate`, uint128 in RAY, per year.
+  string current_liquidity_rate = 22;
+  // `lastUpdateTimestamp`, uint40 seconds, packed with `deficit`, `id` and
+  // `liquidationGracePeriodUntil` in a different slot from the two above. A row
+  // is `MODEL_COVERAGE_MODEL_COMPLETE` only when all three are present at one
+  // ordinal.
+  string last_update_timestamp = 23;
+
+  // Implementation constants, carried on `MODEL_COVERAGE_CONSTANTS_ONLY` rows:
+  // "1000000000000000000000000000" and "31536000".
+  string ray = 24;
+  string seconds_per_year = 25;
+
+  // Decimals of `reserve_asset` (BNB USDT and USDC are 18, Ethereum USDC and
+  // USDT are 6).
+  uint32 reserve_decimals = 26;
+
+  // getReserveNormalizedIncome is deliberately NOT a column. It is a function
+  // of these three fields and the consumer's selected clock; a value computed
+  // at this row's own block timestamp would be valid for that block only.
+  // Conformance models live in #16.
+}
+
+// ---------------------------------------------------------------------------
+// CompoundV2MarketState (#14). Ethereum only.
+// ---------------------------------------------------------------------------
+message CompoundV2MarketState {
+  uint64 chain_id = 1;
+  StateScope scope = 2;
+  bytes tx_hash = 3;
+  uint32 tx_index = 4;
+  uint32 call_index = 5;
+  uint32 log_index = 6;
+  uint64 ordinal = 7;
+  ObservationKind observation = 8;
+  StateKind state_kind = 9;
+  ValueProvenance provenance = 10;
+  string model_epoch_id = 11;
+  uint32 sequence = 12;
+  ProtocolFamily family = 13;
+  reserved 14, 15;
+
+  ModelCoverage coverage = 16;
+  bool reprices_dependents = 17;
+
+  // Join key: the cToken itself.
+  bytes c_token = 18;
+  bytes underlying = 19;
+  UnderlyingKind underlying_kind = 20;
+
+  // `getCashPrior()`. This is a CROSS-CONTRACT dependency: for `CErc20` it is
+  // the underlying's `balanceOf(cToken)` storage word, for `CEther` the cToken's
+  // native balance, for `CDaiDelegate` a value derived from Pot chi and
+  // pie(cDAI). A row carrying only this field is
+  // `MODEL_COVERAGE_PARTIAL`: a donation changes cash, and therefore
+  // `exchangeRateStored`, while writing nothing in the cToken.
+  string total_cash = 21;
+  CashSource cash_source = 22;
+  // The contract whose storage produced `total_cash`: the underlying ERC-20,
+  // the Pot, or empty for `CASH_SOURCE_NATIVE_BALANCE`.
+  bytes cash_source_contract = 23;
+
+  // `CTokenStorage` fields written by `accrueInterest` and by mint/redeem.
+  string total_borrows = 24;
+  string total_reserves = 25;
+  string total_supply = 26;
+  string borrow_index = 27;
+  // `accrualBlockNumber`: accrual is block-number based, not timestamp based.
+  string accrual_block_number = 28;
+  string reserve_factor_mantissa = 29;
+  // Used only when `totalSupply == 0` (cUSDC: "200000000000000").
+  string initial_exchange_rate_mantissa = 30;
+
+  // Identity of the market's interest-rate model, governance-mutable through
+  // `_setInterestRateModel` / `NewMarketInterestRateModel`. Identity only: the
+  // model's own parameters are a separate future message, added with new field
+  // numbers and no renumbering here.
+  bytes interest_rate_model = 31;
+
+  // `expScale`, "1000000000000000000", on constants rows.
+  string exp_scale = 32;
+  uint32 c_token_decimals = 33;
+  uint32 underlying_decimals = 34;
+}
+
+// ---------------------------------------------------------------------------
+// CometMarketState (#15). Ethereum and Base; not on BSC.
+// ---------------------------------------------------------------------------
+message CometMarketState {
+  uint64 chain_id = 1;
+  StateScope scope = 2;
+  bytes tx_hash = 3;
+  uint32 tx_index = 4;
+  uint32 call_index = 5;
+  uint32 log_index = 6;
+  uint64 ordinal = 7;
+  ObservationKind observation = 8;
+  StateKind state_kind = 9;
+  ValueProvenance provenance = 10;
+  string model_epoch_id = 11;
+  uint32 sequence = 12;
+  ProtocolFamily family = 13;
+  reserved 14, 15;
+
+  ModelCoverage coverage = 16;
+  bool reprices_dependents = 17;
+
+  // Join key: the Comet proxy.
+  bytes comet = 18;
+  bytes base_token = 19;
+
+  // Packed market state. `baseSupplyIndex`/`baseBorrowIndex`/
+  // `trackingSupplyIndex`/`trackingBorrowIndex` share one slot;
+  // `totalSupplyBase`/`totalBorrowBase`/`lastAccrualTime`/`pauseFlags` share
+  // another, so an `accrueInternal` writes both and a row can be
+  // `MODEL_COVERAGE_MODEL_COMPLETE`. The two tracking indices and the pause
+  // flags are rewards and permissions, not balance inputs, and are not carried.
+  string base_supply_index = 20;
+  string base_borrow_index = 21;
+  string total_supply_base = 22;
+  string total_borrow_base = 23;
+  string last_accrual_time = 24;
+
+  // Per-second rate immutables, baked into the implementation. Every governance
+  // rate change is a new implementation and a proxy upgrade, so these arrive on
+  // a `MODEL_COVERAGE_CONSTANTS_ONLY` row at each epoch. The borrow side is
+  // carried because the holder basis is signed and debt must stay evaluable
+  // without a schema change.
+  string supply_kink = 25;
+  string supply_rate_slope_low = 26;
+  string supply_rate_slope_high = 27;
+  string supply_rate_base = 28;
+  string borrow_kink = 29;
+  string borrow_rate_slope_low = 30;
+  string borrow_rate_slope_high = 31;
+  string borrow_rate_base = 32;
+
+  // "1000000" for a 6-decimal base, "1000000000000000000" for WETH.
+  string base_scale = 33;
+  // `BASE_INDEX_SCALE`, "1000000000000000".
+  string base_index_scale = 34;
+  // `FACTOR_SCALE`, "1000000000000000000".
+  string factor_scale = 35;
+  uint32 base_decimals = 36;
+}
+
+// ---------------------------------------------------------------------------
+// LidoPoolState (#23). Ethereum.
+// ---------------------------------------------------------------------------
+message LidoPoolState {
+  uint64 chain_id = 1;
+  StateScope scope = 2;
+  bytes tx_hash = 3;
+  uint32 tx_index = 4;
+  uint32 call_index = 5;
+  uint32 log_index = 6;
+  uint64 ordinal = 7;
+  ObservationKind observation = 8;
+  StateKind state_kind = 9;
+  ValueProvenance provenance = 10;
+  string model_epoch_id = 11;
+  uint32 sequence = 12;
+  ProtocolFamily family = 13;
+  reserved 14, 15;
+
+  ModelCoverage coverage = 16;
+  bool reprices_dependents = 17;
+
+  // Join key: the stETH/Lido proxy. The Lido contract is the stETH token.
+  bytes steth = 18;
+
+  // `keccak256("lido.Versioned.contractVersion")`, observed from
+  // `ContractVersionSet`. The slot set below is version-dependent, so a
+  // consumer must not mix eras.
+  string contract_version = 19;
+
+  // Since V3 both halves live in
+  // `keccak256("lido.StETH.totalAndExternalShares")`: total shares in the low
+  // 128 bits, external (stVault-backed) shares in the high 128. The pre-V3 slot
+  // `keccak256("lido.StETH.totalShares")` is zeroed at migration; that
+  // migration is a `LAYOUT_CHANGED` invalidation, not a balance change.
+  string total_shares = 20;
+  string external_shares = 21;
+
+  // Components of internal ether:
+  // internalEther = buffered + clValidatorsBalance + clPendingBalance +
+  // depositedPostReport, and
+  // totalPooledEther = internalEther + externalShares * internalEther /
+  // internalShares, so external shares leave the share rate unchanged.
+  string buffered_ether = 22;
+  string deposited_post_report = 23;
+  // Consensus-layer balances reach the execution layer only through the
+  // accounting report. Between reports these are constant, and no execution
+  // write exists for validator rewards or penalties.
+  string cl_validators_balance = 24;
+  string cl_pending_balance = 25;
+
+  // `TokenRebased(reportTimestamp, timeElapsed, preTotalShares, preTotalEther,
+  // postTotalShares, postTotalEther, sharesMintedAsFees)`, provenance
+  // `VALUE_PROVENANCE_OBSERVED_LOG`. `postTotalEther`/`postTotalShares` give
+  // the post-report share rate directly, so a rebase row can be
+  // `MODEL_COVERAGE_MODEL_COMPLETE` with no storage read. A report is not
+  // guaranteed to emit exactly one `TokenRebased`; do not treat its absence as
+  // "no report".
+  string report_timestamp = 26;
+  string report_time_elapsed = 27;
+  string pre_total_shares = 28;
+  string pre_total_ether = 29;
+  string post_total_shares = 30;
+  string post_total_ether = 31;
+  string shares_minted_as_fees = 32;
+}
+
+// ---------------------------------------------------------------------------
+// MakerPotState. A dependency of both Compound v2 cDAI (#14) and sDAI (#24).
+// `pie[account]` is not here: it is a `HolderBasis` row with
+// `BASIS_KIND_NORMALIZED_PIE`.
+// ---------------------------------------------------------------------------
+message MakerPotState {
+  uint64 chain_id = 1;
+  StateScope scope = 2;
+  bytes tx_hash = 3;
+  uint32 tx_index = 4;
+  uint32 call_index = 5;
+  uint32 log_index = 6;
+  uint64 ordinal = 7;
+  ObservationKind observation = 8;
+  StateKind state_kind = 9;
+  ValueProvenance provenance = 10;
+  string model_epoch_id = 11;
+  uint32 sequence = 12;
+  ProtocolFamily family = 13;
+  reserved 14, 15;
+
+  ModelCoverage coverage = 16;
+  bool reprices_dependents = 17;
+
+  // Join key: the Pot.
+  bytes pot = 18;
+
+  // `chi` (RAY accumulator), `rho` (last drip timestamp), `dsr` (per-second
+  // rate in RAY). `drip()` writes chi and rho together; `dsr` changes only by
+  // governance, so a drip row is `MODEL_COVERAGE_PARTIAL` and the consumer
+  // keeps the last observed `dsr`.
+  string chi = 19;
+  string rho = 20;
+  string dsr = 21;
+
+  // "1000000000000000000000000000" on constants rows.
+  string ray = 22;
+  AccrualKind accrual_kind = 23;
+}
+
+// ---------------------------------------------------------------------------
+// Erc4626VaultState (#24). Binds one vault to one conversion implementation and
+// to the state rows that conversion depends on.
+// ---------------------------------------------------------------------------
+message Erc4626VaultState {
+  uint64 chain_id = 1;
+  StateScope scope = 2;
+  bytes tx_hash = 3;
+  uint32 tx_index = 4;
+  uint32 call_index = 5;
+  uint32 log_index = 6;
+  uint64 ordinal = 7;
+  ObservationKind observation = 8;
+  StateKind state_kind = 9;
+  ValueProvenance provenance = 10;
+  string model_epoch_id = 11;
+  uint32 sequence = 12;
+  ProtocolFamily family = 13;
+  reserved 14, 15;
+
+  ModelCoverage coverage = 16;
+  bool reprices_dependents = 17;
+
+  // Join key: the vault.
+  bytes vault = 18;
+  bytes asset = 19;
+  UnderlyingKind asset_kind = 20;
+
+  ConversionModel conversion_model = 21;
+  // The state row the conversion reads: the Pot for
+  // `CONVERSION_MODEL_MAKER_POT_CHI`, the Aave Pool for
+  // `CONVERSION_MODEL_AAVE_NORMALIZED_INCOME` (with `dependency_key` = the
+  // reserve asset), the wrapped market for
+  // `CONVERSION_MODEL_OZ_VIRTUAL_OFFSET`. A conversion-input change emits a row
+  // in THAT family's table, not here.
+  bytes dependency_contract = 22;
+  bytes dependency_key = 23;
+
+  // Only `CONVERSION_MODEL_OZ_VIRTUAL_OFFSET` needs the vault's own supply and
+  // assets; the other two models read neither, so these stay empty there.
+  string vault_total_supply = 24;
+  string vault_total_assets = 25;
+  uint32 decimals_offset = 26;
+
+  uint32 share_decimals = 27;
+  uint32 asset_decimals = 28;
+
+  // Rounding of `convertToAssets` for this implementation. EIP-4626 requires
+  // floor for `convertTo*` but allows the function to be inexact or
+  // time-weighted, which is why the model, not the interface, is bound.
+  RoundingDirection convert_to_assets_rounding = 29;
+  // True when this implementation's `previewRedeem` is exactly
+  // `convertToAssets` (sDAI, OZ base, Aave stata). False means the two are
+  // different numbers and must not be substituted.
+  bool preview_redeem_equals_convert_to_assets = 30;
+  // True when `maxRedeem`/`maxWithdraw` apply pause or liquidity limits, so
+  // they can be 0 while `convertToAssets` is non-zero.
+  bool max_redeem_limit_aware = 31;
+}
+
+// ---------------------------------------------------------------------------
+// StateInvalidation: upgrades, layout changes and recognized-but-unmodelled
+// writes. An unknown write to a modelled slot fails the block instead.
+// ---------------------------------------------------------------------------
+message StateInvalidation {
+  uint64 chain_id = 1;
+  StateScope scope = 2;
+  bytes tx_hash = 3;
+  uint32 tx_index = 4;
+  uint32 call_index = 5;
+  uint32 log_index = 6;
+  uint64 ordinal = 7;
+  ObservationKind observation = 8;
+  // `STATE_KIND_UNSUPPORTED_MODEL` or `STATE_KIND_INVALIDATED_DEPENDENCY`.
+  StateKind state_kind = 9;
+  ValueProvenance provenance = 10;
+  string model_epoch_id = 11;
+  uint32 sequence = 12;
+  ProtocolFamily family = 13;
+  reserved 14, 15;
+
+  InvalidationKind kind = 16;
+  InvalidationEffect effect = 17;
+
+  // The state key this invalidation applies to.
+  bytes contract = 18;
+  bytes contract_key = 19;
+
+  // The contract whose change caused it, when it is not `contract` itself.
+  bytes dependency_contract = 20;
+  bytes previous_implementation = 21;
+  bytes new_implementation = 22;
+
+  // The epoch that ends here. A new `ModelEpoch` row must appear before any
+  // further projection.
+  string superseded_epoch_id = 23;
+}

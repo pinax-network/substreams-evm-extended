@@ -1,0 +1,37 @@
+# Ad-hoc host-side scanners over saved Firehose Extended blocks (*.pb).
+# Excluded from the workspace on purpose: rough diagnostic code that must never
+# reach the WASM ingestion path and is not held to the workspace lint bar.
+# Build with: cargo build --release --manifest-path tools/scratch-scan/Cargo.toml
+[package]
+name = "scratch-scan"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+substreams-ethereum = "0.11.1"
+substreams = "0.7.0"
+prost = "0.13"
+hex = "0.4"
+serde_json = "1"
+erc20-balances = { path = "../../erc20/balances" }
+native-balances = { path = "../../native/balances" }
+
+[[bin]]
+name = "scan"
+path = "src/main.rs"
+[[bin]]
+name = "probe"
+path = "src/probe.rs"
+[[bin]]
+name = "aave"
+path = "src/aave.rs"
+[[bin]]
+name = "aavelogs"
+path = "src/aavelogs.rs"
+[[bin]]
+name = "stata"
+path = "src/stata.rs"
+
+[profile.release]
+opt-level = 2

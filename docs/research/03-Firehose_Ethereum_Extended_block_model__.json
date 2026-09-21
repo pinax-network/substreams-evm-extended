@@ -1,0 +1,267 @@
+{
+ "topic": "Firehose Ethereum Extended block model (sf.ethereum.type.v2.Block): DetailLevel, EXTENDED-only fields, Block.ver versions 3/4/5, TransactionTraceStatus, Call.state_reverted, BalanceChange.Reason, failed-transaction persistence rule, Substreams fork/undo/cursor/final-blocks contract, and documented Pinax/StreamingFast endpoints for bsc, mainnet, base, hyperevm, arc",
+ "facts": [
+  {
+   "key": "proto_source_pin",
+   "value": "streamingfast/firehose-ethereum@9485efe2e6290e525fd4978b50462516ec752672 proto/sf/ethereum/type/v2/type.proto (1415 lines)",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Newest commit touching type.proto on develop as of 2026-09-17T18:32:39Z ('Document the 256-byte cap on keccak preimages'), per https://api.github.com/repos/streamingfast/firehose-ethereum/commits?path=proto/sf/ethereum/type/v2/type.proto. package sf.ethereum.type.v2; go_package github.com/streamingfast/firehose-ethereum/types/pb/sf/ethereum/type/v2;pbeth."
+  },
+  {
+   "key": "detail_level_enum",
+   "value": "enum Block.DetailLevel { DETAILLEVEL_EXTENDED = 0; // DETAILLEVEL_TRACE = 1; // TBD  DETAILLEVEL_BASE = 2; }  -- field: DetailLevel detail_level = 12;",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "EXTENDED is the zero/default value, so a block with an unset detail_level decodes as EXTENDED. TRACE=1 is commented out as TBD."
+  },
+  {
+   "key": "detail_level_doc_comment",
+   "value": "DetailLevel_EXTENDED: 'Describes the most complete block, with traces, balance changes, storage changes. It is extracted during the execution of the block.'  DetailLevel_BASE: 'Describes a block that contains only the block header, transaction receipts and event logs: everything that can be extracted using the base JSON-RPC interface ... Furthermore, the eth_getTransactionReceipt call has been avoided because it brings only minimal improvements at the cost of requiring an archive node or a full node with complete transaction index.'",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Block-level doc also states: 'The `BASE` level has been extracted using archive node RPC calls and will contain only the block header, transaction receipts and event logs. Refers to the Firehose service provider to know which blocks are offered on each network. The `EXTENDED` level has been extracted using the Firehose tracer and all fields are available in this Protobuf.'"
+  },
+  {
+   "key": "extended_only_fields_block_level",
+   "value": "Block.balance_changes (repeated BalanceChange = 11), Block.code_changes (repeated CodeChange = 20), Block.system_calls (repeated Call = 21) are each annotated 'Only available in DetailLevel: EXTENDED'. Block.withdrawals (repeated Withdrawal = 22) is annotated 'Only available when Shanghai fork is active on the chain' and 'Currently experimental - NOT ready for production use yet'.",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Block.balance_changes doc: 'array of ETH transfer that happened at the block level outside of the normal transaction flow of a block. The best example of this is mining reward'. Block.code_changes doc: BSC/Polygon hard-fork system-contract upgrades produce a CodeChange here; 'the vast majority of block will have an empty list here'. Block.system_calls doc: 'System calls are introduced in Cancun, along with blobs. They are executed outside of transactions but affect the state.'"
+  },
+  {
+   "key": "extended_only_fields_transaction_level",
+   "value": "TransactionTrace.calls (repeated Call = 32), TransactionTrace.max_fee_per_gas (11), TransactionTrace.max_priority_fee_per_gas (13), TransactionTrace.return_data (23), TransactionTrace.public_key (24) are annotated 'Only available in DetailLevel: EXTENDED'. Log.index (4) is EXTENDED-only. BlockHeader.withdrawals_root (19) and BlockHeader.tx_dependency (20) are EXTENDED-only.",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Because Call itself is EXTENDED-only, everything nested in Call is EXTENDED-only: storage_changes (21), balance_changes (22), nonce_changes (24), logs (25), code_changes (26), gas_changes (28), keccak_preimages (map<string,string> = 20), account_creations (33, deprecated), state_reverted (30), begin_ordinal (31), end_ordinal (32). Substreams docs confirm: 'The data missing in the Base Block makes the corresponding Protobuf field empty. For example, if you try to read internal call on a Base Block, the list will be empty.' (https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md)"
+  },
+  {
+   "key": "keccak_preimages_semantics",
+   "value": "Call.keccak_preimages = 20: 'Keccak preimages produced by the KECCAK256 opcode during this call, as a map of the hex representation of the hash -> hex representation of the preimage. Neither side carries a `0x` prefix.' Only preimages of 256 bytes or less are recorded; larger preimages are 'left out of the map entirely rather than truncated'. 'Note: not populated by the Monad tracer'.",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Purpose per doc: 'so a consumer can walk a storage slot back to the expression that produced it' (32 bytes dynamic array / long bytes-string; 64 bytes mapping with value-type key, one hash per nesting level; 32 bytes + key for mapping(string|bytes => V)). Version 4 changelog also notes 'The `keccakPreimage` data being \".\" is now fixed.'"
+  },
+  {
+   "key": "block_ver_field",
+   "value": "int32 ver = 1; doc: 'Ver represents that data model version of the block, it is used internally by Firehose on Ethereum as a validation that we are reading the correct version.'",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Go accessor at same commit: types/pb/sf/ethereum/type/v2/type.go 'func (b *Block) GetFirehoseBlockVersion() int32 { return b.Ver }' (implements firecore.Block). Substreams docs: 'Most changes in EVM chains are backward-compatible ... sf.ethereum.type.v2.Block is used consistently to avoid breaking changes. To manage internal updates, Firehose uses a versioning system defined by the ver field' (https://docs.substreams.dev/reference-material/chain-support/ethereum-data-model.md)."
+  },
+  {
+   "key": "block_ver_3",
+   "value": "Version 3 (a.k.a. 'Firehose Ethereum Block 2.3'): in place 'for all EVM chains, with the exception of Optimism from block 0 to the last pre-Prague hard fork block'. Known issues (proto 'Known Issues - Version 3' annotations): TransactionTrace.return_data not populated; Call.input not populated for CREATE/CREATE2; Call.executed_code may be incorrectly false; Call.storage_changes 'data might be not be in order'; Call.gas_changes missing some entries (return-data refund, initial 0->GasLimit allocation, final LeftOver->0 deduction); Call.begin_ordinal of the transaction root call is always 0 (also GENESIS); Call.end_ordinal of GENESIS root call is always 0.",
+   "source_url": "https://docs.substreams.dev/reference-material/chain-support/ethereum-data-model.md",
+   "source_pin": "firehose-ethereum@9485efe2e6290e525fd4978b50462516ec752672; docs page fetched 2026-09-18",
+   "note": "Suggested workarounds quoted in proto: 'trx.Calls[0].BeginOrdinal = trx.BeginOrdinal' and 'rx.Calls[0].EndOrdinal = max.Uint64'. GitHub issue #71 ('Ethereum Block Model Known Issues', https://github.com/streamingfast/firehose-ethereum/issues/71) enumerates the same list plus genesis-block storage-change nondeterminism, and notes the modeling inconsistency that 'even for failed transactions there is some state changes that are still record to the chain namely: the payment of the gas and the nonce change'. Geth tracer (streamingfast/go-ethereum@70f5118d6443624792f49501627a1cd80f51e8e9 eth/tracers/firehose.go) sets Ver=4 then 'if *f.applyBackwardCompatibility { f.block.Ver = 3 }' where backward compatibility is turned off once blockRules.IsPrague."
+  },
+  {
+   "key": "block_ver_3_ordinals_and_system_calls_bug",
+   "value": "Version-3 ordinal bug (geth tracer comment): 'At some point in the Firehose 2.x release lifecycle, a bug was introduced that caused ordinals within the block to be broken. The problem was that system calls and block level balance changes were done using a block level ordinals and transactions were done using their own level ordinals. Then in the console reader, the ordinals were re-ordered correctly. While block level balance changes were re-ordered correctly, the system calls were not.' In v3 compatibility mode the tracer resets the block ordinal at the first transaction when system calls exist, forces root-call BeginOrdinal to 0 (except for system calls, which 'must keep their ordinal'), and at block end runs fixOrdinalsForEndOfBlockChanges() which adds lastSystemCall.EndOrdinal to Block.balance_changes/code_changes ordinals >= last transaction EndOrdinal.",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/go-ethereum/70f5118d6443624792f49501627a1cd80f51e8e9/eth/tracers/firehose.go",
+   "source_pin": "streamingfast/go-ethereum@70f5118d6443624792f49501627a1cd80f51e8e9 (branch firehose-fh3.0, repo default)",
+   "note": "Consequence for consumers of v3 blocks: Block.system_calls ordinals are NOT reliably comparable to transaction ordinals in the same block, and root Call.begin_ordinal == 0 for every transaction. Proto's Block doc adds that for any element attached to a Call with state_reverted == true 'the ordinal field is not reliable ... those element might have 0 as the ordinal. Only successful calls have a reliable ordinal field.'"
+  },
+  {
+   "key": "block_ver_4",
+   "value": "Version 4 (a.k.a. 'Firehose Ethereum Block 3.0'): switches on at the Prague hard fork per network ('block.number < Prague -> version 3; block.number >= Prague -> version 4 ... deterministic per network'); Optimism and Ethereum Hoodi are listed by the Substreams docs as fully on v4. Changes (firehose-ethereum CHANGELOG v2.10.0): does not populate accountCreations anymore ('bogus from day 1'); executedCode fixed; 'The root's call BeginOrdinal is now fixed and not always 0'; 'Ordinals in presence of system calls are now correctly ordered'; returnData populated; keccakPreimage '.' bug fixed; call input populated on contract creation; new gas changes recorded. Structure unchanged: 'the version 4 model is backward compatible'.",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/CHANGELOG.md",
+   "source_pin": "firehose-ethereum@9485efe2e6290e525fd4978b50462516ec752672 CHANGELOG.md section '## v2.10.0' > '### Block Model'",
+   "note": "Same section: v4 is produced by the 'geth Firehose 3.0' tracer built on the Geth 1.14 Core Tracing API (releases suffixed -fh3.0), for 'upcoming Prague hard forks (BNB, Holesky, Sepolia, Mainnet)'. Substreams docs list Prague-enabled chains: Ethereum Sepolia, Ethereum Holesky, BSC Mainnet, BSC Testnet (https://docs.substreams.dev/reference-material/chain-support/ethereum-data-model.md). Proto also flags 'Known Issues - Version 4: AccountCreations are NOT SUPPORTED anymore. DO NOT rely on them.' evm-firehose-tracer-go v4.0.0 is 'aligned with Ethereum Mainnet Block version 4'."
+  },
+  {
+   "key": "block_ver_5",
+   "value": "Version 5 is produced by the standalone tracers streamingfast/evm-firehose-tracer-go (>= v4.0.1; Go source 'Ver: 5, // Protocol version 5') and evm-firehose-tracer-rs. Changes vs v4: 'Remove gas changes tracking: OnGasChange hook, per-opcode gas recording, and all GasChange fields from the block model. This produces Ethereum Mainnet Block version 5' (Call.gas_changes will always be empty); 'OnBalanceChange, OnNonceChange, OnCodeChange, and OnStorageChange now skip recording when old and new values are equal' (no no-op state changes); removal of all backward-compatibility code for prior versions. Rust invariants: 'block-version-5 semantics (no no-op state changes, strictly ordered ordinals, receipt/call log agreement)'; default expected_block_version = 5.",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/evm-firehose-tracer-go/master/CHANGELOG.md",
+   "source_pin": "evm-firehose-tracer-go@b3df8ab6e9a52f25a1fb1d77dd3522135017d1b1 (CHANGELOG.md v4.0.1 + Unreleased v5.0.0; tracer.go line 364); evm-firehose-tracer-rs@1a5547dee51e5930db490b4c97c54ebd01c13802 (CHANGELOG.md v4.0.1; firehose-tracer-test/src/invariants.rs)",
+   "note": "Unreleased (v5.0.0) Go tracer changelog additionally: block withdrawals 'now always recorded' (Config.SkipWithdrawals removed), FIRE BLOCK line gains flash_block_idx and lib_num, EIP-7843 SlotNumber. The changelogs link to https://docs.substreams.dev/reference-material/chain-support/ethereum-data-model#version-5 but neither the HTML nor the .md of that page contained a 'Version 5' section when fetched on 2026-09-18 (see open_questions). The Rust README says the Go tracer is the 'source of truth' and targets 'Monad and Reth based chains'. No per-chain rollout list for v5 was found in official docs."
+  },
+  {
+   "key": "transaction_trace_status_enum",
+   "value": "enum TransactionTraceStatus { UNKNOWN = 0; SUCCEEDED = 1; FAILED = 2; REVERTED = 3; }  -- field: TransactionTrace.status = 30",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Top-level enum (not nested). Call has separate flags: 'When a call is either failed or reverted, the status_failed field below is set to true. If the status is reverted, then both status_failed and status_reverted are going to be set to true.' (bool status_failed = 10; bool status_reverted = 12; string failure_reason = 11)."
+  },
+  {
+   "key": "call_state_reverted_doc_comment",
+   "value": "bool state_reverted = 30; doc (verbatim): 'This field represents whether or not the state changes performed by this call were correctly recorded by the blockchain. On Ethereum, a transaction can record state changes even if some of its inner nested calls failed. This is problematic however since a call will invalidate all its state changes as well as all state changes performed by its child call. This means that even if a call has a status of `SUCCESS`, the chain might have reverted all the state changes it performed. [tree: Trx 1 / Call #1 <Failed> / Call #2 <Execution Success> / Call #3 <Execution Success> / |--- Failure here / Call #4] In the transaction above, while Call #2 and Call #3 would have the status `EXECUTED`. If you check all calls and check only `state_reverted` flag, you might be missing some balance changes and nonce changes. This is because when a full transaction fails in ethereum (e.g. `calls.all(x.state_reverted == true)`), there is still the transaction fee that are recorded to the chain. Refer to [TransactionTrace#status] field for more details about the handling you must perform.'",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "TransactionTrace doc adds: 'even if a transaction succeed, some calls within it could have been reverted internally ... you must check the field state_reverted on the Call to determine if it was fully committed to the chain or not.' Log.blockIndex doc: for calls[].logs[] where stateReverted == true, blockIndex 'will always be 0'; receipt.logs[] only contains logs from non-reverted calls."
+  },
+  {
+   "key": "failed_transaction_persistence_rule",
+   "value": "TransactionTrace.status doc (verbatim): 'A quirks of the Ethereum protocol is that a transaction `FAILED` or `REVERTED` still affects the blockchain's state for **some** of the state changes. Indeed, in those cases, the transactions fees are still paid to the miner which means there is a balance change for the transaction's emitter (e.g. `from`) to pay the gas fees, an optional balance change for gas refunded to the transaction's emitter (e.g. `from`) and a balance change for the miner who received the transaction fees. There is also a nonce change for the transaction's emitter (e.g. `from`). ... For a `SUCCEEDED` transaction, you iterate over the `calls` array and record the state changes for each call for which `state_reverted == false` (if a transaction succeeded, the call at #0 will always `state_reverted == false` because it aligns with the transaction). For a `FAILED` or `REVERTED` transaction, you iterate over the root call (e.g. at #0, will always exist) for balance changes you process those where `reason` is either `REASON_GAS_BUY`, `REASON_GAS_REFUND` or `REASON_REWARD_TRANSACTION_FEE` and for nonce change, still on the root call, you pick the nonce change which the smallest ordinal (if more than one).'",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Block-level '## Failed Transaction State Changes' section lists what persists: gas consumption (BalanceChange.REASON_GAS_BUY, GasChange.REASON_INTRINSIC_GAS), gas refunds (REASON_GAS_REFUND), nonce increments, transaction fees (REASON_REWARD_TRANSACTION_FEE); 'value transfers, contract state changes, and other application-level modifications are reverted on transaction failure.' EIP-7702 exception ('## SetCode Transaction Handling'): 'nonce changes and code changes for each accepted authorization in the transaction should be recorded in the state even if the transaction fails ... with the transaction sender's nonce change appearing first without a corresponding code change'. The REASON_GAS_BUY, REASON_REWARD_TRANSACTION_FEE and REASON_GAS_REFUND enum entries each carry 'Note: This balance change persists even for failed transactions'."
+  },
+  {
+   "key": "balance_change_reason_enum",
+   "value": "enum BalanceChange.Reason { REASON_UNKNOWN = 0; REASON_REWARD_MINE_UNCLE = 1; REASON_REWARD_MINE_BLOCK = 2; REASON_DAO_REFUND_CONTRACT = 3; REASON_DAO_ADJUST_BALANCE = 4; REASON_TRANSFER = 5; REASON_GENESIS_BALANCE = 6; REASON_GAS_BUY = 7; REASON_REWARD_TRANSACTION_FEE = 8; REASON_GAS_REFUND = 9; REASON_TOUCH_ACCOUNT = 10; REASON_SUICIDE_REFUND = 11; REASON_CALL_BALANCE_OVERRIDE = 12; REASON_SUICIDE_WITHDRAW = 13; REASON_REWARD_FEE_RESET = 14; REASON_BURN = 15; REASON_WITHDRAWAL = 16; REASON_REWARD_BLOB_FEE = 17; REASON_INCREASE_MINT = 18; REASON_REVERT = 19; REASON_MONAD_TX_POST_STATE = 20; }",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Chain-specific notes from doc comments: REASON_REWARD_FEE_RESET=14 and REASON_CALL_BALANCE_OVERRIDE=12 are 'Firehose-specific reason not directly mapped to Geth tracing reasons'; REASON_BURN=15 'Used on chain(s) where some Ether burning happens ... ether that is effectively burned when sent to a destroyed contract'; REASON_WITHDRAWAL=16 'ether withdrawn from the beacon chain'; REASON_REWARD_BLOB_FEE=17 BNB Tycho hard-fork blob rewards; REASON_INCREASE_MINT=18 and REASON_REVERT=19 Optimism only (REASON_REVERT added in firehose-ethereum v2.11.7); REASON_MONAD_TX_POST_STATE=20 Monad only, 'exactly one balance change per modified address per transaction' with no granular GAS_BUY/TRANSFER/GAS_REFUND/REWARD_TRANSACTION_FEE entries. BalanceChange fields: address=1, old_value=2 (BigInt, may be null => treat as 0), new_value=3 (BigInt, may be null => 0), reason=4, ordinal=5."
+  },
+  {
+   "key": "ordinal_concept",
+   "value": "Block doc: ordinal 'is a number that is used to globally order every element of execution that happened throughout the processing of the block like [TransactionTracer], [Call], [Log], [BalanceChange], [StateChange], etc. Element that have a start and end interval, [Transaction] and [Call], will have two ordinals: begin_ordinal and end_ordinal. Element that are executed as \"point in time\" [Log], [BalanceChange], [StateChange], etc. will have only one ordinal named ordinal. ... All the ordinal fields in a block are globally unique for the given block, it is **not** a chain-wide global ordering.'",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "Caveat in same doc: 'For anything attached to a [Call] that has a state_reverted field set to true, the ordinal field is not reliable and should not be used to order the element against other elements in the block as those element might have 0 as the ordinal.' Ordinal fields: TransactionTrace.begin_ordinal=25/end_ordinal=26; Call.begin_ordinal=31/end_ordinal=32; Log.ordinal=7; StorageChange.ordinal=5; BalanceChange.ordinal=5; NonceChange.ordinal=4; CodeChange.ordinal=6; AccountCreation.ordinal=2."
+  },
+  {
+   "key": "call_type_enum",
+   "value": "enum CallType { UNSPECIFIED = 0; CALL = 1; CALLCODE = 2; DELEGATE = 3; STATIC = 4; CREATE = 5; }",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/firehose-ethereum/9485efe2e6290e525fd4978b50462516ec752672/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "9485efe2e6290e525fd4978b50462516ec752672",
+   "note": "CREATE covers CREATE2 as well (inline comment 'create2 ? any other form of calls?'). Call.address_delegates_to = 34 (optional bytes) carries the EIP-7702 delegation target; empty for DELEGATE/CALLCODE call types."
+  },
+  {
+   "key": "substreams_response_and_undo_signal",
+   "value": "sf.substreams.rpc.v2.Response { oneof message { SessionInit session = 1; ModulesProgress progress = 2; BlockScopedData block_scoped_data = 3; BlockUndoSignal block_undo_signal = 4; Error fatal_error = 5; InitialSnapshotData debug_snapshot_data = 10; InitialSnapshotComplete debug_snapshot_complete = 11; } }  message BlockUndoSignal { sf.substreams.v1.BlockRef last_valid_block = 1; string last_valid_cursor = 2; }  proto comment: 'BlockUndoSignal informs you that every bit of data with a block number above last_valid_block has been reverted on-chain. Delete that data and restart from last_valid_cursor'.",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/substreams/831093480ab6bf6970e41f74ea9bc0b04410a028/proto/sf/substreams/rpc/v2/service.proto",
+   "source_pin": "streamingfast/substreams@831093480ab6bf6970e41f74ea9bc0b04410a028 (the commit linked from the Substreams Reliability Guarantees docs page)",
+   "note": "Docs (https://docs.substreams.dev/reference-material/core-concepts/reliability-guarantees.md): 'The BlockUndoSignal object of the response is used to keep track of forks ... you will have to unread all the incorrect blocks ... The BlockUndoSignal contains the latest valid block of the blockchain and a cursor'. Hint: 'If you commit cursors in the BlockUndoSignals, you don't need to mind about disconnections amid forks. It will bring you back exactly where you left off, even if it was mid-ways through a fork.' Sink docs (llms-full.txt): 'blockUndoSignal: sent every time there is a fork in the blockchain. Because you have probably read incorrect blocks in the blockScopedData message, you must rewind back to the latest valid block.'"
+  },
+  {
+   "key": "substreams_cursor_semantics",
+   "value": "BlockScopedData { MapModuleOutput output = 1; sf.substreams.v1.Clock clock = 2; string cursor = 3; uint64 final_block_height = 4; ... }  Request { int64 start_block_num = 1; string start_cursor = 2; uint64 stop_block_num = 3; bool final_blocks_only = 4; bool production_mode = 5; string output_module = 6; ... }  Docs: 'the cursor field of the response indicates the latest block consumed by the user. The user **must** persist the cursor, so that in the case of a disconnection, the Substreams provider can start streaming data from the latest consumed block.'",
+   "source_url": "https://docs.substreams.dev/reference-material/core-concepts/reliability-guarantees.md",
+   "source_pin": "docs page fetched 2026-09-18; proto at streamingfast/substreams@831093480ab6bf6970e41f74ea9bc0b04410a028",
+   "note": "final_block_height proto comment: 'Non-deterministic, allows substreams-sink to let go of their undo data.' Cursors are opaque strings. Firehose v2 Request (streamingfast/proto sf/firehose/v2/firehose.proto @0122b19ece0716f44cdc63370a346e4d0592b262): 'Controls where the stream of blocks will start which will be immediately after the Block pointed by this opaque cursor. Obtain this value from a previously received Response.cursor. This value takes precedence over start_block_num.'"
+  },
+  {
+   "key": "substreams_final_blocks_only",
+   "value": "Request.final_blocks_only = 4; proto comment: 'With final_block_only, you only receive blocks that are irreversible: final_block_height will be equal to current block and no undo_signal will ever be sent'. CLI flag --final-blocks-only (defaults false): 'Only process blocks that have pass finality, to prevent any reorg and undo signal by staying further away from the chain HEAD'. Added to `substreams run` in v1.1.1 ('The substreams run command now has flag --final-blocks-only'; same release fixed 'The final_blocks_only: true on the Request was not honored on the server. It now correctly sends only blocks that are final/irreversible (according to Firehose rules).').",
+   "source_url": "https://raw.githubusercontent.com/streamingfast/substreams/831093480ab6bf6970e41f74ea9bc0b04410a028/proto/sf/substreams/rpc/v2/service.proto",
+   "source_pin": "service.proto @831093480ab6bf6970e41f74ea9bc0b04410a028; sink/sinker_viper.go and docs/release-notes/change-log.md @227e13c164cf37d24de9f55b460816090471703b (develop, 2026-09-18)",
+   "note": "Firehose-level equivalent (sf/firehose/v2/firehose.proto @0122b19ece0716f44cdc63370a346e4d0592b262): 'With final_block_only, you only receive blocks with STEP_FINAL. Default behavior will send blocks as STEP_NEW, with occasional STEP_UNDO'; enum ForkStep { STEP_UNSET = 0; STEP_NEW = 1 (Incoming block); STEP_UNDO = 2 (A reorg caused this specific block to be excluded from the chain); STEP_FINAL = 3 (Block is now final and can be committed (finality is chain specific)); reserved 4; }. The Substreams CLI reference page (docs/references/cli/command-line-interface.md) does not document the flag; only the change-log and sink flag source do. SQL sink docs note the _block_number_ index is 'Only dead weight on a run that can never reorg, such as --final-blocks-only.'"
+  },
+  {
+   "key": "streamingfast_endpoint_mainnet",
+   "value": "mainnet.eth.streamingfast.io:443",
+   "source_url": "https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md",
+   "source_pin": "docs page fetched 2026-09-18",
+   "note": "Listed under 'Streamingfast Endpoints' as Ethereum Mainnet. Also listed in The Graph Networks Registry v0.7.122 for network id 'mainnet' under both services.firehose and services.substreams. Docs state 'All of the endpoints listed in the documentation require authentication before use.'"
+  },
+  {
+   "key": "streamingfast_endpoint_bsc",
+   "value": "bnb.streamingfast.io:443",
+   "source_url": "https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md",
+   "source_pin": "docs page fetched 2026-09-18",
+   "note": "Listed as 'BNB'. Registry v0.7.122 network id 'bsc' lists it under services.firehose and services.substreams alongside Pinax."
+  },
+  {
+   "key": "streamingfast_endpoint_base",
+   "value": "base-mainnet.streamingfast.io:443",
+   "source_url": "https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md",
+   "source_pin": "docs page fetched 2026-09-18",
+   "note": "Listed as 'Base Mainnet'. Registry v0.7.122 network id 'base' lists it under services.firehose and services.substreams alongside Pinax."
+  },
+  {
+   "key": "streamingfast_endpoint_hyperevm",
+   "value": null,
+   "source_url": "https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md",
+   "source_pin": "docs page fetched 2026-09-18; registry v0.7.122 (updatedAt 2026-09-15T18:50:39Z)",
+   "note": "No StreamingFast HyperEVM endpoint is documented on the Substreams docs endpoint page, and The Graph Networks Registry entry 'hyper-evm' lists only Pinax endpoints."
+  },
+  {
+   "key": "streamingfast_endpoint_arc",
+   "value": null,
+   "source_url": "https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md",
+   "source_pin": "docs page fetched 2026-09-18; registry v0.7.122",
+   "note": "No StreamingFast Arc endpoint is documented; registry entry 'arc' lists only Pinax endpoints."
+  },
+  {
+   "key": "pinax_substreams_endpoint_mainnet",
+   "value": "eth.substreams.pinax.network:443",
+   "source_url": "https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md",
+   "source_pin": "docs page fetched 2026-09-18; registry v0.7.122",
+   "note": "Listed under 'Community Endpoints > Pinax Endpoints' as 'Ethereum (Mainnet)'. Cross-checked in The Graph Networks Registry (https://networks-registry.thegraph.com/TheGraphNetworksRegistry.json) network 'mainnet' (caip2 eip155:1): services.substreams includes eth.substreams.pinax.network:443; firehose.blockFeatures ['extended'], evmExtendedModel true. Also present in the HTML of https://pinax.network/en/chain/eth/mainnet."
+  },
+  {
+   "key": "pinax_firehose_endpoint_mainnet",
+   "value": "eth.firehose.pinax.network:443",
+   "source_url": "https://networks-registry.thegraph.com/TheGraphNetworksRegistry.json",
+   "source_pin": "registry version 0.7.122, updatedAt 2026-09-15T18:50:39.348Z (linked as the 'Up-to-date Reference for all substreams endpoints' from https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md)",
+   "note": "services.firehose for network 'mainnet'. Also present in the HTML of https://pinax.network/en/chain/eth/mainnet which labels both 'Substreams Extended' and 'Firehose Extended'. Not listed on the Substreams docs page itself (that page lists only *.substreams.pinax.network hosts)."
+  },
+  {
+   "key": "pinax_substreams_endpoint_bsc",
+   "value": "bsc.substreams.pinax.network:443",
+   "source_url": "https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md",
+   "source_pin": "docs page fetched 2026-09-18; registry v0.7.122",
+   "note": "Listed as 'BNB (Mainnet)' (the docs page also lists the same host for 'BNB Chapel (Testnet)', which is likely a docs error). Registry network 'bsc' (caip2 eip155:56): services.substreams includes bsc.substreams.pinax.network:443; blockFeatures ['extended']. Pinax page https://pinax.network/en/chain/bsc/mainnet HTML contains the host and labels 'Substreams Extended'."
+  },
+  {
+   "key": "pinax_firehose_endpoint_bsc",
+   "value": "bsc.firehose.pinax.network:443",
+   "source_url": "https://networks-registry.thegraph.com/TheGraphNetworksRegistry.json",
+   "source_pin": "registry v0.7.122",
+   "note": "services.firehose for network 'bsc'. Also present in HTML of https://pinax.network/en/chain/bsc/mainnet."
+  },
+  {
+   "key": "pinax_substreams_endpoint_base",
+   "value": "base.substreams.pinax.network:443",
+   "source_url": "https://docs.substreams.dev/reference-material/chain-support/chains-and-endpoints.md",
+   "source_pin": "docs page fetched 2026-09-18; registry v0.7.122",
+   "note": "Listed as 'Base (Mainnet)'. Registry network 'base' (caip2 eip155:8453): services.substreams includes it; blockFeatures ['extended']. Pinax page https://pinax.network/en/chain/base/mainnet HTML contains the host and labels 'Substreams Extended'."
+  },
+  {
+   "key": "pinax_firehose_endpoint_base",
+   "value": "base.firehose.pinax.network:443",
+   "source_url": "https://networks-registry.thegraph.com/TheGraphNetworksRegistry.json",
+   "source_pin": "registry v0.7.122",
+   "note": "services.firehose for network 'base'. Also present in HTML of https://pinax.network/en/chain/base/mainnet."
+  },
+  {
+   "key": "pinax_substreams_endpoint_hyperevm",
+   "value": "hyperevm.substreams.pinax.network:443",
+   "source_url": "https://networks-registry.thegraph.com/TheGraphNetworksRegistry.json",
+   "source_pin": "registry v0.7.122",
+   "note": "Registry network id 'hyper-evm' (fullName 'HyperEVM Mainnet', caip2 eip155:999, aliases evm-999/hyper-evm-mainnet/hyperevm): services.substreams ['hyperevm.substreams.pinax.network:443']; firehose.blockType sf.ethereum.type.v2.Block, evmExtendedModel true, blockFeatures ['extended'], firstStreamableBlock height 0. Also present in HTML of https://pinax.network/en/chain/hyperevm/mainnet which labels 'Substreams Extended' and 'Firehose Extended'. NOT listed on the Substreams docs endpoint page."
+  },
+  {
+   "key": "pinax_firehose_endpoint_hyperevm",
+   "value": "hyperevm.firehose.pinax.network:443",
+   "source_url": "https://networks-registry.thegraph.com/TheGraphNetworksRegistry.json",
+   "source_pin": "registry v0.7.122",
+   "note": "services.firehose for network 'hyper-evm'. Also present in HTML of https://pinax.network/en/chain/hyperevm/mainnet."
+  },
+  {
+   "key": "pinax_substreams_endpoint_arc",
+   "value": "arc.substreams.pinax.network:443",
+   "source_url": "https://networks-registry.thegraph.com/TheGraphNetworksRegistry.json",
+   "source_pin": "registry v0.7.122",
+   "note": "Registry network id 'arc' (fullName 'Arc Mainnet', caip2 eip155:5042): services.substreams ['arc.substreams.pinax.network:443']; firehose.blockType sf.ethereum.type.v2.Block, evmExtendedModel true, blockFeatures ['extended'], firstStreamableBlock height 0. Registry entry 'arc-testnet' (eip155:5042002) has blockFeatures ['base'] and no firehose/substreams services. Also present in HTML of https://pinax.network/en/chain/arc/mainnet ('Substreams Extended', 'Firehose Extended'). Provider added via graphprotocol/networks-registry PR #254. NOT listed on the Substreams docs endpoint page."
+  },
+  {
+   "key": "pinax_firehose_endpoint_arc",
+   "value": "arc.firehose.pinax.network:443",
+   "source_url": "https://networks-registry.thegraph.com/TheGraphNetworksRegistry.json",
+   "source_pin": "registry v0.7.122",
+   "note": "services.firehose for network 'arc'. Also present in HTML of https://pinax.network/en/chain/arc/mainnet."
+  },
+  {
+   "key": "extended_block_support_per_target_chain",
+   "value": "mainnet (eip155:1), bsc (eip155:56), base (eip155:8453), hyper-evm (eip155:999), arc (eip155:5042): all have firehose.evmExtendedModel = true and blockFeatures = ['extended'] in The Graph Networks Registry v0.7.122",
+   "source_url": "https://networks-registry.thegraph.com/TheGraphNetworksRegistry.json",
+   "source_pin": "registry v0.7.122, updatedAt 2026-09-15T18:50:39.348Z",
+   "note": "Substreams docs describe the registry JSON as 'the raw data behind this list (including information like \"extended blocks\" vs \"base blocks\")'. Docs definition: 'An Extended Block is produced by a full node instrumentation integration, thus containing a rich data model (balance changes, internal calls, storage changes...). A Base Block is produced by a RPC Poller integration'."
+  }
+ ],
+ "open_questions": [
+  "Block version 5 documentation gap: the evm-firehose-tracer-go and -rs CHANGELOGs link to https://docs.substreams.dev/reference-material/chain-support/ethereum-data-model#version-5, but on 2026-09-18 neither the HTML page nor its .md export contained a 'Version 5' section (only Version 3, Version 4, and 'Prague-enabled blockchains'). The v5 semantics recorded here (no GasChange entries, no no-op state changes, no backward-compat code) come from tracer source/changelogs, not from the firehose-ethereum proto or Substreams docs. Which public networks/endpoints currently serve ver=5 blocks (e.g. Ethereum Mainnet, Monad/Reth-based chains) is not stated in any official doc found.",
+  "Per-network Block.ver for the five target chains (bsc, mainnet, base, hyperevm, arc) is not documented: the Substreams data-model page only says v3 applies to 'all EVM chains, with the exception of Optimism' pre-Prague, v4 from Prague onward, and lists Optimism + Ethereum Hoodi as v4 and Sepolia/Holesky/BSC mainnet/BSC testnet as Prague-enabled (page appears stale relative to actual mainnet Prague activation). The repository should detect ver at runtime rather than assume it; for v3 blocks, Block.system_calls ordinals and root Call.begin_ordinal are unreliable per the geth tracer comments.",
+  "StreamingFast endpoints for HyperEVM and Arc: none documented (Substreams docs endpoint page and the Graph Networks Registry list only Pinax for those two). Returned as null.",
+  "Pinax documentation site: docs.pinax.network did not resolve (DNS ENOTFOUND) and pinax.network/docs returned 404. Pinax endpoint hostnames were confirmed from (a) the Substreams docs 'Pinax Endpoints' list (mainnet/bsc/base substreams hosts only), (b) The Graph Networks Registry JSON (all ten firehose+substreams hosts), and (c) hostnames embedded in the HTML of pinax.network/en/chain/<chain>/mainnet pages. The pinax-network/endpoints GitHub README (last commit 656e658e, 2023-01-24) lists only StreamingFast endpoints and is stale.",
+  "The Substreams docs endpoint page lists 'bsc.substreams.pinax.network:443' for both 'BNB (Mainnet)' and 'BNB Chapel (Testnet)'; the Chapel host is probably a docs typo and was not used.",
+  "Block.withdrawals (field 22) is marked 'Currently experimental - NOT ready for production use yet' in the proto, while the Go tracer 'Unreleased (v5.0.0)' changelog says withdrawals are 'now always recorded' and Ethereum Mainnet previously did 'not record withdrawals in the block model'. Whether REASON_WITHDRAWAL balance changes and/or Block.withdrawals are present on the target chains' served blocks is unconfirmed.",
+  "The geth tracer references a detailed ordinal-bug explanation via 'comment ref 5b4ef712dd18' but that anchor comment was not present in eth/tracers/firehose.go at commit 70f5118d; only the two referencing comments were found.",
+  "Substreams cursor format is opaque; no official doc describes its encoding. Docs only require that consumers persist the latest cursor (from BlockScopedData.cursor or BlockUndoSignal.last_valid_cursor) and resume with Request.start_cursor."
+ ]
+}

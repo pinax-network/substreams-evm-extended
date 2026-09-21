@@ -1,0 +1,230 @@
+{
+ "topic": "ERC-4626 vault selection for a first source-bound conversion adapter (EIP-4626 semantics/rounding; sDAI on Ethereum mainnet incl. Pot chi dependency; OpenZeppelin ERC4626 virtual-offset formula; BNB Smart Chain ERC-4626 candidates: Venus ERC4626 and Aave v3 BNB StataTokenV2)",
+ "facts": [
+  {
+   "key": "eip4626_header",
+   "value": "eip: 4626 | title: Tokenized Vaults | status: Final | type: Standards Track | category: ERC | created: 2021-12-22 | requires: 20, 2612 | author: Joey Santoro (@joeysantoro), t11s (@transmissions11), Jet Jadeja (@JetJadeja), Alberto Cuesta Ca\u00f1ada (@alcueca), Se\u00f1or Doggo (@fubuloubu)",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4626",
+   "source_pin": "ethereum/ERCs ERCS/erc-4626.md @ commit cf8bff877b00d56cec0c60007a25bae0937d0d03 (2024-09-25)",
+   "note": "Front-matter read verbatim from the raw markdown at https://raw.githubusercontent.com/ethereum/ERCs/master/ERCS/erc-4626.md; eips.ethereum.org renders the same file."
+  },
+  {
+   "key": "eip4626_convertToAssets_spec",
+   "value": "\"The amount of assets that the Vault would exchange for the amount of shares provided, in an ideal scenario where all the conditions are met. MUST NOT be inclusive of any fees that are charged against assets in the Vault. MUST NOT show any variations depending on the caller. MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange. MUST NOT revert unless due to integer overflow caused by an unreasonably large input. MUST round down towards 0. This calculation MAY NOT reflect the \\\"per-user\\\" price-per-share, and instead should reflect the \\\"average-user's\\\" price-per-share, meaning what the average user should expect to see when exchanging to and from.\"",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4626#converttoassets",
+   "source_pin": "ethereum/ERCs @ cf8bff877b00d56cec0c60007a25bae0937d0d03",
+   "note": "Verbatim section text. convertToShares has the identical MUST list (incl. 'MUST round down towards 0.') with assets/shares swapped."
+  },
+  {
+   "key": "eip4626_previewRedeem_spec",
+   "value": "\"Allows an on-chain or off-chain user to simulate the effects of their redeemption at the current block, given current on-chain conditions. MUST return as close to and no more than the exact amount of assets that would be withdrawn in a `redeem` call in the same transaction. I.e. `redeem` should return the same or more `assets` as `previewRedeem` if called in the same transaction. MUST NOT account for redemption limits like those returned from maxRedeem and should always act as though the redemption would be accepted, regardless if the user has enough shares, etc. MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of withdrawal fees. MUST NOT revert due to vault specific user/global limits. MAY revert due to other conditions that would also cause `redeem` to revert. Note that any unfavorable discrepancy between `convertToAssets` and `previewRedeem` SHOULD be considered slippage in share price or some other type of condition, meaning the depositor will lose assets by redeeming.\"",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4626#previewredeem",
+   "source_pin": "ethereum/ERCs @ cf8bff877b00d56cec0c60007a25bae0937d0d03",
+   "note": "Key difference vs convertToAssets: previewRedeem MUST include withdrawal fees and reflects current on-chain conditions; convertToAssets MUST exclude fees and ignore slippage/limits."
+  },
+  {
+   "key": "eip4626_maxWithdraw_spec",
+   "value": "\"Maximum amount of the underlying asset that can be withdrawn from the `owner` balance in the Vault, through a `withdraw` call. MUST return the maximum amount of assets that could be transferred from `owner` through `withdraw` and not cause a revert, which MUST NOT be higher than the actual maximum that would be accepted (it should underestimate if necessary). MUST factor in both global and user-specific limits, like if withdrawals are entirely disabled (even temporarily) it MUST return 0. MUST NOT revert.\"",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4626#maxwithdraw",
+   "source_pin": "ethereum/ERCs @ cf8bff877b00d56cec0c60007a25bae0937d0d03",
+   "note": "maxWithdraw is owner-specific and limit-aware (can be 0 while convertToAssets is non-zero) - it is not a price function."
+  },
+  {
+   "key": "eip4626_previewWithdraw_spec",
+   "value": "\"MUST return as close to and no fewer than the exact amount of Vault shares that would be burned in a `withdraw` call in the same transaction. I.e. `withdraw` should return the same or fewer `shares` as `previewWithdraw` if called in the same transaction. MUST NOT account for withdrawal limits like those returned from maxWithdraw and should always act as though the withdrawal would be accepted, regardless if the user has enough shares, etc. MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of withdrawal fees. MUST NOT revert due to vault specific user/global limits. MAY revert due to other conditions that would also cause `withdraw` to revert.\"",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4626#previewwithdraw",
+   "source_pin": "ethereum/ERCs @ cf8bff877b00d56cec0c60007a25bae0937d0d03",
+   "note": "Shares-for-assets direction rounds up (no fewer shares than actual)."
+  },
+  {
+   "key": "eip4626_rounding_rule",
+   "value": "\"Finally, EIP-4626 Vault implementers should be aware of the need for specific, opposing rounding directions across the different mutable and view methods, as it is considered most secure to favor the Vault itself during calculations over its users: - If (1) it's calculating how many shares to issue to a user for a certain amount of the underlying tokens they provide or (2) it's determining the amount of the underlying tokens to transfer to them for returning a certain amount of shares, it should round _down_. - If (1) it's calculating the amount of shares a user has to supply to receive a given amount of the underlying tokens or (2) it's calculating the amount of underlying tokens a user has to provide to receive a certain amount of shares, it should round _up_. The only functions where the preferred rounding direction would be ambiguous are the `convertTo` functions. To ensure consistency across all EIP-4626 Vault implementations it is specified that these functions MUST both always round _down_. Integrators may wish to mimic rounding up versions of these functions themselves, like by adding 1 wei to the result.\"",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4626#security-considerations",
+   "source_pin": "ethereum/ERCs @ cf8bff877b00d56cec0c60007a25bae0937d0d03",
+   "note": "Verbatim from Security Considerations."
+  },
+  {
+   "key": "eip4626_preview_vs_convert_oracle_note",
+   "value": "\"The `preview` methods return values that are as close as possible to exact as possible. For that reason, they are manipulable by altering the on-chain conditions and are not always safe to be used as price oracles. This specification includes `convert` methods that are allowed to be inexact and therefore can be implemented as robust price oracles. For example, it would be correct to implement the `convert` methods as using a time-weighted average price in converting between assets and shares.\"",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-4626#security-considerations",
+   "source_pin": "ethereum/ERCs @ cf8bff877b00d56cec0c60007a25bae0937d0d03",
+   "note": "Relevant to adapter design: the spec allows convertToAssets to be a different (even TWAP) function from previewRedeem, so a source-bound adapter must bind to the specific vault implementation, not the interface."
+  },
+  {
+   "key": "sdai_mainnet_address",
+   "value": "0x83f20f44975d03b1b09e64809b757c47f942beea",
+   "source_url": "https://raw.githubusercontent.com/sky-ecosystem/sdai/2b7acb95289a9eb3a8844206d5712eabfa206efc/README.md",
+   "source_pin": "sky-ecosystem/sdai master @ 2b7acb95289a9eb3a8844206d5712eabfa206efc; README states deployed code = commit 665879762f8b5df5d234463f45d1d6a49bd4fbeb (no referral)",
+   "note": "README '## Deployments' section: 'Commit `665879762f8b5df5d234463f45d1d6a49bd4fbeb` (no referral): - [Mainnet](https://etherscan.io/address/0x83f20f44975d03b1b09e64809b757c47f942beea)'. Cross-checked against Spark docs https://docs.spark.finance/dev/savings/sdai-token which lists the same address and links the sky-ecosystem/sdai repo. Chain: Ethereum mainnet (chainId 1)."
+  },
+  {
+   "key": "sdai_source_repo",
+   "value": "https://github.com/sky-ecosystem/sdai (GitHub API for makerdao/sdai returns full_name 'sky-ecosystem/sdai'; default branch master)",
+   "source_url": "https://api.github.com/repos/makerdao/sdai",
+   "source_pin": "master HEAD 2b7acb95289a9eb3a8844206d5712eabfa206efc (2023-11-02); deployed commit 665879762f8b5df5d234463f45d1d6a49bd4fbeb",
+   "note": "makerdao/sdai has been transferred/renamed to sky-ecosystem/sdai. Files: src/SavingsDai.sol, src/ISavingsDai.sol, script/Deploy.s.sol, audits/ChainSecurity_Oazo_Apps_Limited_Savings_Dai_audit_1.pdf. License AGPL-3.0-or-later, pragma solidity ^0.8.17. Caveat: the README at the deployed commit 6658797 says 'Please note this is sample code only and there is no official deploys'; the HEAD README supersedes this with the Deployments section."
+  },
+  {
+   "key": "sdai_deploy_script",
+   "value": "new SavingsDai(chainlog.getAddress(\"MCD_JOIN_DAI\"), chainlog.getAddress(\"MCD_POT\")) with ChainlogAbstract chainlog = ChainlogAbstract(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F)",
+   "source_url": "https://raw.githubusercontent.com/sky-ecosystem/sdai/2b7acb95289a9eb3a8844206d5712eabfa206efc/script/Deploy.s.sol",
+   "source_pin": "sky-ecosystem/sdai @ 2b7acb95289a9eb3a8844206d5712eabfa206efc",
+   "note": "Deploy script deploys SavingsDai directly (no proxy in the script). Constructor: 'constructor(address _daiJoin, address _pot) { daiJoin = DaiJoinLike(_daiJoin); vat = VatLike(daiJoin.vat()); dai = DaiLike(daiJoin.dai()); pot = PotLike(_pot); ... }' - pot/dai/vat/daiJoin are immutables."
+  },
+  {
+   "key": "sdai_convertToAssets_source",
+   "value": "function convertToAssets(uint256 shares) public view returns (uint256) {\n    uint256 rho = pot.rho();\n    uint256 chi = (block.timestamp > rho) ? _rpow(pot.dsr(), block.timestamp - rho) * pot.chi() / RAY : pot.chi();\n    return shares * chi / RAY;\n}",
+   "source_url": "https://raw.githubusercontent.com/sky-ecosystem/sdai/2b7acb95289a9eb3a8844206d5712eabfa206efc/src/SavingsDai.sol",
+   "source_pin": "sky-ecosystem/sdai @ 2b7acb95289a9eb3a8844206d5712eabfa206efc (lines 284-288); identical at deployed commit 665879762f8b5df5d234463f45d1d6a49bd4fbeb",
+   "note": "uint256 private constant RAY = 10 ** 27. Conversion depends ONLY on Pot state (chi, rho, dsr) plus block.timestamp; it does not depend on sDAI totalSupply or any balance. Division truncates (rounds down), matching EIP 'MUST round down towards 0'. convertToShares = assets * RAY / chi (same on-the-fly chi)."
+  },
+  {
+   "key": "sdai_preview_and_max_functions_source",
+   "value": "function previewRedeem(uint256 shares) external view returns (uint256) { return convertToAssets(shares); }\nfunction maxWithdraw(address owner) external view returns (uint256) { return convertToAssets(balanceOf[owner]); }\nfunction maxRedeem(address owner) external view returns (uint256) { return balanceOf[owner]; }\nfunction totalAssets() external view returns (uint256) { return convertToAssets(totalSupply); }\nfunction previewWithdraw(uint256 assets) external view returns (uint256) {\n    uint256 rho = pot.rho();\n    uint256 chi = (block.timestamp > rho) ? _rpow(pot.dsr(), block.timestamp - rho) * pot.chi() / RAY : pot.chi();\n    return _divup(assets * RAY, chi);\n}\nfunction _divup(uint256 x, uint256 y) internal pure returns (uint256 z) { unchecked { z = x != 0 ? ((x - 1) / y) + 1 : 0; } }",
+   "source_url": "https://raw.githubusercontent.com/sky-ecosystem/sdai/2b7acb95289a9eb3a8844206d5712eabfa206efc/src/SavingsDai.sol",
+   "source_pin": "sky-ecosystem/sdai @ 2b7acb95289a9eb3a8844206d5712eabfa206efc",
+   "note": "In sDAI, previewRedeem == convertToAssets exactly (no fees), and maxWithdraw == convertToAssets(balanceOf[owner]) with no pause/limit logic. previewWithdraw rounds up via _divup."
+  },
+  {
+   "key": "sdai_rpow_source",
+   "value": "function _rpow(uint256 x, uint256 n) internal pure returns (uint256 z) { assembly { switch x case 0 {switch n case 0 {z := RAY} default {z := 0}} default { switch mod(n, 2) case 0 { z := RAY } default { z := x } let half := div(RAY, 2) for { n := div(n, 2) } n { n := div(n,2) } { let xx := mul(x, x) if iszero(eq(div(xx, x), x)) { revert(0,0) } let xxRound := add(xx, half) if lt(xxRound, xx) { revert(0,0) } x := div(xxRound, RAY) if mod(n,2) { let zx := mul(z, x) if and(iszero(iszero(x)), iszero(eq(div(zx, x), z))) { revert(0,0) } let zxRound := add(zx, half) if lt(zxRound, zx) { revert(0,0) } z := div(zxRound, RAY) } } } } }",
+   "source_url": "https://raw.githubusercontent.com/sky-ecosystem/sdai/2b7acb95289a9eb3a8844206d5712eabfa206efc/src/SavingsDai.sol",
+   "source_pin": "sky-ecosystem/sdai @ 2b7acb95289a9eb3a8844206d5712eabfa206efc",
+   "note": "Half-up rounded fixed-point exponentiation in RAY (1e27). A replaying adapter must reproduce this exact rounding (round-half-up at each squaring/multiply step) to match on-chain convertToAssets between drips."
+  },
+  {
+   "key": "pot_chi_drip_rmul_source",
+   "value": "contract Pot (// SPDX-License-Identifier: AGPL-3.0-or-later, pragma solidity ^0.6.12): uint256 public dsr; uint256 public chi; uint256 public rho; uint256 public Pie; mapping (address => uint256) public pie; uint256 constant ONE = 10 ** 27;\nfunction _rmul(uint x, uint y) internal pure returns (uint z) { z = _mul(x, y) / ONE; }\nfunction drip() external returns (uint tmp) {\n    require(now >= rho, \"Pot/invalid-now\");\n    tmp = _rmul(_rpow(dsr, now - rho, ONE), chi);\n    uint chi_ = _sub(tmp, chi);\n    chi = tmp;\n    rho = now;\n    vat.suck(address(vow), address(this), _mul(Pie, chi_));\n}",
+   "source_url": "https://raw.githubusercontent.com/makerdao/dss/master/src/pot.sol",
+   "source_pin": "makerdao/dss master @ fa4f6630afb0624d04a003e920b0d71a00331d98",
+   "note": "chi (RAY) is the DSR accumulator, updated only on drip(); rho is the last drip timestamp; dsr is the per-second rate (RAY). sDAI's convertToAssets recomputes the would-be chi off-chain-style: rpow(dsr, now-rho)*chi/RAY, i.e. the same rmul as Pot.drip. Storage slots to track for a source-bound adapter: Pot.dsr, Pot.chi, Pot.rho (plus block timestamp)."
+  },
+  {
+   "key": "mcd_pot_address",
+   "value": "0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7",
+   "source_url": "https://chainlog.skyeco.com/api/mainnet/active.json",
+   "source_pin": "chainlog.makerdao.com/api/mainnet/active.json 308-redirects to chainlog.skyeco.com (read 2026-09-18)",
+   "note": "Official Sky/Maker chainlog key MCD_POT (Ethereum mainnet). Same JSON: MCD_DAI 0x6B175474E89094C44Da98b954EedeAC495271d0F (sDAI asset()), MCD_JOIN_DAI 0x9759A6Ac90977b93B58547b4A71c78317f391A28, MCD_VAT 0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B. The chainlog has no SDAI key (only SUSDS 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD, USDS 0xdC035D45d973E3EC169d2276DDab16f1e407384F, STUSDS)."
+  },
+  {
+   "key": "oz_erc4626_pin",
+   "value": "OpenZeppelin/openzeppelin-contracts tag v5.0.0 -> annotated tag object 1abd96b32a3aecb86268ac079915174fcd2cd7ed -> commit 932fddf69a699a9a80fd2396fd1a2ab91cdda123 (tagger date 2023-10-05T18:02:19Z)",
+   "source_url": "https://api.github.com/repos/OpenZeppelin/openzeppelin-contracts/git/tags/1abd96b32a3aecb86268ac079915174fcd2cd7ed",
+   "source_pin": "932fddf69a699a9a80fd2396fd1a2ab91cdda123",
+   "note": "File header at that commit: '// SPDX-License-Identifier: MIT // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC4626.sol) pragma solidity ^0.8.20;'"
+  },
+  {
+   "key": "oz_convertToAssets_formula",
+   "value": "function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256) {\n    return shares.mulDiv(totalAssets() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding);\n}",
+   "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/932fddf69a699a9a80fd2396fd1a2ab91cdda123/contracts/token/ERC20/extensions/ERC4626.sol",
+   "source_pin": "932fddf69a699a9a80fd2396fd1a2ab91cdda123 (lines 236-238)",
+   "note": "Virtual-offset formula: +1 virtual asset and 10**_decimalsOffset() virtual shares. Companion: 'function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256) { return assets.mulDiv(totalSupply() + 10 ** _decimalsOffset(), totalAssets() + 1, rounding); }' and 'function _decimalsOffset() internal view virtual returns (uint8) { return 0; }'."
+  },
+  {
+   "key": "oz_public_rounding_directions",
+   "value": "convertToAssets -> _convertToAssets(shares, Math.Rounding.Floor); previewRedeem -> _convertToAssets(shares, Math.Rounding.Floor); maxWithdraw(owner) -> _convertToAssets(balanceOf(owner), Math.Rounding.Floor); maxRedeem(owner) -> balanceOf(owner); previewWithdraw -> _convertToShares(assets, Math.Rounding.Ceil)",
+   "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/932fddf69a699a9a80fd2396fd1a2ab91cdda123/contracts/token/ERC20/extensions/ERC4626.sol",
+   "source_pin": "932fddf69a699a9a80fd2396fd1a2ab91cdda123 (lines 126-168)",
+   "note": "In the OZ base, convertToAssets == previewRedeem == per-share basis of maxWithdraw (all Floor); they diverge only in derived vaults that override them (fees, limits). totalAssets() in OZ base = IERC20(asset()).balanceOf(address(this)) unless overridden."
+  },
+  {
+   "key": "oz_virtual_offset_natspec",
+   "value": "\"Since v4.9, this implementation uses virtual assets and shares to mitigate that risk. The `_decimalsOffset()` corresponds to an offset in the decimal representation between the underlying asset's decimals and the vault decimals. This offset also determines the rate of virtual shares to virtual assets in the vault, which itself determines the initial exchange rate. While not fully preventing the attack, analysis shows that the default offset (0) makes it non-profitable, as a result of the value being captured by the virtual shares (out of the attacker's donation) matching the attacker's expected gains.\"",
+   "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/932fddf69a699a9a80fd2396fd1a2ab91cdda123/contracts/token/ERC20/extensions/ERC4626.sol",
+   "source_pin": "932fddf69a699a9a80fd2396fd1a2ab91cdda123 (lines 19-24)",
+   "note": "Consequence for an adapter: for OZ-derived vaults, convertToAssets(shares) != shares * totalAssets / totalSupply; the +1 / +10**offset terms must be included."
+  },
+  {
+   "key": "venus_erc4626_repo",
+   "value": "https://github.com/VenusProtocol/ERC4626 - default branch develop, HEAD d86b00ff2aec2d166bd5da779ca375ebd5e301eb (2025-06-27T09:29:51Z), license BSD-3-Clause, pragma solidity 0.8.25; contracts at contracts/ERC4626/VenusERC4626.sol and contracts/ERC4626/VenusERC4626Factory.sol",
+   "source_url": "https://api.github.com/repos/VenusProtocol/ERC4626/commits/develop",
+   "source_pin": "d86b00ff2aec2d166bd5da779ca375ebd5e301eb",
+   "note": "'contract VenusERC4626 is ERC4626Upgradeable, AccessControlledV8, MaxLoopsLimitHelper, ReentrancyGuardUpgradeable' - built on OpenZeppelin ERC4626Upgradeable and wraps Venus Isolated Pools VToken ('import { VToken } from \"@venusprotocol/isolated-pools/contracts/VToken.sol\"'). Docs: https://docs-v4.venus.io/technical-reference/reference-technical-articles/venus-erc-4626"
+  },
+  {
+   "key": "venus_erc4626_factory_bscmainnet",
+   "value": "0xC2f7924809830886EB04c6b40725Fd68F1891fA2",
+   "source_url": "https://raw.githubusercontent.com/VenusProtocol/ERC4626/d86b00ff2aec2d166bd5da779ca375ebd5e301eb/deployments/bscmainnet/VenusERC4626Factory.json",
+   "source_pin": "VenusProtocol/ERC4626 @ d86b00ff2aec2d166bd5da779ca375ebd5e301eb; deployments/bscmainnet/.chainId = 56",
+   "note": "VenusERC4626Factory (transparent proxy). Deployment JSON also records implementation 0x8784A887a59b7EBa1De2dD1e1C0C085f4B412593, receipt.blockNumber 50914999, transactionHash 0x855054ff405f49a47fb01184db6bbf40e416d71cd28516d4dc6a39c7db094443. Not cross-checked against an explorer (task allows explorer only as secondary; primary source is the official deployments dir)."
+  },
+  {
+   "key": "venus_erc4626_implementation_bscmainnet",
+   "value": "0x257474B4c5D99218D2253000a872AA03D2377869",
+   "source_url": "https://raw.githubusercontent.com/VenusProtocol/ERC4626/d86b00ff2aec2d166bd5da779ca375ebd5e301eb/deployments/bscmainnet/VenusERC4626Implementation.json",
+   "source_pin": "VenusProtocol/ERC4626 @ d86b00ff2aec2d166bd5da779ca375ebd5e301eb",
+   "note": "VenusERC4626 logic contract shared by all vault BeaconProxies (receipt.blockNumber 50914993, tx 0x299d85df50d57a704a12827791cc794bc8d8afe7afe44808746ee7aac34573a9). deployments/bscmainnet contains only: .chainId, VenusERC4626Factory.json, VenusERC4626Factory_Implementation.json, VenusERC4626Factory_Proxy.json, VenusERC4626Implementation.json, solcInputs/ - no per-vToken vault files."
+  },
+  {
+   "key": "venus_erc4626_conversion_source",
+   "value": "function totalAssets() public view virtual override returns (uint256) {\n    return (vToken.balanceOf(address(this)) * vToken.exchangeRateStored()) / EXP_SCALE;\n}\nfunction _decimalsOffset() internal view virtual override returns (uint8) {\n    return 18 - ERC20Upgradeable(asset()).decimals();\n}",
+   "source_url": "https://raw.githubusercontent.com/VenusProtocol/ERC4626/d86b00ff2aec2d166bd5da779ca375ebd5e301eb/contracts/ERC4626/VenusERC4626.sol",
+   "source_pin": "VenusProtocol/ERC4626 @ d86b00ff2aec2d166bd5da779ca375ebd5e301eb (lines 280-282, 468-470)",
+   "note": "VenusERC4626 does NOT override _convertToAssets/_convertToShares/convertToAssets/previewRedeem, so convertToAssets = shares.mulDiv(totalAssets()+1, totalSupply()+10**(18-assetDecimals), Floor) from OZ ERC4626Upgradeable, where totalAssets is a function of the vault's vToken balance and vToken.exchangeRateStored() (stale between accruals; deposit/mint/withdraw/redeem call vToken.accrueInterest() first, lines 194/220/242/261). maxWithdraw/maxRedeem ARE overridden (lines 310, 331) to respect comptroller pause and vToken cash-minus-reserves. Replaying convertToAssets requires the vToken's exchangeRateStored inputs (cash, borrows, reserves, vToken totalSupply) - heavier than sDAI/Aave stata."
+  },
+  {
+   "key": "venus_erc4626_vault_discovery",
+   "value": "event CreateERC4626(VTokenInterface indexed vToken, ERC4626Upgradeable indexed vault); function createERC4626(address vToken) external returns (ERC4626Upgradeable vault) - deploys 'new BeaconProxy{ salt: SALT }(address(beacon), ...)'; function computeVaultAddress(address vToken) public view returns (address); UpgradeableBeacon public beacon",
+   "source_url": "https://raw.githubusercontent.com/VenusProtocol/ERC4626/d86b00ff2aec2d166bd5da779ca375ebd5e301eb/contracts/ERC4626/VenusERC4626Factory.sol",
+   "source_pin": "VenusProtocol/ERC4626 @ d86b00ff2aec2d166bd5da779ca375ebd5e301eb (lines 22, 36, 118, 135-136, 154)",
+   "note": "Individual vault addresses can be discovered from CreateERC4626 logs emitted by the factory 0xC2f7924809830886EB04c6b40725Fd68F1891fA2, or precomputed via CREATE2 with the constant SALT. Docs rounding notes: 'Note - It can mint slightly fewer shares than requested, because vToken.mint rounds down.' and 'Note - Receiver can receive slightly more assets than requested, because VToken.redeemUnderlying rounds up' (https://docs-v4.venus.io/technical-reference/reference-technical-articles/venus-erc-4626)."
+  },
+  {
+   "key": "venus_erc4626_per_vault_addresses_bscmainnet",
+   "value": null,
+   "source_url": "https://docs-v4.venus.io/technical-reference/reference-technical-articles/venus-erc-4626",
+   "source_pin": "read 2026-09-18",
+   "note": "No individual VenusERC4626 vault (per-vToken) addresses on BNB Smart Chain mainnet were found in official sources: not in the repo deployments/bscmainnet directory, not on the VenusERC4626 docs page, and https://docs-v4.venus.io/deployed-contracts/periphery has 'No ERC4626 entries' (https://docs-v4.venus.io/deployed-contracts/erc4626 is 404). Whether any vault has been created on BSC mainnet is unconfirmed."
+  },
+  {
+   "key": "aave_v3_bnb_stata_factory",
+   "value": "0x929B8a21a604b93DD7e95d5b9aAa3aDf5bE250ae",
+   "source_url": "https://raw.githubusercontent.com/bgd-labs/aave-address-book/4e13aa197ca74e84c7e878bc752e519c260d6f30/src/AaveV3BNB.sol",
+   "source_pin": "bgd-labs/aave-address-book main @ 4e13aa197ca74e84c7e878bc752e519c260d6f30 (line 107)",
+   "note": "library AaveV3BNB: STATA_FACTORY (StataTokenV2 factory). Also LEGACY_STATIC_A_TOKEN_FACTORY = 0x326aB0868bD279382Be2DF5E228Cb8AF38649AB4 (line 94) and POOL = 0x6807dc923806fE8Fd134338EABCA509979a7e0cB (line 12). Chain: BNB Smart Chain (chainId 56)."
+  },
+  {
+   "key": "aave_v3_bnb_usdt_stata_token",
+   "value": "0x0471D185cc7Be61E154277cAB2396cD397663da6",
+   "source_url": "https://raw.githubusercontent.com/bgd-labs/aave-address-book/4e13aa197ca74e84c7e878bc752e519c260d6f30/src/AaveV3BNB.sol",
+   "source_pin": "bgd-labs/aave-address-book @ 4e13aa197ca74e84c7e878bc752e519c260d6f30 (line 242)",
+   "note": "AaveV3BNBAssets.USDT_STATIC_A_TOKEN (ERC-4626 wrapper of aBnbUSDT). Related: USDT_UNDERLYING 0x55d398326f99059fF775485246999027B3197955 (line 224), USDT_A_TOKEN 0xa9251ca9DE909CB71783723713B21E4233fbf1B1 (line 229). Recommended BSC-first candidate (see bsc_recommendation)."
+  },
+  {
+   "key": "aave_v3_bnb_usdc_stata_token",
+   "value": "0x3906cDdfb781f02B21f21BD81ed7Fd8DC37075E1",
+   "source_url": "https://raw.githubusercontent.com/bgd-labs/aave-address-book/4e13aa197ca74e84c7e878bc752e519c260d6f30/src/AaveV3BNB.sol",
+   "source_pin": "bgd-labs/aave-address-book @ 4e13aa197ca74e84c7e878bc752e519c260d6f30 (line 221)",
+   "note": "AaveV3BNBAssets.USDC_STATIC_A_TOKEN. Related: USDC_UNDERLYING 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d (line 203), USDC_A_TOKEN 0x00901a076785e0906d1028c7d6372d247bec7d61 (line 208). Other BNB stata tokens at this pin: WBNB 0x436baCb4C66583de4Cb16e13a1A0D9A3075DE425, BTCB 0x1F66b530084079d35478A069d9c4424F9c9C320c, ETH 0x52077433fB7053D747E2846aD0C18ff5015C368E, Cake 0x3854354CE3681da1D7F550073061E92a4a7d1B27, FDUSD 0x4d074aAa0821073dA827f7bf6a02cF905b394ed0."
+  },
+  {
+   "key": "aave_stata_convertToAssets_source",
+   "value": "abstract contract ERC4626StataTokenUpgradeable is ERC4626Upgradeable, IERC4626StataToken (// SPDX-License-Identifier: BUSL-1.1, pragma solidity ^0.8.17)\nfunction _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual override returns (uint256) {\n    // * @notice share * exchangeRate / RAY\n    return shares.mulDiv(_rate(), RAY, rounding);\n}\nfunction _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual override returns (uint256) {\n    // * @notice assets * RAY / exchangeRate\n    return assets.mulDiv(RAY, _rate(), rounding);\n}\nfunction _rate() internal view returns (uint256) { return POOL.getReserveNormalizedIncome(asset()); }\nfunction totalAssets() public view override returns (uint256) { return _convertToAssets(totalSupply(), Math.Rounding.Floor); }\nfunction maxWithdraw(address owner) public view override returns (uint256) { return convertToAssets(maxRedeem(owner)); }",
+   "source_url": "https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/extensions/stata-token/ERC4626StataTokenUpgradeable.sol",
+   "source_pin": "aave-dao/aave-v3-origin main @ 8305565ae342f1773c42cd2e4593f175fe5968a0 (2026-09-09; lines 22, 150-157, 292-310)",
+   "note": "StataTokenV2 (src/contracts/extensions/stata-token/StataTokenV2.sol, same pin) inherits this. Conversion overrides the OZ virtual-offset formula: NO +1/+10**offset terms; convertToAssets = floor(shares * normalizedIncome / 1e27) where normalizedIncome is the Aave reserve liquidity index accrued to now. previewRedeem is not overridden (inherits Floor _convertToAssets). maxRedeem returns 0 when the reserve is inactive or paused (POOL.getConfiguration(asset())), so maxWithdraw can be 0 while convertToAssets is non-zero."
+  },
+  {
+   "key": "aave_getReserveNormalizedIncome_source",
+   "value": "function getNormalizedIncome(DataTypes.ReserveData storage reserve) internal view returns (uint256) {\n    uint40 timestamp = reserve.lastUpdateTimestamp;\n    if (timestamp == block.timestamp) {\n      return reserve.liquidityIndex;\n    } else {\n      return MathUtils.calculateLinearInterest(reserve.currentLiquidityRate, timestamp).rayMul(reserve.liquidityIndex);\n    }\n}",
+   "source_url": "https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/libraries/logic/ReserveLogic.sol",
+   "source_pin": "aave-dao/aave-v3-origin @ 8305565ae342f1773c42cd2e4593f175fe5968a0 (lines 39-54)",
+   "note": "Replaying stata convertToAssets needs three Pool reserve storage fields (liquidityIndex, currentLiquidityRate, lastUpdateTimestamp for the underlying) plus block.timestamp; linear (not compound) interest, rayMul is round-half-up in RAY. Structurally analogous to sDAI's Pot chi/rho/dsr, but sDAI compounds via rpow."
+  },
+  {
+   "key": "bsc_recommendation",
+   "value": "Recommend Aave v3 BNB StataTokenV2 for USDT (0x0471D185cc7Be61E154277cAB2396cD397663da6, chainId 56) as the first BSC source-bound ERC-4626 conversion adapter target; keep sDAI (Ethereum mainnet 0x83f20f44975d03b1b09e64809b757c47f942beea) as the simplest cross-chain reference/regression target.",
+   "source_url": "https://raw.githubusercontent.com/bgd-labs/aave-address-book/4e13aa197ca74e84c7e878bc752e519c260d6f30/src/AaveV3BNB.sol",
+   "source_pin": "aave-address-book @ 4e13aa197ca74e84c7e878bc752e519c260d6f30; aave-v3-origin @ 8305565ae342f1773c42cd2e4593f175fe5968a0",
+   "note": "Why Aave stata over Venus for BSC-first: (a) vault addresses are confirmed in an official, task-allowed registry (bgd-labs/aave-address-book), whereas no per-vToken Venus vault address is confirmed anywhere official (only factory + implementation); (b) the conversion is a closed-form rate (shares*normalizedIncome/RAY, Floor) bound to three reserve storage fields + timestamp, versus Venus' OZ virtual-offset formula on top of vToken.exchangeRateStored (cash/borrows/reserves/vToken supply) plus the vault's vToken balance and share supply; (c) previewRedeem == convertToAssets in both Aave stata and sDAI, so a single conversion function covers both; maxWithdraw differs (pause/limits) and should be modeled separately. Venus remains a valid second BSC candidate once a CreateERC4626 log confirms a live vault. Caveat: the address-book does not state whether each *_STATIC_A_TOKEN entry was deployed by STATA_FACTORY (StataTokenV2) or LEGACY_STATIC_A_TOKEN_FACTORY - see open_questions."
+  }
+ ],
+ "open_questions": [
+  "Venus per-vToken ERC-4626 vault addresses on BSC mainnet: none confirmed from official sources (repo deployments/bscmainnet has only factory 0xC2f7924809830886EB04c6b40725Fd68F1891fA2 and implementation 0x257474B4c5D99218D2253000a872AA03D2377869; docs list none). Confirm whether any CreateERC4626 event has been emitted on BSC (e.g. via a Venus VIP in VenusProtocol/vips or by scanning factory logs in Firehose blocks) before choosing Venus.",
+  "Aave BNB stata tokens: bgd-labs/aave-address-book lists both STATA_FACTORY (0x929B8a21a604b93DD7e95d5b9aAa3aDf5bE250ae) and LEGACY_STATIC_A_TOKEN_FACTORY (0x326aB0868bD279382Be2DF5E228Cb8AF38649AB4); the per-asset *_STATIC_A_TOKEN constants do not state which factory/implementation (StataTokenV2 vs legacy StaticATokenLM) they point to. Verify the implementation behind 0x0471D185cc7Be61E154277cAB2396cD397663da6 (e.g. via factory getStataTokens()/creation logs) before binding the adapter to the ERC4626StataTokenUpgradeable formula; also pin the exact aave-v3-origin release actually deployed on BNB (this research pinned main @ 8305565ae342f1773c42cd2e4593f175fe5968a0).",
+  "sDAI proxy status: the sdai Deploy.s.sol deploys SavingsDai directly, but whether mainnet 0x83f20f44975d03b1b09e64809b757c47f942beea is that direct deployment or sits behind a proxy was not verified from official sources (only the README link and Spark docs). Confirm bytecode/implementation before binding storage layout (pot/dai/vat/daiJoin are immutables, so no storage reads on sDAI itself are needed for convertToAssets; only Pot.chi/rho/dsr).",
+  "No Sky-owned developer documentation page (developers.sky.money / docs.sky.money) listing the sDAI address was located; the address rests on the sky-ecosystem/sdai README (official repo) cross-checked with Spark docs. The Sky chainlog has no SDAI key.",
+  "Other BNB Smart Chain ERC-4626 candidates (e.g. Lista, Alpaca, Kinza, Wombat, Thena, sUSDS on BNB) were not confirmed as ERC-4626 with official source in this pass; Venus docs mention ERC4626 oracles for sUSDS/sUSDe/yv* but their chain was not confirmed - treat as unconfirmed.",
+  "EIP-4626 explicitly allows convertTo* to be inexact/TWAP-based; the adapter should be bound per-implementation (sDAI: Pot-based rpow; OZ-derived: virtual offset; Aave stata: normalized income) rather than assume convertToAssets == previewRedeem in general, even though it holds for sDAI, OZ base ERC4626, and Aave stata."
+ ]
+}

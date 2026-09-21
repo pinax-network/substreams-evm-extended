@@ -1,0 +1,231 @@
+{
+ "topic": "Compound III (Comet) markets for the first explicitly selected balance-state epoch: proxy addresses (Ethereum mainnet cUSDCv3/cWETHv3, Base cUSDCv3/cUSDbCv3), deployed-chain set (no BNB Smart Chain), and the balance/index math + packed storage layout at compound-finance/comet commit f766f51583c23acc33b2a7824654ef2029a96804",
+ "facts": [
+  {
+   "key": "pinned_commit",
+   "value": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "source_url": "https://api.github.com/repos/compound-finance/comet/commits/f766f51583c23acc33b2a7824654ef2029a96804",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Commit exists. Message: 'Feat/develop regular update (#1135) - No live-market changes - interface relocation, tests, dev config only.' Author date 2026-06-23T21:24:14Z. Moved interfaces to contracts/interfaces/."
+  },
+  {
+   "key": "mainnet_cusdcv3_comet_proxy",
+   "value": "0xc3d688B66703497DAA19211EEdff47f25384cdc3",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/deployments/mainnet/usdc/roots.json",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "deployments/mainnet/usdc/roots.json key \"comet\". Same file: configurator 0x316f9708bB98af7dA9c68C1C3b5e79039cD336E3, rewards 0x1B0e765F6224C21223AeA2af16c1C46E38885a40, bulker 0xa397a8C2086C554B531c02E29f3291c9704B00c7, comptrollerV2 0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b. Cross-checked on Etherscan (https://etherscan.io/address/0xc3d688B66703497DAA19211EEdff47f25384cdc3) which labels the address 'Compound USDC (cUSDCv3)'. Ethereum Mainnet chainId 1 (0x1) per https://chainlist.org/chain/1."
+  },
+  {
+   "key": "mainnet_cusdcv3_configuration",
+   "value": "name=\"Compound USDC\", symbol=\"cUSDCv3\", baseToken=USDC 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/deployments/mainnet/usdc/configuration.json",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "configuration.json: baseTokenPriceFeed 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6; borrowMin \"100e6\"; storeFrontPriceFactor 0.5; targetReserves \"5000000e6\"; rates supplyKink 0.8, supplySlopeLow 0.0325, supplySlopeHigh 0.4, supplyBase 0, borrowKink 0.8, borrowSlopeLow 0.035, borrowSlopeHigh 0.25, borrowBase 0.015; tracking indexScale \"1e15\", baseSupplySpeed \"0e15\", baseBorrowSpeed \"0e15\", baseMinForRewards \"1000000e6\"; assets COMP, WBTC, WETH, UNI, LINK. NOTE: configuration.json is the genesis config file; live on-chain parameters may have been changed by governance since (values are immutables of the current implementation, re-deployed by Configurator)."
+  },
+  {
+   "key": "mainnet_cwethv3_comet_proxy",
+   "value": "0xA17581A9E3356d9A858b789D68B4d866e593aE94",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/deployments/mainnet/weth/roots.json",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "deployments/mainnet/weth/roots.json key \"comet\". Same configurator/rewards/bulker as mainnet usdc (0x316f9708bB98af7dA9c68C1C3b5e79039cD336E3 / 0x1B0e765F6224C21223AeA2af16c1C46E38885a40 / 0xa397a8C2086C554B531c02E29f3291c9704B00c7). Cross-checked on Etherscan (https://etherscan.io/address/0xA17581A9E3356d9A858b789D68B4d866e593aE94) labeled 'Compound WETH (cWETHv3)'."
+  },
+  {
+   "key": "mainnet_cwethv3_configuration",
+   "value": "name=\"Compound WETH\", symbol=\"cWETHv3\", baseToken=WETH 0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/deployments/mainnet/weth/configuration.json",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "borrowMin \"0.1e18\"; storeFrontPriceFactor 0.5; targetReserves \"5000e18\"; rates supplyKink 0.9, supplySlopeLow 0.0283824, supplySlopeHigh 0.6066567706, supplyBase 0, borrowKink 0.9, borrowSlopeLow 0.05171500002, borrowSlopeHigh 0.5171500339, borrowBase 0.009945209674; tracking indexScale \"1e15\", baseSupplySpeed \"447916666666e0\", baseBorrowSpeed \"0e15\", baseMinForRewards \"1000e18\"; genesis assets cbETH, wstETH. Base token has 18 decimals, so baseScale = 1e18 = MAX_BASE_DECIMALS boundary (decimals_ > 18 reverts BadDecimals)."
+  },
+  {
+   "key": "base_cusdcv3_comet_proxy",
+   "value": "0xb125E6687d4313864e53df431d5425969c15Eb2F",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/deployments/base/usdc/roots.json",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "deployments/base/usdc/roots.json key \"comet\". Same file: configurator 0x45939657d1CA34A8FA39A924B71D28Fe8431e581, rewards 0x123964802e6ABabBE1Bc9547D72Ef1B69B00A6b1, bridgeReceiver 0x18281dfC4d00905DA1aaA6731414EABa843c468A, l2CrossDomainMessenger 0x4200000000000000000000000000000000000007, l2StandardBridge 0x4200000000000000000000000000000000000010, bulker 0x78D0677032A35c63D142a48A2037048871212a8C. Base chainId 8453 (0x2105) per https://chainlist.org/chain/8453. Basescan cross-check returned HTTP 403 (not completed)."
+  },
+  {
+   "key": "base_cusdcv3_configuration",
+   "value": "name=\"Compound USDC\", symbol=\"cUSDCv3\", baseToken=USDC 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/deployments/base/usdc/configuration.json",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "baseTokenPriceFeed 0x7e860098F58bBFC8648a4311b374B1D669a2bc6B; borrowMin \"1e0\"; storeFrontPriceFactor 0.6; targetReserves \"5000000e6\"; rates supplyKink 0.85, supplySlopeLow 0.048, supplySlopeHigh 1.6, supplyBase 0, borrowKink 0.85, borrowSlopeLow 0.053, borrowSlopeHigh 1.8, borrowBase 0.015; tracking indexScale \"1e15\", baseSupplySpeed \"231_481_481_481e0\", baseBorrowSpeed \"92_592_592_592e0\", baseMinForRewards \"1000e6\"; genesis assets cbETH, WETH."
+  },
+  {
+   "key": "base_cusdbcv3_comet_proxy",
+   "value": "0x9c4ec768c28520B50860ea7a15bd7213a9fF58bf",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/deployments/base/usdbc/roots.json",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "deployments/base/usdbc/roots.json key \"comet\". Shares configurator 0x45939657d1CA34A8FA39A924B71D28Fe8431e581, rewards 0x123964802e6ABabBE1Bc9547D72Ef1B69B00A6b1, bridgeReceiver 0x18281dfC4d00905DA1aaA6731414EABa843c468A, bulker 0x78D0677032A35c63D142a48A2037048871212a8C with Base usdc. Basescan cross-check returned HTTP 403 (not completed)."
+  },
+  {
+   "key": "base_cusdbcv3_configuration",
+   "value": "name=\"Compound USDbC\", symbol=\"cUSDbCv3\", baseToken=USDbC 0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/deployments/base/usdbc/configuration.json",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "baseTokenPriceFeed 0x7e860098F58bBFC8648a4311b374B1D669a2bc6B; borrowMin \"1e0\"; storeFrontPriceFactor 0.6; targetReserves \"5000000e6\"; rates supplyKink 0.8, supplySlopeLow 0.0325, supplySlopeHigh 0.4, supplyBase 0, borrowKink 0.8, borrowSlopeLow 0.035, borrowSlopeHigh 0.25, borrowBase 0.015; tracking indexScale \"1e15\", baseSupplySpeed \"347_222_222_222e0\", baseBorrowSpeed \"173_611_111_111e0\", baseMinForRewards \"1000e6\"; genesis assets cbETH, WETH."
+  },
+  {
+   "key": "comet_deployed_chains_at_pin",
+   "value": "arbitrum, base, linea, mainnet, mantle, optimism, polygon, ronin, scroll, unichain (plus local 'hardhat')",
+   "source_url": "https://api.github.com/repos/compound-finance/comet/contents/deployments?ref=f766f51583c23acc33b2a7824654ef2029a96804",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "deployments/ directory entries at the pin: arbitrum, base, hardhat, linea, mainnet, mantle, optimism, polygon, ronin, scroll, unichain (dirs) + relations.ts. No entry named bsc/bnb/binance. docs.compound.finance 'Networks' section (https://docs.compound.finance/) says: 'The network deployment artifacts with contract addresses are available in the Comet repository deployments/ folder' and 'The v3 proxy is the only address to be used to interact with a Compound III instance.'"
+  },
+  {
+   "key": "comet_not_on_bnb_smart_chain",
+   "value": "true",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/hardhat.config.ts",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "hardhat.config.ts networks at the pin with chainIds: mainnet 1, ronin 2020, polygon 137, optimism 10, mantle 5000, unichain 130, linea 59144, base 8453, arbitrum 42161, scroll 534352. Scenario bases: mainnet, hardhat, polygon, arbitrum, base, optimism, mantle, unichain, scroll, linea, ronin. The strings bsc / bnb / binance do not appear in hardhat.config.ts, in deployments/ (see comet_deployed_chains_at_pin), or on https://docs.compound.finance/. BNB Smart Chain (chainId 56) has no Comet deployment."
+  },
+  {
+   "key": "mainnet_markets_at_pin",
+   "value": "usdc, usds, usdt, wbtc, weth, wsteth",
+   "source_url": "https://api.github.com/repos/compound-finance/comet/contents/deployments/mainnet?ref=f766f51583c23acc33b2a7824654ef2029a96804",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "deployments/mainnet/ subfolders (one Comet market each)."
+  },
+  {
+   "key": "base_markets_at_pin",
+   "value": "aero, usdbc, usdc, usds, weth",
+   "source_url": "https://api.github.com/repos/compound-finance/comet/contents/deployments/base?ref=f766f51583c23acc33b2a7824654ef2029a96804",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "deployments/base/ subfolders (one Comet market each)."
+  },
+  {
+   "key": "path_comet_sol_at_pin",
+   "value": null,
+   "source_url": "https://api.github.com/repos/compound-finance/comet/contents/contracts?ref=f766f51583c23acc33b2a7824654ef2029a96804",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "contracts/Comet.sol does NOT exist at the pinned commit (raw URL returns 404; contracts/ listing has no Comet.sol). It was removed in commit db72b0ca39118098846605479d156ce9b1736cf3 'Regular Comet update from Woof team (#1131)' (2026-06-11T19:08:23Z; file status 'removed', 1,378 lines deleted; parent d5a30b0aaeff7755f1431e87f818990902237b03) per https://api.github.com/repos/compound-finance/comet/commits/db72b0ca39118098846605479d156ce9b1736cf3. Last existing version: https://raw.githubusercontent.com/compound-finance/comet/d5a30b0aaeff7755f1431e87f818990902237b03/contracts/Comet.sol, declared 'contract Comet is CometMainInterface {' with identical balanceOf body and constructor check 'if (config.assetConfigs.length > MAX_ASSETS) revert TooManyAssets();'. Use CometWithExtendedAssetList.sol as the implementation reference at the pin."
+  },
+  {
+   "key": "path_comet_with_extended_asset_list_sol",
+   "value": "contracts/CometWithExtendedAssetList.sol",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometWithExtendedAssetList.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "'// SPDX-License-Identifier: BUSL-1.1' 'pragma solidity 0.8.15;' 'contract CometWithExtendedAssetList is CometMainInterface {'. Imports: ./CometMainInterface.sol, ./interfaces/IERC20NonStandard.sol, ./interfaces/IPriceFeed.sol, ./interfaces/IAssetListFactory.sol, ./interfaces/IAssetListFactoryHolder.sol, ./interfaces/IAssetList.sol. 'address immutable public assetList;' 'uint8 internal constant MAX_ASSETS_FOR_ASSET_LIST = 24;' 'uint8 public override immutable numAssets;' constructor: 'if (config.assetConfigs.length > MAX_ASSETS_FOR_ASSET_LIST) revert TooManyAssets();' 'numAssets = uint8(config.assetConfigs.length);' 'assetList = IAssetListFactory(IAssetListFactoryHolder(extensionDelegate).assetListFactory()).createAssetList(config.assetConfigs);'. This is the sole Comet implementation at the pin."
+  },
+  {
+   "key": "path_comet_core_sol",
+   "value": "contracts/CometCore.sol",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometCore.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "'abstract contract CometCore is CometConfiguration, CometStorage, CometMath {'. Holds constants and presentValue/principalValue helpers (see separate facts)."
+  },
+  {
+   "key": "path_comet_storage_sol",
+   "value": "contracts/CometStorage.sol",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometStorage.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Defines packed structs and market state (see comet_storage_user_basic, comet_storage_totals_basic, comet_storage_state_vars)."
+  },
+  {
+   "key": "path_comet_math_sol",
+   "value": "contracts/CometMath.sol",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometMath.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "'contract CometMath {'. Errors: InvalidUInt64, InvalidUInt104, InvalidUInt128, InvalidInt104, InvalidInt256, NegativeNumber. Functions: safe64(uint)->uint64, safe104(uint)->uint104, safe128(uint)->uint128, signed104(uint104)->int104, signed256(uint256)->int256, unsigned104(int104)->uint104 (reverts NegativeNumber if n<0), unsigned256(int256)->uint256, toUInt8(bool)->uint8, toBool(uint8)->bool. NOTE: mulFactor/divFactor are NOT in CometMath; mulFactor lives in the Comet implementation: 'function mulFactor(uint n, uint factor) internal pure returns (uint) { return n * factor / FACTOR_SCALE; }'."
+  },
+  {
+   "key": "path_comet_configuration_sol",
+   "value": "contracts/CometConfiguration.sol",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometConfiguration.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "'contract CometConfiguration {' struct ExtConfiguration { bytes32 name32; bytes32 symbol32; } struct Configuration { address governor; address pauseGuardian; address baseToken; address baseTokenPriceFeed; address extensionDelegate; uint64 supplyKink; uint64 supplyPerYearInterestRateSlopeLow; uint64 supplyPerYearInterestRateSlopeHigh; uint64 supplyPerYearInterestRateBase; uint64 borrowKink; uint64 borrowPerYearInterestRateSlopeLow; uint64 borrowPerYearInterestRateSlopeHigh; uint64 borrowPerYearInterestRateBase; uint64 storeFrontPriceFactor; uint64 trackingIndexScale; uint64 baseTrackingSupplySpeed; uint64 baseTrackingBorrowSpeed; uint104 baseMinForRewards; uint104 baseBorrowMin; uint104 targetReserves; AssetConfig[] assetConfigs; } struct AssetConfig { address asset; address priceFeed; uint8 decimals; uint64 borrowCollateralFactor; uint64 liquidateCollateralFactor; uint64 liquidationFactor; uint128 supplyCap; }"
+  },
+  {
+   "key": "path_comet_main_interface_sol",
+   "value": "contracts/CometMainInterface.sol",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometMainInterface.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Events: Supply(address indexed from, address indexed dst, uint amount); Transfer(address indexed from, address indexed to, uint amount); Withdraw(address indexed src, address indexed to, uint amount); SupplyCollateral(address indexed from, address indexed dst, address indexed asset, uint amount); TransferCollateral(address indexed from, address indexed to, address indexed asset, uint amount); WithdrawCollateral(address indexed src, address indexed to, address indexed asset, uint amount); AbsorbDebt(address indexed absorber, address indexed borrower, uint basePaidOut, uint usdValue); AbsorbCollateral(address indexed absorber, address indexed borrower, address indexed asset, uint collateralAbsorbed, uint usdValue); BuyCollateral(address indexed buyer, address indexed asset, uint baseAmount, uint collateralAmount); PauseAction(bool supplyPaused, bool transferPaused, bool withdrawPaused, bool absorbPaused, bool buyPaused); WithdrawReserves(address indexed to, uint amount). Getters: balanceOf(address) returns uint256; borrowBalanceOf(address) returns uint256; totalSupply(); totalBorrow(); getSupplyRate(uint utilization) returns uint64; getBorrowRate(uint) returns uint64; getUtilization() returns uint; baseScale() returns uint; trackingIndexScale() returns uint; supplyKink() returns uint; borrowKink() returns uint. NOTE: Comet Transfer events are emitted for present-value amounts; the ERC20 Transfer event does not carry the principal delta, so balances cannot be reconstructed from Transfer events alone without the index."
+  },
+  {
+   "key": "comet_storage_user_basic",
+   "value": "struct UserBasic { int104 principal; uint64 baseTrackingIndex; uint64 baseTrackingAccrued; uint16 assetsIn; uint8 _reserved; }",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometStorage.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Exact field order/types. 104+64+64+16+8 = 256 bits, i.e. one storage slot per user in 'mapping(address => UserBasic) public userBasic'. principal is signed: > 0 supply principal, < 0 borrow principal. Also: struct UserCollateral { uint128 balance; uint128 _reserved; } in 'mapping(address => mapping(address => UserCollateral)) public userCollateral'; struct LiquidatorPoints { uint32 numAbsorbs; uint64 numAbsorbed; uint128 approxSpend; uint32 _reserved; }."
+  },
+  {
+   "key": "comet_storage_totals_basic",
+   "value": "struct TotalsBasic { uint64 baseSupplyIndex; uint64 baseBorrowIndex; uint64 trackingSupplyIndex; uint64 trackingBorrowIndex; uint104 totalSupplyBase; uint104 totalBorrowBase; uint40 lastAccrualTime; uint8 pauseFlags; }",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometStorage.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Exact field order/types. TotalsBasic is the memory struct returned by CometExt.totalsBasic(); the actual market state is stored as individual packed variables in the same order (see comet_storage_state_vars). 4*64 = 256 bits (slot A: indices); 104+104+40+8 = 256 bits (slot B: totals + lastAccrualTime + pauseFlags). Also struct TotalsCollateral { uint128 totalSupplyAsset; uint128 _reserved; }."
+  },
+  {
+   "key": "comet_storage_state_vars",
+   "value": "uint64 internal baseSupplyIndex; uint64 internal baseBorrowIndex; uint64 internal trackingSupplyIndex; uint64 internal trackingBorrowIndex; uint104 internal totalSupplyBase; uint104 internal totalBorrowBase; uint40 internal lastAccrualTime; uint8 internal pauseFlags;",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometStorage.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Declared in this order in CometStorage, followed by: mapping(address => TotalsCollateral) public totalsCollateral; mapping(address => mapping(address => bool)) public isAllowed; mapping(address => uint) public userNonce; mapping(address => UserBasic) public userBasic; mapping(address => mapping(address => UserCollateral)) public userCollateral; mapping(address => LiquidatorPoints) public liquidatorPoints. Storage-slot numbering also depends on inherited layouts (CometConfiguration/CometMath have no state; but the proxy is a TransparentUpgradeableProxy, so the implementation's slot 0 is the first state var of CometStorage) - verify slot indices against a compiled storage layout before hard-coding."
+  },
+  {
+   "key": "comet_balance_of_formula",
+   "value": "function balanceOf(address account) override public view returns (uint256) { (uint64 baseSupplyIndex_, ) = accruedInterestIndices(getNowInternal() - lastAccrualTime); int104 principal = userBasic[account].principal; return principal > 0 ? presentValueSupply(baseSupplyIndex_, unsigned104(principal)) : 0; }",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometWithExtendedAssetList.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Verbatim from CometWithExtendedAssetList.sol at the pin; identical body in legacy Comet.sol (https://raw.githubusercontent.com/compound-finance/comet/d5a30b0aaeff7755f1431e87f818990902237b03/contracts/Comet.sol). Companion: 'function borrowBalanceOf(address account) override public view returns (uint256) { (, uint64 baseBorrowIndex_) = accruedInterestIndices(getNowInternal() - lastAccrualTime); int104 principal = userBasic[account].principal; return principal < 0 ? presentValueBorrow(baseBorrowIndex_, unsigned104(-principal)) : 0; }'. totalSupply() = presentValueSupply(baseSupplyIndex_, totalSupplyBase); totalBorrow() = presentValueBorrow(baseBorrowIndex_, totalBorrowBase), both using the accrued indices. docs.compound.finance/helper-functions/ describes balanceOf as 'The current balance of base asset for a specified account in the protocol, including interest.'"
+  },
+  {
+   "key": "comet_present_value_principal_value",
+   "value": "presentValueSupply = uint256(principalValue_) * baseSupplyIndex_ / BASE_INDEX_SCALE; presentValueBorrow = uint256(principalValue_) * baseBorrowIndex_ / BASE_INDEX_SCALE; principalValueSupply = safe104((presentValue_ * BASE_INDEX_SCALE) / baseSupplyIndex_); principalValueBorrow = safe104((presentValue_ * BASE_INDEX_SCALE + baseBorrowIndex_ - 1) / baseBorrowIndex_)",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometCore.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Verbatim: 'function presentValue(int104 principalValue_) internal view returns (int256) { if (principalValue_ >= 0) { return signed256(presentValueSupply(baseSupplyIndex, uint104(principalValue_))); } else { return -signed256(presentValueBorrow(baseBorrowIndex, uint104(-principalValue_))); } }' 'function presentValueSupply(uint64 baseSupplyIndex_, uint104 principalValue_) internal pure returns (uint256) { return uint256(principalValue_) * baseSupplyIndex_ / BASE_INDEX_SCALE; }' 'function presentValueBorrow(uint64 baseBorrowIndex_, uint104 principalValue_) internal pure returns (uint256) { return uint256(principalValue_) * baseBorrowIndex_ / BASE_INDEX_SCALE; }' 'function principalValue(int256 presentValue_) internal view returns (int104) { if (presentValue_ >= 0) { return signed104(principalValueSupply(baseSupplyIndex, uint256(presentValue_))); } else { return -signed104(principalValueBorrow(baseBorrowIndex, uint256(-presentValue_))); } }' 'function principalValueSupply(uint64 baseSupplyIndex_, uint256 presentValue_) internal pure returns (uint104) { return safe104((presentValue_ * BASE_INDEX_SCALE) / baseSupplyIndex_); }' 'function principalValueBorrow(uint64 baseBorrowIndex_, uint256 presentValue_) internal pure returns (uint104) { return safe104((presentValue_ * BASE_INDEX_SCALE + baseBorrowIndex_ - 1) / baseBorrowIndex_); }' Supply rounds down; borrow principal rounds up."
+  },
+  {
+   "key": "comet_accrued_interest_indices_formula",
+   "value": "function accruedInterestIndices(uint timeElapsed) internal view returns (uint64, uint64) { uint64 baseSupplyIndex_ = baseSupplyIndex; uint64 baseBorrowIndex_ = baseBorrowIndex; if (timeElapsed > 0) { uint utilization = getUtilization(); uint supplyRate = getSupplyRate(utilization); uint borrowRate = getBorrowRate(utilization); baseSupplyIndex_ += safe64(mulFactor(baseSupplyIndex_, supplyRate * timeElapsed)); baseBorrowIndex_ += safe64(mulFactor(baseBorrowIndex_, borrowRate * timeElapsed)); } return (baseSupplyIndex_, baseBorrowIndex_); }",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometWithExtendedAssetList.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Verbatim. mulFactor(n, factor) = n * factor / FACTOR_SCALE, so newIndex = index + index * rate_per_second * timeElapsed / 1e18 (simple interest within an accrual interval, compounded at each accrueInternal). Storage is updated only in 'function accrueInternal() internal { uint40 now_ = getNowInternal(); uint timeElapsed = uint256(now_ - lastAccrualTime); if (timeElapsed > 0) { (baseSupplyIndex, baseBorrowIndex) = accruedInterestIndices(timeElapsed); if (totalSupplyBase >= baseMinForRewards) { trackingSupplyIndex += safe64(divBaseWei(baseTrackingSupplySpeed * timeElapsed, totalSupplyBase)); } if (totalBorrowBase >= baseMinForRewards) { trackingBorrowIndex += safe64(divBaseWei(baseTrackingBorrowSpeed * timeElapsed, totalBorrowBase)); } lastAccrualTime = now_; } }'. getNowInternal(): 'if (block.timestamp >= 2**40) revert TimestampTooLarge(); return uint40(block.timestamp);'. initializeStorage(): 'if (lastAccrualTime != 0) revert AlreadyInitialized(); lastAccrualTime = getNowInternal(); baseSupplyIndex = BASE_INDEX_SCALE; baseBorrowIndex = BASE_INDEX_SCALE;' (indices start at 1e15). Implication for a balance-state epoch: balanceOf at block N = principal * (baseSupplyIndex + baseSupplyIndex*supplyRate*(block.timestamp - lastAccrualTime)/1e18) / 1e15, where baseSupplyIndex/lastAccrualTime are storage at N; a Substreams replay needs storage changes (or exact re-derivation) of baseSupplyIndex, not just events."
+  },
+  {
+   "key": "comet_rate_model_formulas",
+   "value": "getSupplyRate: utilization <= supplyKink ? supplyPerSecondInterestRateBase + mulFactor(supplyPerSecondInterestRateSlopeLow, utilization) : supplyPerSecondInterestRateBase + mulFactor(supplyPerSecondInterestRateSlopeLow, supplyKink) + mulFactor(supplyPerSecondInterestRateSlopeHigh, (utilization - supplyKink)); getBorrowRate analogous with borrow* immutables; getUtilization = totalSupply_ == 0 ? 0 : totalBorrow_ * FACTOR_SCALE / totalSupply_",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometWithExtendedAssetList.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Verbatim: 'function getSupplyRate(uint utilization) override public view returns (uint64) { if (utilization <= supplyKink) { return safe64(supplyPerSecondInterestRateBase + mulFactor(supplyPerSecondInterestRateSlopeLow, utilization)); } else { return safe64(supplyPerSecondInterestRateBase + mulFactor(supplyPerSecondInterestRateSlopeLow, supplyKink) + mulFactor(supplyPerSecondInterestRateSlopeHigh, (utilization - supplyKink))); } }' 'function getBorrowRate(uint utilization) override public view returns (uint64) { if (utilization <= borrowKink) { return safe64(borrowPerSecondInterestRateBase + mulFactor(borrowPerSecondInterestRateSlopeLow, utilization)); } else { return safe64(borrowPerSecondInterestRateBase + mulFactor(borrowPerSecondInterestRateSlopeLow, borrowKink) + mulFactor(borrowPerSecondInterestRateSlopeHigh, (utilization - borrowKink))); } }' 'function getUtilization() override public view returns (uint) { uint totalSupply_ = presentValueSupply(baseSupplyIndex, totalSupplyBase); uint totalBorrow_ = presentValueBorrow(baseBorrowIndex, totalBorrowBase); if (totalSupply_ == 0) { return 0; } else { return totalBorrow_ * FACTOR_SCALE / totalSupply_; } }'. Note getUtilization uses the STORED (un-accrued) indices. docs.compound.finance/interest-rates/ confirms the same kink formula and: rates are 'the decimal representation of a percentage scaled up by 10 ^ 18'; 'Supply APR = Supply Rate / (10 ^ 18) * Seconds Per Year * 100', 'Seconds Per Year = 60 * 60 * 24 * 365'; 'Interest accrues every second using the block timestamp.'"
+  },
+  {
+   "key": "comet_rate_immutables",
+   "value": "uint public override immutable supplyKink; supplyPerSecondInterestRateSlopeLow; supplyPerSecondInterestRateSlopeHigh; supplyPerSecondInterestRateBase; borrowKink; borrowPerSecondInterestRateSlopeLow; borrowPerSecondInterestRateSlopeHigh; borrowPerSecondInterestRateBase (each '/// @dev uint64', declared as uint)",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometWithExtendedAssetList.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Declared as 'uint public override immutable X;' each preceded by '/// @dev uint64' (the interface returns uint). Doc comments: supplyKink 'The point in the supply rates separating the low interest rate slope and the high interest rate slope (factor)'; supplyPerSecondInterestRateSlopeLow 'Per second supply interest rate slope applied when utilization is below kink (factor)'; ...SlopeHigh 'applied when utilization is above kink (factor)'; supplyPerSecondInterestRateBase 'Per second supply base interest rate (factor)'; borrow* symmetric. Constructor: 'supplyKink = config.supplyKink; supplyPerSecondInterestRateSlopeLow = config.supplyPerYearInterestRateSlopeLow / SECONDS_PER_YEAR; supplyPerSecondInterestRateSlopeHigh = config.supplyPerYearInterestRateSlopeHigh / SECONDS_PER_YEAR; supplyPerSecondInterestRateBase = config.supplyPerYearInterestRateBase / SECONDS_PER_YEAR; borrowKink = config.borrowKink; borrowPerSecondInterestRateSlopeLow = config.borrowPerYearInterestRateSlopeLow / SECONDS_PER_YEAR; borrowPerSecondInterestRateSlopeHigh = config.borrowPerYearInterestRateSlopeHigh / SECONDS_PER_YEAR; borrowPerSecondInterestRateBase = config.borrowPerYearInterestRateBase / SECONDS_PER_YEAR;' with 'uint64 internal constant SECONDS_PER_YEAR = 31_536_000;' (CometCore). Because these are immutables baked into the implementation, every governance rate change = new implementation deployed via Configurator/CometFactory and proxy upgrade; an indexer must re-read immutables (via getters) after each upgrade."
+  },
+  {
+   "key": "comet_scale_immutables_base_scale_tracking_index_scale",
+   "value": "baseScale = uint64(10 ** decimals_) where decimals_ = IERC20NonStandard(config.baseToken).decimals(); trackingIndexScale = config.trackingIndexScale (1e15 in all four market configs)",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometWithExtendedAssetList.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Declarations: '/// @notice The scale for base token (must be less than 18 decimals) /// @dev uint64 uint public override immutable baseScale;' '/// @notice The scale for reward tracking /// @dev uint64 uint public override immutable trackingIndexScale;' '/// @notice The number of decimals for wrapped base token uint8 public override immutable decimals;'. Constructor: 'uint8 decimals_ = IERC20NonStandard(config.baseToken).decimals(); if (decimals_ > MAX_BASE_DECIMALS) revert BadDecimals(); ... decimals = decimals_; baseScale = uint64(10 ** decimals_); trackingIndexScale = config.trackingIndexScale; if (baseScale < BASE_ACCRUAL_SCALE) revert BadDecimals(); accrualDescaleFactor = baseScale / BASE_ACCRUAL_SCALE;'. So USDC/USDbC markets: decimals 6, baseScale 1e6; WETH market: decimals 18, baseScale 1e18. Other immutables: baseTrackingSupplySpeed, baseTrackingBorrowSpeed (@dev uint64, 'in trackingIndexScale'), baseMinForRewards (@dev uint104), baseBorrowMin, targetReserves, storeFrontPriceFactor (@dev uint64; constructor 'if (config.storeFrontPriceFactor > FACTOR_SCALE) revert BadDiscount();'), numAssets (uint8)."
+  },
+  {
+   "key": "comet_core_constants",
+   "value": "FACTOR_SCALE = 1e18 (uint64); BASE_INDEX_SCALE = 1e15 (uint64); MAX_BASE_DECIMALS = 18 (uint8); MAX_ASSETS = 15 (uint8); BASE_ACCRUAL_SCALE = 1e6 (uint64); PRICE_FEED_DECIMALS = 8; PRICE_SCALE = 10**8; SECONDS_PER_YEAR = 31_536_000; MAX_COLLATERAL_FACTOR = FACTOR_SCALE",
+   "source_url": "https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometCore.sol",
+   "source_pin": "f766f51583c23acc33b2a7824654ef2029a96804",
+   "note": "Verbatim: 'uint8 internal constant MAX_ASSETS = 15;' 'uint8 internal constant MAX_BASE_DECIMALS = 18;' 'uint64 internal constant MAX_COLLATERAL_FACTOR = FACTOR_SCALE;' 'uint8 internal constant PAUSE_SUPPLY_OFFSET = 0;' 'PAUSE_TRANSFER_OFFSET = 1;' 'PAUSE_WITHDRAW_OFFSET = 2;' 'PAUSE_ABSORB_OFFSET = 3;' 'PAUSE_BUY_OFFSET = 4;' 'uint8 internal constant PRICE_FEED_DECIMALS = 8;' 'uint64 internal constant SECONDS_PER_YEAR = 31_536_000;' 'uint64 internal constant BASE_ACCRUAL_SCALE = 1e6;' 'uint64 internal constant BASE_INDEX_SCALE = 1e15;' 'uint64 internal constant PRICE_SCALE = uint64(10 ** PRICE_FEED_DECIMALS);' 'uint64 internal constant FACTOR_SCALE = 1e18;'. Exposed via CometExt (contracts/CometExt.sol, 'contract CometExt is CometExtInterface', delegatecall extension): baseIndexScale() returns BASE_INDEX_SCALE, factorScale() returns FACTOR_SCALE, priceScale() returns PRICE_SCALE, maxAssets() returns MAX_ASSETS, baseAccrualScale() returns BASE_ACCRUAL_SCALE, totalsBasic() returns TotalsBasic memory (CometExtInterface: 'abstract contract CometExtInterface is CometCore'; https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometExtInterface.sol). At the pin, CometWithExtendedAssetList caps assets at MAX_ASSETS_FOR_ASSET_LIST = 24, while CometCore.MAX_ASSETS = 15 (legacy Comet.sol limit) remains the value returned by CometExt.maxAssets()."
+  },
+  {
+   "key": "docs_compound_finance_protocol_contracts",
+   "value": "cUSDCv3 = 'the main proxy contract for interacting with the first Compound III market'; 'The v3 proxy is the only address to be used to interact with a Compound III instance.'",
+   "source_url": "https://docs.compound.finance/",
+   "source_pin": null,
+   "note": "Networks section: 'The initial deployment of Compound III is on Ethereum and the base asset is USDC.' Protocol Contracts: cUSDCv3 (proxy), cUSDCv3 Implementation ('the implementation of the market logic contract, as deployed by the Comet Factory via the Configurator'), cUSDCv3 Ext ('an extension of the market logic contract which supports some auxiliary/independent interfaces'), Configurator, Proxy Admin ('the admin of the Comet and Configurator proxy contracts'), Comet Factory, Rewards, Bulker. The docs site does not itself list per-network addresses; it delegates to the repo deployments/ folder. docs.compound.finance/helper-functions/: userBasic struct 'principal, baseTrackingIndex, baseTrackingAccrued, assetsIn'; totalsBasic 'baseSupplyIndex, baseBorrowIndex, trackingSupplyIndex, trackingBorrowIndex...'; baseIndexScale 'The integer used to scale down the index when calculating a decimal value.'; factorScale 'The integer used to scale down the factor when calculating a decimal value.'; maxAssets 'The maximum number of assets that can be simultaneously supported by Compound III.'"
+  }
+ ],
+ "open_questions": [
+  "contracts/Comet.sol does not exist at the pinned commit f766f51583c23acc33b2a7824654ef2029a96804 (removed in db72b0ca39118098846605479d156ce9b1736cf3, 2026-06-11). The requirements doc should cite contracts/CometWithExtendedAssetList.sol at the pin as the implementation reference and, if a legacy path is needed, contracts/Comet.sol at parent commit d5a30b0aaeff7755f1431e87f818990902237b03. Decide which market proxies currently point at a legacy Comet implementation vs. CometWithExtendedAssetList (not determinable from the repo without RPC; both share identical balanceOf/index math, so balance derivation is unaffected).",
+  "Base cUSDCv3 (0xb125E6687d4313864e53df431d5425969c15Eb2F) and cUSDbCv3 (0x9c4ec768c28520B50860ea7a15bd7213a9fF58bf) could not be cross-checked on Basescan (HTTP 403 to WebFetch); they are sourced solely from deployments/base/{usdc,usdbc}/roots.json at the pinned commit. Mainnet cUSDCv3 and cWETHv3 were cross-checked on Etherscan (labels 'Compound USDC (cUSDCv3)' and 'Compound WETH (cWETHv3)').",
+  "docs.compound.finance no longer publishes a per-network address table; its Networks section defers to the comet repo deployments/ folder. The chain set (arbitrum, base, linea, mainnet, mantle, optimism, polygon, ronin, scroll, unichain) and the absence of BNB Smart Chain are therefore evidenced by deployments/ + hardhat.config.ts at the pin, not by a docs page.",
+  "The comet README at the pin still says 'Currently, Avalanche mainnet and testnet (fuji) are supported' (spider/deploy tooling text). There is no avalanche folder in deployments/ at the pin; treat the README sentence as stale tooling text, not as a live-market claim.",
+  "The per-market rate/tracking parameters quoted from deployments/*/configuration.json are the genesis configuration files, not necessarily the current on-chain immutables (governance proposals re-deploy the implementation with new immutables). A Substreams module should read supplyKink/slopes/base, baseScale, trackingIndexScale, baseMinForRewards etc. from the live implementation (or track Configurator/proxy upgrade events) rather than hard-code them.",
+  "Exact storage slot indices for baseSupplyIndex/baseBorrowIndex/... and the userBasic mapping base slot were not derived here (would require a compiled storage layout or the deployed implementation's storage-layout artifact). Layout order from CometStorage.sol is recorded; confirm slot numbers before implementing storage-change-based balance replay.",
+  "Mainnet and Base contain additional Comet markets at the pin (mainnet: usds, usdt, wbtc, wsteth; base: aero, usds, weth) whose proxy addresses were not collected because they were out of the requested scope."
+ ]
+}

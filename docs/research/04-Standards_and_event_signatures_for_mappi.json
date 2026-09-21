@@ -1,0 +1,360 @@
+{
+ "topic": "Standards and event signatures for mapping wallet actions to on-chain evidence (ERC-20/721/1155, EIP-2612, Permit2, WETH9, EIP-7702, EIP-6780, mempool replacement, Aave V3 Pool)",
+ "facts": [
+  {
+   "key": "topic0_method",
+   "value": "keccak256(canonical signature) computed locally with pycryptodome Crypto.Hash.keccak (digest_bits=256)",
+   "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/IERC20.sol",
+   "source_pin": "69c8def5f222ff96f2b5beff05dfba996368aa79",
+   "note": "Every topic0 below was computed from the event's canonical ABI signature (names/indexed stripped, `uint`->`uint256`, enums->`uint8`) taken from the pinned source file named in that fact. ERC-20 Transfer result 0xddf252ad... matches the universally published constant, validating the method."
+  },
+  {
+   "key": "erc20_transfer_event",
+   "value": "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-20.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "ERC-20 (Final). Verbatim rule: 'MUST trigger when tokens are transferred, including zero value transfers.' and 'A token contract which creates new tokens SHOULD trigger a Transfer event with the `_from` address set to `0x0` when tokens are created.' Log shape: 3 topics (topic0 + from + to), data = value. Note: eips.ethereum.org/EIPS/eip-20 still renders it, but ethereum/EIPs marks it status: Moved; canonical text is now ethereum/ERCs."
+  },
+  {
+   "key": "erc20_transfer_topic0",
+   "value": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+   "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/IERC20.sol",
+   "source_pin": "69c8def5f222ff96f2b5beff05dfba996368aa79",
+   "note": "keccak256('Transfer(address,address,uint256)'). OZ v5.1.0 IERC20.sol line 16: `event Transfer(address indexed from, address indexed to, uint256 value);`. Shared with ERC-721 Transfer (see erc721_transfer_event) - disambiguate by topic count."
+  },
+  {
+   "key": "erc20_approval_event",
+   "value": "event Approval(address indexed _owner, address indexed _spender, uint256 _value)",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-20.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "Verbatim: 'MUST trigger on any successful call to `approve(address _spender, uint256 _value)`.' 3 topics, data = value. Also emitted by EIP-2612 permit() (see below), so an Approval log alone cannot distinguish approve() from permit()."
+  },
+  {
+   "key": "erc20_approval_topic0",
+   "value": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+   "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/IERC20.sol",
+   "source_pin": "69c8def5f222ff96f2b5beff05dfba996368aa79",
+   "note": "keccak256('Approval(address,address,uint256)'). OZ v5.1.0 IERC20.sol line 22. Shared with ERC-721 Approval (4 topics there vs 3 here)."
+  },
+  {
+   "key": "erc721_transfer_event",
+   "value": "event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId)",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-721.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "ERC-721 (Final), erc-721.md line 55. Same topic0 as ERC-20 Transfer (0xddf252ad...) because canonical signature is identical, but ALL THREE params are indexed => log has 4 topics and empty data; ERC-20 has 3 topics + 32-byte data. Doc: 'This emits when ownership of any NFT changes by any mechanism. This event emits when NFTs are created (`from` == 0) and destroyed (`to` == 0). Exception: during contract creation, any number of NFTs may be created and assigned without emitting Transfer. At the time of any transfer, the approved address for that NFT (if any) is reset to none.' OZ v5.1.0 IERC721.sol line 15 matches."
+  },
+  {
+   "key": "erc721_approval_event",
+   "value": "event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId)",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-721.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "erc-721.md line 61. Same topic0 as ERC-20 Approval (0x8c5be1e5...), but 4 topics (3 indexed) and empty data. Doc: 'This emits when the approved address for an NFT is changed or reaffirmed. The zero address indicates there is no approved address. When a Transfer event emits, this also indicates that the approved address for that NFT (if any) is reset to none.' OZ v5.1.0 IERC721.sol line 20 matches."
+  },
+  {
+   "key": "erc721_approvalforall_event",
+   "value": "event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved)",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-721.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "erc-721.md line 65. Doc: 'This emits when an operator is enabled or disabled for an owner. The operator can manage all NFTs of the owner.' 3 topics, data = bool. OZ v5.1.0 IERC721.sol line 25 matches."
+  },
+  {
+   "key": "approvalforall_topic0",
+   "value": "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31",
+   "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/IERC721.sol",
+   "source_pin": "69c8def5f222ff96f2b5beff05dfba996368aa79",
+   "note": "keccak256('ApprovalForAll(address,address,bool)'). Identical topic0 and shape for ERC-721 and ERC-1155 ApprovalForAll (OZ IERC1155.sol v5.1.0 line 34 names the first param `account` but ABI is the same). Cannot tell 721 vs 1155 from this log alone; use the emitting contract's other logs/interface."
+  },
+  {
+   "key": "erc1155_transfersingle_event",
+   "value": "event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value)",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-1155.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "ERC-1155 (Final), erc-1155.md line 56. 4 topics (operator, from, to), data = (id, value). Rule (line 47): 'Either `TransferSingle` or `TransferBatch` MUST emit when tokens are transferred, including zero value transfers as well as minting or burning'; 'When minting/creating tokens, the `_from` argument MUST be set to `0x0`'; 'When burning/destroying tokens, the `_to` argument MUST be set to `0x0`'. OZ v5.1.0 IERC1155.sol line 16 matches."
+  },
+  {
+   "key": "erc1155_transfersingle_topic0",
+   "value": "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62",
+   "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC1155/IERC1155.sol",
+   "source_pin": "69c8def5f222ff96f2b5beff05dfba996368aa79",
+   "note": "keccak256('TransferSingle(address,address,address,uint256,uint256)')."
+  },
+  {
+   "key": "erc1155_transferbatch_event",
+   "value": "event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values)",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-1155.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "erc-1155.md line 68. 4 topics, data = ABI-encoded dynamic arrays (ids[], values[]) - must be ABI-decoded, lengths must match. Same mint/burn zero-address rules as TransferSingle. OZ v5.1.0 IERC1155.sol lines 22-28 match."
+  },
+  {
+   "key": "erc1155_transferbatch_topic0",
+   "value": "0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb",
+   "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC1155/IERC1155.sol",
+   "source_pin": "69c8def5f222ff96f2b5beff05dfba996368aa79",
+   "note": "keccak256('TransferBatch(address,address,address,uint256[],uint256[])')."
+  },
+  {
+   "key": "erc1155_approvalforall_event",
+   "value": "event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved)",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-1155.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "erc-1155.md line 73. Rule (line 71): 'MUST emit when approval for a second party/operator address to manage all tokens for an owner address is enabled or disabled (absence of an event assumes disabled).' topic0 = 0x17307eab... (same as ERC-721)."
+  },
+  {
+   "key": "erc1155_uri_event",
+   "value": "event URI(string _value, uint256 indexed _id)",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-1155.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "erc-1155.md line 80; 'MUST emit when the URI is updated for a token ID.' topic0 = keccak256('URI(string,uint256)') = 0x6bb7ff708619ba0610cba295a58592e0451dee2622938c8755667688daf3529b. Metadata-only; not a wallet action."
+  },
+  {
+   "key": "eip2612_permit_function",
+   "value": "function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-2612.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "ERC-2612 (Final), lines 44-46 also define `nonces(address owner) returns (uint)` and `DOMAIN_SEPARATOR() returns (bytes32)`. Verbatim semantics (lines 52-62): permit 'will set `allowance[owner][spender]` to `value`, increment `nonces[owner]` by 1, and emit a corresponding `Approval` event, if and only if': blocktime <= deadline; owner != zero address; `nonces[owner]` (before update) == nonce; (v,r,s) valid secp256k1 signature from owner over the EIP-712 message. 'If any of these conditions are not met, the `permit` call must revert.'"
+  },
+  {
+   "key": "eip2612_defines_no_event",
+   "value": "NO new event; on-chain evidence is the standard ERC-20 Approval(owner, spender, value) log (topic0 0x8c5be1e5...) emitted by the token",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-2612.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "The spec text defines only functions and reuses EIP-20 Approval. Consequence for action mapping: a permit shows up as an Approval log where the tx sender is typically a relayer/spender, not the owner; the owner did not send any transaction. Distinguish from approve() only via the call trace (permit selector) - not from the log."
+  },
+  {
+   "key": "eip2612_permit_typehash",
+   "value": "keccak256(\"Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)\") = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9",
+   "source_url": "https://github.com/ethereum/ERCs/blob/5fc191d6d4da12ee224813871f94ff16e541e3f7/ERCS/erc-2612.md",
+   "source_pin": "5fc191d6d4da12ee224813871f94ff16e541e3f7",
+   "note": "erc-2612.md line 70 (struct typehash string, computed locally). This is an EIP-712 struct hash, NOT a log topic. Digest = keccak256(0x1901 || DOMAIN_SEPARATOR || keccak256(abi.encode(TYPEHASH, owner, spender, value, nonce, deadline)))."
+  },
+  {
+   "key": "oz_erc20permit_v5_1_0_behavior",
+   "value": "permit(): reverts ERC2612ExpiredSignature(deadline) if block.timestamp > deadline; recovers signer via ECDSA over _hashTypedDataV4(structHash); reverts ERC2612InvalidSigner(signer, owner) on mismatch; then _approve(owner, spender, value) which emits Approval",
+   "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC20Permit.sol",
+   "source_pin": "69c8def5f222ff96f2b5beff05dfba996368aa79",
+   "note": "PERMIT_TYPEHASH in OZ is the same string as ERC-2612. nonces() delegates to Nonces; DOMAIN_SEPARATOR() returns _domainSeparatorV4(). Interface: contracts/token/ERC20/extensions/IERC20Permit.sol lines 66-89 at the same tag."
+  },
+  {
+   "key": "permit2_repo_pin",
+   "value": "Uniswap/permit2 @ cc56ad0f3439c502c246fc5cfcc3db92bb8b7219 (main at time of research)",
+   "source_url": "https://github.com/Uniswap/permit2/tree/cc56ad0f3439c502c246fc5cfcc3db92bb8b7219",
+   "source_pin": "cc56ad0f3439c502c246fc5cfcc3db92bb8b7219",
+   "note": "README: 'Permit2 is the union of two contracts: AllowanceTransfer and SignatureTransfer. The SignatureTransfer contract handles all signature-based transfers, meaning that an allowance on the token is bypassed and permissions to the spender only last for the duration of the transaction that the one-time signature is spent. The AllowanceTransfer contract handles setting allowances on tokens, giving permissions to spenders on a specified amount for a specified duration of time.' Both modes require the user's ERC-20 approve() to the Permit2 contract first (an ordinary ERC-20 Approval log with spender = Permit2)."
+  },
+  {
+   "key": "permit2_event_permit",
+   "value": "event Permit(address indexed owner, address indexed token, address indexed spender, uint160 amount, uint48 expiration, uint48 nonce)",
+   "source_url": "https://github.com/Uniswap/permit2/blob/cc56ad0f3439c502c246fc5cfcc3db92bb8b7219/src/interfaces/IAllowanceTransfer.sol",
+   "source_pin": "cc56ad0f3439c502c246fc5cfcc3db92bb8b7219",
+   "note": "IAllowanceTransfer.sol lines 32-39. Doc: 'Emits an event when the owner successfully sets permissions using a permit signature on a token for the spender.' topic0 = keccak256('Permit(address,address,address,uint160,uint48,uint48)') = 0xc6a377bfc4eb120024a8ac08eef205be16b817020812c73223e81d1bdb9708ec. 4 topics; data = (amount, expiration, nonce)."
+  },
+  {
+   "key": "permit2_event_approval",
+   "value": "event Approval(address indexed owner, address indexed token, address indexed spender, uint160 amount, uint48 expiration)",
+   "source_url": "https://github.com/Uniswap/permit2/blob/cc56ad0f3439c502c246fc5cfcc3db92bb8b7219/src/interfaces/IAllowanceTransfer.sol",
+   "source_pin": "cc56ad0f3439c502c246fc5cfcc3db92bb8b7219",
+   "note": "IAllowanceTransfer.sol lines 27-29. Doc: 'Emits an event when the owner successfully sets permissions on a token for the spender.' (direct approve() on Permit2, no signature). topic0 = keccak256('Approval(address,address,address,uint160,uint48)') = 0xda9fa7c1b00402c17d0161b249b1ab8bbec047c5a52207b9c112deffd817036b. NOT the ERC-20 Approval topic0 (different arity/types); emitted by the Permit2 contract, with `token` as topic2."
+  },
+  {
+   "key": "permit2_event_lockdown",
+   "value": "event Lockdown(address indexed owner, address token, address spender)",
+   "source_url": "https://github.com/Uniswap/permit2/blob/cc56ad0f3439c502c246fc5cfcc3db92bb8b7219/src/interfaces/IAllowanceTransfer.sol",
+   "source_pin": "cc56ad0f3439c502c246fc5cfcc3db92bb8b7219",
+   "note": "IAllowanceTransfer.sol line 42. Doc: 'Emits an event when the owner sets the allowance back to 0 with the lockdown function.' Only `owner` is indexed; token and spender are in data. topic0 = keccak256('Lockdown(address,address,address)') = 0x89b1add15eff56b3dfe299ad94e01f2b52fbcb80ae1a3baea6ae8c04cb2b98a4. Maps to a wallet 'revoke Permit2 allowance' action."
+  },
+  {
+   "key": "permit2_event_nonceinvalidation",
+   "value": "event NonceInvalidation(address indexed owner, address indexed token, address indexed spender, uint48 newNonce, uint48 oldNonce)",
+   "source_url": "https://github.com/Uniswap/permit2/blob/cc56ad0f3439c502c246fc5cfcc3db92bb8b7219/src/interfaces/IAllowanceTransfer.sol",
+   "source_pin": "cc56ad0f3439c502c246fc5cfcc3db92bb8b7219",
+   "note": "IAllowanceTransfer.sol lines 22-24. Doc: 'Emits an event when the owner successfully invalidates an ordered nonce.' topic0 = keccak256('NonceInvalidation(address,address,address,uint48,uint48)') = 0x55eb90d810e1700b35a8e7e25395ff7f2b2259abd7415ca2284dfb1c246418f3. Maps to 'cancel outstanding AllowanceTransfer permit signatures'."
+  },
+  {
+   "key": "permit2_event_unorderednonceinvalidation",
+   "value": "event UnorderedNonceInvalidation(address indexed owner, uint256 word, uint256 mask)",
+   "source_url": "https://github.com/Uniswap/permit2/blob/cc56ad0f3439c502c246fc5cfcc3db92bb8b7219/src/interfaces/ISignatureTransfer.sol",
+   "source_pin": "cc56ad0f3439c502c246fc5cfcc3db92bb8b7219",
+   "note": "ISignatureTransfer.sol line 19; the ONLY event declared in ISignatureTransfer. Doc: 'Emits an event when the owner successfully invalidates an unordered nonce.' topic0 = keccak256('UnorderedNonceInvalidation(address,uint256,uint256)') = 0x3704902f963766a4e561bbaab6e6cdc1b1dd12f6e9e99648da8843b3f46b918d. Implication: a consumed SignatureTransfer permit (permitTransferFrom) leaves no Permit2-level log - only the token's ERC-20 Transfer(owner -> recipient) with msg.sender = Permit2 in the call trace."
+  },
+  {
+   "key": "permit2_canonical_address",
+   "value": "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+   "source_url": "https://developers.uniswap.org/docs/protocols/v3/deployments/v3-ethereum-deployments",
+   "source_pin": null,
+   "note": "Uniswap official docs deployments table lists Permit2 at this address on Ethereum mainnet and Sepolia; the Permit2 overview page (developers.uniswap.org/docs/protocols/permit2/overview) says it is deployed at this address 'on most networks' but zkSync uses 0x0000000000225e31D15943971F47aD3022F714Fa. The pinned repo README does NOT state the address. Per-chain confirmation for the chains this project indexes is an open question."
+  },
+  {
+   "key": "weth9_source_pin",
+   "value": "gnosis/canonical-weth @ 0dd1ea3e295eef916d0c6223ec63141137d22d67 contracts/WETH9.sol (pragma solidity >=0.4.22 <0.6)",
+   "source_url": "https://github.com/gnosis/canonical-weth/blob/0dd1ea3e295eef916d0c6223ec63141137d22d67/contracts/WETH9.sol",
+   "source_pin": "0dd1ea3e295eef916d0c6223ec63141137d22d67",
+   "note": "Events declared lines 23-26: `event Approval(address indexed src, address indexed guy, uint wad); event Transfer(address indexed src, address indexed dst, uint wad); event Deposit(address indexed dst, uint wad); event Withdrawal(address indexed src, uint wad);`. deposit() (line 34) emits ONLY Deposit(msg.sender, msg.value) (line 36); withdraw(uint wad) (line 38) emits ONLY Withdrawal(msg.sender, wad) (line 42). No Transfer from/to 0x0 is emitted on wrap/unwrap, so ERC-20-Transfer-only mint/burn detection misses WETH supply changes; native ETH movement is visible only via value transfer / balance change in the trace."
+  },
+  {
+   "key": "weth9_deposit_event",
+   "value": "event Deposit(address indexed dst, uint wad)  => canonical Deposit(address,uint256)",
+   "source_url": "https://github.com/gnosis/canonical-weth/blob/0dd1ea3e295eef916d0c6223ec63141137d22d67/contracts/WETH9.sol",
+   "source_pin": "0dd1ea3e295eef916d0c6223ec63141137d22d67",
+   "note": "topic0 = keccak256('Deposit(address,uint256)') = 0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c. 2 topics (topic0, dst), data = wad. Maps to wallet action 'wrap ETH'. Caution: the signature Deposit(address,uint256) is generic and other contracts emit the same topic0; require emitter == known WETH address."
+  },
+  {
+   "key": "weth9_withdrawal_event",
+   "value": "event Withdrawal(address indexed src, uint wad)  => canonical Withdrawal(address,uint256)",
+   "source_url": "https://github.com/gnosis/canonical-weth/blob/0dd1ea3e295eef916d0c6223ec63141137d22d67/contracts/WETH9.sol",
+   "source_pin": "0dd1ea3e295eef916d0c6223ec63141137d22d67",
+   "note": "topic0 = keccak256('Withdrawal(address,uint256)') = 0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65. 2 topics (topic0, src), data = wad. Maps to 'unwrap WETH'. Same emitter-address caution as Deposit."
+  },
+  {
+   "key": "weth9_mainnet_address",
+   "value": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+   "source_url": "https://github.com/gnosis/canonical-weth/blob/0dd1ea3e295eef916d0c6223ec63141137d22d67/README.md",
+   "source_pin": "0dd1ea3e295eef916d0c6223ec63141137d22d67",
+   "note": "README 'Deployed contract addresses' - Mainnet. Cross-checked: bgd-labs/aave-address-book src/AaveV3Ethereum.sol @ 4e13aa197ca74e84c7e878bc752e519c260d6f30 line 151 `WETH_UNDERLYING = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2` (same address). Other chains' WETH addresses were not researched here."
+  },
+  {
+   "key": "eip7702_tx_type_and_payload",
+   "value": "SET_CODE_TX_TYPE = 0x04; payload = rlp([chain_id, nonce, max_priority_fee_per_gas, max_fee_per_gas, gas_limit, destination, value, data, access_list, authorization_list, signature_y_parity, signature_r, signature_s]); authorization_list = [[chain_id, address, nonce, y_parity, r, s], ...]",
+   "source_url": "https://github.com/ethereum/EIPs/blob/dbc6d457cbf90d5f9d55552f3fd91d58b88cc898/EIPS/eip-7702.md",
+   "source_pin": "dbc6d457cbf90d5f9d55552f3fd91d58b88cc898",
+   "note": "EIP-7702 status Final (Prague/Pectra). MAGIC = 0x05, PER_AUTH_BASE_COST = 12500, PER_EMPTY_ACCOUNT_COST = 25000. Outer fields follow EIP-4844 semantics: 'this implies a null destination is not valid' (a type-4 tx cannot be a contract creation). 'The transaction is considered invalid if the length of `authorization_list` is zero.' Also invalid if any tuple field is out of bounds (chain_id < 2**256, nonce < 2**64, len(address)==20, y_parity < 2**8, r,s < 2**256). Receipt payload = rlp([status, cumulative_transaction_gas_used, logs_bloom, logs]). Also at https://eips.ethereum.org/EIPS/eip-7702."
+  },
+  {
+   "key": "eip7702_authority_definition",
+   "value": "authority = ecrecover(msg, y_parity, r, s) where msg = keccak(MAGIC || rlp([chain_id, address, nonce]))",
+   "source_url": "https://github.com/ethereum/EIPs/blob/dbc6d457cbf90d5f9d55552f3fd91d58b88cc898/EIPS/eip-7702.md",
+   "source_pin": "dbc6d457cbf90d5f9d55552f3fd91d58b88cc898",
+   "note": "The 'authority' is the EOA whose code is being set - the signer of the tuple, NOT the tx sender (tx sender may be a sponsor). `address` in the tuple is the delegation target. 's' must be <= secp256k1n/2 (EIP-2). Step 4: authority is added to accessed_addresses (EIP-2929). Step 5: 'Verify the code of `authority` is empty or already delegated' (an EOA that already has real contract code cannot be delegated)."
+  },
+  {
+   "key": "eip7702_nonce_semantics",
+   "value": "Tuple `nonce` must equal the authority's current account nonce (step 6); after a valid tuple is applied the authority's nonce is increased by one (step 9). The authorization list is processed 'before the execution portion of the transaction begins, but after the sender's nonce is incremented.'",
+   "source_url": "https://github.com/ethereum/EIPs/blob/dbc6d457cbf90d5f9d55552f3fd91d58b88cc898/EIPS/eip-7702.md",
+   "source_pin": "dbc6d457cbf90d5f9d55552f3fd91d58b88cc898",
+   "note": "Derived consequence (not quoted text): for a self-sponsored tx (sender == authority) the tuple nonce must be tx.nonce + 1, because the sender nonce is bumped first. 'When multiple tuples from the same authority are present, set the code using the address in the last valid occurrence.' Each valid tuple is therefore an on-chain nonce increment for the authority even though the authority sent no transaction."
+  },
+  {
+   "key": "eip7702_failed_tuple_and_failed_tx",
+   "value": "'If any step above fails, immediately stop processing the tuple and continue to the next tuple in the list.' ... 'Note, if transaction execution results in failure (e.g. any exceptional condition or code reverting), the processed delegation indicators is *not rolled back*.'",
+   "source_url": "https://github.com/ethereum/EIPs/blob/dbc6d457cbf90d5f9d55552f3fd91d58b88cc898/EIPS/eip-7702.md",
+   "source_pin": "dbc6d457cbf90d5f9d55552f3fd91d58b88cc898",
+   "note": "Two distinct facts for action mapping: (a) an invalid tuple (bad chain id, bad sig, nonce mismatch, authority has non-delegation code) is silently skipped without invalidating the transaction; (b) valid tuples' code+nonce changes persist even when the tx status is FAILED/REVERTED. So a delegation/revocation must be derived from the tuple outcome, not from tx status."
+  },
+  {
+   "key": "eip7702_delegation_indicator",
+   "value": "code of authority := 0xef0100 || address (23 bytes). If address == 0x0000000000000000000000000000000000000000: 'do not write the delegation indicator. Clear the account's code by resetting the account's code hash to the empty code hash 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.'",
+   "source_url": "https://github.com/ethereum/EIPs/blob/dbc6d457cbf90d5f9d55552f3fd91d58b88cc898/EIPS/eip-7702.md",
+   "source_pin": "dbc6d457cbf90d5f9d55552f3fd91d58b88cc898",
+   "note": "Step 8. Uses banned opcode 0xef (EIP-3541) as a marker; 'CALL loads the code at `address` and executes it in the context of `authority`.' Wallet actions: 'delegate to smart account' = tuple with non-zero address; 'revoke delegation' = tuple with zero address. Evidence is a CodeChange on the authority (new code 0xef0100||addr or empty), not a log."
+  },
+  {
+   "key": "eip7702_discarded_term_source",
+   "value": "'discarded' is Firehose terminology, not EIP text: SetCodeAuthorization.discarded (field 1) - 'Discarded determines if this authorization was skipped due to being invalid. As EIP-7702 states, if the authorization is invalid (invalid signature, nonce mismatch, etc.) it must be simply discarded and the transaction is processed as if the authorization was not present in the authorization list.'",
+   "source_url": "https://github.com/streamingfast/firehose-ethereum/blob/0b39677aff55d7ee20899cc9bc95f606323be04c/proto/sf/ethereum/type/v2/type.proto",
+   "source_pin": "0b39677aff55d7ee20899cc9bc95f606323be04c",
+   "note": "type.proto lines 629-688: TransactionTrace.set_code_authorizations (field 36) 'will contain all the authorizations as they were specified in the transaction itself regardless of their validity'; SetCodeAuthorization fields: discarded (bool,1), chain_id (bytes,2), nonce (uint64,3), v (uint32,4), r (5), s (6), authority (optional bytes,7 - 'If the authority cannot be recovered from the signature, this field will be empty and the `discarded` field will be set to `true`'), address (bytes,8; note: was missing on early testnet/BSC/Arbitrum Sepolia activations, backfill promised). Header comment lines 72-80: 'nonce changes and code changes for each accepted authorization in the transaction should be recorded in the state even if the transaction fails ... both NonceChange and CodeChange entries will be present for each authorized account, with the transaction sender's nonce change appearing first without a corresponding code change.' This repo already consumes this: erc20/balances/src/persist.rs filters `!a.discarded`."
+  },
+  {
+   "key": "eip6780_selfdestruct_semantics",
+   "value": "Different tx than creation: frame halts; 'SELFDESTRUCT does not delete any data (including storage keys, code, or the account itself)'; transfers entire balance to target; self-target => no net change, Ether NOT burnt. Same tx as creation: prior behaviour - deletes data, transfers entire balance to target, sets caller balance to 0; self-target => Ether IS burnt. No refund (EIP-3529) in either case.",
+   "source_url": "https://github.com/ethereum/EIPs/blob/dbc6d457cbf90d5f9d55552f3fd91d58b88cc898/EIPS/eip-6780.md",
+   "source_pin": "dbc6d457cbf90d5f9d55552f3fd91d58b88cc898",
+   "note": "EIP-6780 status Final, Cancun. 'A contract is considered created at the beginning of a create transaction or when a CREATE series operation begins execution (CREATE, CREATE2, and other operations that deploy contracts in the future). If a balance exists at the contract's new address it is still considered to be a contract creation.' Action-mapping consequence: post-Cancun a SELFDESTRUCT in a later tx is just a balance sweep (native value transfer to target) with code/storage intact - do NOT model it as 'contract deleted'; only same-tx create+selfdestruct removes code. Also at https://eips.ethereum.org/EIPS/eip-6780."
+  },
+  {
+   "key": "eip1559_silent_on_replacement",
+   "value": "EIP-1559 defines tx type 0x02 with max_priority_fee_per_gas and max_fee_per_gas but contains no text on transaction replacement, cancellation, or mempool/pending semantics",
+   "source_url": "https://eips.ethereum.org/EIPS/eip-1559",
+   "source_pin": null,
+   "note": "Status Final. Replacement/cancellation is therefore not a protocol (consensus) concept; it is a client-local transaction-pool policy (see geth facts). The protocol only guarantees at most one included tx per (sender, nonce)."
+  },
+  {
+   "key": "geth_txpool_pricebump_flag",
+   "value": "--txpool.pricebump: 'Price bump percentage to replace an already existing transaction' (default: 10)",
+   "source_url": "https://geth.ethereum.org/docs/fundamentals/command-line-options",
+   "source_pin": null,
+   "note": "Related: --txpool.lifetime 'Maximum amount of time non-executable transaction are queued' (default 3h0m0s); --txpool.accountslots default 16; --txpool.globalslots default 5120. These are node-operator settings, so whether a replacement is accepted varies per node - further evidence that replacement is not an on-chain fact."
+  },
+  {
+   "key": "geth_txpool_replacement_source",
+   "value": "legacypool.Config.PriceBump: 'Minimum price bump percentage to replace an already existing transaction (nonce)'; DefaultConfig.PriceBump = 10; core/txpool/errors.go ErrReplaceUnderpriced = errors.New(\"replacement transaction underpriced\")",
+   "source_url": "https://github.com/ethereum/go-ethereum/blob/a5b90d2a28e8b68c2d6c335e17af4c64e23f7323/core/txpool/legacypool/legacypool.go",
+   "source_pin": "a5b90d2a28e8b68c2d6c335e17af4c64e23f7323",
+   "note": "legacypool.go lines 150, 166, 767-770 ('Nonce already pending, check if required price bump is met' -> list.Add(tx, pool.config.PriceBump)); errors.go line 38. Pinned to go-ethereum master at research time (not a release tag). geth txpool RPC docs (https://geth.ethereum.org/docs/rpc/ns-txpool): 'there may be multiple transactions associated with the same account and nonce. This can happen if the user broadcast multiple ones with varying gas allowances (or even completely different transactions).' Dashboard docs (https://geth.ethereum.org/docs/monitoring/understanding-dashboards): 'executable replace: rate that valid transactions are replaced with a new one from same sender with same nonce but higher gas'."
+  },
+  {
+   "key": "mempool_replacement_not_onchain_conclusion",
+   "value": "A 'speed-up'/'cancel' is a new transaction with the same sender nonce and >= pricebump% higher fees that displaces the earlier one in each node's local pool; only the transaction that is finally included appears in a block. The displaced tx leaves no on-chain trace, and a 'cancel' is indistinguishable on-chain from any ordinary tx at that nonce (commonly a 0-value self-transfer, but that convention is wallet UX, not protocol).",
+   "source_url": "https://geth.ethereum.org/docs/rpc/ns-txpool",
+   "source_pin": null,
+   "note": "Synthesis of EIP-1559 (silent), geth flag docs, geth source and txpool RPC docs above. For the requirements doc: 'replaced', 'dropped', 'cancelled' states can only be represented as absence of inclusion / a different tx consuming the nonce; a Firehose Extended block cannot evidence them."
+  },
+  {
+   "key": "aave_v3_origin_pin",
+   "value": "aave-dao/aave-v3-origin tag v3.7.0 = commit cff15de6d1271b0c800fc001f4aea4c263e8a597; events in src/contracts/interfaces/IPool.sol",
+   "source_url": "https://github.com/aave-dao/aave-v3-origin/blob/v3.7.0/src/contracts/interfaces/IPool.sol",
+   "source_pin": "cff15de6d1271b0c800fc001f4aea4c263e8a597",
+   "note": "Tags available at research time: v3.1.0 ... v3.7.0. `DataTypes.InterestRateMode` (src/contracts/protocol/libraries/types/DataTypes.sol line 153) is `enum InterestRateMode { NONE, __DEPRECATED, VARIABLE }` => ABI type uint8 with values 0/1/2 (1 = stable, deprecated since v3.2.0). Other IPool events at this tag (not requested): UserEModeSet, ReserveUsedAsCollateralEnabled/Disabled, ReserveDataUpdated, DeficitCovered, MintedToTreasury, DeficitCreated, PositionManagerApproved/Revoked."
+  },
+  {
+   "key": "aave_v3_supply_event",
+   "value": "event Supply(address indexed reserve, address user, address indexed onBehalfOf, uint256 amount, uint16 indexed referralCode)",
+   "source_url": "https://github.com/aave-dao/aave-v3-origin/blob/v3.7.0/src/contracts/interfaces/IPool.sol",
+   "source_pin": "cff15de6d1271b0c800fc001f4aea4c263e8a597",
+   "note": "IPool.sol lines 21-27. Doc: 'Emitted on supply()'; reserve = underlying asset; user = 'The address initiating the supply'; onBehalfOf = 'The beneficiary of the supply, receiving the aTokens'. NOTE `user` is NOT indexed (in data); onBehalfOf and referralCode are indexed. topic0 = keccak256('Supply(address,address,address,uint256,uint16)') = 0x2b627736bca15cd5381dcf80b0bf11fd197d01a037c52b927a881a10fb73ba61. 4 topics; data = (user, amount)."
+  },
+  {
+   "key": "aave_v3_withdraw_event",
+   "value": "event Withdraw(address indexed reserve, address indexed user, address indexed to, uint256 amount)",
+   "source_url": "https://github.com/aave-dao/aave-v3-origin/blob/v3.7.0/src/contracts/interfaces/IPool.sol",
+   "source_pin": "cff15de6d1271b0c800fc001f4aea4c263e8a597",
+   "note": "IPool.sol line 36. Doc: 'Emitted on withdraw()'; user = 'The address initiating the withdrawal, owner of aTokens'; to = 'The address that will receive the underlying'. topic0 = keccak256('Withdraw(address,address,address,uint256)') = 0x3115d1449a7b732c986cba18244e897a450f61e1bb8d589cd2e69e6c8924f9f7. 4 topics; data = amount."
+  },
+  {
+   "key": "aave_v3_borrow_event",
+   "value": "event Borrow(address indexed reserve, address user, address indexed onBehalfOf, uint256 amount, DataTypes.InterestRateMode interestRateMode, uint256 borrowRate, uint16 indexed referralCode)",
+   "source_url": "https://github.com/aave-dao/aave-v3-origin/blob/v3.7.0/src/contracts/interfaces/IPool.sol",
+   "source_pin": "cff15de6d1271b0c800fc001f4aea4c263e8a597",
+   "note": "IPool.sol lines 49-57. Doc: 'Emitted on borrow() and flashLoan() when debt needs to be opened'; user = 'The address of the user initiating the borrow(), receiving the funds on borrow() or just initiator of the transaction on flashLoan()'; onBehalfOf = 'The address that will be getting the debt'; interestRateMode 'The rate mode: 2 for Variable, 1 is deprecated (changed on v3.2.0)'; borrowRate in ray. Canonical ABI signature Borrow(address,address,address,uint256,uint8,uint256,uint16); topic0 = 0xb3d084820fb1a9decffb176436bd02558d15fac9b0ddfed8c465bc7359d7dce0. 4 topics; data = (user, amount, interestRateMode, borrowRate). `user` NOT indexed."
+  },
+  {
+   "key": "aave_v3_repay_event",
+   "value": "event Repay(address indexed reserve, address indexed user, address indexed repayer, uint256 amount, bool useATokens)",
+   "source_url": "https://github.com/aave-dao/aave-v3-origin/blob/v3.7.0/src/contracts/interfaces/IPool.sol",
+   "source_pin": "cff15de6d1271b0c800fc001f4aea4c263e8a597",
+   "note": "IPool.sol lines 67-73. Doc: 'Emitted on repay()'; user = 'The beneficiary of the repayment, getting his debt reduced'; repayer = 'The address of the user initiating the repay(), providing the funds'; useATokens 'True if the repayment is done using aTokens, false if done with underlying asset directly'. topic0 = keccak256('Repay(address,address,address,uint256,bool)') = 0xa534c8dbe71f871f9f3530e97a74601fea17b426cae02e1c5aee42c96c784051. 4 topics; data = (amount, useATokens)."
+  },
+  {
+   "key": "aave_v3_liquidationcall_event",
+   "value": "event LiquidationCall(address indexed collateralAsset, address indexed debtAsset, address indexed user, uint256 debtToCover, uint256 liquidatedCollateralAmount, address liquidator, bool receiveAToken)",
+   "source_url": "https://github.com/aave-dao/aave-v3-origin/blob/v3.7.0/src/contracts/interfaces/IPool.sol",
+   "source_pin": "cff15de6d1271b0c800fc001f4aea4c263e8a597",
+   "note": "IPool.sol lines 128-136. Doc: 'Emitted when a borrower is liquidated.'; user = 'The address of the borrower getting liquidated'; liquidator = 'The address of the liquidator' (NOT indexed - in data); receiveAToken 'True if the liquidators wants to receive the collateral aTokens, false if he wants to receive the underlying collateral asset directly'. topic0 = keccak256('LiquidationCall(address,address,address,uint256,uint256,address,bool)') = 0xe413a321e8681d831f4dbccbca790d2952b56f977908e45be37335533e005286. 4 topics; data = (debtToCover, liquidatedCollateralAmount, liquidator, receiveAToken). For wallet mapping: the liquidated wallet is topic3, the acting wallet must be decoded from data."
+  },
+  {
+   "key": "aave_v3_flashloan_event",
+   "value": "event FlashLoan(address indexed target, address initiator, address indexed asset, uint256 amount, DataTypes.InterestRateMode interestRateMode, uint256 premium, uint16 indexed referralCode)",
+   "source_url": "https://github.com/aave-dao/aave-v3-origin/blob/v3.7.0/src/contracts/interfaces/IPool.sol",
+   "source_pin": "cff15de6d1271b0c800fc001f4aea4c263e8a597",
+   "note": "IPool.sol lines 107-115. Doc: 'Emitted on flashLoan()'; target = 'The address of the flash loan receiver contract'; initiator = 'The address initiating the flash loan' (NOT indexed); interestRateMode 'The flashloan mode: 0 for regular flashloan, 1 for Stable (Deprecated on v3.2.0), 2 for Variable'; premium = 'The fee flash borrowed'. Canonical ABI FlashLoan(address,address,address,uint256,uint8,uint256,uint16); topic0 = 0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0. 4 topics; data = (initiator, amount, interestRateMode, premium). When mode != 0 a Borrow event is also emitted (see Borrow doc)."
+  },
+  {
+   "key": "aave_v3_ethereum_pool_address",
+   "value": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+   "source_url": "https://github.com/bgd-labs/aave-address-book/blob/4e13aa197ca74e84c7e878bc752e519c260d6f30/src/AaveV3Ethereum.sol",
+   "source_pin": "4e13aa197ca74e84c7e878bc752e519c260d6f30",
+   "note": "AaveV3Ethereum.sol line 12 `IPool internal constant POOL = IPool(0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2);` (proxy; POOL_IMPL line 33 = 0x728a138A4823392C2EFA55e028d434F526fE03CF at this commit, changes with upgrades). Events above are emitted by the POOL proxy address. Other Aave V3 markets/chains not enumerated here."
+  }
+ ],
+ "open_questions": [
+  "Aave topic0 values for Borrow and FlashLoan assume Solidity encodes the `DataTypes.InterestRateMode` enum as `uint8` in the canonical event signature (standard ABI behaviour); recommend confirming against a compiled Pool ABI / a known mainnet log before hardcoding, and confirming the event shapes are unchanged across v3.0.x-v3.6.x (only v3.7.0 IPool.sol was read).",
+  "Permit2 address 0x000000000022D473030F116dDEE9F6B43aC78BA3 is confirmed only from Uniswap's official docs (mainnet + Sepolia table; overview says 'most networks' with zkSync differing). It is NOT stated in the pinned Uniswap/permit2 README. Per-chain confirmation is needed for every EVM chain this project indexes.",
+  "Whether SignatureTransfer.permitTransferFrom / permitWitnessTransferFrom emit any Permit2-level log was verified only at the interface level (ISignatureTransfer declares only UnorderedNonceInvalidation); the implementation body (src/SignatureTransfer.sol) was not read. If confirmed, a consumed one-time permit is evidenced solely by the token's ERC-20 Transfer log plus the call trace.",
+  "WETH9 addresses on chains other than Ethereum mainnet were not researched; many L2s use different WETH implementations (some emit Transfer from/to zero on wrap/unwrap, some are predeploys). Needs per-chain confirmation from official chain docs.",
+  "EIP-7702 'self-sponsored tuple nonce = tx.nonce + 1' is a derived consequence of the spec ordering text, not a quoted sentence; verify against a real mainnet type-4 tx before relying on it.",
+  "The Firehose proto notes that SetCodeAuthorization.address (field 8) was missing when EIP-7702 first activated on Holesky, Sepolia, BSC Chapel, BSC Mainnet and Arbitrum Sepolia, with a backfill promised; whether the backfill has landed for the endpoints this project uses is unknown and was not checked (no Firehose endpoint was called).",
+  "The 'cancel = 0-value self-transfer' wallet convention has no official spec source; only replacement policy (geth pricebump, ErrReplaceUnderpriced) is cited. Other clients (Nethermind, Erigon, Reth, Besu) may use different replacement thresholds; not researched.",
+  "go-ethereum was pinned to master (a5b90d2a28e8b68c2d6c335e17af4c64e23f7323) rather than a release tag; the pricebump semantics are long-stable but a tag pin would be preferable for the requirements doc.",
+  "ERC-20/721/1155/2612 texts are marked `status: Moved` in ethereum/EIPs and now live in ethereum/ERCs (pinned 5fc191d6d4da12ee224813871f94ff16e541e3f7); eips.ethereum.org URLs still render them. Decide which URL form the requirements doc should cite.",
+  "Firehose Extended blocks expose CodeChange/NonceChange for 7702 authorities and BalanceChange for SELFDESTRUCT sweeps; the exact reason enums (e.g. BalanceChange.Reason for post-Cancun SELFDESTRUCT in a non-creation tx, and whether code/storage remain visible) were not verified against the proto and should be checked before writing the evidence mapping."
+ ]
+}
