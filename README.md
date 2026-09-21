@@ -27,6 +27,7 @@ The shared schema stays in the repository-root `proto/` crate:
 - `proto/v1/executions.proto`: execution-fact schema (`evm/executions`).
 - `proto/v1/erc20_events.proto`: ERC-20 event evidence schema (`erc20/events`).
 - `proto/v1/aave_actions.proto`: Aave lending-action evidence schema (`aave/actions`).
+- `proto/v1/dex-pool-state.proto` and `proto/v1/dex/`: wire-compatible V2/V3 closing-state messages (`dex/pool-state`), without unrelated ABI event projections.
 - `proto/src/pb/`: shared generated Rust types.
 - `common/retention/`: host-side retained holder state (origins, unknown vs known zero, undo, completeness report; [spec](docs/initialization-and-completeness.md)).
 - `common/persist/`: shared persisted-effect rules for Extended blocks.
@@ -40,10 +41,19 @@ The shared schema stays in the repository-root `proto/` crate:
 - `compound-v3/balance-state/`: Compound III (Comet) signed principal and market index module.
 - `aave/actions/`: Aave V3 Pool lending-action evidence.
 - `evm/executions/`: call trees, logs, code changes and SetCode authorizations.
+- [`dex/pool-state/`](dex/pool-state/README.md): one RPC-free `map_events` for complete Extended-block V2 reserves and ordered V3 changes; no price or pool-admission policy.
 - `conformance/`: host-only exact integer reference models (Aave V3, Comet, Compound v2, Lido stETH, ERC-4626 models).
 
 Keeping the schema separate from the module gives future Extended modules the
 same protobuf contract without copying generated types.
+
+Generic pool-state extraction is maintained in `dex/pool-state`; contract ABI
+sources and generated event structs remain in `substreams-abis`. The migration
+reuses the existing pinned dependency without a version change. Its new
+Extended-only package is checked offline; historical live evidence does not
+qualify the new input boundary or artifact digest. The owner's hold on
+IVSpikes-associated source and RPC checks remains active until explicit
+reauthorization.
 
 ## Build and test
 
