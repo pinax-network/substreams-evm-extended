@@ -29,3 +29,19 @@ pub mod aave {
         }
     }
 }
+
+pub mod uniswap {
+    pub mod v2 {
+        include!("uniswap.v2.rs");
+    }
+    pub mod v3 {
+        include!("uniswap.v3.rs");
+    }
+}
+pub mod dex {
+    pub mod pool_state {
+        pub mod v1 {
+            include!("dex.pool_state.v1.rs");
+        }
+    }
+}

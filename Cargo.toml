@@ -12,6 +12,7 @@ members = [
   "aave/balance-state",
   "aave/balance-state/tools",
   "evm/executions",
+  "dex/pool-state",
   "compound-v2/balance-state",
   "compound-v3/balance-state",
   "lido/balance-state",
