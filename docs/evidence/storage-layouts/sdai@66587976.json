@@ -1,0 +1,97 @@
+{
+ "captured": "2026-09-21",
+ "host": "macOS arm64; solc release binaries from binaries.soliditylang.org installed with solc-select, run under Rosetta where needed; no RPC, no network besides git and the binary download",
+ "repository": "sky-ecosystem/sdai",
+ "commit": "665879762f8b5df5d234463f45d1d6a49bd4fbeb",
+ "solc": {
+  "version": "Version: 0.8.17+commit.8df45f5f.Darwin.appleclang",
+  "sha256": "f5a38e9f870ef2e00e714630213bb25e50e080f6b772a7253738e647621ba4e6"
+ },
+ "command": "solc --combined-json storage-layout --base-path . src/SavingsDai.sol",
+ "cwd_note": "run at the repository root of the pinned checkout",
+ "method": "solc --storage-layout",
+ "contracts": {
+  "src/SavingsDai.sol:DaiJoinLike": {
+   "storage": [],
+   "types": {}
+  },
+  "src/SavingsDai.sol:DaiLike": {
+   "storage": [],
+   "types": {}
+  },
+  "src/SavingsDai.sol:IERC1271": {
+   "storage": [],
+   "types": {}
+  },
+  "src/SavingsDai.sol:PotLike": {
+   "storage": [],
+   "types": {}
+  },
+  "src/SavingsDai.sol:SavingsDai": {
+   "storage": [
+    {
+     "astId": 108,
+     "contract": "src/SavingsDai.sol:SavingsDai",
+     "label": "totalSupply",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 112,
+     "contract": "src/SavingsDai.sol:SavingsDai",
+     "label": "balanceOf",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_mapping(t_address,t_uint256)"
+    },
+    {
+     "astId": 118,
+     "contract": "src/SavingsDai.sol:SavingsDai",
+     "label": "allowance",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+    },
+    {
+     "astId": 122,
+     "contract": "src/SavingsDai.sol:SavingsDai",
+     "label": "nonces",
+     "offset": 0,
+     "slot": "3",
+     "type": "t_mapping(t_address,t_uint256)"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => mapping(address => uint256))",
+     "numberOfBytes": "32",
+     "value": "t_mapping(t_address,t_uint256)"
+    },
+    "t_mapping(t_address,t_uint256)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => uint256)",
+     "numberOfBytes": "32",
+     "value": "t_uint256"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    }
+   }
+  },
+  "src/SavingsDai.sol:VatLike": {
+   "storage": [],
+   "types": {}
+  }
+ }
+}

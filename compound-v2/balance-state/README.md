@@ -49,11 +49,16 @@ binds cUSDC (`CErc20`, USDC cash via the FiatToken `balances` mapping,
 cash, `Base0bps_Slope2000bps` WhitePaper constants). Slots follow the pinned
 `CTokenInterfaces.sol` declaration order (`interestRateModel` 6 …
 `accountTokens` 14, allowances 15, borrow snapshots 16, `underlying` 17) and
-`BaseJumpRateModelV2.sol` (multiplier 1, base 2, jump 3, kink 4). These are
-**inferred, not verified**: no Ethereum Extended blocks are cached locally and
-live Firehose and RPC use is paused. The USDC `balances` slot and the
-placeholder `activation_block` values are likewise unverified and must be
-requalified before any live use.
+`BaseJumpRateModelV2.sol` (multiplier 1, base 2, jump 3, kink 4). These
+cToken and rate-model slots are **compiler-verified**: `solc 0.8.10
+--storage-layout` of the pinned source is committed under
+[`docs/evidence/storage-layouts/compound-v2@a3214f67.json`](../../docs/evidence/storage-layouts/compound-v2@a3214f67.json)
+and [`tests/storage_layout.rs`](tests/storage_layout.rs) pins the `CErc20`,
+`CEther`, `CErc20Delegator` and `JumpRateModelV2` fixtures to it with a
+completeness check. Not verified: the USDC FiatToken `balances` slot (that
+source is not among the pinned trees), the deployed runtime code hashes and
+the placeholder `activation_block` values; no Ethereum Extended blocks are
+cached locally and live Firehose and RPC use is paused.
 
 ## Fail-closed rules
 

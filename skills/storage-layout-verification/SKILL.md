@@ -5,6 +5,15 @@ description: How to upgrade a balance-state fixture's inferred storage slots to 
 
 # Storage-layout verification with solc
 
+Executed once on 2026-09-21 (see `docs/evidence/storage-layouts/README.md`);
+follow these steps again when a pin changes. Practical notes from that run:
+`solc-select` via `pipx run solc-select install <versions>` fetches the
+macOS binaries (Rosetta on arm64); for OpenZeppelin use the repo remappings
+but NOT `--include-path lib/...` (ambiguous imports); static-a-token-v3 needs
+`solc 0.8.20` because `ECDSA.sol` requires `^0.8.20`; the 0.4.24 compact AST
+prints one `======= path =======` block per unit, split on that; Lido's
+`--allow-paths` must include the repository itself.
+
 Prerequisite reading: `docs/storage-layout-provenance.md` (per-contract table,
 pins, and what "verified" cannot mean without live access).
 

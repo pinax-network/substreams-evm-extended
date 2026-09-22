@@ -60,11 +60,15 @@ The default manifest parameters bind no vault and emit only `BlockClock`.
   namespace (`keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ERC20")) - 1)) & ~0xff`,
   re-derived in a test) with a 12-decimal offset.
 
-All slots are **inferred from pinned declaration order and unverified**
-against a compiler layout or saved blocks: the 6,093 locally cached BSC
-Extended blocks contain no call, write, log or code change for any Aave BNB
-static aToken, no Ethereum blocks are cached, and live Firehose and RPC use is
-paused. Activation blocks are placeholders.
+All slots are **compiler-verified** against the pinned sources
+(`StaticATokenLM` with `solc 0.8.20`, `SavingsDai` 0.8.17, `Pot` 0.6.12, and
+the OpenZeppelin ERC-7201 constants of v5.0.0) under
+[`docs/evidence/storage-layouts/`](../../docs/evidence/storage-layouts/README.md),
+with [`tests/storage_layout.rs`](tests/storage_layout.rs) pinning every fixture
+slot and checking completeness. Not verified: deployed runtime code hashes
+and activation blocks (placeholders); the 6,093 locally cached BSC Extended
+blocks contain no call, write, log or code change for any Aave BNB static
+aToken, no Ethereum blocks are cached, and live Firehose and RPC use is paused.
 
 ## Fail-closed rules
 

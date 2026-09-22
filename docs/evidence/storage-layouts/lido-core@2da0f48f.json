@@ -1,0 +1,210 @@
+{
+ "captured": "2026-09-21",
+ "repository": "lidofinance/core",
+ "commit": "2da0f48f1a2a103a394dcf8760810fe9165697fb",
+ "dependencies": {
+  "@aragon/os": "4.4.0",
+  "openzeppelin-solidity": "2.0.0"
+ },
+ "solc": {
+  "version": "0.4.24+commit.e67f0147"
+ },
+ "method": "ast-derived: solc 0.4.24 has no --storage-layout; linearizedBaseContracts walked from most base to most derived, non-constant state variables packed with Solidity rules (value types pack from the low end, mappings/dynamic types take a full slot)",
+ "contract": "contracts/0.4.24/Lido.sol:Lido",
+ "linearized_base_to_derived": [
+  "Versioned",
+  "IERC2612",
+  "IERC20",
+  "Pausable",
+  "StETH",
+  "StETHPermit",
+  "AppStorage",
+  "TimeHelpers",
+  "Initializable",
+  "Petrifiable",
+  "Autopetrified",
+  "IVaultRecoverable",
+  "EtherTokenConstant",
+  "IsContract",
+  "VaultRecoverable",
+  "ReentrancyGuard",
+  "EVMScriptRegistryConstants",
+  "KernelNamespaceConstants",
+  "EVMScriptRunner",
+  "ACLSyntaxSugar",
+  "AragonApp",
+  "Lido"
+ ],
+ "storage": [
+  {
+   "label": "shares",
+   "slot": "0",
+   "offset": 0,
+   "type": "mapping(address => uint256)",
+   "contract": "StETH",
+   "bytes": 32,
+   "file": "contracts/0.4.24/StETH.sol"
+  },
+  {
+   "label": "allowances",
+   "slot": "1",
+   "offset": 0,
+   "type": "mapping(address => mapping(address => uint256))",
+   "contract": "StETH",
+   "bytes": 32,
+   "file": "contracts/0.4.24/StETH.sol"
+  },
+  {
+   "label": "noncesByAddress",
+   "slot": "2",
+   "offset": 0,
+   "type": "mapping(address => uint256)",
+   "contract": "StETHPermit",
+   "bytes": 32,
+   "file": "contracts/0.4.24/StETHPermit.sol"
+  }
+ ],
+ "bytes32_constants": [
+  {
+   "contract": "Versioned",
+   "name": "CONTRACT_VERSION_POSITION",
+   "value": "0x4dd0f6662ba1d6b081f08b350f5e9a6a7b15cf586926ba66f753594928fa64a6"
+  },
+  {
+   "contract": "Pausable",
+   "name": "ACTIVE_FLAG_POSITION",
+   "value": "0x644132c4ddd5bb6f0655d5fe2870dcec7870e6be4758890f366b83441f9fdece"
+  },
+  {
+   "contract": "StETH",
+   "name": "TOTAL_SHARES_POSITION_LOW128",
+   "value": "0x6038150aecaa250d524370a0fdcdec13f2690e0723eaf277f41d7cae26b359e6"
+  },
+  {
+   "contract": "StETHPermit",
+   "name": "EIP712_STETH_POSITION",
+   "value": "0x42b2d95e1ce15ce63bf9a8d9f6312cf44b23415c977ffa3b884333422af8941c"
+  },
+  {
+   "contract": "StETHPermit",
+   "name": "PERMIT_TYPEHASH",
+   "value": "0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9"
+  },
+  {
+   "contract": "AppStorage",
+   "name": "KERNEL_POSITION",
+   "value": "0x4172f0f7d2289153072b0a6ca36959e0cbe2efc3afe50fc81636caa96338137b"
+  },
+  {
+   "contract": "AppStorage",
+   "name": "APP_ID_POSITION",
+   "value": "0xd625496217aa6a3453eecb9c3489dc5a53e6c67b444329ea2b2cbc9ff547639b"
+  },
+  {
+   "contract": "Initializable",
+   "name": "INITIALIZATION_BLOCK_POSITION",
+   "value": "0xebb05b386a8d34882b8711d156f463690983dc47815980fb82aeeff1aa43579e"
+  },
+  {
+   "contract": "ReentrancyGuard",
+   "name": "REENTRANCY_MUTEX_POSITION",
+   "value": "0xe855346402235fdd185c890e68d2c4ecad599b88587635ee285bce2fda58dacb"
+  },
+  {
+   "contract": "EVMScriptRegistryConstants",
+   "name": "EVMSCRIPT_REGISTRY_APP_ID",
+   "value": "0xddbcfd564f642ab5627cf68b9b7d374fb4f8a36e941a75d89c87998cef03bd61"
+  },
+  {
+   "contract": "KernelNamespaceConstants",
+   "name": "KERNEL_CORE_NAMESPACE",
+   "value": "0xc681a85306374a5ab27f0bbc385296a54bcd314a1948b6cf61c4ea1bc44bb9f8"
+  },
+  {
+   "contract": "KernelNamespaceConstants",
+   "name": "KERNEL_APP_BASES_NAMESPACE",
+   "value": "0xf1f3eb40f5bc1ad1344716ced8b8a0431d840b5783aea1fd01786bc26f35ac0f"
+  },
+  {
+   "contract": "KernelNamespaceConstants",
+   "name": "KERNEL_APP_ADDR_NAMESPACE",
+   "value": "0xd6f028ca0e8edb4a8c9757ca4fdccab25fa1e0317da1188108f7d2dee14902fb"
+  },
+  {
+   "contract": "Lido",
+   "name": "PAUSE_ROLE",
+   "value": "0x139c2898040ef16910dc9f44dc697df79363da767d8bc92f2e310312b816e46d"
+  },
+  {
+   "contract": "Lido",
+   "name": "RESUME_ROLE",
+   "value": "0x2fc10cc8ae19568712f7a176fb4978616a610650813c9d05326c34abb62749c7"
+  },
+  {
+   "contract": "Lido",
+   "name": "STAKING_PAUSE_ROLE",
+   "value": "0x84ea57490227bc2be925c684e2a367071d69890b629590198f4125a018eb1de8"
+  },
+  {
+   "contract": "Lido",
+   "name": "STAKING_CONTROL_ROLE",
+   "value": "0xa42eee1333c0758ba72be38e728b6dadb32ea767de5b4ddbaea1dae85b1b051f"
+  },
+  {
+   "contract": "Lido",
+   "name": "BUFFER_RESERVE_MANAGER_ROLE",
+   "value": "0x33969636f1fbf3d7d062d4de4a08e7bd3c46606ec28b3a4398d2665be559b921"
+  },
+  {
+   "contract": "Lido",
+   "name": "LOCATOR_AND_MAX_EXTERNAL_RATIO_POSITION",
+   "value": "0xd92bc31601d11a10411d08f59b7146d8a5915af253cde25f8e66b67beb4be223"
+  },
+  {
+   "contract": "Lido",
+   "name": "BUFFERED_ETHER_AND_DEPOSITED_POST_REPORT_POSITION",
+   "value": "0x81a11fa1111afa59b50051f60ccf604a39d96acb484dc467ad8eadb4a63f0a5f"
+  },
+  {
+   "contract": "Lido",
+   "name": "DEPOSITED_NEXT_REPORT_AND_LAST_DEPOSIT_NONCE_POSITION",
+   "value": "0x8d3ed945c7718edcdb639b1235f2bbe3fa81f4a6cec7a436d8ea13fbc502d957"
+  },
+  {
+   "contract": "Lido",
+   "name": "CL_VALIDATORS_BALANCE_AND_CL_PENDING_BALANCE_POSITION",
+   "value": "0x096e465397f38e659238ccd5d5a2c434ced54a63fd8d694045bfb058ab9d8112"
+  },
+  {
+   "contract": "Lido",
+   "name": "SEED_DEPOSITS_COUNT_POSITION",
+   "value": "0x3f0eaa2c0f16ff9775c078f3df30470d8c042317b24ad1defa240b1c3e10b238"
+  },
+  {
+   "contract": "Lido",
+   "name": "STAKING_STATE_POSITION",
+   "value": "0xa3678de4a579be090bed1177e0a24f77cc29d181ac22fd7688aca344d8938015"
+  },
+  {
+   "contract": "Lido",
+   "name": "TOTAL_EL_REWARDS_COLLECTED_POSITION",
+   "value": "0xafe016039542d12eec0183bb0b1ffc2ca45b027126a494672fba4154ee77facb"
+  },
+  {
+   "contract": "Lido",
+   "name": "DEPOSITS_RESERVE_POSITION",
+   "value": "0xda4fbe3b9cbd98dfae5dff538bbff4ba61f38979d4d7419bcd006f3e6250ec13"
+  },
+  {
+   "contract": "Lido",
+   "name": "DEPOSITS_RESERVE_TARGET_POSITION",
+   "value": "0x3d3e9bd6e90e5d1f1c6839835bcbe5746a47c9a013d1eae6e80c248264c06a81"
+  },
+  {
+   "contract": "Lido",
+   "name": "TOTAL_AND_EXTERNAL_SHARES_POSITION",
+   "value": "alias of StETH.TOTAL_SHARES_POSITION_LOW128 (an Identifier in the AST)"
+  }
+ ],
+ "host": "macOS arm64; solc 0.4.24 release binary from binaries.soliditylang.org via solc-select under Rosetta; @aragon/os and openzeppelin-solidity fetched with npm --ignore-scripts"
+}

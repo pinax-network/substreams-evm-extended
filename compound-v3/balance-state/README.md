@@ -52,11 +52,13 @@ guarded call: `supply`, `withdraw`, `transfer`, `buyCollateral`, `absorb`).
 `factor_scale` and `base_scale` must equal the pinned `1e15`, `1e18` and
 `10^base_decimals`.
 
-The slot numbers are **inferred from the pinned `CometStorage.sol`
-declaration order**, re-derived independently by four reviewers, but not yet
-compiler-verified ([provenance](../../docs/storage-layout-provenance.md)).
-The implementation address, its code hash and the activation block are **not
-verified**: no Ethereum Extended blocks are cached locally and live Firehose
+The slot numbers and bit ranges are **compiler-verified**: `solc 0.8.15
+--storage-layout` of the pinned source is committed under
+[`docs/evidence/storage-layouts/comet@f766f515.json`](../../docs/evidence/storage-layouts/comet@f766f515.json)
+and [`tests/storage_layout.rs`](tests/storage_layout.rs) pins every fixture slot
+and bit range to it and checks that no compiled slot is left unreviewed
+([provenance](../../docs/storage-layout-provenance.md)). The implementation
+address, its code hash and the activation block are **not verified**: no Ethereum Extended blocks are cached locally and live Firehose
 and RPC use is paused. The fixture uses placeholder `implementation` and
 `activation_block` values for that reason; a real epoch must replace them
 after qualification.

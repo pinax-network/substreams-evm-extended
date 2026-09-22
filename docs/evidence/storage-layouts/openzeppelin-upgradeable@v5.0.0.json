@@ -1,0 +1,99 @@
+{
+ "captured": "2026-09-21",
+ "host": "macOS arm64; solc release binaries from binaries.soliditylang.org installed with solc-select, run under Rosetta where needed; no RPC, no network besides git and the binary download",
+ "repository": "OpenZeppelin/openzeppelin-contracts-upgradeable",
+ "commit": "v5.0.0=625fb3c2b2696f1747ba2e72d1e1113066e6c177",
+ "solc": {
+  "version": "Version: 0.8.20+commit.a1b79de6.Darwin.appleclang",
+  "sha256": "5d98c9ed892b74ecadc4ab7f93de6211fdde0351ef66f2cb90eb11630e30e2ab"
+ },
+ "command": "solc --combined-json storage-layout --base-path . @openzeppelin/contracts-upgradeable/=contracts/ @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/ --allow-paths /private/tmp/claude-501/-Users-denis-Github-substreams-evm-extended/df7da1af-462f-4031-9cb8-e8fa8422da54/scratchpad/layouts/oz-harness /private/tmp/claude-501/-Users-denis-Github-substreams-evm-extended/df7da1af-462f-4031-9cb8-e8fa8422da54/scratchpad/layouts/oz-harness/Harness.sol",
+ "cwd_note": "run at the repository root of the pinned checkout",
+ "method": "solc --storage-layout",
+ "contracts": {
+  "/private/tmp/claude-501/-Users-denis-Github-substreams-evm-extended/df7da1af-462f-4031-9cb8-e8fa8422da54/scratchpad/layouts/oz-harness/Harness.sol:ERC4626Harness": {
+   "storage": [],
+   "types": {}
+  },
+  "contracts/proxy/utils/Initializable.sol:Initializable": {
+   "storage": [],
+   "types": {}
+  },
+  "contracts/token/ERC20/ERC20Upgradeable.sol:ERC20Upgradeable": {
+   "storage": [],
+   "types": {}
+  },
+  "contracts/token/ERC20/extensions/ERC4626Upgradeable.sol:ERC4626Upgradeable": {
+   "storage": [],
+   "types": {}
+  },
+  "contracts/utils/ContextUpgradeable.sol:ContextUpgradeable": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol:IERC4626": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol:IERC1155Errors": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol:IERC20Errors": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol:IERC721Errors": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol:IERC20": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol:IERC20Metadata": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol:IERC20Permit": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol:SafeERC20": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/utils/Address.sol:Address": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/openzeppelin-contracts/contracts/utils/math/Math.sol:Math": {
+   "storage": [],
+   "types": {}
+  }
+ },
+ "harness": "contract ERC4626Harness is ERC4626Upgradeable {} (abstract contracts print no layout); the compiled contracts declare no regular state: all state is ERC-7201 namespaced",
+ "namespaces": {
+  "openzeppelin.storage.ERC20": {
+   "constant": "ERC20StorageLocation",
+   "value": "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace00",
+   "source": "contracts/token/ERC20/ERC20Upgradeable.sol:49",
+   "members": [
+    "_balances",
+    "_allowances",
+    "_totalSupply",
+    "_name",
+    "_symbol"
+   ]
+  },
+  "openzeppelin.storage.ERC4626": {
+   "constant": "ERC4626StorageLocation",
+   "value": "0x0773e532dfede91f04b12a73d3d2acd361424f41f76b4fb79f090161e36b4e00",
+   "source": "contracts/token/ERC20/extensions/ERC4626Upgradeable.sol:61",
+   "members": [
+    "_asset",
+    "_underlyingDecimals"
+   ]
+  }
+ }
+}

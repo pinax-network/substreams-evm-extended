@@ -47,13 +47,14 @@ binds the stETH proxy `0xae7a…fE84` at contract version 4 with the listed
 implementation `0x0282…cDb0` and Accounting `0x23ED…cdDf`. Every unstructured
 slot is checked in the tests against `keccak256` of its pinned name;
 `other_slot_names` lets a caller review further named slots without hex. The
-`shares` mapping slot `0` is inferred from the inheritance order of
-`Lido is Versioned, StETHPermit, AragonApp` (only `StETH` declares regular
-state: `shares`, then `allowances`; `StETHPermit` adds `noncesByAddress`) and is
-**not verified** against a compiler layout or saved Ethereum blocks. The
-implementation's runtime code hash, the version-4 enactment block and the
-`activation_block` placeholder are likewise unverified; live Firehose and RPC
-use is paused.
+`shares` mapping slot `0` is **AST-derived** with `solc 0.4.24` over the
+22-contract linearized chain of `Lido` (only `StETH` and `StETHPermit` declare
+regular state; every Aragon base uses unstructured storage), and all 16
+`*_POSITION` constants of that chain are configured or reviewed
+([evidence](../../docs/evidence/storage-layouts/lido-core@2da0f48f.json),
+[`tests/storage_layout.rs`](tests/storage_layout.rs)). The implementation's
+runtime code hash, the version-4 enactment block and the `activation_block`
+placeholder remain unverified; live Firehose and RPC use is paused.
 
 ## Fail-closed rules
 
