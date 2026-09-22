@@ -3,7 +3,7 @@ name = "aave-balance-state-tools"
 version = "0.1.0"
 edition.workspace = true
 license.workspace = true
-description = "Offline replay of the Aave balance-state map over captured Extended blocks with conformance checks"
+description = "Offline replay and live same-block getter parity for the Aave balance-state map"
 
 # Host tools are intentionally empty on WASM.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -18,6 +18,7 @@ conformance = { path = "../../../conformance" }
 proto = { path = "../../../proto" }
 prost = { workspace = true }
 substreams-ethereum = { workspace = true }
+ureq = { version = "2.12", default-features = false, features = ["tls", "json"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 tempfile = "3"

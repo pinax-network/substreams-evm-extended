@@ -1,0 +1,18 @@
+{
+ "captured": "2026-09-22",
+ "status": "failed (fixed in the same change)",
+ "package": {
+  "spkg_sha256": "75a8b3e7a4de8685d7f1d4f8d48afed55d5f81ac33ee843c5d85f5363d8adb96",
+  "wasm_sha256": "b2efdc856c556fa395576462d0cba8eed5663ff27fb3dfc030d91cc2da7c8ee8",
+  "params": "aave/balance-state/epochs/bsc-aave-v3.json before `_nonces` (slot 58) was reviewed"
+ },
+ "endpoint": "bsc.substreams.pinax.network:443",
+ "selection": "eth_getLogs for aToken Approval (0x8c5be1e5\u2026) over the 400,000 blocks before 123451556: 9 blocks, each streamed alone (-s N -t +1)",
+ "failed_block": 123068971,
+ "transaction": "0xc754f0b6dff739edd63b67bc08cff82dd46765d0875629144ec3de80c5f71626",
+ "transaction_selector": "0x5ef68f68 (a router calling aToken.permit)",
+ "error": "unresolved storage for aToken 0xa9251ca9de909cb71783723713b21e4233fbf1b1 at key 0x9803bfc9304d070a6ff21adc6321ecb448ae31ed5b840dd0c8ffb36d45e2a664",
+ "key": "0x9803bfc9304d070a6ff21adc6321ecb448ae31ed5b840dd0c8ffb36d45e2a664 = keccak256(owner 0xfb1fcb75d8c1209fb4210b119dcb304dfea0943a . uint256(58)), `_nonces[owner]` of the compiled ATokenInstance layout",
+ "other_blocks_passed": 8,
+ "fix": "review `_nonces` (slot 58) in other_mapping_slots; pinned by aave/balance-state/tests/storage_layout.rs and the unit test a_permit_nonce_write_is_reviewed_storage_not_a_halted_block; the block passes in live-parity-bsc-2026-09-22-rev2.json and -rev3.json"
+}

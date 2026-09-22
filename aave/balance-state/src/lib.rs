@@ -36,10 +36,14 @@ pub const SPEC_REVISION: u32 = 1;
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
 /// Storage word offsets inside `DataTypes.ReserveData` that the model binds.
-const RESERVE_INDEX_RATE_OFFSET: u8 = 1;
-const RESERVE_CLOCK_OFFSET: u8 = 3;
+/// `ReserveData` word holding `liquidityIndex` (bits 0..128) and
+/// `currentLiquidityRate` (bits 128..256).
+pub const RESERVE_INDEX_RATE_OFFSET: u8 = 1;
+/// `ReserveData` word holding `lastUpdateTimestamp` at bits 128..168.
+pub const RESERVE_CLOCK_OFFSET: u8 = 3;
 /// Number of words occupied by `DataTypes.ReserveData` (pinned source layout).
-const RESERVE_WORDS: u8 = 10;
+/// Words of the compiled `ReserveData` struct.
+pub const RESERVE_WORDS: u8 = 10;
 
 fn require(ok: bool, message: &str) -> Result<(), Error> {
     if ok {
@@ -646,7 +650,40 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         relevant.extend(collected.noops.into_iter().filter(|w| is_pointer(w) && owned(w)));
         // Validate continuity first, then evidence each pointer transition:
         // an in-block excursion X->Z->X must not be concealed by reduction.
-        let reduced = reduce(relevant.clone())?;
+        reduce(relevant.clone())?;
+        // An INVALIDATED row ends the epoch at its (block, ordinal): later
+        // effects of that block are not decoded under it, so an upgrade whose
+        // `initialize` writes storage the epoch never described yields the
+        // evidence instead of failing the block.
+        let mut ended: BTreeMap<Vec<u8>, u64> = BTreeMap::new();
+        let mut end_at = |market: &Market, ordinal: u64| {
+            let e = ended.entry(market.atoken.clone()).or_insert(ordinal);
+            *e = (*e).min(ordinal);
+        };
+        for c in &collected.codes {
+            for market in active.iter().filter(|m| m.active_at(block.number, c.ordinal)) {
+                if [&market.atoken, &market.implementation, &pool.address, &pool.implementation].contains(&&c.address) {
+                    end_at(market, c.ordinal);
+                }
+            }
+        }
+        for w in relevant.iter().filter(|w| is_pointer(w)) {
+            for market in active
+                .iter()
+                .filter(|m| m.active_at(block.number, w.ordinal) && (w.address == pool.address || w.address == m.atoken))
+            {
+                end_at(market, w.ordinal);
+            }
+        }
+        let decoded = |w: &Write| {
+            let owner = if w.address == pool.address {
+                active.iter().find(|m| struct_offset(&w.key, &m.reserve_base, RESERVE_WORDS).is_some())
+            } else {
+                active.iter().find(|m| w.address == m.atoken)
+            };
+            owner.is_none_or(|m| ended.get(&m.atoken).is_none_or(|end| w.ordinal <= *end))
+        };
+        let reduced = reduce(relevant.iter().filter(|w| decoded(w)).cloned().collect())?;
         for w in relevant.iter().filter(|w| is_pointer(w)) {
             if w.address == pool.address {
                 for market in active.iter().filter(|m| m.active_at(block.number, w.ordinal)) {
