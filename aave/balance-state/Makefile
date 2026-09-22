@@ -3,7 +3,7 @@ SPKG := ../../spkg/aave-balance-state-v0.1.0.spkg
 .PHONY: build pack test
 build:
 	cargo build --locked -p aave-balance-state --target wasm32-unknown-unknown --release
-# Packaging and live streaming stay paused until explicitly resumed.
+# Live runs read SUBSTREAMS_API_KEY and RPC_URL from the environment only.
 pack: build
 	substreams pack substreams.yaml -o $(SPKG)
 test:

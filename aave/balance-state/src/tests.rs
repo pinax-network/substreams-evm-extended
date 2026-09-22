@@ -668,3 +668,86 @@ fn output_is_deterministic_under_input_permutation() {
     assert_eq!(forward.encode_to_vec(), backward.encode_to_vec());
     assert_eq!(forward.holder_basis.iter().map(|h| h.holder[0]).collect::<Vec<_>>(), vec![7, 8, 9]);
 }
+
+fn word_of(slot: u8) -> [u8; 32] {
+    let mut w = [0u8; 32];
+    w[31] = slot;
+    w
+}
+
+#[test]
+fn a_permit_nonce_write_is_reviewed_storage_not_a_halted_block() {
+    // Live BSC block 123068971: a router `permit` wrote aBnbUSDT
+    // `_nonces[0xfb1f…943a]` (slot 58) and the package refused the block.
+    let owner = hex::decode("fb1fcb75d8c1209fb4210b119dcb304dfea0943a").unwrap();
+    let nonces = word_of(58);
+    let key = mapping_key(&owner, &nonces);
+    assert_eq!(hex::encode(key), "9803bfc9304d070a6ff21adc6321ecb448ae31ed5b840dd0c8ffb36d45e2a664");
+    let mut preimage = vec![0u8; 64];
+    preimage[12..32].copy_from_slice(&owner);
+    preimage[32..].copy_from_slice(&nonces);
+    let mut block = synthetic_block(122288100);
+    block.transaction_traces = vec![tx(eth::Call {
+        index: 1,
+        address: hex::decode(AUSDT).unwrap(),
+        keccak_preimages: [(hex::encode(key), hex::encode(preimage))].into(),
+        storage_changes: vec![write(AUSDT, key, 3, 4, 10)],
+        ..Default::default()
+    })];
+    let events = project(&block, &config()).unwrap();
+    assert!(events.holder_basis.is_empty() && events.global_state.is_empty() && events.epochs.is_empty());
+    // Without the reviewed nonces mapping the same block fails closed, as it did live.
+    let mut v: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    for m in v["markets"].as_array_mut().unwrap() {
+        m["other_mapping_slots"] = serde_json::json!(["0x0000000000000000000000000000000000000000000000000000000000000035"]);
+    }
+    let error = project(&block, &parse(&v.to_string()).unwrap()).unwrap_err().to_string();
+    assert!(error.contains("unresolved storage") && error.contains("9803bfc9"), "{error}");
+}
+
+#[test]
+fn an_upgrade_ends_the_epoch_at_its_pointer_write_for_the_rest_of_the_block() {
+    let cfg = config();
+    let market = &cfg.markets[0];
+    let pool = cfg.pool.clone().unwrap();
+    // aToken upgrade: the pointer write (10) is evidence; `initialize` then
+    // writes `lastInitializedRevision` (slot 0), which the epoch never
+    // described, and a holder word, neither decoded under the ended epoch.
+    let mut upgrade = user_state_call(&[9; 20], 1, 2, 12);
+    upgrade.storage_changes.insert(0, write(AUSDT, market.implementation_slot, 1, 2, 10));
+    upgrade.storage_changes.insert(1, write(AUSDT, word_of(0), 4, 5, 11));
+    let mut block = synthetic_block(122288100);
+    block.transaction_traces = vec![tx(upgrade.clone())];
+    let events = project(&block, &cfg).unwrap();
+    assert_eq!(
+        events.epochs.iter().map(|e| (e.reason, e.ordinal)).collect::<Vec<_>>(),
+        vec![(pb::InvalidationReason::ImplementationPointerWrite as i32, 10)]
+    );
+    assert!(events.holder_basis.is_empty());
+    // The same unknown write before the pointer write still fails closed.
+    block.transaction_traces[0].calls[0].storage_changes[1].ordinal = 9;
+    assert!(project(&block, &cfg).unwrap_err().to_string().contains("unresolved storage"));
+    // A Pool upgrade ends every market's epoch; later reserve words of the
+    // block are not decoded under them.
+    let reserve_word = add_offset(&market.reserve_base, 1);
+    let mut block = synthetic_block(122288100);
+    block.transaction_traces = vec![tx(eth::Call {
+        index: 1,
+        address: pool.address.clone(),
+        storage_changes: vec![
+            write(POOL, reserve_word, 1, 2, 9),
+            write(POOL, pool.implementation_slot, 1, 2, 10),
+            write(POOL, reserve_word, 2, 3, 11),
+        ],
+        ..Default::default()
+    })];
+    let events = project(&block, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), 2);
+    let index: Vec<(String, String)> = events
+        .global_state
+        .iter()
+        .filter(|g| g.field == pb::StateField::AaveLiquidityIndex as i32)
+        .map(|g| (g.previous_value.clone(), g.value.clone()))
+        .collect();
+    assert_eq!(index, vec![("1".into(), "2".into())]);
+}

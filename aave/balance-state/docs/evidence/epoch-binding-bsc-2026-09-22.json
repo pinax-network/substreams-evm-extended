@@ -1,0 +1,127 @@
+{
+ "captured": "2026-09-22",
+ "method": "eth_getStorageAt binary search on the EIP-1967 implementation slot at block numbers, then 33 evenly spaced samples from the found block to 123451556; the Pool upgrade block fetched from bsc.firehose.pinax.network:443 and decoded offline",
+ "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+ "pointers": {
+  "pool": {
+   "first_block": 101087794,
+   "previous_implementation": "0x00d1397960aa97f694e41c3632b74c151a00c33b",
+   "samples": 33,
+   "all_equal": true,
+   "sampled_range": [
+    101087794,
+    123452736
+   ]
+  },
+  "aBnbUSDT": {
+   "first_block": 76571348,
+   "previous_implementation": "0x05b5fc30d3ecdd6ca19a733a82b44ff681175211",
+   "samples": 33,
+   "all_equal": true,
+   "sampled_range": [
+    76571348,
+    123452736
+   ]
+  },
+  "aBnbUSDC": {
+   "first_block": 76571348,
+   "previous_implementation": "0x05b5fc30d3ecdd6ca19a733a82b44ff681175211",
+   "samples": 33,
+   "all_equal": true,
+   "sampled_range": [
+    76571348,
+    123452736
+   ]
+  }
+ },
+ "pool_upgrade_write": {
+  "block": 101087794,
+  "block_hash": "0xbc942bbab0bda1fde5f36d956f966f4b59130042a550a21a0a0722a81515da69",
+  "producer_version": 4,
+  "transaction_index": 27,
+  "transaction": "0xcee3e959e760de7f274b3d73fa56ef22eea46268d1e5e6dfb86df9a52dd59745",
+  "call_index": 90,
+  "ordinal": 3346,
+  "old": "0x00d1397960aa97f694e41c3632b74c151a00c33b",
+  "new": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+  "upgraded_log_ordinal": 3348
+ },
+ "epoch": {
+  "activation_block": 101087794,
+  "activation_ordinal": 3347,
+  "reason": "the later of the aToken (76571348) and Pool (101087794) implementation installs; effects up to and including the Pool pointer write belong to the previous epoch",
+  "producer_versions": [
+   4,
+   5
+  ]
+ },
+ "runtime_identities": [
+  {
+   "block_hash": "0xbc942bbab0bda1fde5f36d956f966f4b59130042a550a21a0a0722a81515da69",
+   "contract": "pool",
+   "implementation_code_hash": "0x7266d9c5bf4d60b3c0dbccb254e6e9c06880db859bc3a5cd82b38e42212dd2cb",
+   "implementation_expected": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+   "implementation_found": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+   "proxy": "0x6807dc923806fe8fd134338eabca509979a7e0cb",
+   "proxy_code_hash": "0xa2aac688c1cbeae86c0b468a926632c775c7a40f1b5dec59948f9f1562c53e9e"
+  },
+  {
+   "block_hash": "0x8978894fd4b1535a2ebc4920be78e67c5e857785d0240f8910be9a4f928a89f4",
+   "contract": "pool",
+   "implementation_code_hash": "0x7266d9c5bf4d60b3c0dbccb254e6e9c06880db859bc3a5cd82b38e42212dd2cb",
+   "implementation_expected": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+   "implementation_found": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+   "proxy": "0x6807dc923806fe8fd134338eabca509979a7e0cb",
+   "proxy_code_hash": "0xa2aac688c1cbeae86c0b468a926632c775c7a40f1b5dec59948f9f1562c53e9e"
+  },
+  {
+   "block_hash": "0xbc942bbab0bda1fde5f36d956f966f4b59130042a550a21a0a0722a81515da69",
+   "contract": "atoken 0x00901a076785e0906d1028c7d6372d247bec7d61",
+   "implementation_code_hash": "0x4e14a89da74d0851a96459258d7a99712f20b89a90d8f2c2c12bdb2f3d2466cb",
+   "implementation_expected": "0x7e199fc666368d95b9eaefa7d2d8081acab74134",
+   "implementation_found": "0x7e199fc666368d95b9eaefa7d2d8081acab74134",
+   "proxy": "0x00901a076785e0906d1028c7d6372d247bec7d61",
+   "proxy_code_hash": "0xb77c9461b60312343a5626629c0667c9fb5059f3e7187d85ea826b723d9ae9c9"
+  },
+  {
+   "block_hash": "0x8978894fd4b1535a2ebc4920be78e67c5e857785d0240f8910be9a4f928a89f4",
+   "contract": "atoken 0x00901a076785e0906d1028c7d6372d247bec7d61",
+   "implementation_code_hash": "0x4e14a89da74d0851a96459258d7a99712f20b89a90d8f2c2c12bdb2f3d2466cb",
+   "implementation_expected": "0x7e199fc666368d95b9eaefa7d2d8081acab74134",
+   "implementation_found": "0x7e199fc666368d95b9eaefa7d2d8081acab74134",
+   "proxy": "0x00901a076785e0906d1028c7d6372d247bec7d61",
+   "proxy_code_hash": "0xb77c9461b60312343a5626629c0667c9fb5059f3e7187d85ea826b723d9ae9c9"
+  },
+  {
+   "block_hash": "0xbc942bbab0bda1fde5f36d956f966f4b59130042a550a21a0a0722a81515da69",
+   "contract": "atoken 0xa9251ca9de909cb71783723713b21e4233fbf1b1",
+   "implementation_code_hash": "0x4e14a89da74d0851a96459258d7a99712f20b89a90d8f2c2c12bdb2f3d2466cb",
+   "implementation_expected": "0x7e199fc666368d95b9eaefa7d2d8081acab74134",
+   "implementation_found": "0x7e199fc666368d95b9eaefa7d2d8081acab74134",
+   "proxy": "0xa9251ca9de909cb71783723713b21e4233fbf1b1",
+   "proxy_code_hash": "0xb77c9461b60312343a5626629c0667c9fb5059f3e7187d85ea826b723d9ae9c9"
+  },
+  {
+   "block_hash": "0x8978894fd4b1535a2ebc4920be78e67c5e857785d0240f8910be9a4f928a89f4",
+   "contract": "atoken 0xa9251ca9de909cb71783723713b21e4233fbf1b1",
+   "implementation_code_hash": "0x4e14a89da74d0851a96459258d7a99712f20b89a90d8f2c2c12bdb2f3d2466cb",
+   "implementation_expected": "0x7e199fc666368d95b9eaefa7d2d8081acab74134",
+   "implementation_found": "0x7e199fc666368d95b9eaefa7d2d8081acab74134",
+   "proxy": "0xa9251ca9de909cb71783723713b21e4233fbf1b1",
+   "proxy_code_hash": "0xb77c9461b60312343a5626629c0667c9fb5059f3e7187d85ea826b723d9ae9c9"
+  }
+ ],
+ "atoken_revisions": [
+  {
+   "atoken": "0x00901a076785e0906d1028c7d6372d247bec7d61",
+   "declared": "5",
+   "rpc": "5"
+  },
+  {
+   "atoken": "0xa9251ca9de909cb71783723713b21e4233fbf1b1",
+   "declared": "5",
+   "rpc": "5"
+  }
+ ],
+ "limits": "Pointer constancy between samples is inferred from 33 samples plus the absence of INVALIDATED rows in the streamed blocks; code-hash equality with a build of the pinned source is not established (the compiled layout is)."
+}

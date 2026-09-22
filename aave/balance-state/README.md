@@ -110,11 +110,70 @@ Reverted frames and failed transactions never produce rows
   adding `activation_ordinal` (2026-09-22), the same replay produces a
   byte-identical `rows.jsonl` (sha256 `a42b84a6…`, [report](docs/evidence/replay-bsc-v5-rev3.json)):
   no pointer write, equal-value or otherwise, occurs in the saved window.
+- With `_nonces` reviewed and the in-block epoch end (2026-09-22, after the
+  live run), the replay again produces the byte-identical `rows.jsonl`
+  ([report](docs/evidence/replay-bsc-v5-rev4.json)).
 
 ```sh
 cargo test --locked -p aave-balance-state -p aave-balance-state-tools -p conformance
 cargo run --locked -p aave-balance-state-tools -- replay --blocks <dir> --params tests/fixtures/bsc-aave-v3-epochs.json --output out/replay
 ```
+
+## Live qualification (BSC, 2026-09-22)
+
+The qualified epoch is [`epochs/bsc-aave-v3.json`](epochs/bsc-aave-v3.json):
+aBnbUSDT and aBnbUSDC on the Aave V3 BNB Pool, aToken implementation
+`0x7e19…4134` (`ATOKEN_REVISION` 5, installed at block 76,571,348) with Pool
+implementation `0x5e2B…3B6d` (installed at block 101,087,794 by the write at
+ordinal 3346), so the epoch starts at **block 101,087,794, ordinal 3347**,
+producer versions 4 and 5 ([binding evidence](docs/evidence/epoch-binding-bsc-2026-09-22.json)).
+The layout is **compiler-verified** against aave-v3-origin `8305565a` with
+solc 0.8.27 ([layout](../../docs/evidence/storage-layouts/aave-v3-origin@8305565a.json),
+[`tests/storage_layout.rs`](tests/storage_layout.rs)): `_userState` 52
+(`balance` uint120), `_allowances` 53, `_totalSupply` 54, `_nonces` 58; Pool
+`_reserves` 52 with `liquidityIndex`/`currentLiquidityRate` in word 1 and
+`lastUpdateTimestamp` at bits 128..168 of word 3.
+
+The packed map of this source (`spkg` sha256 `a6db4088…`, wasm `7611bbf1…`)
+was streamed from `bsc.substreams.pinax.network` and every emitted row was
+checked with `aave-balance-state-tools live-parity` against RPC getters at
+the row's exact block hash ([report](docs/evidence/live-parity-bsc-2026-09-22-rev3.json);
+events sha256 `9d1c5978…`, byte-identical to the pre-`rustfmt` build
+`baef8568…` of [rev2](docs/evidence/live-parity-bsc-2026-09-22-rev2.json)):
+2,060 blocks (the activation block, the 2,000 contiguous blocks
+123,449,757–123,451,756, and every earlier block since 123,441,756 with an
+aToken log, plus the nine aToken `Approval` blocks of the preceding
+400,000 blocks), 8,240
+clock fields, 103 holder rows for 28 holders (`scaledBalanceOf` 103/103,
+`balanceOf` evaluated by `conformance::aave` 103/103), 281 reserve words and
+94 scaled total supplies, all equal; BOUND at ordinal 3347, two heartbeats,
+no invalidation; implementation pointers and revisions equal at the first and
+last block.
+
+The first live runs found a production defect: a router `permit` writes
+`_nonces[owner]` (slot 58), which the parameters did not review, so block
+123,068,971 was refused ([failure record](docs/evidence/live-permit-failure-bsc-2026-09-22.json)).
+The nonces mapping is now reviewed and pinned by the layout test. An upgrade
+now ends the epoch at its pointer write for the rest of the block, so its
+`initialize` writes yield the INVALIDATED evidence instead of failing the
+block. Earlier reports for superseded packages are kept
+([rev2](docs/evidence/live-parity-bsc-2026-09-22-rev2.json),
+[rev1](docs/evidence/live-parity-bsc-2026-09-22-rev1.json),
+[fixture parameters](docs/evidence/live-parity-bsc-2026-09-22-fixture-params.json)).
+
+```sh
+# credentials only in the environment: SUBSTREAMS_API_KEY and RPC_URL
+make -C aave/balance-state pack
+substreams run -e bsc.substreams.pinax.network:443 <spkg> map_events -s <N> -t +1 \
+  -p "map_events=$(jq -c . aave/balance-state/epochs/bsc-aave-v3.json)" -o jsonl --bytes-encoding hex > events.jsonl
+cargo run --locked -p aave-balance-state-tools -- live-parity --events events.jsonl \
+  --params aave/balance-state/epochs/bsc-aave-v3.json --spkg <spkg> --endpoint bsc.substreams.pinax.network:443 --output <fresh dir>
+```
+
+This qualifies the stated blocks and the holders written in them. It does
+not initialize or check holders without a row, other markets, variable debt,
+other networks, or bytecode equality of the deployments with a build of the
+pinned source.
 
 ## Boundaries
 
@@ -124,4 +183,4 @@ Ethereum Core markets, legacy revisions and other chains need their own
 epochs and fixtures ([#8](https://github.com/pinax-network/substreams-evm-extended/issues/8)).
 Initialization and checkpoints are shared under
 [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7);
-packaging and live qualification stay paused.
+live qualification covers only the epoch and interval stated above.

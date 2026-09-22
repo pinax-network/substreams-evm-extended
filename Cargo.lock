@@ -52,6 +52,7 @@ dependencies = [
  "sha2",
  "substreams-ethereum",
  "tempfile",
+ "ureq",
 ]
 
 [[package]]

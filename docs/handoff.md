@@ -15,13 +15,16 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 
 ## 1. Read this first: the constraints
 
-- **Live use is paused.** Every roadmap issue states that live Substreams,
-  Firehose, RPC and native sink usage stays paused until explicitly resumed.
-  Everything below was done offline: Rust tests, replays over the locally
-  cached BSC Extended blocks, and pinned-source research through raw GitHub
-  fetches and official documentation. Nothing here qualifies a package for
-  production; each README and issue comment says which claims are verified
-  from saved blocks and which are declaration-order inferences.
+- **Live use on BSC resumed on 2026-09-22.** The owner supplied the Pinax
+  BSC endpoints (`bsc.substreams.pinax.network:443`,
+  `bsc.firehose.pinax.network:443` and a key-bearing RPC URL). Keep the key
+  and the RPC URL in environment variables only (`SUBSTREAMS_API_KEY`,
+  `RPC_URL`); never write them to the repository, evidence or logs, keep
+  live ranges modest and always pass a stop block to `substreams run`. Other
+  networks (#8) have no endpoints yet, and the `dex/pool-state` live hold in
+  `AGENTS.md` still needs its own explicit reauthorization. The first live
+  qualification is `aave/balance-state` (#13, see its README); everything
+  else below was done offline and says so.
 - **Production boundary** ([`../AGENTS.md`](../AGENTS.md)): one RPC-free
   `map_events` per package; `evm.balances.v1` field numbers frozen; protocol
   packages emit the companion `evm.balance_state.v1`; no `db_out`, no custom
@@ -41,7 +44,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `erc20/events` | `erc20.events.v1` | #19 closed | BSC single-tx fixtures | n/a |
 | `evm/executions` | `evm.executions.v1` | #18 closed; producer semantics under #8 | saved-block replay: 1,509 BSC v4/v5 blocks, 116,951 txs, 1,075,108 receipt logs matched, 2,093,149 writes in storage context, 0 errors, determinism checked ([evidence](../evm/executions/docs/evidence/replay-bsc-v4-v5.json)) | n/a |
 | `aave/actions` | `aave.actions.v1` | #20 open | BSC single-tx fixtures (borrow, supply) | n/a |
-| `aave/balance-state` | `evm.balance_state.v1` | #13 open | saved-block replay: 1,433 BSC blocks, index oracle 6/6, 0 errors ([evidence](../aave/balance-state/docs/evidence/replay-bsc-v5.json)) | **observed** from Keccak preimages in saved blocks (Pool `_reserves` 52; aToken 0x34/0x35/0x36) |
+| `aave/balance-state` | `evm.balance_state.v1` | #13 | **live-qualified on BSC** for epoch 101,087,794/3347 over 2,060 blocks: packaged output, same-block `scaledBalanceOf`/`balanceOf`/reserve parity, 0 mismatches ([evidence](../aave/balance-state/docs/evidence/live-parity-bsc-2026-09-22-rev3.json)); saved-block replay 1,433 blocks | **compiler-verified** (aave-v3-origin `8305565a`, solc 0.8.27): aToken 52/53/54/58, Pool `_reserves` 52 |
 | `compound-v2/balance-state` | `evm.balance_state.v1` | #14 open | synthetic tests only | **compiler-verified**: deployed cUSDC/cETH against the 2019 tree (`solc 0.5.17`, `_guardCounter` at slot 0), cUSDC IRM `LegacyJumpRateModelV2`, delegators against `solc 0.8.10`; USDC FiatToken 0.6.12; `tests/storage_layout.rs` |
 | `compound-v3/balance-state` | `evm.balance_state.v1` | #15 open | synthetic tests only; review findings fixed (§4) | **compiler-verified** (`solc 0.8.15`, `tests/storage_layout.rs`) |
 | `lido/balance-state` | `evm.balance_state.v1` | #23 open | synthetic tests; named slots asserted `== keccak256(name)` | **ast-derived** (`solc 0.4.24` AST; all 16 position constants configured or reviewed) |
@@ -232,7 +235,11 @@ changed the `common/retention` host API: `seed_checkpoint` and
    family was compiled the same day (v2.2.0): slot 9 is
    `balanceAndBlacklistStates`, so the compound-v2 cash row now decodes only
    the low 255 bits (`value_bits`). No inferred slot remains.
-4. When live use is explicitly resumed: capture Ethereum Extended blocks for
-   the bound contracts, verify slots from preimages, bind runtime code hashes
-   and activation blocks, run same-block-hash getter parity with the
-   `conformance` models, then the RPC-gated issues #2–#6 and #8.
+4. Live on BSC: **done for `aave/balance-state`** (runtime epoch bound
+   from the upgrade writes, compiled layout, 2,060 packaged-output blocks
+   with same-block getter parity; it also found an unreviewed `_nonces`
+   write that halted a real block). Next with the same method
+   (`aave-balance-state-tools live-parity` is the template): `native/balances`
+   (#17) against `eth_getBalance`, `aave/actions` (#20), `evm/executions`
+   producer checks, then the RPC-gated ERC-20 issues #2–#6. Ethereum and the
+   other networks (#8) wait for endpoints.

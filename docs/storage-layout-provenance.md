@@ -20,12 +20,19 @@ Verification levels used below:
 
 ### Aave V3 BNB Pool and aTokens (`aave/balance-state`, `erc4626` aave model)
 
+Compiled on 2026-09-22 from aave-v3-origin `8305565a` with its pinned
+submodules and solc 0.8.27 ([layout](evidence/storage-layouts/aave-v3-origin@8305565a.json));
+test `aave/balance-state/tests/storage_layout.rs`. The deployed BSC
+implementations (`0x5e2B…3B6d`, `0x7e19…4134`) were also checked live with
+same-block getters (`aave/balance-state/docs/evidence/live-parity-bsc-2026-09-22-rev2.json`);
+bytecode equality with a build of the pinned source is not established.
+
 | Slot | Variable | Level | Source |
 | --- | --- | --- | --- |
-| 52 (`0x34`) on Pool | `_reserves` mapping base | observed | Keccak preimages `(underlying, 0x34)` in saved blocks ([scan](evidence/scans/aave-scan.json)) |
-| `keccak(asset, 0x34) + 1` | `liquidityIndex` low 128, `currentLiquidityRate` high 128 | observed | index updates matched `rayMul(linearInterest(rate, ts, now), index)` 6/6 in the replay |
-| `keccak(asset, 0x34) + 3` | `lastUpdateTimestamp` bits 128..168 | observed | same oracle |
-| `0x34`, `0x35`, `0x36` on aTokens | `_userState`, allowances, `_totalSupply` | observed | writes and preimages in saved blocks; consistent with aave-v3-origin declaration order |
+| 52 (`0x34`) on Pool | `_reserves` mapping base | compiler-verified | `PoolInstance`; also observed from Keccak preimages ([scan](evidence/scans/aave-scan.json)) |
+| `keccak(asset, 0x34) + 1` | `liquidityIndex` bits 0..128, `currentLiquidityRate` bits 128..256 | compiler-verified | `ReserveData` word 1; index updates matched the conformance oracle 6/6 in the replay and `getReserveData` live |
+| `keccak(asset, 0x34) + 3` | `lastUpdateTimestamp` (uint40) bits 128..168 | compiler-verified | `ReserveData` word 3, offset 16 |
+| `0x34`, `0x35`, `0x36`, `0x3a` on aTokens | `_userState` (`balance` uint120 at bits 0..120), `_allowances`, `_totalSupply`, `_nonces` | compiler-verified | `ATokenInstance`; `_nonces` is written by `permit` and was found unreviewed by the live run (block 123,068,971) |
 | `0x3608…2bbc` | EIP-1967 implementation | standard | `keccak256("eip1967.proxy.implementation") - 1` |
 
 ### Comet cUSDCv3 (`compound-v3/balance-state`)

@@ -1,0 +1,709 @@
+{
+ "captured": "2026-09-22",
+ "host": "macOS arm64; solc 0.8.27 release binary from binaries.soliditylang.org (sha256 matches its list.json), run under Rosetta; sources from GitHub tarballs; no RPC",
+ "repository": "aave-dao/aave-v3-origin",
+ "commit": "8305565ae342f1773c42cd2e4593f175fe5968a0",
+ "submodules": {
+  "lib/solidity-utils": "aave-dao/solidity-utils@21dafc37b032aafac64fefb1a54d8be2ce137429",
+  "lib/solidity-utils/lib/openzeppelin-contracts-upgradeable": "OpenZeppelin/openzeppelin-contracts-upgradeable@fa525310e45f91eb20a6d3baa2644be8e0adba31",
+  "\u2026/lib/openzeppelin-contracts": "OpenZeppelin/openzeppelin-contracts@69c8def5f222ff96f2b5beff05dfba996368aa79"
+ },
+ "solc": {
+  "version": "0.8.27+commit.40a35a09",
+  "sha256": "8c406fa5cab9bd0a175da02c652072f814c3d06205a2fd6d92bc152599a6aabb",
+  "evm_version": "shanghai (foundry.toml)"
+ },
+ "command": "solc --evm-version shanghai --base-path . --include-path lib <foundry remappings> --combined-json storage-layout src/contracts/instances/ATokenInstance.sol src/contracts/instances/PoolInstance.sol",
+ "cwd_note": "run at the repository root of the pinned checkout with the pinned submodules",
+ "method": "solc --combined-json storage-layout",
+ "contracts": {
+  "src/contracts/instances/ATokenInstance.sol:ATokenInstance": {
+   "storage": [
+    {
+     "astId": 1006,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "lastInitializedRevision",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1009,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "initializing",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_bool"
+    },
+    {
+     "astId": 1079,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "______gap",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_array(t_uint256)50_storage"
+    },
+    {
+     "astId": 7480,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_userState",
+     "offset": 0,
+     "slot": "52",
+     "type": "t_mapping(t_address,t_struct(UserState)7475_storage)"
+    },
+    {
+     "astId": 7486,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_allowances",
+     "offset": 0,
+     "slot": "53",
+     "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+    },
+    {
+     "astId": 7488,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_totalSupply",
+     "offset": 0,
+     "slot": "54",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 7490,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_name",
+     "offset": 0,
+     "slot": "55",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 7492,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_symbol",
+     "offset": 0,
+     "slot": "56",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 7494,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_decimals",
+     "offset": 0,
+     "slot": "57",
+     "type": "t_uint8"
+    },
+    {
+     "astId": 7497,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "__deprecated_incentivesController",
+     "offset": 1,
+     "slot": "57",
+     "type": "t_contract(IAaveIncentivesController)14263"
+    },
+    {
+     "astId": 7297,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_nonces",
+     "offset": 0,
+     "slot": "58",
+     "type": "t_mapping(t_address,t_uint256)"
+    },
+    {
+     "astId": 7299,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_domainSeparator",
+     "offset": 0,
+     "slot": "59",
+     "type": "t_bytes32"
+    },
+    {
+     "astId": 1322,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_deprecated_treasury",
+     "offset": 0,
+     "slot": "60",
+     "type": "t_address"
+    },
+    {
+     "astId": 1324,
+     "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+     "label": "_underlyingAsset",
+     "offset": 0,
+     "slot": "61",
+     "type": "t_address"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_array(t_uint256)50_storage": {
+     "base": "t_uint256",
+     "encoding": "inplace",
+     "label": "uint256[50]",
+     "numberOfBytes": "1600"
+    },
+    "t_bool": {
+     "encoding": "inplace",
+     "label": "bool",
+     "numberOfBytes": "1"
+    },
+    "t_bytes32": {
+     "encoding": "inplace",
+     "label": "bytes32",
+     "numberOfBytes": "32"
+    },
+    "t_contract(IAaveIncentivesController)14263": {
+     "encoding": "inplace",
+     "label": "contract IAaveIncentivesController",
+     "numberOfBytes": "20"
+    },
+    "t_enum(DelegationMode)14270": {
+     "encoding": "inplace",
+     "label": "enum DelegationMode",
+     "numberOfBytes": "1"
+    },
+    "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => mapping(address => uint256))",
+     "numberOfBytes": "32",
+     "value": "t_mapping(t_address,t_uint256)"
+    },
+    "t_mapping(t_address,t_struct(UserState)7475_storage)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => struct IncentivizedERC20.UserState)",
+     "numberOfBytes": "32",
+     "value": "t_struct(UserState)7475_storage"
+    },
+    "t_mapping(t_address,t_uint256)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => uint256)",
+     "numberOfBytes": "32",
+     "value": "t_uint256"
+    },
+    "t_string_storage": {
+     "encoding": "bytes",
+     "label": "string",
+     "numberOfBytes": "32"
+    },
+    "t_struct(UserState)7475_storage": {
+     "encoding": "inplace",
+     "label": "struct IncentivizedERC20.UserState",
+     "members": [
+      {
+       "astId": 7469,
+       "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+       "label": "balance",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_uint120"
+      },
+      {
+       "astId": 7472,
+       "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+       "label": "delegationMode",
+       "offset": 15,
+       "slot": "0",
+       "type": "t_enum(DelegationMode)14270"
+      },
+      {
+       "astId": 7474,
+       "contract": "src/contracts/instances/ATokenInstance.sol:ATokenInstance",
+       "label": "additionalData",
+       "offset": 16,
+       "slot": "0",
+       "type": "t_uint128"
+      }
+     ],
+     "numberOfBytes": "32"
+    },
+    "t_uint120": {
+     "encoding": "inplace",
+     "label": "uint120",
+     "numberOfBytes": "15"
+    },
+    "t_uint128": {
+     "encoding": "inplace",
+     "label": "uint128",
+     "numberOfBytes": "16"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    },
+    "t_uint8": {
+     "encoding": "inplace",
+     "label": "uint8",
+     "numberOfBytes": "1"
+    }
+   }
+  },
+  "src/contracts/instances/PoolInstance.sol:PoolInstance": {
+   "storage": [
+    {
+     "astId": 1006,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "lastInitializedRevision",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1009,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "initializing",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_bool"
+    },
+    {
+     "astId": 1079,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "______gap",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_array(t_uint256)50_storage"
+    },
+    {
+     "astId": 13967,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "_reserves",
+     "offset": 0,
+     "slot": "52",
+     "type": "t_mapping(t_address,t_struct(ReserveData)4429_storage)"
+    },
+    {
+     "astId": 13972,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "_usersConfig",
+     "offset": 0,
+     "slot": "53",
+     "type": "t_mapping(t_address,t_struct(UserConfigurationMap)4436_storage)"
+    },
+    {
+     "astId": 13976,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "_reservesList",
+     "offset": 0,
+     "slot": "54",
+     "type": "t_mapping(t_uint256,t_address)"
+    },
+    {
+     "astId": 13981,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "_eModeCategories",
+     "offset": 0,
+     "slot": "55",
+     "type": "t_mapping(t_uint8,t_struct(EModeCategory)4482_storage)"
+    },
+    {
+     "astId": 13985,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "_usersEModeCategory",
+     "offset": 0,
+     "slot": "56",
+     "type": "t_mapping(t_address,t_uint8)"
+    },
+    {
+     "astId": 13987,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "__DEPRECATED_bridgeProtocolFee",
+     "offset": 0,
+     "slot": "57",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 13989,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "_flashLoanPremium",
+     "offset": 0,
+     "slot": "58",
+     "type": "t_uint128"
+    },
+    {
+     "astId": 13991,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "__DEPRECATED_flashLoanPremiumToProtocol",
+     "offset": 16,
+     "slot": "58",
+     "type": "t_uint128"
+    },
+    {
+     "astId": 13993,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "__DEPRECATED_maxStableRateBorrowSizePercent",
+     "offset": 0,
+     "slot": "59",
+     "type": "t_uint64"
+    },
+    {
+     "astId": 13995,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "_reservesCount",
+     "offset": 8,
+     "slot": "59",
+     "type": "t_uint16"
+    },
+    {
+     "astId": 14001,
+     "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+     "label": "_positionManager",
+     "offset": 0,
+     "slot": "60",
+     "type": "t_mapping(t_address,t_mapping(t_address,t_bool))"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_array(t_uint256)50_storage": {
+     "base": "t_uint256",
+     "encoding": "inplace",
+     "label": "uint256[50]",
+     "numberOfBytes": "1600"
+    },
+    "t_bool": {
+     "encoding": "inplace",
+     "label": "bool",
+     "numberOfBytes": "1"
+    },
+    "t_mapping(t_address,t_bool)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => bool)",
+     "numberOfBytes": "32",
+     "value": "t_bool"
+    },
+    "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => mapping(address => bool))",
+     "numberOfBytes": "32",
+     "value": "t_mapping(t_address,t_bool)"
+    },
+    "t_mapping(t_address,t_struct(ReserveData)4429_storage)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => struct DataTypes.ReserveData)",
+     "numberOfBytes": "32",
+     "value": "t_struct(ReserveData)4429_storage"
+    },
+    "t_mapping(t_address,t_struct(UserConfigurationMap)4436_storage)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => struct DataTypes.UserConfigurationMap)",
+     "numberOfBytes": "32",
+     "value": "t_struct(UserConfigurationMap)4436_storage"
+    },
+    "t_mapping(t_address,t_uint8)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => uint8)",
+     "numberOfBytes": "32",
+     "value": "t_uint8"
+    },
+    "t_mapping(t_uint256,t_address)": {
+     "encoding": "mapping",
+     "key": "t_uint256",
+     "label": "mapping(uint256 => address)",
+     "numberOfBytes": "32",
+     "value": "t_address"
+    },
+    "t_mapping(t_uint8,t_struct(EModeCategory)4482_storage)": {
+     "encoding": "mapping",
+     "key": "t_uint8",
+     "label": "mapping(uint8 => struct DataTypes.EModeCategory)",
+     "numberOfBytes": "32",
+     "value": "t_struct(EModeCategory)4482_storage"
+    },
+    "t_string_storage": {
+     "encoding": "bytes",
+     "label": "string",
+     "numberOfBytes": "32"
+    },
+    "t_struct(EModeCategory)4482_storage": {
+     "encoding": "inplace",
+     "label": "struct DataTypes.EModeCategory",
+     "members": [
+      {
+       "astId": 4467,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "ltv",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_uint16"
+      },
+      {
+       "astId": 4469,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "liquidationThreshold",
+       "offset": 2,
+       "slot": "0",
+       "type": "t_uint16"
+      },
+      {
+       "astId": 4471,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "liquidationBonus",
+       "offset": 4,
+       "slot": "0",
+       "type": "t_uint16"
+      },
+      {
+       "astId": 4473,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "collateralBitmap",
+       "offset": 6,
+       "slot": "0",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4475,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "isolated",
+       "offset": 22,
+       "slot": "0",
+       "type": "t_bool"
+      },
+      {
+       "astId": 4477,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "label",
+       "offset": 0,
+       "slot": "1",
+       "type": "t_string_storage"
+      },
+      {
+       "astId": 4479,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "borrowableBitmap",
+       "offset": 0,
+       "slot": "2",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4481,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "ltvzeroBitmap",
+       "offset": 16,
+       "slot": "2",
+       "type": "t_uint128"
+      }
+     ],
+     "numberOfBytes": "96"
+    },
+    "t_struct(ReserveConfigurationMap)4432_storage": {
+     "encoding": "inplace",
+     "label": "struct DataTypes.ReserveConfigurationMap",
+     "members": [
+      {
+       "astId": 4431,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "data",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_uint256"
+      }
+     ],
+     "numberOfBytes": "32"
+    },
+    "t_struct(ReserveData)4429_storage": {
+     "encoding": "inplace",
+     "label": "struct DataTypes.ReserveData",
+     "members": [
+      {
+       "astId": 4395,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "configuration",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_struct(ReserveConfigurationMap)4432_storage"
+      },
+      {
+       "astId": 4397,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "liquidityIndex",
+       "offset": 0,
+       "slot": "1",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4399,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "currentLiquidityRate",
+       "offset": 16,
+       "slot": "1",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4401,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "variableBorrowIndex",
+       "offset": 0,
+       "slot": "2",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4403,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "currentVariableBorrowRate",
+       "offset": 16,
+       "slot": "2",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4406,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "deficit",
+       "offset": 0,
+       "slot": "3",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4408,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "lastUpdateTimestamp",
+       "offset": 16,
+       "slot": "3",
+       "type": "t_uint40"
+      },
+      {
+       "astId": 4410,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "id",
+       "offset": 21,
+       "slot": "3",
+       "type": "t_uint16"
+      },
+      {
+       "astId": 4412,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "liquidationGracePeriodUntil",
+       "offset": 23,
+       "slot": "3",
+       "type": "t_uint40"
+      },
+      {
+       "astId": 4414,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "aTokenAddress",
+       "offset": 0,
+       "slot": "4",
+       "type": "t_address"
+      },
+      {
+       "astId": 4416,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "__deprecatedStableDebtTokenAddress",
+       "offset": 0,
+       "slot": "5",
+       "type": "t_address"
+      },
+      {
+       "astId": 4418,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "variableDebtTokenAddress",
+       "offset": 0,
+       "slot": "6",
+       "type": "t_address"
+      },
+      {
+       "astId": 4420,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "__deprecatedInterestRateStrategyAddress",
+       "offset": 0,
+       "slot": "7",
+       "type": "t_address"
+      },
+      {
+       "astId": 4422,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "accruedToTreasury",
+       "offset": 0,
+       "slot": "8",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4424,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "virtualUnderlyingBalance",
+       "offset": 16,
+       "slot": "8",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4426,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "__deprecatedIsolationModeTotalDebt",
+       "offset": 0,
+       "slot": "9",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 4428,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "__deprecatedVirtualUnderlyingBalance",
+       "offset": 16,
+       "slot": "9",
+       "type": "t_uint128"
+      }
+     ],
+     "numberOfBytes": "320"
+    },
+    "t_struct(UserConfigurationMap)4436_storage": {
+     "encoding": "inplace",
+     "label": "struct DataTypes.UserConfigurationMap",
+     "members": [
+      {
+       "astId": 4435,
+       "contract": "src/contracts/instances/PoolInstance.sol:PoolInstance",
+       "label": "data",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_uint256"
+      }
+     ],
+     "numberOfBytes": "32"
+    },
+    "t_uint128": {
+     "encoding": "inplace",
+     "label": "uint128",
+     "numberOfBytes": "16"
+    },
+    "t_uint16": {
+     "encoding": "inplace",
+     "label": "uint16",
+     "numberOfBytes": "2"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    },
+    "t_uint40": {
+     "encoding": "inplace",
+     "label": "uint40",
+     "numberOfBytes": "5"
+    },
+    "t_uint64": {
+     "encoding": "inplace",
+     "label": "uint64",
+     "numberOfBytes": "8"
+    },
+    "t_uint8": {
+     "encoding": "inplace",
+     "label": "uint8",
+     "numberOfBytes": "1"
+    }
+   }
+  }
+ }
+}
