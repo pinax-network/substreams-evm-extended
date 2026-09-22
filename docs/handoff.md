@@ -42,7 +42,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `evm/executions` | `evm.executions.v1` | #18 closed; producer semantics under #8 | saved-block replay: 1,509 BSC v4/v5 blocks, 116,951 txs, 1,075,108 receipt logs matched, 2,093,149 writes in storage context, 0 errors, determinism checked ([evidence](../evm/executions/docs/evidence/replay-bsc-v4-v5.json)) | n/a |
 | `aave/actions` | `aave.actions.v1` | #20 open | BSC single-tx fixtures (borrow, supply) | n/a |
 | `aave/balance-state` | `evm.balance_state.v1` | #13 open | saved-block replay: 1,433 BSC blocks, index oracle 6/6, 0 errors ([evidence](../aave/balance-state/docs/evidence/replay-bsc-v5.json)) | **observed** from Keccak preimages in saved blocks (Pool `_reserves` 52; aToken 0x34/0x35/0x36) |
-| `compound-v2/balance-state` | `evm.balance_state.v1` | #14 open | synthetic tests only | **compiler-verified** (`solc 0.8.10`; USDC FiatToken 0.6.12; `tests/storage_layout.rs`) |
+| `compound-v2/balance-state` | `evm.balance_state.v1` | #14 open | synthetic tests only | **compiler-verified**: deployed cUSDC/cETH against the 2019 tree (`solc 0.5.17`, `_guardCounter` at slot 0), cUSDC IRM `LegacyJumpRateModelV2`, delegators against `solc 0.8.10`; USDC FiatToken 0.6.12; `tests/storage_layout.rs` |
 | `compound-v3/balance-state` | `evm.balance_state.v1` | #15 open | synthetic tests only; review findings fixed (§4) | **compiler-verified** (`solc 0.8.15`, `tests/storage_layout.rs`) |
 | `lido/balance-state` | `evm.balance_state.v1` | #23 open | synthetic tests; named slots asserted `== keccak256(name)` | **ast-derived** (`solc 0.4.24` AST; all 16 position constants configured or reviewed) |
 | `erc4626/balance-state` | `evm.balance_state.v1` | #24 open | synthetic tests; no static-aToken activity in saved blocks ([scan](evidence/scans/stata-scan.json)) | **compiler-verified** (StaticATokenLM 0.8.20, SavingsDai 0.8.17, Pot 0.6.12, OZ constants) |
@@ -139,9 +139,10 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
    attribution were mirrored into `compound-v2`, `lido`, `erc4626` and
    `aave`.
 8. Re-run the review for `compound-v2`, `lido`, `erc4626`, `common/retention`.
-   **2026-09-22: `common/retention` (12 findings), `erc4626` (10, two high)
-   and `lido` (7) reviewed independently; all fixed (see the findings doc).
-   `compound-v2` is under review.**
+   **Done 2026-09-22: `common/retention` (12 findings), `erc4626` (10, two
+   high), `lido` (7) and `compound-v2` (10, one high: the deployed cUSDC and
+   cETH run the 2019 layout) reviewed independently; all fixed (see the
+   findings doc).**
    Earlier state: blocked twice. A second workflow (16 finders,
    no verifiers) was launched on 2026-09-21 and every one of its 16 agents
    died on the account spend limit, so those four crates have never been
@@ -215,8 +216,16 @@ changed the `common/retention` host API: `seed_checkpoint` and
 
 1. **Done:** the `compound-v3`-only tests (validate_block table, same-block
    provenance, multi-market attribution) are mirrored in every sibling.
-2. Finish the independent review of `compound-v2`, `lido`, `erc4626` and
-   `common/retention` (§4 item 8).
+2. **Done:** the independent review of `compound-v2`, `lido`, `erc4626` and
+   `common/retention` (§4 item 8), PRs #49–#52.
+   Follow-ups it exposed, not yet done: (a) every package refuses a second
+   epoch for the same market, so `basis_carryover` cannot be exercised inside
+   one parameter set, and the retention ledger binds the parameter hash;
+   supporting successor epochs means accepting several `(market, epoch)`
+   entries with increasing activation in every package; (b) only
+   `compound-v2` stops decoding after an in-block invalidation; the siblings
+   still fail a block whose upgrade writes unknown storage after the pointer
+   write; (c) `aave/balance-state` was not part of this review.
 3. **Done 2026-09-21:** solc storage layouts for every pinned contract are
    committed under `docs/evidence/storage-layouts/` with a `tests/storage_layout.rs`
    per package ([provenance](storage-layout-provenance.md)). The USDC FiatToken

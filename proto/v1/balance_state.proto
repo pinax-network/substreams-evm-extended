@@ -292,6 +292,11 @@ enum StateField {
   STATE_FIELD_COMPOUND_V2_IRM_JUMP_MULTIPLIER_PER_BLOCK = 22;
   STATE_FIELD_COMPOUND_V2_IRM_KINK = 23;
   STATE_FIELD_COMPOUND_V2_IRM_BLOCKS_PER_YEAR = 24;
+  // The 2019 WhitePaperInterestRateModel (cETH's Base0bps_Slope2000bps)
+  // stores per-year parameters and divides the annual rate by
+  // `blocksPerYear` on every call; 1e18-scaled.
+  STATE_FIELD_COMPOUND_V2_IRM_BASE_RATE_PER_YEAR = 25;
+  STATE_FIELD_COMPOUND_V2_IRM_MULTIPLIER_PER_YEAR = 26;
 
   // Compound III `CometStorage` packed market state plus implementation
   // immutables and constants. Indices scale 1e15 (BASE_INDEX_SCALE); rates

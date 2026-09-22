@@ -11,7 +11,9 @@ regular storage are kept with empty tables. Lido (`solc 0.4.24`, no
 | File | Contract(s) | Pinned to | Checked by |
 | --- | --- | --- | --- |
 | `comet@f766f515.json` | `CometWithExtendedAssetList` (via `CometStorage`) | compound-finance/comet `f766f515…` | `compound-v3/balance-state/tests/storage_layout.rs` |
-| `compound-v2@a3214f67.json` | `CErc20`, `CErc20Immutable`, `CErc20Delegator`, `CEther`, `JumpRateModelV2` | compound-finance/compound-protocol `a3214f67…` | `compound-v2/balance-state/tests/storage_layout.rs` |
+| `compound-v2@a3214f67.json` | `CErc20`, `CErc20Immutable`, `CErc20Delegator`, `CEther`, `JumpRateModelV2` (current tree: delegators such as cDAI) | compound-finance/compound-protocol `a3214f67…` | `compound-v2/balance-state/tests/storage_layout.rs` |
+| `compound-protocol-2019@f385d719.json` | `CToken`, `CErc20`, `CEther`, `WhitePaperInterestRateModel` (the deployed cUSDC and cETH; `_guardCounter` at slot 0) | compound-finance/compound-protocol `f385d719…` (initial public tree; solc 0.5.17 standard-JSON `storageLayout`, captured 2026-09-22) | same |
+| `compound-protocol-legacy-jump@4caf72a1.json` | `LegacyJumpRateModelV2`, `BaseJumpRateModelV2` (cUSDC's `IRM_USDC_Updateable`) | compound-finance/compound-protocol `4caf72a1…` (solc 0.5.17, captured 2026-09-22) | same |
 | `sdai@66587976.json` | `SavingsDai` | sky-ecosystem/sdai `66587976…` | `erc4626/balance-state/tests/storage_layout.rs` |
 | `dss-pot@….json` | `Pot` | makerdao/dss master at capture | same |
 | `static-a-token-v3@101f5d97.json` | `StaticATokenLM` | bgd-labs/static-a-token-v3 `101f5d97…` (solc 0.8.20 because `ECDSA.sol` requires `^0.8.20`) | same |

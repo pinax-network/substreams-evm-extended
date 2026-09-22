@@ -25,7 +25,9 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "erc4626_balance_state";
-pub const SPEC_REVISION: u32 = 1;
+/// 2: reviewed dynamic areas, the static aToken and OZ asset pointers as
+/// invalidating STORAGE_POINTER edges, and epoch metadata naming the underlying.
+pub const SPEC_REVISION: u32 = 2;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];

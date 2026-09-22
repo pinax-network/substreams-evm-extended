@@ -1,0 +1,723 @@
+{
+ "captured": "2026-09-22",
+ "host": "macOS arm64; solc 0.5.17 release binary from binaries.soliditylang.org (sha256 matches its list.json), run under Rosetta; no RPC, no network besides the GitHub source tarball and the binary download",
+ "repository": "compound-finance/compound-protocol",
+ "commit": "f385d71983ae5c5799faae9b2dfea43e5cf75262",
+ "commit_note": "\"Initial public commit\" (2019-08-05), the earliest public tree. It matches the deployed cUSDC/cETH ABIs recorded in networks/mainnet-abi.json at a3214f67 (decimals uint256, public initialExchangeRateMantissa, three-field AccrueInterest, constructor without admin_), which the 0.8.10 tree does not. Runtime bytecode equality with the deployments is not verified.",
+ "solc": {
+  "version": "Version: 0.5.17+commit.d19bba13.Darwin.appleclang",
+  "sha256": "35be28f68488b71f1de66148f915b91d64e062900e4fc175bf2eb8fb948810bd"
+ },
+ "command": "solc --standard-json --allow-paths . < input.json, input = every contracts/*.sol with outputSelection {\"*\":{\"*\":[\"storageLayout\"]}} (solc 0.5.17 has no --combined-json storage-layout; the pragma ^0.5.8 admits it and storage layout rules did not change within 0.5.x)",
+ "cwd_note": "run at the repository root of the pinned checkout",
+ "method": "solc standard-json storageLayout",
+ "contracts": {
+  "contracts/CErc20.sol:CErc20": {
+   "storage": [
+    {
+     "astId": 9343,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "_guardCounter",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1687,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "name",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 1689,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "symbol",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 1691,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "decimals",
+     "offset": 0,
+     "slot": "3",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1699,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "admin",
+     "offset": 0,
+     "slot": "4",
+     "type": "t_address_payable"
+    },
+    {
+     "astId": 1701,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "pendingAdmin",
+     "offset": 0,
+     "slot": "5",
+     "type": "t_address_payable"
+    },
+    {
+     "astId": 1703,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "comptroller",
+     "offset": 0,
+     "slot": "6",
+     "type": "t_contract(ComptrollerInterface)8003"
+    },
+    {
+     "astId": 1705,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "interestRateModel",
+     "offset": 0,
+     "slot": "7",
+     "type": "t_contract(InterestRateModel)9140"
+    },
+    {
+     "astId": 1707,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "initialExchangeRateMantissa",
+     "offset": 0,
+     "slot": "8",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1709,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "reserveFactorMantissa",
+     "offset": 0,
+     "slot": "9",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1711,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "accrualBlockNumber",
+     "offset": 0,
+     "slot": "10",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1713,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "borrowIndex",
+     "offset": 0,
+     "slot": "11",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1715,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "totalBorrows",
+     "offset": 0,
+     "slot": "12",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1717,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "totalReserves",
+     "offset": 0,
+     "slot": "13",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1719,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "totalSupply",
+     "offset": 0,
+     "slot": "14",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1723,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "accountTokens",
+     "offset": 0,
+     "slot": "15",
+     "type": "t_mapping(t_address,t_uint256)"
+    },
+    {
+     "astId": 1729,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "transferAllowances",
+     "offset": 0,
+     "slot": "16",
+     "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+    },
+    {
+     "astId": 1738,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "accountBorrows",
+     "offset": 0,
+     "slot": "17",
+     "type": "t_mapping(t_address,t_struct(BorrowSnapshot)1734_storage)"
+    },
+    {
+     "astId": 1016,
+     "contract": "contracts/CErc20.sol:CErc20",
+     "label": "underlying",
+     "offset": 0,
+     "slot": "18",
+     "type": "t_address"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_address_payable": {
+     "encoding": "inplace",
+     "label": "address payable",
+     "numberOfBytes": "20"
+    },
+    "t_contract(ComptrollerInterface)8003": {
+     "encoding": "inplace",
+     "label": "contract ComptrollerInterface",
+     "numberOfBytes": "20"
+    },
+    "t_contract(InterestRateModel)9140": {
+     "encoding": "inplace",
+     "label": "contract InterestRateModel",
+     "numberOfBytes": "20"
+    },
+    "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => mapping(address => uint256))",
+     "numberOfBytes": "32",
+     "value": "t_mapping(t_address,t_uint256)"
+    },
+    "t_mapping(t_address,t_struct(BorrowSnapshot)1734_storage)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => struct CToken.BorrowSnapshot)",
+     "numberOfBytes": "32",
+     "value": "t_struct(BorrowSnapshot)1734_storage"
+    },
+    "t_mapping(t_address,t_uint256)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => uint256)",
+     "numberOfBytes": "32",
+     "value": "t_uint256"
+    },
+    "t_string_storage": {
+     "encoding": "bytes",
+     "label": "string",
+     "numberOfBytes": "32"
+    },
+    "t_struct(BorrowSnapshot)1734_storage": {
+     "encoding": "inplace",
+     "label": "struct CToken.BorrowSnapshot",
+     "members": [
+      {
+       "astId": 1731,
+       "contract": "contracts/CErc20.sol:CErc20",
+       "label": "principal",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_uint256"
+      },
+      {
+       "astId": 1733,
+       "contract": "contracts/CErc20.sol:CErc20",
+       "label": "interestIndex",
+       "offset": 0,
+       "slot": "1",
+       "type": "t_uint256"
+      }
+     ],
+     "numberOfBytes": "64"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    }
+   }
+  },
+  "contracts/CEther.sol:CEther": {
+   "storage": [
+    {
+     "astId": 9343,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "_guardCounter",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1687,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "name",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 1689,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "symbol",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 1691,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "decimals",
+     "offset": 0,
+     "slot": "3",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1699,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "admin",
+     "offset": 0,
+     "slot": "4",
+     "type": "t_address_payable"
+    },
+    {
+     "astId": 1701,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "pendingAdmin",
+     "offset": 0,
+     "slot": "5",
+     "type": "t_address_payable"
+    },
+    {
+     "astId": 1703,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "comptroller",
+     "offset": 0,
+     "slot": "6",
+     "type": "t_contract(ComptrollerInterface)8003"
+    },
+    {
+     "astId": 1705,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "interestRateModel",
+     "offset": 0,
+     "slot": "7",
+     "type": "t_contract(InterestRateModel)9140"
+    },
+    {
+     "astId": 1707,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "initialExchangeRateMantissa",
+     "offset": 0,
+     "slot": "8",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1709,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "reserveFactorMantissa",
+     "offset": 0,
+     "slot": "9",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1711,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "accrualBlockNumber",
+     "offset": 0,
+     "slot": "10",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1713,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "borrowIndex",
+     "offset": 0,
+     "slot": "11",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1715,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "totalBorrows",
+     "offset": 0,
+     "slot": "12",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1717,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "totalReserves",
+     "offset": 0,
+     "slot": "13",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1719,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "totalSupply",
+     "offset": 0,
+     "slot": "14",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1723,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "accountTokens",
+     "offset": 0,
+     "slot": "15",
+     "type": "t_mapping(t_address,t_uint256)"
+    },
+    {
+     "astId": 1729,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "transferAllowances",
+     "offset": 0,
+     "slot": "16",
+     "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+    },
+    {
+     "astId": 1738,
+     "contract": "contracts/CEther.sol:CEther",
+     "label": "accountBorrows",
+     "offset": 0,
+     "slot": "17",
+     "type": "t_mapping(t_address,t_struct(BorrowSnapshot)1734_storage)"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_address_payable": {
+     "encoding": "inplace",
+     "label": "address payable",
+     "numberOfBytes": "20"
+    },
+    "t_contract(ComptrollerInterface)8003": {
+     "encoding": "inplace",
+     "label": "contract ComptrollerInterface",
+     "numberOfBytes": "20"
+    },
+    "t_contract(InterestRateModel)9140": {
+     "encoding": "inplace",
+     "label": "contract InterestRateModel",
+     "numberOfBytes": "20"
+    },
+    "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => mapping(address => uint256))",
+     "numberOfBytes": "32",
+     "value": "t_mapping(t_address,t_uint256)"
+    },
+    "t_mapping(t_address,t_struct(BorrowSnapshot)1734_storage)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => struct CToken.BorrowSnapshot)",
+     "numberOfBytes": "32",
+     "value": "t_struct(BorrowSnapshot)1734_storage"
+    },
+    "t_mapping(t_address,t_uint256)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => uint256)",
+     "numberOfBytes": "32",
+     "value": "t_uint256"
+    },
+    "t_string_storage": {
+     "encoding": "bytes",
+     "label": "string",
+     "numberOfBytes": "32"
+    },
+    "t_struct(BorrowSnapshot)1734_storage": {
+     "encoding": "inplace",
+     "label": "struct CToken.BorrowSnapshot",
+     "members": [
+      {
+       "astId": 1731,
+       "contract": "contracts/CEther.sol:CEther",
+       "label": "principal",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_uint256"
+      },
+      {
+       "astId": 1733,
+       "contract": "contracts/CEther.sol:CEther",
+       "label": "interestIndex",
+       "offset": 0,
+       "slot": "1",
+       "type": "t_uint256"
+      }
+     ],
+     "numberOfBytes": "64"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    }
+   }
+  },
+  "contracts/CToken.sol:CToken": {
+   "storage": [
+    {
+     "astId": 9343,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "_guardCounter",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1687,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "name",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 1689,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "symbol",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 1691,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "decimals",
+     "offset": 0,
+     "slot": "3",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1699,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "admin",
+     "offset": 0,
+     "slot": "4",
+     "type": "t_address_payable"
+    },
+    {
+     "astId": 1701,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "pendingAdmin",
+     "offset": 0,
+     "slot": "5",
+     "type": "t_address_payable"
+    },
+    {
+     "astId": 1703,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "comptroller",
+     "offset": 0,
+     "slot": "6",
+     "type": "t_contract(ComptrollerInterface)8003"
+    },
+    {
+     "astId": 1705,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "interestRateModel",
+     "offset": 0,
+     "slot": "7",
+     "type": "t_contract(InterestRateModel)9140"
+    },
+    {
+     "astId": 1707,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "initialExchangeRateMantissa",
+     "offset": 0,
+     "slot": "8",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1709,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "reserveFactorMantissa",
+     "offset": 0,
+     "slot": "9",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1711,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "accrualBlockNumber",
+     "offset": 0,
+     "slot": "10",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1713,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "borrowIndex",
+     "offset": 0,
+     "slot": "11",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1715,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "totalBorrows",
+     "offset": 0,
+     "slot": "12",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1717,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "totalReserves",
+     "offset": 0,
+     "slot": "13",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1719,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "totalSupply",
+     "offset": 0,
+     "slot": "14",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 1723,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "accountTokens",
+     "offset": 0,
+     "slot": "15",
+     "type": "t_mapping(t_address,t_uint256)"
+    },
+    {
+     "astId": 1729,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "transferAllowances",
+     "offset": 0,
+     "slot": "16",
+     "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+    },
+    {
+     "astId": 1738,
+     "contract": "contracts/CToken.sol:CToken",
+     "label": "accountBorrows",
+     "offset": 0,
+     "slot": "17",
+     "type": "t_mapping(t_address,t_struct(BorrowSnapshot)1734_storage)"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_address_payable": {
+     "encoding": "inplace",
+     "label": "address payable",
+     "numberOfBytes": "20"
+    },
+    "t_contract(ComptrollerInterface)8003": {
+     "encoding": "inplace",
+     "label": "contract ComptrollerInterface",
+     "numberOfBytes": "20"
+    },
+    "t_contract(InterestRateModel)9140": {
+     "encoding": "inplace",
+     "label": "contract InterestRateModel",
+     "numberOfBytes": "20"
+    },
+    "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => mapping(address => uint256))",
+     "numberOfBytes": "32",
+     "value": "t_mapping(t_address,t_uint256)"
+    },
+    "t_mapping(t_address,t_struct(BorrowSnapshot)1734_storage)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => struct CToken.BorrowSnapshot)",
+     "numberOfBytes": "32",
+     "value": "t_struct(BorrowSnapshot)1734_storage"
+    },
+    "t_mapping(t_address,t_uint256)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => uint256)",
+     "numberOfBytes": "32",
+     "value": "t_uint256"
+    },
+    "t_string_storage": {
+     "encoding": "bytes",
+     "label": "string",
+     "numberOfBytes": "32"
+    },
+    "t_struct(BorrowSnapshot)1734_storage": {
+     "encoding": "inplace",
+     "label": "struct CToken.BorrowSnapshot",
+     "members": [
+      {
+       "astId": 1731,
+       "contract": "contracts/CToken.sol:CToken",
+       "label": "principal",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_uint256"
+      },
+      {
+       "astId": 1733,
+       "contract": "contracts/CToken.sol:CToken",
+       "label": "interestIndex",
+       "offset": 0,
+       "slot": "1",
+       "type": "t_uint256"
+      }
+     ],
+     "numberOfBytes": "64"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    }
+   }
+  },
+  "contracts/WhitePaperInterestRateModel.sol:WhitePaperInterestRateModel": {
+   "storage": [
+    {
+     "astId": 9702,
+     "contract": "contracts/WhitePaperInterestRateModel.sol:WhitePaperInterestRateModel",
+     "label": "multiplier",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 9704,
+     "contract": "contracts/WhitePaperInterestRateModel.sol:WhitePaperInterestRateModel",
+     "label": "baseRate",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_uint256"
+    }
+   ],
+   "types": {
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    }
+   }
+  }
+ }
+}
