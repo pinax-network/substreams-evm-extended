@@ -161,10 +161,12 @@ fn erc20_cash_comes_only_from_the_qualified_underlying_mapping_entry() {
     let Cash::Erc20Mapping {
         balances_slot,
         implementation_slot,
+        value_bits,
     } = m.cash.clone()
     else {
         panic!()
     };
+    assert_eq!(value_bits, 255);
     let mut b = block(10);
     // A donation: USDC transfer to the cToken with no cToken write at all.
     let cash_key = mapping_key(&m.ctoken, &balances_slot);
@@ -184,6 +186,22 @@ fn erc20_cash_comes_only_from_the_qualified_underlying_mapping_entry() {
     );
     let cash = &events.global_state[0];
     assert_eq!((&cash.key, &cash.storage_contract, &cash.market), (&m.ctoken, &underlying, &m.ctoken));
+    assert_eq!(events.global_state[0].bit_width, 255);
+    // FiatToken V2.2 keeps the blacklist flag in bit 255 of the same word;
+    // `_balanceOf` masks it, so the row carries only the low 255 bits.
+    let mut blacklisted = w(1_000_500);
+    blacklisted[0] |= 0x80;
+    b.transaction_traces = vec![tx(eth::Call {
+        address: underlying.clone(),
+        storage_changes: vec![write(&underlying, cash_key, w(1_000_500), blacklisted, 10)],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(
+        (&*events.global_state[0].previous_value, &*events.global_state[0].value),
+        ("1000500", "1000500")
+    );
+    assert_eq!(events.global_state[0].raw_word[0], 0x80);
     // A write to the underlying's implementation pointer invalidates the epoch.
     b.transaction_traces = vec![tx(eth::Call {
         address: underlying.clone(),
@@ -436,6 +454,16 @@ fn parameters_are_explicit_and_fail_closed() {
     assert!(mutate(&|v| v["markets"][0]["underlying"]["cash"] = "native".into()).contains("cash kind"));
     assert!(mutate(&|v| v["markets"][0]["underlying"]["source_pin"] = "".into()).contains("qualified underlying"));
     assert!(mutate(&|v| v["markets"][0]["underlying"]["balances_slot"] = serde_json::Value::Null).contains("balances_slot"));
+    assert!(mutate(&|v| v["markets"][0]["underlying"]["value_bits"] = 0.into()).contains("value_bits"));
+    assert!(mutate(&|v| v["markets"][0]["underlying"]["value_bits"] = 257.into()).contains("value_bits"));
+    assert!(mutate(&|v| v["markets"][1]["underlying"]["value_bits"] = 255.into()).contains("native cash"));
+    // Without value_bits the full word is the balance.
+    let mut full: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    full["markets"][0]["underlying"].as_object_mut().unwrap().remove("value_bits");
+    let Cash::Erc20Mapping { value_bits, .. } = parse(&full.to_string()).unwrap().markets[0].cash.clone() else {
+        panic!()
+    };
+    assert_eq!(value_bits, 256);
     assert!(mutate(&|v| v["markets"][1]["underlying"]["address"] = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48".into()).contains("native cash"));
     assert!(mutate(&|v| v["markets"][0]["slots"]["total_supply"] = v["markets"][0]["slots"]["borrow_index"].clone()).contains("overlap"));
     assert!(mutate(&|v| v["markets"][0]["rate_model"]["constants"]["kink"] = "1".into()).contains("both slot and constant"));

@@ -52,7 +52,7 @@ Verification levels used below:
 | 17 | `underlying` (`CErc20Storage`) | compiler-verified | |
 | 18 | `implementation` (`CDelegationStorage`, delegators only) | compiler-verified | |
 | IRM 0 … 4 | `owner`, `multiplierPerBlock`, `baseRatePerBlock`, `jumpMultiplierPerBlock`, `kink` | compiler-verified | `JumpRateModelV2` layout: `owner` 0, then 1..4; `blocksPerYear` is a constant |
-| USDC 9 | FiatToken `balances` | inferred (not compiled; circlefin/stablecoin-evm is not among the pinned trees) | `FiatTokenV1.sol` declaration order after Ownable/Pausable/Blacklistable; the proxy is FiatTokenProxy (implementation slot `0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3`) |
+| USDC 9 | FiatToken `balanceAndBlacklistStates` (balance in bits 0..255, blacklist flag in bit 255) | compiler-verified | `solc 0.6.12` on circlefin/stablecoin-evm v2.2.0 ([layout](evidence/storage-layouts/fiat-token@v2.2.0.json)); `FiatTokenV2_2._balanceOf` masks bit 255, so the cash row decodes `value_bits = 255`; the proxy is FiatTokenProxy (implementation slot `0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3`); the mainnet implementation version is live-gated |
 
 The legacy cUSDC (`CErc20`, 2019) and cETH (`CEther`) are not delegators; whether
 their deployed bytecode has exactly this layout is a runtime question for live
@@ -87,7 +87,8 @@ All seven contracts below were compiled (or, for Lido, AST-derived) with the
 exact pinned compilers; the layouts live under `evidence/storage-layouts/` and
 each package has a `tests/storage_layout.rs` that fails when a fixture slot
 diverges from the compiled layout or a compiled slot is neither decoded nor
-reviewed. The steps are kept for re-runs at a new pin.
+reviewed. The USDC FiatToken family followed on the same day. The steps are
+kept for re-runs at a new pin.
 
 `solc` is installed on the original machine (`forge` is not). For each contract:
 

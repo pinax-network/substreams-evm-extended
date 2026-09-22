@@ -35,7 +35,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `evm/executions` | `evm.executions.v1` | #18 open | BSC single-tx fixtures | n/a |
 | `aave/actions` | `aave.actions.v1` | #20 open | BSC single-tx fixtures (borrow, supply) | n/a |
 | `aave/balance-state` | `evm.balance_state.v1` | #13 open | saved-block replay: 1,433 BSC blocks, index oracle 6/6, 0 errors ([evidence](../aave/balance-state/docs/evidence/replay-bsc-v5.json)) | **observed** from Keccak preimages in saved blocks (Pool `_reserves` 52; aToken 0x34/0x35/0x36) |
-| `compound-v2/balance-state` | `evm.balance_state.v1` | #14 open | synthetic tests only | **compiler-verified** (`solc 0.8.10`, `tests/storage_layout.rs`) |
+| `compound-v2/balance-state` | `evm.balance_state.v1` | #14 open | synthetic tests only | **compiler-verified** (`solc 0.8.10`; USDC FiatToken 0.6.12; `tests/storage_layout.rs`) |
 | `compound-v3/balance-state` | `evm.balance_state.v1` | #15 open | synthetic tests only; review findings fixed (§4) | **compiler-verified** (`solc 0.8.15`, `tests/storage_layout.rs`) |
 | `lido/balance-state` | `evm.balance_state.v1` | #23 open | synthetic tests; named slots asserted `== keccak256(name)` | **ast-derived** (`solc 0.4.24` AST; all 16 position constants configured or reviewed) |
 | `erc4626/balance-state` | `evm.balance_state.v1` | #24 open | synthetic tests; no static-aToken activity in saved blocks ([scan](evidence/scans/stata-scan.json)) | **compiler-verified** (StaticATokenLM 0.8.20, SavingsDai 0.8.17, Pot 0.6.12, OZ constants) |
@@ -130,6 +130,10 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
 
 ## 5. Facts learned that are not written anywhere else
 
+- USDC (FiatToken V2.2) stores the blacklist flag in bit 255 of the same
+  mapping word as the balance (`balanceAndBlacklistStates`, slot 9) and
+  `_balanceOf` masks it; any "raw balances slot" model of USDC must decode
+  255 bits, which the compound-v2 cash model does via `value_bits`.
 - `common/persist` drops storage writes whose old and new values are equal
   (Firehose records them; the rules do not persist them). A reentrancy flag
   that goes 0→1→0 within one frame is two persisted writes that reduce to
@@ -165,9 +169,10 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
 2. Finish the review for the other four crates (workflow resume or by hand).
 3. **Done 2026-09-21:** solc storage layouts for every pinned contract are
    committed under `docs/evidence/storage-layouts/` with a `tests/storage_layout.rs`
-   per package ([provenance](storage-layout-provenance.md)). Remaining offline
-   layout work: compile the USDC FiatToken proxy/implementation for the
-   Compound v2 cash slot.
+   per package ([provenance](storage-layout-provenance.md)). The USDC FiatToken
+   family was compiled the same day (v2.2.0): slot 9 is
+   `balanceAndBlacklistStates`, so the compound-v2 cash row now decodes only
+   the low 255 bits (`value_bits`). No inferred slot remains.
 4. When live use is explicitly resumed: capture Ethereum Extended blocks for
    the bound contracts, verify slots from preimages, bind runtime code hashes
    and activation blocks, run same-block-hash getter parity with the

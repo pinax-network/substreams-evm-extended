@@ -17,6 +17,7 @@ regular storage are kept with empty tables. Lido (`solc 0.4.24`, no
 | `static-a-token-v3@101f5d97.json` | `StaticATokenLM` | bgd-labs/static-a-token-v3 `101f5d97…` (solc 0.8.20 because `ECDSA.sol` requires `^0.8.20`) | same |
 | `openzeppelin-upgradeable@v5.0.0.json` | `ERC4626Harness is ERC4626Upgradeable` + the ERC-7201 namespace constants | OpenZeppelin/openzeppelin-contracts-upgradeable v5.0.0 | same |
 | `lido-core@2da0f48f.json` | `Lido` (AST-derived) | lidofinance/core `2da0f48f…` with `@aragon/os@4.4.0`, `openzeppelin-solidity@2.0.0` | `lido/balance-state/tests/storage_layout.rs` |
+| `fiat-token@v2.2.0.json` | `FiatTokenV2_2` (USDC implementation family; `balanceAndBlacklistStates` at slot 9, blacklist flag in bit 255) | circlefin/stablecoin-evm v2.2.0 (`405efc10…`) with `@openzeppelin/contracts` 3.4.2 | `compound-v2/balance-state/tests/storage_layout.rs` |
 
 What a matching layout proves: the fixture's slot numbers and bit ranges are
 those the pinned source compiles to. What it does not prove: that the bytecode

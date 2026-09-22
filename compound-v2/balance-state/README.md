@@ -24,7 +24,7 @@ underlying-equivalent value.
 | --- | --- | --- |
 | `HolderBasis` (`SHARES`) | `accountTokens[holder]` before the first and after the last write of the block | cToken storage, verified Keccak preimage `(holder, account_tokens)` |
 | `GlobalState` `COMPOUND_V2_TOTAL_BORROWS` / `TOTAL_RESERVES` / `TOTAL_SUPPLY` / `BORROW_INDEX` / `ACCRUAL_BLOCK_NUMBER` / `RESERVE_FACTOR_MANTISSA` / `INITIAL_EXCHANGE_RATE_MANTISSA` | the cToken scalar words, scales `1` or `1e18` | cToken storage, configured slots |
-| `GlobalState` `COMPOUND_V2_TOTAL_CASH` (`key` = cToken) | CErc20: `underlying.balances[cToken]` from the qualified underlying's mapping; CEther: persisted native balance changes of the cToken | underlying storage or cToken balance changes |
+| `GlobalState` `COMPOUND_V2_TOTAL_CASH` (`key` = cToken) | CErc20: the low `value_bits` of `underlying.balances[cToken]` from the qualified underlying's mapping (USDC: 255 bits, the blacklist flag lives in bit 255); CEther: persisted native balance changes of the cToken | underlying storage or cToken balance changes |
 | `GlobalState` `COMPOUND_V2_IRM_*` | rate-model storage writes for configured slots (JumpRateModelV2 `updateJumpRateModel`), and qualified constants (`blocksPerYear`, WhitePaper immutables) at BOUND / REAFFIRMED | rate-model storage, parameters |
 | `ModelEpoch` INVALIDATED | rate-model pointer write on the cToken (`RATE_MODEL_CHANGE`), delegator implementation pointer write, underlying implementation pointer write, code change on the cToken, its implementation, the rate model or the underlying; each with evidence word or code hash | persisted writes and code changes |
 | `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (`basis_carryover = true`: share storage persists across upgrades; `global_carryover = false`: a rate-model replacement starts an epoch whose IRM rows do not carry): implementation (delegators), interest-rate model, underlying | parameters |
@@ -55,10 +55,13 @@ cToken and rate-model slots are **compiler-verified**: `solc 0.8.10
 [`docs/evidence/storage-layouts/compound-v2@a3214f67.json`](../../docs/evidence/storage-layouts/compound-v2@a3214f67.json)
 and [`tests/storage_layout.rs`](tests/storage_layout.rs) pins the `CErc20`,
 `CEther`, `CErc20Delegator` and `JumpRateModelV2` fixtures to it with a
-completeness check. Not verified: the USDC FiatToken `balances` slot (that
-source is not among the pinned trees), the deployed runtime code hashes and
-the placeholder `activation_block` values; no Ethereum Extended blocks are
-cached locally and live Firehose and RPC use is paused.
+completeness check. The USDC cash slot is compiler-verified too
+(`FiatTokenV2_2` at circlefin/stablecoin-evm v2.2.0: slot 9 is
+`balanceAndBlacklistStates`, whose bit 255 is the blacklist flag masked by
+`_balanceOf`, hence `value_bits: 255` in the fixture). Not verified: the
+deployed runtime code hashes (including which FiatToken version the USDC
+proxy points to) and the placeholder `activation_block` values; no Ethereum
+Extended blocks are cached locally and live Firehose and RPC use is paused.
 
 ## Fail-closed rules
 

@@ -99,6 +99,18 @@ fn sub_small(word: &[u8; 32], n: u8) -> Option<[u8; 32]> {
     }
     (borrow == 0).then_some(out)
 }
+/// Unsigned value of bits `[offset, offset + width)` of a big-endian word.
+pub fn bits(word: &[u8; 32], offset: u32, width: u32) -> BigInt {
+    assert!(offset + width <= 256 && width > 0);
+    let mut out = [0u8; 32];
+    for bit in 0..width {
+        let source = offset + bit;
+        if (word[31 - (source / 8) as usize] >> (source % 8)) & 1 == 1 {
+            out[31 - (bit / 8) as usize] |= 1 << (bit % 8);
+        }
+    }
+    BigInt::from_unsigned_bytes_be(&out)
+}
 fn unsigned(word: &[u8; 32]) -> String {
     BigInt::from_unsigned_bytes_be(word).to_string()
 }
@@ -140,6 +152,11 @@ pub struct UnderlyingConfig {
     pub cash: String,
     #[serde(default)]
     pub balances_slot: Option<String>,
+    /// Width in bits of the balance inside the mapping value word (default 256).
+    /// FiatToken V2.2 keeps the blacklist flag in bit 255 and `_balanceOf`
+    /// masks it, so USDC uses 255.
+    #[serde(default)]
+    pub value_bits: Option<u32>,
     #[serde(default)]
     pub implementation_slot: Option<String>,
     #[serde(default)]
@@ -188,6 +205,8 @@ pub enum Cash {
     Erc20Mapping {
         balances_slot: [u8; 32],
         implementation_slot: Option<[u8; 32]>,
+        /// Bits `[0, value_bits)` of the mapping value word are the balance.
+        value_bits: u32,
     },
 }
 #[derive(Clone, Debug)]
@@ -274,7 +293,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
         let (underlying, cash) = match (m.kind.as_str(), u.cash.as_str()) {
             ("cether", "native") => {
                 require(
-                    u.address.is_none() && u.balances_slot.is_none() && u.implementation_slot.is_none(),
+                    u.address.is_none() && u.balances_slot.is_none() && u.implementation_slot.is_none() && u.value_bits.is_none(),
                     "native cash takes no underlying contract",
                 )?;
                 (None, Cash::Native)
@@ -298,11 +317,14 @@ pub fn parse(params: &str) -> Result<Config, Error> {
                     .as_deref()
                     .map(|s| slot(s, "underlying.implementation_slot"))
                     .transpose()?;
+                let value_bits = u.value_bits.unwrap_or(256);
+                require((1..=256).contains(&value_bits), "underlying.value_bits must be within 1..=256")?;
                 (
                     Some(address),
                     Cash::Erc20Mapping {
                         balances_slot,
                         implementation_slot,
+                        value_bits,
                     },
                 )
             }
@@ -795,12 +817,17 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 if let Cash::Erc20Mapping {
                     balances_slot,
                     implementation_slot,
+                    value_bits,
                 } = &market.cash
                 {
                     if r.key == mapping_key(&market.ctoken, balances_slot) {
-                        events
-                            .global_state
-                            .push(global_row(config, market, &r, pb::StateField::CompoundV2TotalCash, "1", market.ctoken.clone()));
+                        // Only the low `value_bits` are the balance (FiatToken V2.2 keeps
+                        // the blacklist flag in bit 255 and `_balanceOf` masks it).
+                        let mut row = global_row(config, market, &r, pb::StateField::CompoundV2TotalCash, "1", market.ctoken.clone());
+                        row.value = bits(&r.new, 0, *value_bits).to_string();
+                        row.previous_value = bits(&r.old, 0, *value_bits).to_string();
+                        row.bit_width = *value_bits;
+                        events.global_state.push(row);
                     } else if Some(r.key) == *implementation_slot {
                         events
                             .epochs
