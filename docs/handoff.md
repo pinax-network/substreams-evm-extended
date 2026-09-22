@@ -90,33 +90,33 @@ dimensions were: pinned-source conformance; fail-closed and persisted-effect
 semantics; balance-state contract conformance; test adequacy versus the issue
 acceptance list.
 
-Must-fix, in order (the first is confirmed by four independent reviewers):
+Must-fix, in order (the first was confirmed by four independent reviewers and
+re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the label):
 
-1. `compound-v3`: review `keccak256("comet.reentrancy.guard")` =
-   `0xc98c7730ba19013824f711a9ab74801459b27e6ff7685cb924587c89aeda53ac`
-   (`CometCore.sol:60`) as a scalar slot, derived in code from the pinned
-   label the way `lido` handles named slots, and add a test with the real
-   transaction shape (guard 0→1→0 in the same frame as a `userBasic` write,
-   delegatecall frame whose `Call.address` is the implementation).
+1. **Done for `compound-v3` (PR "compound-v3 hardening").** The guard slot is
+   reviewed by name (`other_slot_names: ["comet.reentrancy.guard"]`), asserted
+   equal to `0xc98c7730…53ac` in a test, and a routine supply in a
+   delegatecall frame with the `0→1→0` guard writes is a test case.
 2. Row semantics for packed words: the proto says one row per decoded field
-   of a written slot. `compound-v3` filters totals fields but not index
-   fields; `lido` and `erc4626` filter unchanged halves; `compound-v3` skips
-   holder rows whose principal is unchanged. Decide once, apply to all four
-   crates, update READMEs and tests.
-3. `producer_versions` must be restricted to 4 and 5 in every crate (the
-   contract refuses version 3).
-4. `compound-v3` (and `aave/balance-state`) fail the block on an
-   implementation-pointer write or code change; `compound-v2`, `lido`,
-   `erc4626` emit `INVALIDATED` rows and keep decoding. Make them consistent
-   (INVALIDATED is what `common/retention` consumes).
-5. Cross-check echoed constants (`base_index_scale == 1e15`, `factor_scale ==
-   1e18`, `base_scale == 10^decimals`) and make carryover flags explicit.
-6. `conformance::comet::borrow_balance_of` must refuse `principal == -2^103`
-   (checked negation reverts in the pinned source); pin exact above-kink
-   rates and long-elapsed index values; exercise the uint64 overflow arms.
-7. Add the missing tests listed in the findings (failed/reverted
-   transactions, same-block repeats with provenance, `validate_block`
-   refusals, pre-activation blocks, multi-market blocks, determinism).
+   of a written slot. **Done for `compound-v3`** (all six market fields per
+   written word; a holder row for every written `userBasic` word). Still to
+   apply: `lido` and `erc4626` filter unchanged halves of packed words.
+3. `producer_versions` restricted to 4 and 5: **done for `compound-v3`**;
+   still to apply in `compound-v2`, `lido`, `erc4626`, `aave/balance-state`,
+   `native/balances`.
+4. INVALIDATED instead of failing the block on pointer writes and code
+   changes: **done for `compound-v3`** (a pointer write that lands on the bound
+   implementation is treated as the binding, not an invalidation); still to
+   apply in `aave/balance-state`.
+5. Constant cross-checks (`base_index_scale == 1e15`, `factor_scale == 1e18`,
+   `base_scale == 10^decimals`) and explicit carryover flags
+   (`basis_carryover = true`, `global_carryover = false`): **done for
+   `compound-v3`**; `compound-v2` and `erc4626` still echo caller constants.
+6. `conformance::comet`: **done** (int104-min negation refused; exact rates
+   on both sides of the kink and at the market's utilization; exact indices
+   after 3600 s and one year; uint64 overflow arms).
+7. Tests listed in the findings: **done for `compound-v3`** (14 tests); the
+   same gaps remain in the three sibling map crates.
 8. Re-run the review for `compound-v2`, `lido`, `erc4626`, `common/retention`.
 
 ## 5. Facts learned that are not written anywhere else
@@ -150,8 +150,10 @@ Must-fix, in order (the first is confirmed by four independent reviewers):
 
 ## 6. Next steps, in order
 
-1. Fix the `compound-v3` findings (§4 items 1–7) in one PR; mirror the
-   cross-crate items in the siblings; comment on #15, #14, #23, #24.
+1. Mirror the cross-crate items of §4 (row semantics, producer versions,
+   INVALIDATED rows, constant checks, reduce() diagnostics, the test
+   checklist) in `compound-v2`, `lido`, `erc4626` and `aave/balance-state`;
+   comment on #14, #23, #24, #13.
 2. Finish the review for the other four crates (workflow resume or by hand).
 3. Run the solc storage-layout verification in
    [`storage-layout-provenance.md`](storage-layout-provenance.md) and commit

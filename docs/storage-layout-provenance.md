@@ -34,7 +34,7 @@ Verification levels used below:
 | 1 | `totalSupplyBase` 0..104, `totalBorrowBase` 104..208, `lastAccrualTime` 208..248, `pauseFlags` 248..256 | inferred | same |
 | 2, 3, 4, 6, 7 | `totalsCollateral`, `isAllowed`, `userNonce`, `userCollateral`, `liquidatorPoints` mappings | inferred | same |
 | 5 | `userBasic` mapping (`principal` int104 at 0..104) | inferred | same |
-| `0xc98c7730ba19013824f711a9ab74801459b27e6ff7685cb924587c89aeda53ac` | `REENTRANCY_GUARD_FLAG_SLOT` = `keccak256("comet.reentrancy.guard")` | **missing from the fixture** | `CometCore.sol:60`; must be added and hashed in a test (see [review findings](review-findings-2026-09-21.md)) |
+| `0xc98c7730ba19013824f711a9ab74801459b27e6ff7685cb924587c89aeda53ac` | `REENTRANCY_GUARD_FLAG_SLOT` = `keccak256("comet.reentrancy.guard")` | hashed | `CometCore.sol:60`; reviewed by name in the fixture and asserted in a test (was missing before the [review](review-findings-2026-09-21.md)) |
 
 ### Compound v2 cTokens and JumpRateModelV2 (`compound-v2/balance-state`)
 

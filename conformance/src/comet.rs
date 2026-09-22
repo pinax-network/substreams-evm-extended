@@ -187,6 +187,10 @@ pub fn borrow_balance_of(principal: &BigInt, market: &Market, now: u64) -> Resul
     if principal.sign() != Sign::Minus {
         return Ok(BigUint::zero());
     }
+    // `unsigned104(-principal)`: checked negation of int104 min reverts.
+    if *principal == -(BigInt::one() << 103u32) {
+        return Err(Unknown::Invalid("int104 negation overflow"));
+    }
     Ok(present_value_borrow(borrow_index, principal.magnitude()))
 }
 
@@ -242,12 +246,39 @@ mod tests {
         let m = market();
         let util = m.utilization();
         assert!(util > BigUint::zero() && util < BigUint::from(FACTOR_SCALE));
+        // Exact utilization of the synthetic market with the STORED indices:
+        // presentValueBorrow * 1e18 / presentValueSupply.
+        assert_eq!(util, BigUint::from(812_750_275_760_136_302u64));
         let below = m.rates.supply_rate(&BigUint::from(400_000_000_000_000_000u64)).unwrap();
         let at_kink = m.rates.supply_rate(&BigUint::from(800_000_000_000_000_000u64)).unwrap();
+        let just_above = m.rates.supply_rate(&BigUint::from(800_000_000_000_000_001u64)).unwrap();
         let above = m.rates.supply_rate(&BigUint::from(900_000_000_000_000_000u64)).unwrap();
         assert!(below < at_kink && at_kink < above);
-        assert_eq!(at_kink as u128, 1_030_568_239u128 * 800_000_000_000_000_000u128 / FACTOR_SCALE as u128);
+        // At the kink the `<=` branch applies: base + slopeLow * kink.
+        assert_eq!(at_kink, 824_454_591);
+        // One unit above: the high slope contributes floor(12683916793 * 1 / 1e18) = 0.
+        assert_eq!(just_above, 824_454_591);
+        // 90% utilization: 0 + 1030568239 * 0.8 + 12683916793 * 0.1, each term floored.
+        assert_eq!(above, 2_092_846_270);
+        assert_eq!(m.rates.borrow_rate(&BigUint::from(900_000_000_000_000_000u64)).unwrap(), 2_156_265_853);
+        assert_eq!(m.rates.borrow_rate(&BigUint::from(800_000_000_000_000_000u64)).unwrap(), 1_363_521_054);
         assert_eq!(m.rates.borrow_rate(&BigUint::zero()).unwrap(), 475_646_879);
+        // The market's own rates at its stored utilization.
+        assert_eq!(
+            (m.rates.supply_rate(&util).unwrap(), m.rates.borrow_rate(&util).unwrap()),
+            (986_178_027, 1_464_598_202)
+        );
+        // Checked casts: a rate above uint64 and slopes that overflow are refusals.
+        let saturated = RateModel {
+            supply_base: u64::MAX,
+            supply_slope_low: 1,
+            ..m.rates.clone()
+        };
+        assert_eq!(
+            saturated.supply_rate(&BigUint::from(FACTOR_SCALE)),
+            Err(Unknown::Invalid("rate exceeds uint64"))
+        );
+        assert_eq!(saturated.supply_rate(&BigUint::zero()).unwrap(), u64::MAX);
         let empty = Market {
             total_supply_base: BigUint::zero(),
             ..market()
@@ -260,9 +291,31 @@ mod tests {
         let m = market();
         let (s0, b0) = m.accrued_indices(m.last_accrual_time).unwrap();
         assert_eq!((s0, b0), (m.base_supply_index, m.base_borrow_index));
+        // index += mulFactor(index, rate * elapsed), floored at each step.
         let (s1, b1) = m.accrued_indices(m.last_accrual_time + 3600).unwrap();
-        assert!(s1 > s0 && b1 > b0);
+        assert_eq!((s1, b1), (1_058_127_213_382_182, 1_074_993_322_251_046));
+        let (sy, by) = m.accrued_indices(m.last_accrual_time + SECONDS_PER_YEAR).unwrap();
+        assert_eq!((sy, by), (1_091_031_212_963_283, 1_124_638_720_669_845));
         assert!(m.accrued_indices(m.last_accrual_time - 1).is_err());
+        // uint64 limits of the projection.
+        let at_max = Market {
+            base_supply_index: u64::MAX,
+            ..market()
+        };
+        assert_eq!(at_max.accrued_indices(m.last_accrual_time + 1), Err(Unknown::Invalid("index exceeds uint64")));
+        let saturated_rate = Market {
+            rates: RateModel {
+                supply_base: u64::MAX,
+                supply_slope_low: 0,
+                supply_slope_high: 0,
+                ..m.rates.clone()
+            },
+            ..market()
+        };
+        assert_eq!(
+            saturated_rate.accrued_indices(m.last_accrual_time + 2_000),
+            Err(Unknown::Invalid("index delta exceeds uint64"))
+        );
         let principal = BigInt::from(5_000_000u64);
         let at_accrual = balance_of(&principal, &m, m.last_accrual_time).unwrap();
         assert_eq!(at_accrual, present_value_supply(m.base_supply_index, &BigUint::from(5_000_000u64)));
@@ -275,7 +328,15 @@ mod tests {
         // int104 bounds and zero supply/borrow crossings.
         let too_big = BigInt::one() << 103u32;
         assert!(balance_of(&too_big, &m, m.last_accrual_time).is_err());
-        assert!(balance_of(&(-(BigInt::one() << 103u32)), &m, m.last_accrual_time).is_ok());
+        let int104_min = -(BigInt::one() << 103u32);
+        assert_eq!(balance_of(&int104_min, &m, m.last_accrual_time).unwrap(), BigUint::zero());
+        // `unsigned104(-principal)` reverts for int104 min in the pinned source.
+        assert_eq!(
+            borrow_balance_of(&int104_min, &m, m.last_accrual_time),
+            Err(Unknown::Invalid("int104 negation overflow"))
+        );
+        let int104_min_plus_one = int104_min + BigInt::one();
+        assert!(borrow_balance_of(&int104_min_plus_one, &m, m.last_accrual_time).is_ok());
         assert_eq!(balance_of(&BigInt::zero(), &m, m.last_accrual_time).unwrap(), BigUint::zero());
         let uninitialized = Market {
             base_supply_index: 0,
