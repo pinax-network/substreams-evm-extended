@@ -1,0 +1,9 @@
+{
+  "name": "substreams-evm-extended",
+  "description": "Extended EVM Substreams skills: balance-state packages, roadmap issue workflow, pinned-source research, offline evidence replay and storage-layout verification.",
+  "author": {
+    "name": "Pinax",
+    "url": "https://github.com/pinax-network"
+  },
+  "repository": "https://github.com/pinax-network/substreams-evm-extended"
+}
