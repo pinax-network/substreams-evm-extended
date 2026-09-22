@@ -547,7 +547,9 @@ pub enum Observation {
     QualifiedConstant = 3,
     /// Computed by the map as a pure function of rows of the SAME block. Emitted
     /// only when every input was observed in this block; a map holds no state
-    /// across blocks. Inputs are always emitted as their own rows.
+    /// across blocks. Inputs are always emitted as their own rows. A DERIVED row
+    /// is valid at its own block only and is never carried forward: evaluating
+    /// a later clock re-derives it from the latest input rows.
     Derived = 4,
 }
 impl Observation {
@@ -671,6 +673,10 @@ pub enum EpochEventKind {
     Bound = 1,
     /// Full binding restated every `epoch_heartbeat_blocks` so a consumer that
     /// joins mid-stream recovers it without a competing bootstrap mechanism.
+    /// A map holds no state across blocks, so a REAFFIRMED row restates the
+    /// configured binding and its constants; it never attests that the epoch
+    /// was not INVALIDATED since activation and never resumes it. A consumer
+    /// joining mid-stream reads the epoch's stored rows since activation first.
     Reaffirmed = 2,
     /// The previous epoch ended at (block, ordinal) for `reason`, with the
     /// on-chain evidence cited and verified against the block. Immediately

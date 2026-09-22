@@ -44,6 +44,15 @@ pub const TOKEN_REBASED_TOPIC0: [u8; 32] = [
     0xa4, 0x62, 0x6c, 0x3e, 0xda, 0x50,
 ];
 
+/// Contract-version-3 positions that `finalizeUpgrade_v4` reads and wipes
+/// (`Lido.sol:311-341`, function-local `bytes32` constants that no layout
+/// lists). v4 code never writes them, so a write inside a v4 epoch means the
+/// epoch was activated before the migration finished.
+pub const RETIRED_V3_POSITION_NAMES: [&str; 2] = ["lido.Lido.clBalanceAndClValidators", "lido.Lido.bufferedEtherAndDepositedValidators"];
+fn retired_v3_position(key: &[u8; 32]) -> bool {
+    RETIRED_V3_POSITION_NAMES.iter().any(|name| keccak(name.as_bytes()) == *key)
+}
+
 fn require(ok: bool, message: &str) -> Result<(), Error> {
     if ok {
         Ok(())
@@ -636,10 +645,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         let reduced = reduce(relevant.clone())?;
         for w in &relevant {
             for epoch in active.iter().filter(|e| e.active_at(block.number, w.ordinal)) {
-                let reason = resolution_reason(epoch, &w.address, &w.key).or_else(|| {
-                    (w.address == epoch.steth && w.key == epoch.contract_version_slot && unsigned(&w.new) != epoch.contract_version)
-                        .then_some(pb::InvalidationReason::ContractVersionSet)
-                });
+                // The version is constant within an epoch: any persisted write
+                // either leaves the qualified version or shows the epoch was
+                // active over the previous version's storage (3 -> 4).
+                let reason = resolution_reason(epoch, &w.address, &w.key)
+                    .or_else(|| (w.address == epoch.steth && w.key == epoch.contract_version_slot).then_some(pb::InvalidationReason::ContractVersionSet))
+                    .or_else(|| (w.address == epoch.steth && retired_v3_position(&w.key)).then_some(pb::InvalidationReason::StorageMigration));
                 if let Some(reason) = reason {
                     events.epochs.push(pb::ModelEpoch {
                         reason: reason as i32,
@@ -681,8 +692,9 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 events
                     .global_state
                     .push(packed_row(config, epoch, &r, pb::StateField::LidoContractVersion, 0, 256));
-            } else if resolution_reason(epoch, &r.address, &r.key).is_some() {
-                // Guarded resolution writes are never ordinary reviewed state.
+            } else if resolution_reason(epoch, &r.address, &r.key).is_some() || retired_v3_position(&r.key) {
+                // Guarded resolution writes and the v3 migration wipe are
+                // never ordinary reviewed state; each write was invalidated.
             } else if let Some(holder) = preimages
                 .get(&r.key)
                 .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == epoch.shares_slot)
@@ -763,7 +775,17 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             .iter()
             .filter(|tx| tx.status == eth::TransactionTraceStatus::Succeeded as i32)
         {
-            let Some(receipt) = &tx.receipt else { continue };
+            let Some(receipt) = &tx.receipt else {
+                // Report evidence comes from the receipt; a succeeded
+                // transaction whose frames logged from stETH without one is
+                // incomplete data, not a block without a report.
+                let logged = tx
+                    .calls
+                    .iter()
+                    .any(|c| !c.state_reverted && c.logs.iter().any(|l| active.iter().any(|e| e.steth == l.address)));
+                require(!logged, "succeeded transaction with stETH logs has no receipt")?;
+                continue;
+            };
             for log in &receipt.logs {
                 let Some(epoch) = active.iter().find(|e| e.steth == log.address && e.active_at(block.number, log.ordinal)) else {
                     continue;
@@ -865,13 +887,15 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     ..Default::default()
                 });
             }
+            // A declaration sits at the epoch boundary and names the
+            // implementation whose code binds the qualified version.
             events.global_state.push(pb::GlobalState {
                 value: epoch.contract_version.to_string(),
                 observation: pb::Observation::QualifiedConstant as i32,
                 boundary: pb::Boundary::Declaration as i32,
                 scope: pb::Scope::Epoch as i32,
-                storage_contract: epoch.steth.clone(),
-                storage_slot: epoch.contract_version_slot.to_vec(),
+                ordinal: if kind == pb::EpochEventKind::Bound { epoch.activation_ordinal } else { 0 },
+                storage_contract: epoch.implementation.clone(),
                 ..base_row(config, epoch, pb::StateField::LidoContractVersion)
             });
         }
@@ -906,7 +930,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     });
     events
         .dependencies
-        .sort_by(|a, b| (&a.market, a.epoch, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.role, &b.contract)));
+        .sort_by(|a, b| (&a.market, a.epoch, a.depth, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.depth, b.role, &b.contract)));
     events.clocks.push(pb::BlockClock {
         chain_id: config.chain_id,
         number: block.number,

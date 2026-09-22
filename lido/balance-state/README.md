@@ -79,17 +79,28 @@ the same block, as well as an equal-value SSTORE. Each write keeps its own old/n
 transaction/call provenance; the end-of-block value cannot erase an upgrade.
 Writes are checked for continuity before evidence is emitted. The Kernel
 and app-id slots cannot also appear among ordinary reviewed slots.
-Code changes on stETH, its implementation, the Kernel, the Kernel
-implementation and declared Accounting dependency invalidate the model.
+Code changes on stETH, its implementation, the Kernel and the Kernel
+implementation invalidate the model. The Accounting dependency is DECLARED:
+its address is an `OssifiableProxy` upgraded by a storage write, so a
+`CodeChange` check at that address cannot observe a real upgrade; its
+implementation is not watched.
 Other Kernel storage (including other app bases) is not a conversion input.
 The map never follows a newly observed, unqualified pointer: consumers must
 retain the invalidation until an independently qualified epoch replaces it.
 
 `activation_ordinal` (optional, default `0`) is the first execution ordinal of
-`activation_block` at which the epoch applies. Effects earlier in that block,
-such as the upgrade write that installs this epoch's implementation, belong to
-the previous epoch: they are neither decoded under this epoch nor treated as
-invalidating it. The BOUND row carries the activation ordinal as its `ordinal`,
+`activation_block` at which the epoch applies. Effects earlier in that block
+belong to the previous epoch: they are neither decoded under this epoch nor
+treated as invalidating it. For a version upgrade the ordinal must come after
+the **last write of `finalizeUpgrade_v4`**, not after the implementation
+install: that call writes the contract version 3 → 4 and wipes the retired v3
+positions `lido.Lido.clBalanceAndClValidators` and
+`lido.Lido.bufferedEtherAndDepositedValidators` (`Lido.sol:311-341`,
+function-local constants that no storage layout lists). Inside the epoch any
+persisted contract-version write invalidates (`CONTRACT_VERSION_SET`; an old
+word of 3 shows the epoch overlapped v3 storage) and a write to a retired v3
+position invalidates as `STORAGE_MIGRATION`, so an early activation yields
+evidence rather than a halted stream. The BOUND row carries the activation ordinal as its `ordinal`,
 so a consumer applying rows in ordinal order sees the previous epoch's
 invalidation before this epoch's binding.
 
@@ -107,8 +118,10 @@ temporary implementation that ran inside the block.
 | Non-Extended block, `Block.ver` not listed (only 4 and 5 may be listed), incomplete transaction data | block fails |
 | Persisted stETH write that is not a configured word, a `shares` entry or a reviewed slot / mapping member | `unresolved storage … refusing incomplete balance state` |
 | `TokenRebased` log with the wrong topic count or data length | `malformed TokenRebased log` |
+| Succeeded transaction whose non-reverted frames logged from stETH but that has no receipt | `succeeded transaction with stETH logs has no receipt` |
 | Two writes to one key with equal ordinals, or a write whose old value is not the previous new value | `ambiguous` / `discontinuous`, naming the contract, key and ordinals |
 | Any persisted Aragon resolution write, including same-block restoration | epoch invalidation with per-transition evidence |
+| Any persisted contract-version write, or a write to a retired v3 position | `CONTRACT_VERSION_SET` / `STORAGE_MIGRATION` invalidation with evidence |
 | Missing Aragon binding, unsupported Aragon source pin, zero/malformed Aragon identities, overlapping slots (including guarded named slots), unknown fields, zero version | parameters rejected |
 
 Reverted frames and failed transactions never contribute, per the shared
@@ -125,13 +138,16 @@ cargo check -p lido-balance-state --target wasm32-unknown-unknown
 make -C lido/balance-state build
 ```
 
-Tests are synthetic: slot names, share writes, packed halves at 128-bit
-extremes, derived pooled ether with truncation and the zero-internal-shares
-refusal, report logs from succeeded transactions only, version and code
-invalidations, the pre-V3 slot refusal, reviewed names and nested allowance
-mappings, Aragon pointer changes/restorations and source bindings, dependency
-code changes, shared-Kernel market attribution, deterministic ordering,
-reverts, ties, discontinuities and parameter refusals. Unwritten pointer
+Tests are synthetic: slot names, the literal Kernel mapping members, share
+writes, packed halves at the full uint128 width, derived pooled ether with
+truncation and the zero-internal-shares refusal, report logs from succeeded
+transactions only (two topics, receipt required), version and code
+invalidations, the v3 → v4 migration inside an epoch, the pre-V3 slot
+refusal, reviewed names and nested allowance mappings, a routine block with
+an oracle report, `submit`, `permit` and an external-share mint, Aragon
+pointer changes/restorations and source bindings, dependency code changes,
+shared-Kernel market attribution, deterministic ordering, reverts, ties,
+discontinuities and parameter refusals. Unwritten pointer
 values cannot be checked from an Extended block; binding rows declare the
 required qualification rather than proving it. There is no
 captured-block replay yet; see issue
