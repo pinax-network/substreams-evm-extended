@@ -26,8 +26,8 @@ underlying-equivalent value.
 | `GlobalState` `COMPOUND_V2_TOTAL_BORROWS` / `TOTAL_RESERVES` / `TOTAL_SUPPLY` / `BORROW_INDEX` / `ACCRUAL_BLOCK_NUMBER` / `RESERVE_FACTOR_MANTISSA` / `INITIAL_EXCHANGE_RATE_MANTISSA` | the cToken scalar words, scales `1` or `1e18` | cToken storage, configured slots |
 | `GlobalState` `COMPOUND_V2_TOTAL_CASH` (`key` = cToken) | CErc20: the low `value_bits` of `underlying.balances[cToken]` from the qualified underlying's mapping (USDC: 255 bits, the blacklist flag lives in bit 255); CEther: persisted native balance changes of the cToken | underlying storage or cToken balance changes |
 | `GlobalState` `COMPOUND_V2_IRM_*` | rate-model storage writes for configured slots (JumpRateModelV2 `updateJumpRateModel`), and qualified constants (`blocksPerYear`, WhitePaper immutables) at BOUND / REAFFIRMED | rate-model storage, parameters |
-| `ModelEpoch` INVALIDATED | rate-model pointer write on the cToken (`RATE_MODEL_CHANGE`), delegator implementation pointer write, underlying implementation pointer write, code change on the cToken, its implementation, the rate model or the underlying; each with evidence word or code hash | persisted writes and code changes |
-| `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (`basis_carryover = true`: share storage persists across upgrades; `global_carryover = false`: a rate-model replacement starts an epoch whose IRM rows do not carry): implementation (delegators), interest-rate model, underlying | parameters |
+| `ModelEpoch` INVALIDATED | every persisted write, including equal-value and restored ones, to the rate-model pointer on the cToken (`RATE_MODEL_CHANGE`), the delegator implementation pointer or the underlying implementation pointer, each with its own evidence; code change on the cToken, its implementation, the rate model or the underlying; each with evidence word or code hash | persisted writes and code changes |
+| `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (`basis_carryover = true`: share storage persists across upgrades; `global_carryover = false`: a rate-model replacement starts an epoch whose IRM rows do not carry): implementation (delegators) and interest-rate model as storage pointers on the cToken, underlying declared | parameters |
 | `BlockClock` | exactly one per block | header |
 
 Cash is cross-contract state. A direct USDC transfer to cUSDC or an ETH
@@ -62,6 +62,21 @@ completeness check. The USDC cash slot is compiler-verified too
 deployed runtime code hashes (including which FiatToken version the USDC
 proxy points to) and the placeholder `activation_block` values; no Ethereum
 Extended blocks are cached locally and live Firehose and RPC use is paused.
+
+`activation_ordinal` (optional, default `0`) is the first execution ordinal of
+`activation_block` at which the epoch applies. Effects earlier in that block,
+such as the upgrade write that installs this epoch's implementation, belong to
+the previous epoch: they are neither decoded under this epoch nor treated as
+invalidating it. The BOUND row carries the activation ordinal as its `ordinal`,
+so a consumer applying rows in ordinal order sees the previous epoch's
+invalidation before this epoch's binding.
+
+Every persisted write to a storage-pointer slot invalidates the epoch with its
+own evidence row, including a write back to the same value and each step of an
+excursion that restores the pointer within the block, as the
+`BINDING_KIND_STORAGE_POINTER` contract in `proto/v1/balance_state.proto`
+requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
+temporary implementation that ran inside the block.
 
 ## Fail-closed rules
 

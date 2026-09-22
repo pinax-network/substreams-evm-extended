@@ -15,7 +15,7 @@ using the exact model in [`conformance::comet`](../../conformance/src/comet.rs).
 | `GlobalState` `COMET_BASE_SUPPLY_INDEX` / `COMET_BASE_BORROW_INDEX` | bits 0..64 and 64..128 of the indices word, one row each per written word | Comet storage, `indices_slot` |
 | `GlobalState` `COMET_TOTAL_SUPPLY_BASE` / `COMET_TOTAL_BORROW_BASE` / `COMET_LAST_ACCRUAL_TIME` / `COMET_PAUSE_FLAGS` | bits 0..104, 104..208, 208..248 and 248..256 of the totals word, one row each per written word | Comet storage, `totals_slot` |
 | `GlobalState` kinks, rate slopes, rate bases, scales | `QUALIFIED_CONSTANT` / `DECLARATION` rows of the bound implementation's immutables | parameters, cross-checked against the pinned constants |
-| `ModelEpoch` INVALIDATED | implementation pointer written to an address other than the bound one (`IMPLEMENTATION_POINTER_WRITE`); code change on the Comet or its implementation (`CODE_CHANGE`); each with evidence; the block's other writes are still decoded | persisted writes and code changes |
+| `ModelEpoch` INVALIDATED | every persisted write to the implementation pointer, including an equal-value write and each step of an in-block excursion (`IMPLEMENTATION_POINTER_WRITE`); code change on the Comet or its implementation (`CODE_CHANGE`); each with evidence; the block's other writes are still decoded | persisted writes and code changes |
 | `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (`basis_carryover = true`, `global_carryover = false`: storage persists across an upgrade, rate immutables do not) | parameters |
 | `BlockClock` | exactly one per block | header |
 
@@ -62,6 +62,21 @@ address, its code hash and the activation block are **not verified**: no Ethereu
 and RPC use is paused. The fixture uses placeholder `implementation` and
 `activation_block` values for that reason; a real epoch must replace them
 after qualification.
+
+`activation_ordinal` (optional, default `0`) is the first execution ordinal of
+`activation_block` at which the epoch applies. Effects earlier in that block,
+such as the upgrade write that installs this epoch's implementation, belong to
+the previous epoch: they are neither decoded under this epoch nor treated as
+invalidating it. The BOUND row carries the activation ordinal as its `ordinal`,
+so a consumer applying rows in ordinal order sees the previous epoch's
+invalidation before this epoch's binding.
+
+Every persisted write to a storage-pointer slot invalidates the epoch with its
+own evidence row, including a write back to the same value and each step of an
+excursion that restores the pointer within the block, as the
+`BINDING_KIND_STORAGE_POINTER` contract in `proto/v1/balance_state.proto`
+requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
+temporary implementation that ran inside the block.
 
 ## Fail-closed rules
 

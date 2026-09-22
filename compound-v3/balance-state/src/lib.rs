@@ -155,6 +155,11 @@ pub struct MarketConfig {
     pub model_id: String,
     pub source_pin: String,
     pub activation_block: u64,
+    /// First execution ordinal of `activation_block` at which the epoch
+    /// applies; earlier writes in that block belong to the previous epoch
+    /// (for example the upgrade write that installs this implementation).
+    #[serde(default)]
+    pub activation_ordinal: u64,
     pub implementation_slot: String,
     pub implementation: String,
     /// Word holding baseSupplyIndex | baseBorrowIndex | tracking indices.
@@ -182,6 +187,7 @@ pub struct Market {
     pub model_id: String,
     pub source_pin: String,
     pub activation_block: u64,
+    pub activation_ordinal: u64,
     pub implementation_slot: [u8; 32],
     pub implementation: Vec<u8>,
     pub indices_slot: [u8; 32],
@@ -205,6 +211,13 @@ fn pow10(decimals: u32) -> String {
     let mut s = String::from("1");
     s.extend(std::iter::repeat_n('0', decimals as usize));
     s
+}
+
+impl Market {
+    /// Whether this epoch applies to an effect at `(block, ordinal)`.
+    pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
+        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+    }
 }
 
 pub fn parse(params: &str) -> Result<Config, Error> {
@@ -282,6 +295,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             model_id: m.model_id.clone(),
             source_pin: m.source_pin.clone(),
             activation_block: m.activation_block,
+            activation_ordinal: m.activation_ordinal,
             implementation_slot: slot(&m.implementation_slot, "implementation_slot")?,
             implementation: hex_bytes(&m.implementation, 20, "implementation")?,
             indices_slot: slot(&m.indices_slot, "indices_slot")?,
@@ -336,13 +350,16 @@ struct CodeChanged {
 #[derive(Default)]
 struct Collected {
     writes: Vec<Write>,
+    /// Equal-value writes. Persistence drops them as balance effects, but a
+    /// STORAGE_POINTER binding invalidates on any write to its slot.
+    noops: Vec<Write>,
     codes: Vec<CodeChanged>,
     errors: usize,
 }
-impl persist::Sink for Collected {
-    fn storage(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+impl Collected {
+    fn storage_change(&mut self, c: &eth::StorageChange, ctx: persist::Ctx, noop: bool) {
         match (word(&c.key), word(&c.old_value), word(&c.new_value)) {
-            (Ok(key), Ok(old), Ok(new)) => self.writes.push(Write {
+            (Ok(key), Ok(old), Ok(new)) => (if noop { &mut self.noops } else { &mut self.writes }).push(Write {
                 address: c.address.clone(),
                 key,
                 old,
@@ -355,6 +372,14 @@ impl persist::Sink for Collected {
             }),
             _ => self.errors += 1,
         }
+    }
+}
+impl persist::Sink for Collected {
+    fn storage(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+        self.storage_change(c, ctx, false);
+    }
+    fn storage_noop(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+        self.storage_change(c, ctx, true);
     }
     fn balance(&mut self, _: &eth::BalanceChange, _: persist::Ctx) {}
     fn nonce(&mut self, _: &eth::NonceChange, _: persist::Ctx) {}
@@ -539,6 +564,7 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         implementation: market.implementation.clone(),
         implementation_slot: market.implementation_slot.to_vec(),
         activation_block: market.activation_block,
+        activation_ordinal: market.activation_ordinal,
         balance_asset: market.base_token.clone(),
         balance_decimals: market.base_decimals,
         // Storage (principals, indices, totals) persists across a Comet
@@ -552,7 +578,7 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         ..Default::default()
     }
 }
-fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason, r: &Reduced) -> pb::ModelEpoch {
+fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason, r: &Write) -> pb::ModelEpoch {
     pb::ModelEpoch {
         reason: reason as i32,
         scope: scope_of(r.scope) as i32,
@@ -594,18 +620,29 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 preimages.insert(word(&key)?, value);
             }
         }
-        let relevant: Vec<Write> = collected.writes.into_iter().filter(|w| active.iter().any(|m| w.address == m.comet)).collect();
-        for r in reduce(relevant)? {
+        // An epoch owns only the effects at or after its activation position;
+        // earlier writes of the activation block belong to the previous epoch.
+        let owner = |w: &Write| active.iter().find(|m| w.address == m.comet && m.active_at(block.number, w.ordinal)).copied();
+        let mut relevant: Vec<Write> = collected.writes.into_iter().filter(|w| owner(w).is_some()).collect();
+        // STORAGE_POINTER contract: any persisted write to the pointer slot
+        // invalidates, including a write back to the same value.
+        relevant.extend(collected.noops.into_iter().filter(|w| owner(w).is_some_and(|m| w.key == m.implementation_slot)));
+        // Validate continuity first, then evidence every pointer transition
+        // individually: reducing X->Z->X to its end points would conceal a
+        // temporary upgrade that ran within this block.
+        let reduced = reduce(relevant.clone())?;
+        for w in &relevant {
+            let market = owner(w).unwrap();
+            if w.key == market.implementation_slot {
+                events
+                    .epochs
+                    .push(invalidation(config, market, pb::InvalidationReason::ImplementationPointerWrite, w));
+            }
+        }
+        for r in reduced {
             let market = active.iter().find(|m| m.comet == r.address).unwrap();
             if r.key == market.implementation_slot {
-                // A pointer write that lands on the bound implementation is
-                // the binding itself (the upgrade block of this epoch); any
-                // other target invalidates the epoch.
-                if r.new != word(&market.implementation)? {
-                    events
-                        .epochs
-                        .push(invalidation(config, market, pb::InvalidationReason::ImplementationPointerWrite, &r));
-                }
+                // Every pointer write was invalidated above.
             } else if r.key == market.indices_slot {
                 for (field, offset) in [(pb::StateField::CometBaseSupplyIndex, 0), (pb::StateField::CometBaseBorrowIndex, 64)] {
                     events.global_state.push(field_row(
@@ -673,7 +710,10 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             }
         }
         for c in &collected.codes {
-            for market in active.iter().filter(|m| c.address == m.comet || c.address == m.implementation) {
+            for market in active
+                .iter()
+                .filter(|m| (c.address == m.comet || c.address == m.implementation) && m.active_at(block.number, c.ordinal))
+            {
                 events.epochs.push(pb::ModelEpoch {
                     reason: pb::InvalidationReason::CodeChange as i32,
                     scope: scope_of(c.scope) as i32,
@@ -695,7 +735,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             } else {
                 continue;
             };
-            events.epochs.push(epoch_row(config, market, kind));
+            events.epochs.push(pb::ModelEpoch {
+                // A BOUND row applies from its activation position, after any
+                // invalidation of the previous epoch earlier in the block.
+                ordinal: if kind == pb::EpochEventKind::Bound { market.activation_ordinal } else { 0 },
+                ..epoch_row(config, market, kind)
+            });
             events.dependencies.push(pb::Dependency {
                 chain_id: config.chain_id,
                 market: market.comet.clone(),
@@ -750,9 +795,28 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     events
         .global_state
         .sort_by(|a, b| (&a.market, a.field, &a.key, a.ordinal).cmp(&(&b.market, b.field, &b.key, b.ordinal)));
-    events
-        .epochs
-        .sort_by(|a, b| (&a.market, a.epoch, a.ordinal, a.kind).cmp(&(&b.market, b.epoch, b.ordinal, b.kind)));
+    events.epochs.sort_by(|a, b| {
+        (
+            &a.market,
+            a.epoch,
+            a.ordinal,
+            a.kind,
+            a.reason,
+            &a.evidence_contract,
+            &a.evidence_slot,
+            &a.evidence_code_hash,
+        )
+            .cmp(&(
+                &b.market,
+                b.epoch,
+                b.ordinal,
+                b.kind,
+                b.reason,
+                &b.evidence_contract,
+                &b.evidence_slot,
+                &b.evidence_code_hash,
+            ))
+    });
     events
         .dependencies
         .sort_by(|a, b| (&a.market, a.epoch, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.role, &b.contract)));

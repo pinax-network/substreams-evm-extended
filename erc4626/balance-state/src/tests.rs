@@ -946,3 +946,77 @@ fn an_openzeppelin_initializing_block_is_reviewed_and_rebinding_the_asset_invali
     v["vaults"][1]["oz"]["erc4626_storage_slot"] = v["vaults"][1]["total_supply_slot"].clone();
     assert!(parse(&v.to_string()).unwrap_err().to_string().contains("overlap"));
 }
+
+#[test]
+fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
+    let mut v: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+    v["vaults"][1]["activation_block"] = 10.into();
+    v["vaults"][1]["activation_ordinal"] = 100.into();
+    let cfg = parse(&v.to_string()).unwrap();
+    let sdai = cfg.vaults[0].clone();
+    let oz = cfg.vaults[1].clone();
+    let Model::OzVirtualOffset {
+        asset_balance_key,
+        asset_implementation_slot: Some(asset_pointer),
+        ..
+    } = oz.model.clone()
+    else {
+        panic!()
+    };
+    let Model::MakerSavingsDai { pot, chi_slot, .. } = sdai.model.clone() else {
+        panic!()
+    };
+    let asset = oz.asset.clone();
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: asset.clone(),
+        storage_changes: vec![
+            // Before the OZ epoch's activation ordinal: the asset proxy
+            // upgrade (60) and a balance write (70) are not this epoch's.
+            write(&asset, asset_pointer, w(0xdead), w(0x22), 60),
+            write(&asset, asset_balance_key, w(1_000), w(2_000), 70),
+            // After it (170): owned.
+            write(&asset, asset_balance_key, w(2_000), w(3_000), 170),
+            // A Pot write at 50 still belongs to sDAI, active since block 1.
+            write(&pot, chi_slot, w(5), w(6), 50),
+        ],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert!(events
+        .epochs
+        .iter()
+        .all(|e| e.market != oz.vault || e.kind != pb::EpochEventKind::Invalidated as i32));
+    // Observed writes only; the BOUND row also declares the offset constant.
+    let observed = |market: &[u8]| -> Vec<(i32, String, String, i32)> {
+        fields(&events, market)
+            .into_iter()
+            .filter(|f| f.3 == pb::Observation::ObservedWrite as i32)
+            .collect()
+    };
+    assert_eq!(
+        observed(&oz.vault),
+        vec![(pb::StateField::Erc4626TotalAssets as i32, "2000".into(), "3000".into(), 1)]
+    );
+    assert_eq!(observed(&sdai.vault), vec![(pb::StateField::MakerPotChi as i32, "5".into(), "6".into(), 1)]);
+    let bound = events
+        .epochs
+        .iter()
+        .find(|e| e.market == oz.vault && e.kind == pb::EpochEventKind::Bound as i32)
+        .unwrap();
+    assert_eq!((bound.activation_ordinal, bound.ordinal), (100, 100));
+    // The asset proxy upgrade after activation invalidates the OZ epoch only.
+    b.transaction_traces = vec![tx(eth::Call {
+        address: asset.clone(),
+        storage_changes: vec![write(&asset, asset_pointer, w(0x22), w(0xbad), 160)],
+        ..Default::default()
+    })];
+    let invalidated: Vec<(Vec<u8>, u64)> = project(&b, &cfg)
+        .unwrap()
+        .epochs
+        .iter()
+        .filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32)
+        .map(|e| (e.market.clone(), e.ordinal))
+        .collect();
+    assert_eq!(invalidated, vec![(oz.vault.clone(), 160)]);
+}

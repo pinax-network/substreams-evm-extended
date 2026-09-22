@@ -111,12 +111,16 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
    (`compound-v3`, `compound-v2`, `lido`, `erc4626`, `aave/balance-state`,
    `native/balances`), each with a parse test.
 4. INVALIDATED instead of failing the block on pointer writes and code
-   changes: **done for `compound-v3` and `aave/balance-state`** (a pointer
-   write that lands on the bound implementation is the binding, not an
-   invalidation; Pool-side changes use the DEPENDENCY_* reasons and hit every
-   active market; a shared aToken implementation hits every market that uses
-   it). The Aave saved-block replay was re-run after the change (see
-   `aave/balance-state/docs/evidence/`).
+   changes: **done in every balance-state package.** The first version for
+   `compound-v3` and `aave` treated a write onto the bound implementation as
+   the binding, which violated the proto's `STORAGE_POINTER` rule and would
+   have concealed an in-block excursion X→Z→X. All five packages now
+   invalidate on every persisted pointer write, including equal-value and
+   restored writes, with per-write evidence, and honour `activation_ordinal`
+   so an epoch can be bound at its own upgrade block (see "Activation position
+   and pointer writes" in `balance-state-contract.md`). The Aave saved-block
+   replay reproduces the committed rows byte for byte after the change
+   (`aave/balance-state/docs/evidence/replay-bsc-v5-rev3.json`).
 5. Constant cross-checks and carryover flags: **done for `compound-v3`**
    (`base_index_scale == 1e15`, `factor_scale == 1e18`, `base_scale ==
    10^decimals`, `global_carryover = false`) and **`compound-v2`**

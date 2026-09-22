@@ -310,10 +310,61 @@ fn unresolved_atoken_writes_fail_closed_and_pointer_writes_and_code_changes_inva
     };
     block.transaction_traces = vec![tx(eth::Call {
         address: market.atoken.clone(),
-        storage_changes: vec![onto_bound],
+        storage_changes: vec![onto_bound.clone()],
         ..Default::default()
     })];
-    assert!(project(&block, &cfg).unwrap().epochs.is_empty());
+    // STORAGE_POINTER contract: a write onto the bound implementation still
+    // invalidates an active epoch; installing the epoch's own implementation
+    // is expressed with `activation_ordinal` instead.
+    assert_eq!(
+        project(&block, &cfg).unwrap().epochs[0].reason,
+        pb::InvalidationReason::ImplementationPointerWrite as i32
+    );
+    // An aToken excursion X -> Z -> X is evidenced write by write.
+    let bound_word = onto_bound.new_value.clone();
+    let mut rogue = vec![0u8; 32];
+    rogue[31] = 0xbd;
+    block.transaction_traces = vec![tx(eth::Call {
+        address: market.atoken.clone(),
+        storage_changes: vec![
+            eth::StorageChange {
+                address: market.atoken.clone(),
+                key: market.implementation_slot.to_vec(),
+                old_value: bound_word.clone(),
+                new_value: rogue.clone(),
+                ordinal: 10,
+            },
+            eth::StorageChange {
+                address: market.atoken.clone(),
+                key: market.implementation_slot.to_vec(),
+                old_value: rogue.clone(),
+                new_value: bound_word.clone(),
+                ordinal: 11,
+            },
+        ],
+        ..Default::default()
+    })];
+    let excursion: Vec<(u64, Vec<u8>)> = project(&block, &cfg)
+        .unwrap()
+        .epochs
+        .iter()
+        .filter(|e| e.market == market.atoken)
+        .map(|e| (e.ordinal, e.evidence_word.clone()))
+        .collect();
+    assert_eq!(excursion, vec![(10, rogue.clone()), (11, bound_word.clone())]);
+    // An equal-value write is dropped as a balance effect but still invalidates.
+    block.transaction_traces = vec![tx(eth::Call {
+        address: market.atoken.clone(),
+        storage_changes: vec![eth::StorageChange {
+            address: market.atoken.clone(),
+            key: market.implementation_slot.to_vec(),
+            old_value: bound_word.clone(),
+            new_value: bound_word.clone(),
+            ordinal: 10,
+        }],
+        ..Default::default()
+    })];
+    assert_eq!(project(&block, &cfg).unwrap().epochs.len(), 1);
     let pool = cfg.pool.as_ref().unwrap();
     block.transaction_traces = vec![tx(eth::Call {
         address: pool.address.clone(),
@@ -486,4 +537,63 @@ fn producer_versions_are_restricted_to_the_qualified_extended_versions() {
     assert!(parse(&v.to_string()).is_ok());
     v["producer_versions"] = serde_json::json!([]);
     assert!(parse(&v.to_string()).is_err());
+}
+
+#[test]
+fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
+    let mut v: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    let activation = v["markets"][0]["activation_block"].as_u64().unwrap();
+    v["markets"][0]["activation_ordinal"] = 100.into();
+    let cfg = parse(&v.to_string()).unwrap();
+    let market = cfg.markets[0].clone();
+    let pool = cfg.pool.clone().unwrap();
+    let mut block = synthetic_block(activation);
+    // A Pool implementation write before this market's activation ordinal
+    // (50) does not invalidate it, while the other market, active from
+    // ordinal 0, is invalidated by the same write.
+    block.transaction_traces = vec![tx(eth::Call {
+        address: pool.address.clone(),
+        storage_changes: vec![write(POOL, pool.implementation_slot, 1, 2, 50)],
+        ..Default::default()
+    })];
+    let events = project(&block, &cfg).unwrap();
+    let invalidated: Vec<&Vec<u8>> = events
+        .epochs
+        .iter()
+        .filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32)
+        .map(|e| &e.market)
+        .collect();
+    assert!(!invalidated.contains(&&market.atoken));
+    assert!(cfg.markets.iter().skip(1).all(|m| invalidated.contains(&&m.atoken)));
+    let bound_row = events
+        .epochs
+        .iter()
+        .find(|e| e.market == market.atoken && e.kind == pb::EpochEventKind::Bound as i32)
+        .unwrap();
+    assert_eq!((bound_row.activation_ordinal, bound_row.ordinal), (100, 100));
+    // The same write after the activation ordinal invalidates it too.
+    block.transaction_traces = vec![tx(eth::Call {
+        address: pool.address.clone(),
+        storage_changes: vec![write(POOL, pool.implementation_slot, 1, 2, 150)],
+        ..Default::default()
+    })];
+    let events = project(&block, &cfg).unwrap();
+    assert!(events
+        .epochs
+        .iter()
+        .any(|e| e.market == market.atoken && e.kind == pb::EpochEventKind::Invalidated as i32));
+    // An unresolved aToken write before activation belongs to the previous
+    // epoch; after it, the block is refused.
+    block.transaction_traces = vec![tx(eth::Call {
+        address: market.atoken.clone(),
+        storage_changes: vec![write(AUSDT, [0x99; 32], 0, 1, 60)],
+        ..Default::default()
+    })];
+    assert!(project(&block, &cfg).is_ok());
+    block.transaction_traces = vec![tx(eth::Call {
+        address: market.atoken.clone(),
+        storage_changes: vec![write(AUSDT, [0x99; 32], 0, 1, 160)],
+        ..Default::default()
+    })];
+    assert!(project(&block, &cfg).unwrap_err().to_string().contains("unresolved"));
 }
