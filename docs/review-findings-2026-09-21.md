@@ -120,6 +120,26 @@ All seven findings were confirmed and fixed.
 | 6 | low | `Dependency` rows omitted `depth` from the proto sort key | Sorted by `(market, epoch, depth, role, contract)` |
 | 7 | low | The version declaration named the proxy and a slot with ordinal 0; a succeeded transaction without a receipt dropped report evidence silently; README overstated the Accounting check | Implementation, no slot, activation ordinal; missing receipt with stETH logs fails the block; README corrected |
 
+### Independent review of `compound-v2/balance-state` (2026-09-22)
+
+A fresh-context reviewer compared the crate with compound-protocol
+`a3214f67` and its `networks/mainnet-abi.json`, the proto and #14, with a
+probe crate and conformance mutants. Nine of ten findings were confirmed as
+stated and fixed; one mutant is equivalent (row 6).
+
+| # | Severity | Finding | Fix |
+| --- | --- | --- | --- |
+| 1 | **high** | The deployed cUSDC and cETH do not run the pinned `^0.8.10` tree: their ABI (`decimals` uint256, public `initialExchangeRateMantissa`, three-field `AccrueInterest`) is the 2019 source, whose `ReentrancyGuard._guardCounter` takes slot 0 and shifts every word from `admin` up by one. With the fixture's slots a mint failed the block, transfers were silently read as allowances, accrual words were mislabelled and a rate-model change surfaced as an exchange-rate value. The reviewer's layout was recalled; the maintainer compiled the 2019 tree (`f385d719`, solc 0.5.17) and it matches exactly | Fixture re-pinned to the compiled 2019 layout, committed as evidence and pinned by the layout test; the 0.8.10 layout stays for current-tree delegators |
+| 2 | medium | cETH's rate model is the 2019 per-year WhitePaper model (not in the pin, not in conformance); cUSDC's is `LegacyJumpRateModelV2`, a file absent from the pin | `LegacyJumpRateModelV2` found at `4caf72a1` and compiled (same storage and arithmetic as `BaseJumpRateModelV2`); new `IRM_BASE_RATE_PER_YEAR` / `IRM_MULTIPLIER_PER_YEAR` fields; `conformance::compound_v2::{WhitePaper2019, RateModel, CTokenRevision}` with the 2019 cap 5e14 |
+| 3 | medium | After an invalidation the epoch kept decoding the block, so an upgrade's `_becomeImplementation` failed the block and lost the evidence; the heartbeat reaffirms an invalidated epoch; one epoch per market per parameter set | The first invalidation ends the epoch at its ordinal for the rest of the block. `REAFFIRMED` semantics were documented in #51. Multiple epochs per market remain a cross-package design item (handoff §6) |
+| 4 | medium | The USDC implementation pointer was enforced but never declared | `underlying.implementation` parameter and a depth-2 `IMPLEMENTATION` pointer edge; the cToken's `underlying` word is now a pointer too |
+| 5 | medium | `ModelEpoch` named the cToken as `balance_asset` with cToken decimals and scale `"1"` | Underlying (empty for native ether) with its decimals; `basis_scale` 1e18 |
+| 6 | medium | Four conformance mutants survived | Exact vectors computed outside the crate kill the guard, ceil and block-delta mutants. The `<=` → `<` kink mutant is equivalent: both branches yield `kink × multiplier / 1e18 + base` at `util == kink` |
+| 7 | low/medium | Missing map tests (accrual-only block, system/block scopes, delegate code change, native cash under activation ordinal, missing preimage); a dead carry-edge fallback | Tests added; the fallback replaced with a carrying add |
+| 8 | low | Native `TOTAL_CASH` rows named storage slot 0 (cETH's guard word) | No slot |
+| 9 | low | Declarations had ordinal 0 at a mid-block BOUND | Activation ordinal |
+| 10 | low | Parameter decimals accepted leading zeros and more than 78 digits; README called WhitePaper parameters immutables | Canonical uint256 decimals; README corrected |
+
 Legend: severity is the reviewer's; "applies to siblings" is the maintainer's note on where the same pattern exists.
 
 

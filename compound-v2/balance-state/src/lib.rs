@@ -30,11 +30,15 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "compound_v2_balance_state";
-pub const SPEC_REVISION: u32 = 1;
+/// 2: 2019 WhitePaper per-year rate fields, the underlying and its
+/// implementation as pointer edges, epoch metadata naming the underlying,
+/// and no decoding after an in-block invalidation.
+pub const SPEC_REVISION: u32 = 2;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
-/// `blocksPerYear` of BaseJumpRateModelV2 and WhitePaperInterestRateModel at the pin.
+/// `blocksPerYear` of every bound rate model (BaseJumpRateModelV2,
+/// LegacyJumpRateModelV2 and the 2019 WhitePaperInterestRateModel).
 pub const BLOCKS_PER_YEAR: &str = "2102400";
 const EXP_SCALE: &str = "1000000000000000000";
 /// Words a mapping value struct may span (BorrowSnapshot has two).
@@ -68,10 +72,15 @@ fn hex_bytes(s: &str, len: usize, what: &str) -> Result<Vec<u8>, Error> {
 fn slot(s: &str, what: &str) -> Result<[u8; 32], Error> {
     Ok(hex_bytes(s, 32, what)?.try_into().unwrap())
 }
+const UINT256_MAX: &str = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+/// A canonical uint256 decimal: digits only, no leading zeros, at most 2^256 - 1.
 fn decimal(s: &str, what: &str) -> Result<String, Error> {
     require(
-        !s.is_empty() && s.bytes().all(|c| c.is_ascii_digit()),
-        &format!("{what} must be a decimal integer"),
+        !s.is_empty()
+            && s.bytes().all(|c| c.is_ascii_digit())
+            && (s == "0" || !s.starts_with('0'))
+            && (s.len() < UINT256_MAX.len() || (s.len() == UINT256_MAX.len() && s <= UINT256_MAX)),
+        &format!("{what} must be a canonical uint256 decimal"),
     )?;
     Ok(s.to_string())
 }
@@ -141,6 +150,10 @@ pub struct Slots {
     pub total_reserves: String,
     pub total_supply: String,
     pub account_tokens: String,
+    /// CErc20 `underlying` (an address the cToken holds in storage). Required
+    /// for ERC-20 cash: it is a pointer, so any write invalidates.
+    #[serde(default)]
+    pub underlying: Option<String>,
 }
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -157,8 +170,12 @@ pub struct UnderlyingConfig {
     /// masks it, so USDC uses 255.
     #[serde(default)]
     pub value_bits: Option<u32>,
+    /// The underlying's proxy pointer and the implementation it must hold;
+    /// supplied together.
     #[serde(default)]
     pub implementation_slot: Option<String>,
+    #[serde(default)]
+    pub implementation: Option<String>,
     #[serde(default)]
     pub model_id: Option<String>,
     #[serde(default)]
@@ -208,7 +225,10 @@ pub enum Cash {
     Native,
     Erc20Mapping {
         balances_slot: [u8; 32],
+        /// cToken slot holding `underlying`.
+        underlying_slot: [u8; 32],
         implementation_slot: Option<[u8; 32]>,
+        implementation: Option<Vec<u8>>,
         /// Bits `[0, value_bits)` of the mapping value word are the balance.
         value_bits: u32,
     },
@@ -255,6 +275,8 @@ fn irm_field(name: &str) -> Result<(pb::StateField, &'static str), Error> {
         "jump_multiplier_per_block" => (pb::StateField::CompoundV2IrmJumpMultiplierPerBlock, EXP_SCALE),
         "kink" => (pb::StateField::CompoundV2IrmKink, EXP_SCALE),
         "blocks_per_year" => (pb::StateField::CompoundV2IrmBlocksPerYear, "1"),
+        "base_rate_per_year" => (pb::StateField::CompoundV2IrmBaseRatePerYear, EXP_SCALE),
+        "multiplier_per_year" => (pb::StateField::CompoundV2IrmMultiplierPerYear, EXP_SCALE),
         other => return Err(Error::msg(format!("unknown rate model parameter `{other}`"))),
     })
 }
@@ -267,6 +289,12 @@ impl Market {
     fn watches(&self, address: &[u8]) -> bool {
         address == self.ctoken || address == self.rate_model || self.implementation.as_deref() == Some(address) || self.underlying.as_deref() == Some(address)
     }
+    fn underlying_implementation(&self) -> Option<&[u8]> {
+        match &self.cash {
+            Cash::Erc20Mapping { implementation, .. } => implementation.as_deref(),
+            Cash::Native => None,
+        }
+    }
     /// STORAGE_POINTER slots: any persisted write, including a write back to
     /// the same value, invalidates the epoch.
     fn pointer_reason(&self, address: &[u8], key: &[u8; 32]) -> Option<pb::InvalidationReason> {
@@ -275,11 +303,14 @@ impl Market {
         } else if address == self.ctoken && *key == self.rate_model_slot {
             Some(pb::InvalidationReason::RateModelChange)
         } else if let Cash::Erc20Mapping {
-            implementation_slot: Some(slot),
+            underlying_slot,
+            implementation_slot,
             ..
         } = &self.cash
         {
-            (self.underlying.as_deref() == Some(address) && key == slot).then_some(pb::InvalidationReason::DependencyPointerWrite)
+            let pointer =
+                (address == self.ctoken && key == underlying_slot) || (self.underlying.as_deref() == Some(address) && Some(*key) == *implementation_slot);
+            pointer.then_some(pb::InvalidationReason::DependencyPointerWrite)
         } else {
             None
         }
@@ -325,7 +356,12 @@ pub fn parse(params: &str) -> Result<Config, Error> {
         let (underlying, cash) = match (m.kind.as_str(), u.cash.as_str()) {
             ("cether", "native") => {
                 require(
-                    u.address.is_none() && u.balances_slot.is_none() && u.implementation_slot.is_none() && u.value_bits.is_none(),
+                    u.address.is_none()
+                        && u.balances_slot.is_none()
+                        && u.implementation_slot.is_none()
+                        && u.implementation.is_none()
+                        && u.value_bits.is_none()
+                        && m.slots.underlying.is_none(),
                     "native cash takes no underlying contract",
                 )?;
                 (None, Cash::Native)
@@ -349,13 +385,27 @@ pub fn parse(params: &str) -> Result<Config, Error> {
                     .as_deref()
                     .map(|s| slot(s, "underlying.implementation_slot"))
                     .transpose()?;
+                let implementation = u.implementation.as_deref().map(|s| hex_bytes(s, 20, "underlying.implementation")).transpose()?;
+                require(
+                    implementation_slot.is_some() == implementation.is_some(),
+                    "underlying implementation slot and address go together",
+                )?;
+                let underlying_slot = slot(
+                    m.slots
+                        .underlying
+                        .as_deref()
+                        .ok_or_else(|| Error::msg("erc20 cash requires slots.underlying, the cToken's underlying pointer"))?,
+                    "slots.underlying",
+                )?;
                 let value_bits = u.value_bits.unwrap_or(256);
                 require((1..=256).contains(&value_bits), "underlying.value_bits must be within 1..=256")?;
                 (
                     Some(address),
                     Cash::Erc20Mapping {
                         balances_slot,
+                        underlying_slot,
                         implementation_slot,
+                        implementation,
                         value_bits,
                     },
                 )
@@ -392,6 +442,9 @@ pub fn parse(params: &str) -> Result<Config, Error> {
         all.push(rate_model_slot);
         all.push(account_tokens_slot);
         all.extend(implementation_slot);
+        if let Cash::Erc20Mapping { underlying_slot, .. } = &cash {
+            all.push(*underlying_slot);
+        }
         all.extend(other_slots.iter().copied());
         all.extend(other_mapping_slots.iter().copied());
         require(all.iter().collect::<BTreeSet<_>>().len() == all.len(), "market slots overlap")?;
@@ -706,7 +759,8 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         model_id: market.model_id.clone(),
         source_pin: market.source_pin.clone(),
         basis_kind: pb::BasisKind::Shares as i32,
-        basis_scale: "1".into(),
+        // underlying = shares × exchangeRateMantissa / 1e18
+        basis_scale: EXP_SCALE.into(),
         balance_rounding: pb::Rounding::Floor as i32,
         basis_bit_offset: 0,
         basis_bit_width: 256,
@@ -715,10 +769,10 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         implementation_slot: market.implementation_slot.map(|s| s.to_vec()).unwrap_or_default(),
         activation_block: market.activation_block,
         activation_ordinal: market.activation_ordinal,
-        // The ERC-20 amount is the share count of the cToken itself; the
-        // underlying claim is a separate, dependency-bound conversion.
-        balance_asset: market.ctoken.clone(),
-        balance_decimals: market.ctoken_decimals,
+        // The basis is the cToken's own share count (`basis_kind` SHARES); the
+        // evaluated balance is the underlying (empty for native ether).
+        balance_asset: market.underlying.clone().unwrap_or_default(),
+        balance_decimals: market.underlying_decimals,
         // Share storage persists across implementation upgrades; a rate-model
         // replacement starts a new epoch whose IRM rows do not carry.
         basis_carryover: true,
@@ -795,6 +849,22 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 preimages.insert(word(&key)?, value);
             }
         }
+        // An INVALIDATED row ends the epoch at its (block, ordinal): later
+        // effects of that block are not decoded under it, so an upgrade that
+        // writes the new implementation's storage (`_becomeImplementation`)
+        // yields its evidence instead of failing the block.
+        let code_reason = |market: &Market, address: &[u8]| {
+            if address == market.ctoken || market.implementation.as_deref() == Some(address) {
+                Some(pb::InvalidationReason::CodeChange)
+            } else if address == market.rate_model {
+                Some(pb::InvalidationReason::RateModelChange)
+            } else if market.underlying.as_deref() == Some(address) || market.underlying_implementation() == Some(address) {
+                Some(pb::InvalidationReason::DependencyCodeChange)
+            } else {
+                None
+            }
+        };
+        let mut ended: BTreeMap<Vec<u8>, u64> = BTreeMap::new();
         // Each epoch owns only the effects at or after its activation position,
         // so writes are selected per market before reduction.
         for market in &active {
@@ -807,15 +877,32 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     .filter(|w| owns(w) && market.pointer_reason(&w.address, &w.key).is_some())
                     .cloned(),
             );
-            // Validate continuity first, then evidence every pointer transition
-            // individually: an in-block excursion X->Z->X must not be concealed.
-            let reduced = reduce(writes.clone(), "storage")?;
+            // Validate continuity of every owned write first, then evidence
+            // every pointer transition individually: an in-block excursion
+            // X->Z->X must not be concealed.
+            reduce(writes.clone(), "storage")?;
             for w in &writes {
                 if let Some(reason) = market.pointer_reason(&w.address, &w.key) {
                     events.epochs.push(invalidation(config, market, reason, w));
                 }
             }
-            for r in reduced {
+            let end = writes
+                .iter()
+                .filter(|w| market.pointer_reason(&w.address, &w.key).is_some())
+                .map(|w| w.ordinal)
+                .chain(
+                    collected
+                        .codes
+                        .iter()
+                        .filter(|c| market.active_at(block.number, c.ordinal) && code_reason(market, &c.address).is_some())
+                        .map(|c| c.ordinal),
+                )
+                .min();
+            if let Some(end) = end {
+                ended.insert(market.ctoken.clone(), end);
+            }
+            let decoded: Vec<Change> = writes.into_iter().filter(|w| end.is_none_or(|e| w.ordinal <= e)).collect();
+            for r in reduce(decoded, "storage")? {
                 if market.pointer_reason(&r.address, &r.key).is_some() {
                     // Every pointer write was invalidated above.
                 } else if r.address == market.ctoken {
@@ -887,29 +974,27 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             .balances
             .into_iter()
             .filter(|b| {
-                active
-                    .iter()
-                    .any(|m| m.cash == Cash::Native && b.address == m.ctoken && m.active_at(block.number, b.ordinal))
+                active.iter().any(|m| {
+                    m.cash == Cash::Native
+                        && b.address == m.ctoken
+                        && m.active_at(block.number, b.ordinal)
+                        && ended.get(&m.ctoken).is_none_or(|e| b.ordinal <= *e)
+                })
             })
             .collect();
         for r in reduce(balances, "native balance")? {
             let market = active.iter().find(|m| m.ctoken == r.address).unwrap();
-            events
-                .global_state
-                .push(global_row(config, market, &r, pb::StateField::CompoundV2TotalCash, "1", market.ctoken.clone()));
+            // A native balance has no storage slot; slot 0 of a CEther is its
+            // reentrancy word, so the row must not name one.
+            let mut row = global_row(config, market, &r, pb::StateField::CompoundV2TotalCash, "1", market.ctoken.clone());
+            row.storage_slot = Vec::new();
+            events.global_state.push(row);
         }
         for c in &collected.codes {
             for market in active.iter().filter(|m| m.active_at(block.number, c.ordinal)) {
-                let reason = if c.address == market.ctoken || market.implementation.as_deref() == Some(c.address.as_slice()) {
-                    pb::InvalidationReason::CodeChange
-                } else if c.address == market.rate_model {
-                    pb::InvalidationReason::RateModelChange
-                } else if market.underlying.as_deref() == Some(c.address.as_slice()) {
-                    pb::InvalidationReason::DependencyCodeChange
-                } else {
-                    continue;
-                };
-                events.epochs.push(code_invalidation(config, market, reason, c));
+                if let Some(reason) = code_reason(market, &c.address) {
+                    events.epochs.push(code_invalidation(config, market, reason, c));
+                }
             }
         }
         for market in &active {
@@ -950,15 +1035,37 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     &market.rate_model_pin,
                 )
             });
-            if let Some(underlying) = &market.underlying {
-                events.dependencies.push(dependency(
-                    config,
-                    market,
-                    kind,
-                    pb::DependencyRole::Underlying,
-                    underlying,
-                    &market.underlying_pin,
-                ));
+            if let (
+                Some(underlying),
+                Cash::Erc20Mapping {
+                    underlying_slot,
+                    implementation_slot,
+                    implementation,
+                    ..
+                },
+            ) = (&market.underlying, &market.cash)
+            {
+                // `underlying` is cToken storage: a pointer, not a declaration.
+                events.dependencies.push(pb::Dependency {
+                    binding: pb::BindingKind::StoragePointer as i32,
+                    pointer_contract: market.ctoken.clone(),
+                    pointer_slot: underlying_slot.to_vec(),
+                    pointer_value: word(underlying)?.to_vec(),
+                    ..dependency(config, market, kind, pb::DependencyRole::Underlying, underlying, &market.underlying_pin)
+                });
+                // The decoded balance word is bound to the underlying's
+                // implementation through its proxy pointer.
+                if let (Some(slot), Some(implementation)) = (implementation_slot, implementation) {
+                    events.dependencies.push(pb::Dependency {
+                        depth: 2,
+                        parent: underlying.clone(),
+                        binding: pb::BindingKind::StoragePointer as i32,
+                        pointer_contract: underlying.clone(),
+                        pointer_slot: slot.to_vec(),
+                        pointer_value: word(implementation)?.to_vec(),
+                        ..dependency(config, market, kind, pb::DependencyRole::Implementation, implementation, &market.underlying_pin)
+                    });
+                }
             }
             for (field, value, scale) in &market.rate_model_constants {
                 events.global_state.push(pb::GlobalState {
@@ -971,6 +1078,9 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     observation: pb::Observation::QualifiedConstant as i32,
                     boundary: pb::Boundary::Declaration as i32,
                     scope: pb::Scope::Epoch as i32,
+                    // A declaration sits at the epoch boundary.
+                    ordinal: if kind == pb::EpochEventKind::Bound { market.activation_ordinal } else { 0 },
+                    first_ordinal: if kind == pb::EpochEventKind::Bound { market.activation_ordinal } else { 0 },
                     storage_contract: market.rate_model.clone(),
                     ..Default::default()
                 });
@@ -1007,7 +1117,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     });
     events
         .dependencies
-        .sort_by(|a, b| (&a.market, a.epoch, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.role, &b.contract)));
+        .sort_by(|a, b| (&a.market, a.epoch, a.depth, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.depth, b.role, &b.contract)));
     events.clocks.push(pb::BlockClock {
         chain_id: config.chain_id,
         number: block.number,

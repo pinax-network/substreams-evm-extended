@@ -1,0 +1,128 @@
+{
+ "captured": "2026-09-22",
+ "host": "macOS arm64; solc 0.5.17 release binary from binaries.soliditylang.org (sha256 matches its list.json), run under Rosetta; no RPC, no network besides the GitHub source tarball and the binary download",
+ "repository": "compound-finance/compound-protocol",
+ "commit": "4caf72a1f88335adc9cc06acf6f372241369ed01",
+ "commit_note": "\"Refactor interest rate models to share code\" (2020-09-21), the commit that introduced contracts/LegacyJumpRateModelV2.sol (removed again at a3214f67). networks/mainnet.json at a3214f67 names IRM_USDC_Updateable (0xD8EC56013EA119E7181d231E5048f90fBbe753c0) a LegacyJumpRateModelV2. Runtime bytecode equality with the deployment is not verified.",
+ "solc": {
+  "version": "Version: 0.5.17+commit.d19bba13.Darwin.appleclang",
+  "sha256": "35be28f68488b71f1de66148f915b91d64e062900e4fc175bf2eb8fb948810bd"
+ },
+ "command": "solc --standard-json --allow-paths . < input.json, input = contracts/LegacyJumpRateModelV2.sol, BaseJumpRateModelV2.sol, LegacyInterestRateModel.sol, SafeMath.sol with outputSelection {\"*\":{\"*\":[\"storageLayout\"]}}",
+ "cwd_note": "run at the repository root of the pinned checkout",
+ "method": "solc standard-json storageLayout",
+ "contracts": {
+  "contracts/BaseJumpRateModelV2.sol:BaseJumpRateModelV2": {
+   "storage": [
+    {
+     "astId": 17,
+     "contract": "contracts/BaseJumpRateModelV2.sol:BaseJumpRateModelV2",
+     "label": "owner",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_address"
+    },
+    {
+     "astId": 22,
+     "contract": "contracts/BaseJumpRateModelV2.sol:BaseJumpRateModelV2",
+     "label": "multiplierPerBlock",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 24,
+     "contract": "contracts/BaseJumpRateModelV2.sol:BaseJumpRateModelV2",
+     "label": "baseRatePerBlock",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 26,
+     "contract": "contracts/BaseJumpRateModelV2.sol:BaseJumpRateModelV2",
+     "label": "jumpMultiplierPerBlock",
+     "offset": 0,
+     "slot": "3",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 28,
+     "contract": "contracts/BaseJumpRateModelV2.sol:BaseJumpRateModelV2",
+     "label": "kink",
+     "offset": 0,
+     "slot": "4",
+     "type": "t_uint256"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    }
+   }
+  },
+  "contracts/LegacyJumpRateModelV2.sol:LegacyJumpRateModelV2": {
+   "storage": [
+    {
+     "astId": 17,
+     "contract": "contracts/LegacyJumpRateModelV2.sol:LegacyJumpRateModelV2",
+     "label": "owner",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_address"
+    },
+    {
+     "astId": 22,
+     "contract": "contracts/LegacyJumpRateModelV2.sol:LegacyJumpRateModelV2",
+     "label": "multiplierPerBlock",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 24,
+     "contract": "contracts/LegacyJumpRateModelV2.sol:LegacyJumpRateModelV2",
+     "label": "baseRatePerBlock",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 26,
+     "contract": "contracts/LegacyJumpRateModelV2.sol:LegacyJumpRateModelV2",
+     "label": "jumpMultiplierPerBlock",
+     "offset": 0,
+     "slot": "3",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 28,
+     "contract": "contracts/LegacyJumpRateModelV2.sol:LegacyJumpRateModelV2",
+     "label": "kink",
+     "offset": 0,
+     "slot": "4",
+     "type": "t_uint256"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    }
+   }
+  }
+ }
+}

@@ -38,25 +38,40 @@ Verification levels used below:
 | 5 | `userBasic` mapping (`principal` int104 at 0..104) | compiler-verified | `UserBasic` member `principal` slot 0 offset 0 `t_int104`, struct size 32 |
 | `0xc98c7730ba19013824f711a9ab74801459b27e6ff7685cb924587c89aeda53ac` | `REENTRANCY_GUARD_FLAG_SLOT` = `keccak256("comet.reentrancy.guard")` | hashed | `CometCore.sol:60`; reviewed by name in the fixture and asserted in a test (was missing before the [review](review-findings-2026-09-21.md)) |
 
-### Compound v2 cTokens and JumpRateModelV2 (`compound-v2/balance-state`)
+### Compound v2 cTokens and rate models (`compound-v2/balance-state`)
 
-| Slot | Variable | Level | Source |
+The deployed cUSDC and cETH run the **2019** compound-protocol source, not the
+pinned `^0.8.10` tree: their ABI in the pinned `networks/mainnet-abi.json`
+(`decimals` as `uint256`, a public `initialExchangeRateMantissa`, a
+three-field `AccrueInterest`, no `admin_` constructor argument) matches the
+initial public tree `f385d719`. That was found by an independent review on
+2026-09-22; the fixture previously used the 0.8.10 slots below, one slot too
+low from `admin` on.
+
+| Slot (2019, cUSDC / cETH) | Variable | Level | Source |
 | --- | --- | --- | --- |
-| 0 | `_notEntered` | compiler-verified | `solc 0.8.10` ([layout](evidence/storage-layouts/compound-v2@a3214f67.json)); test `compound-v2/balance-state/tests/storage_layout.rs` |
+| 0 | `_guardCounter` (`ReentrancyGuard`, incremented on every `nonReentrant` call) | compiler-verified | `solc 0.5.17` standard-JSON ([layout](evidence/storage-layouts/compound-protocol-2019@f385d719.json)); test `compound-v2/balance-state/tests/storage_layout.rs` |
 | 1, 2 | `name`, `symbol` | compiler-verified | |
-| 3 | `decimals` (uint8) packed with `admin` | compiler-verified | `decimals` offset 0, `admin` offset 1 in slot 3 |
-| 4, 5 | `pendingAdmin`, `comptroller` | compiler-verified | |
-| 6 | `interestRateModel` | compiler-verified | |
-| 7 … 13 | `initialExchangeRateMantissa`, `reserveFactorMantissa`, `accrualBlockNumber`, `borrowIndex`, `totalBorrows`, `totalReserves`, `totalSupply` | compiler-verified | |
-| 14, 15, 16 | `accountTokens`, `transferAllowances`, `accountBorrows` (two-word struct) | compiler-verified | |
-| 17 | `underlying` (`CErc20Storage`) | compiler-verified | |
-| 18 | `implementation` (`CDelegationStorage`, delegators only) | compiler-verified | |
-| IRM 0 … 4 | `owner`, `multiplierPerBlock`, `baseRatePerBlock`, `jumpMultiplierPerBlock`, `kink` | compiler-verified | `JumpRateModelV2` layout: `owner` 0, then 1..4; `blocksPerYear` is a constant |
+| 3 | `decimals` (uint256) | compiler-verified | |
+| 4, 5, 6 | `admin`, `pendingAdmin`, `comptroller` | compiler-verified | |
+| 7 | `interestRateModel` | compiler-verified | |
+| 8 … 14 | `initialExchangeRateMantissa`, `reserveFactorMantissa`, `accrualBlockNumber`, `borrowIndex`, `totalBorrows`, `totalReserves`, `totalSupply` | compiler-verified | |
+| 15, 16, 17 | `accountTokens`, `transferAllowances`, `accountBorrows` (two-word struct) | compiler-verified | |
+| 18 | `underlying` (`CErc20` only) | compiler-verified | |
+| cETH IRM 0, 1 | 2019 `WhitePaperInterestRateModel` `multiplier`, `baseRate` (per year, constructor-only) | compiler-verified | same layout file; carried as qualified constants |
+| cUSDC IRM 0 … 4 | `LegacyJumpRateModelV2` `owner`, `multiplierPerBlock`, `baseRatePerBlock`, `jumpMultiplierPerBlock`, `kink` | compiler-verified | `solc 0.5.17` at `4caf72a1` ([layout](evidence/storage-layouts/compound-protocol-legacy-jump@4caf72a1.json)) |
 | USDC 9 | FiatToken `balanceAndBlacklistStates` (balance in bits 0..255, blacklist flag in bit 255) | compiler-verified | `solc 0.6.12` on circlefin/stablecoin-evm v2.2.0 ([layout](evidence/storage-layouts/fiat-token@v2.2.0.json)); `FiatTokenV2_2._balanceOf` masks bit 255, so the cash row decodes `value_bits = 255`; the proxy is FiatTokenProxy (implementation slot `0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3`); the mainnet implementation version is live-gated |
 
-The legacy cUSDC (`CErc20`, 2019) and cETH (`CEther`) are not delegators; whether
-their deployed bytecode has exactly this layout is a runtime question for live
-qualification.
+Current-tree delegators (cDAI and later markets) use the 0.8.10 layout of
+`a3214f67` ([layout](evidence/storage-layouts/compound-v2@a3214f67.json)):
+`_notEntered` 0, name 1, symbol 2, `decimals` (uint8) packed with `admin` in
+3, pendingAdmin 4, comptroller 5, `interestRateModel` 6 … `totalSupply` 13,
+`accountTokens` 14, allowances 15, borrow snapshots 16, `underlying` 17,
+`implementation` 18; `JumpRateModelV2` has the same five words as the legacy
+jump model. The layout test checks a delegator built from that file.
+
+Whether the deployed bytecode was built from these trees is a runtime
+question for live qualification (code-hash binding).
 
 ### Lido stETH (`lido/balance-state`)
 

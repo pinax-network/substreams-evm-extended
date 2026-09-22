@@ -975,6 +975,11 @@ pub enum StateField {
     CompoundV2IrmJumpMultiplierPerBlock = 22,
     CompoundV2IrmKink = 23,
     CompoundV2IrmBlocksPerYear = 24,
+    /// The 2019 WhitePaperInterestRateModel (cETH's Base0bps_Slope2000bps)
+    /// stores per-year parameters and divides the annual rate by
+    /// `blocksPerYear` on every call; 1e18-scaled.
+    CompoundV2IrmBaseRatePerYear = 25,
+    CompoundV2IrmMultiplierPerYear = 26,
     /// Compound III `CometStorage` packed market state plus implementation
     /// immutables and constants. Indices scale 1e15 (BASE_INDEX_SCALE); rates
     /// and kinks are 1e18 factors per second; totals are base-token raw units.
@@ -1053,6 +1058,8 @@ impl StateField {
             StateField::CompoundV2IrmJumpMultiplierPerBlock => "STATE_FIELD_COMPOUND_V2_IRM_JUMP_MULTIPLIER_PER_BLOCK",
             StateField::CompoundV2IrmKink => "STATE_FIELD_COMPOUND_V2_IRM_KINK",
             StateField::CompoundV2IrmBlocksPerYear => "STATE_FIELD_COMPOUND_V2_IRM_BLOCKS_PER_YEAR",
+            StateField::CompoundV2IrmBaseRatePerYear => "STATE_FIELD_COMPOUND_V2_IRM_BASE_RATE_PER_YEAR",
+            StateField::CompoundV2IrmMultiplierPerYear => "STATE_FIELD_COMPOUND_V2_IRM_MULTIPLIER_PER_YEAR",
             StateField::CometBaseSupplyIndex => "STATE_FIELD_COMET_BASE_SUPPLY_INDEX",
             StateField::CometBaseBorrowIndex => "STATE_FIELD_COMET_BASE_BORROW_INDEX",
             StateField::CometTotalSupplyBase => "STATE_FIELD_COMET_TOTAL_SUPPLY_BASE",
@@ -1114,6 +1121,8 @@ impl StateField {
             "STATE_FIELD_COMPOUND_V2_IRM_JUMP_MULTIPLIER_PER_BLOCK" => Some(Self::CompoundV2IrmJumpMultiplierPerBlock),
             "STATE_FIELD_COMPOUND_V2_IRM_KINK" => Some(Self::CompoundV2IrmKink),
             "STATE_FIELD_COMPOUND_V2_IRM_BLOCKS_PER_YEAR" => Some(Self::CompoundV2IrmBlocksPerYear),
+            "STATE_FIELD_COMPOUND_V2_IRM_BASE_RATE_PER_YEAR" => Some(Self::CompoundV2IrmBaseRatePerYear),
+            "STATE_FIELD_COMPOUND_V2_IRM_MULTIPLIER_PER_YEAR" => Some(Self::CompoundV2IrmMultiplierPerYear),
             "STATE_FIELD_COMET_BASE_SUPPLY_INDEX" => Some(Self::CometBaseSupplyIndex),
             "STATE_FIELD_COMET_BASE_BORROW_INDEX" => Some(Self::CometBaseBorrowIndex),
             "STATE_FIELD_COMET_TOTAL_SUPPLY_BASE" => Some(Self::CometTotalSupplyBase),

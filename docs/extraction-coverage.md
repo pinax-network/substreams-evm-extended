@@ -202,7 +202,7 @@ Ethereum mainnet only: `compound-finance/compound-protocol@a3214f67b73310d547e00
 
 | Market | Address | Shape | Cash source | Notes |
 | --- | --- | --- | --- | --- |
-| cUSDC | `0x39AA39c021dfbaE8faC545936693aC917d5E7563` | direct legacy `CErc20` (2019 compiler revision, deployed block 7,710,760) | `USDC.balanceOf(cUSDC)` | **First market**: simplest cash dependency; storage layout must be checked against the deployed 2019 source, not the pinned `^0.8.10` tree |
+| cUSDC | `0x39AA39c021dfbaE8faC545936693aC917d5E7563` | direct legacy `CErc20` (2019 compiler revision, deployed block 7,710,760) | `USDC.balanceOf(cUSDC)` | **First market**: simplest cash dependency; storage layout checked against the 2019 source (`f385d719`, `_guardCounter` at slot 0) on 2026-09-22, not the pinned `^0.8.10` tree; runtime code hash still live-gated |
 | cDAI | `0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643` | `CErc20Delegator` → implementation (snapshot `cDaiDelegate` `0xbB8bE4772fAA655C255309afc3c5207aA7b896Fd`; deploy-time implementation was `0x99ee778b9a6205657dd03b2b91415c8646d521ec`) | Maker Pot: `pot.chi() * pot.pie(cDAI) / RAY` while a DSR delegate is active | Second market; requires Pot state and the implementation in force at the epoch |
 | cETH | `0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5` | direct `CEther` | `address(this).balance - msg.value` | Native cash scoped separately if requested |
 

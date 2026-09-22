@@ -10,19 +10,20 @@
       "kind": "cerc20",
       "ctoken_decimals": 8,
       "epoch": 1,
-      "model_id": "compound-v2/ctoken/exchange-rate-stored",
-      "source_pin": "compound-finance/compound-protocol@a3214f67b73310d547e00fc578e8355911c9d376 CToken.sol, CErc20.sol, CTokenInterfaces.sol; networks/mainnet.json cUSDC",
+      "model_id": "compound-v2/ctoken-2019/exchange-rate-stored",
+      "source_pin": "compound-finance/compound-protocol@f385d71983ae5c5799faae9b2dfea43e5cf75262 (initial public tree, solc ^0.5.8; matches the deployed ABI in networks/mainnet-abi.json at a3214f67) CToken.sol, ReentrancyGuard.sol, CErc20.sol; compiled layout docs/evidence/storage-layouts/compound-protocol-2019@f385d719.json; networks/mainnet.json cUSDC",
       "activation_block": 1,
       "slots": {
-        "interest_rate_model": "0x0000000000000000000000000000000000000000000000000000000000000006",
-        "initial_exchange_rate_mantissa": "0x0000000000000000000000000000000000000000000000000000000000000007",
-        "reserve_factor_mantissa": "0x0000000000000000000000000000000000000000000000000000000000000008",
-        "accrual_block_number": "0x0000000000000000000000000000000000000000000000000000000000000009",
-        "borrow_index": "0x000000000000000000000000000000000000000000000000000000000000000a",
-        "total_borrows": "0x000000000000000000000000000000000000000000000000000000000000000b",
-        "total_reserves": "0x000000000000000000000000000000000000000000000000000000000000000c",
-        "total_supply": "0x000000000000000000000000000000000000000000000000000000000000000d",
-        "account_tokens": "0x000000000000000000000000000000000000000000000000000000000000000e"
+        "interest_rate_model": "0x0000000000000000000000000000000000000000000000000000000000000007",
+        "initial_exchange_rate_mantissa": "0x0000000000000000000000000000000000000000000000000000000000000008",
+        "reserve_factor_mantissa": "0x0000000000000000000000000000000000000000000000000000000000000009",
+        "accrual_block_number": "0x000000000000000000000000000000000000000000000000000000000000000a",
+        "borrow_index": "0x000000000000000000000000000000000000000000000000000000000000000b",
+        "total_borrows": "0x000000000000000000000000000000000000000000000000000000000000000c",
+        "total_reserves": "0x000000000000000000000000000000000000000000000000000000000000000d",
+        "total_supply": "0x000000000000000000000000000000000000000000000000000000000000000e",
+        "account_tokens": "0x000000000000000000000000000000000000000000000000000000000000000f",
+        "underlying": "0x0000000000000000000000000000000000000000000000000000000000000012"
       },
       "other_slots": [
         "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -31,11 +32,11 @@
         "0x0000000000000000000000000000000000000000000000000000000000000003",
         "0x0000000000000000000000000000000000000000000000000000000000000004",
         "0x0000000000000000000000000000000000000000000000000000000000000005",
-        "0x0000000000000000000000000000000000000000000000000000000000000011"
+        "0x0000000000000000000000000000000000000000000000000000000000000006"
       ],
       "other_mapping_slots": [
-        "0x000000000000000000000000000000000000000000000000000000000000000f",
-        "0x0000000000000000000000000000000000000000000000000000000000000010"
+        "0x0000000000000000000000000000000000000000000000000000000000000010",
+        "0x0000000000000000000000000000000000000000000000000000000000000011"
       ],
       "underlying": {
         "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -45,12 +46,13 @@
         "value_bits": 255,
         "implementation_slot": "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3",
         "model_id": "erc20/fiat-token-v2_2/balanceAndBlacklistStates-low255",
-        "source_pin": "circlefin/stablecoin-evm@v2.2.0 (405efc100c016ed1a437063b6274b4e24ea7b8b1) contracts/v1/FiatTokenV1.sol slot 9 `balanceAndBlacklistStates`, contracts/v2/FiatTokenV2_2.sol `_balanceOf` masks bit 255 (blacklist flag); compiled layout docs/evidence/storage-layouts/fiat-token@v2.2.0.json"
+        "source_pin": "circlefin/stablecoin-evm@v2.2.0 (405efc100c016ed1a437063b6274b4e24ea7b8b1) contracts/v1/FiatTokenV1.sol slot 9 `balanceAndBlacklistStates`, contracts/v2/FiatTokenV2_2.sol `_balanceOf` masks bit 255 (blacklist flag); compiled layout docs/evidence/storage-layouts/fiat-token@v2.2.0.json",
+        "implementation": "0x0000000000000000000000000000000000000055"
       },
       "rate_model": {
         "address": "0xD8EC56013EA119E7181d231E5048f90fBbe753c0",
-        "model_id": "compound-v2/jump-rate-model-v2",
-        "source_pin": "compound-finance/compound-protocol@a3214f67b73310d547e00fc578e8355911c9d376 BaseJumpRateModelV2.sol; networks/mainnet.json IRM_USDC_Updateable",
+        "model_id": "compound-v2/legacy-jump-rate-model-v2",
+        "source_pin": "compound-finance/compound-protocol@4caf72a1f88335adc9cc06acf6f372241369ed01 LegacyJumpRateModelV2.sol, BaseJumpRateModelV2.sol (owner 0, multiplierPerBlock 1, baseRatePerBlock 2, jumpMultiplierPerBlock 3, kink 4; compiled layout docs/evidence/storage-layouts/compound-protocol-legacy-jump@4caf72a1.json); networks/mainnet.json IRM_USDC_Updateable",
         "slots": {
           "multiplier_per_block": "0x0000000000000000000000000000000000000000000000000000000000000001",
           "base_rate_per_block": "0x0000000000000000000000000000000000000000000000000000000000000002",
@@ -67,19 +69,19 @@
       "kind": "cether",
       "ctoken_decimals": 8,
       "epoch": 1,
-      "model_id": "compound-v2/ctoken/exchange-rate-stored",
-      "source_pin": "compound-finance/compound-protocol@a3214f67b73310d547e00fc578e8355911c9d376 CToken.sol, CEther.sol, CTokenInterfaces.sol; networks/mainnet.json cETH",
+      "model_id": "compound-v2/ctoken-2019/exchange-rate-stored",
+      "source_pin": "compound-finance/compound-protocol@f385d71983ae5c5799faae9b2dfea43e5cf75262 (initial public tree, solc ^0.5.8; matches the deployed ABI in networks/mainnet-abi.json at a3214f67) CToken.sol, ReentrancyGuard.sol, CEther.sol; compiled layout docs/evidence/storage-layouts/compound-protocol-2019@f385d719.json; networks/mainnet.json cETH",
       "activation_block": 1,
       "slots": {
-        "interest_rate_model": "0x0000000000000000000000000000000000000000000000000000000000000006",
-        "initial_exchange_rate_mantissa": "0x0000000000000000000000000000000000000000000000000000000000000007",
-        "reserve_factor_mantissa": "0x0000000000000000000000000000000000000000000000000000000000000008",
-        "accrual_block_number": "0x0000000000000000000000000000000000000000000000000000000000000009",
-        "borrow_index": "0x000000000000000000000000000000000000000000000000000000000000000a",
-        "total_borrows": "0x000000000000000000000000000000000000000000000000000000000000000b",
-        "total_reserves": "0x000000000000000000000000000000000000000000000000000000000000000c",
-        "total_supply": "0x000000000000000000000000000000000000000000000000000000000000000d",
-        "account_tokens": "0x000000000000000000000000000000000000000000000000000000000000000e"
+        "interest_rate_model": "0x0000000000000000000000000000000000000000000000000000000000000007",
+        "initial_exchange_rate_mantissa": "0x0000000000000000000000000000000000000000000000000000000000000008",
+        "reserve_factor_mantissa": "0x0000000000000000000000000000000000000000000000000000000000000009",
+        "accrual_block_number": "0x000000000000000000000000000000000000000000000000000000000000000a",
+        "borrow_index": "0x000000000000000000000000000000000000000000000000000000000000000b",
+        "total_borrows": "0x000000000000000000000000000000000000000000000000000000000000000c",
+        "total_reserves": "0x000000000000000000000000000000000000000000000000000000000000000d",
+        "total_supply": "0x000000000000000000000000000000000000000000000000000000000000000e",
+        "account_tokens": "0x000000000000000000000000000000000000000000000000000000000000000f"
       },
       "other_slots": [
         "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -87,11 +89,12 @@
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0x0000000000000000000000000000000000000000000000000000000000000003",
         "0x0000000000000000000000000000000000000000000000000000000000000004",
-        "0x0000000000000000000000000000000000000000000000000000000000000005"
+        "0x0000000000000000000000000000000000000000000000000000000000000005",
+        "0x0000000000000000000000000000000000000000000000000000000000000006"
       ],
       "other_mapping_slots": [
-        "0x000000000000000000000000000000000000000000000000000000000000000f",
-        "0x0000000000000000000000000000000000000000000000000000000000000010"
+        "0x0000000000000000000000000000000000000000000000000000000000000010",
+        "0x0000000000000000000000000000000000000000000000000000000000000011"
       ],
       "underlying": {
         "decimals": 18,
@@ -99,12 +102,12 @@
       },
       "rate_model": {
         "address": "0xc64C4cBA055eFA614CE01F4BAD8A9F519C4f8FaB",
-        "model_id": "compound-v2/white-paper-interest-rate-model",
-        "source_pin": "compound-finance/compound-protocol@a3214f67b73310d547e00fc578e8355911c9d376 WhitePaperInterestRateModel.sol; networks/mainnet.json Base0bps_Slope2000bps",
+        "model_id": "compound-v2/white-paper-2019",
+        "source_pin": "compound-finance/compound-protocol@f385d71983ae5c5799faae9b2dfea43e5cf75262 WhitePaperInterestRateModel.sol (multiplier 0, baseRate 1, per year, set only by the constructor); networks/mainnet.json Base0bps_Slope2000bps (baseRate 0, multiplier 200000000000000000)",
         "constants": {
           "blocks_per_year": "2102400",
-          "base_rate_per_block": "0",
-          "multiplier_per_block": "95129375951"
+          "base_rate_per_year": "0",
+          "multiplier_per_year": "200000000000000000"
         }
       }
     }
