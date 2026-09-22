@@ -97,6 +97,27 @@ competing bootstrap. Activation blocks are unknown today
 ([open questions](extraction-coverage.md#6-open-questions)); until bound, a
 market is `SUSPENDED` with `INVALIDATION_REASON_UNQUALIFIED_ERA`.
 
+**Activation position and pointer writes.** Every balance-state package
+accepts an optional `activation_ordinal` beside `activation_block`
+(default `0`). An effect at `(block, ordinal)` belongs to an epoch only when
+`block > activation_block`, or `block == activation_block` and
+`ordinal >= activation_ordinal`; earlier effects of the activation block,
+including the upgrade write that installs the epoch's implementation, belong
+to the previous epoch and are neither decoded nor counted as invalidating the
+new one. The BOUND row states `activation_ordinal` and uses it as its
+`ordinal`, so a consumer that applies a block's epoch rows in `(ordinal, kind)`
+order (as `common/retention` does) processes the previous epoch's
+`INVALIDATED` row first and ends the block bound.
+
+A `BINDING_KIND_STORAGE_POINTER` dependency is invalidated by every persisted
+write to its slot, including a write back to the same value, and each write is
+evidenced by its own `INVALIDATED` row before storage is reduced to end-of-block
+values. An excursion X→Z→X inside one block therefore yields two rows that
+name Z, rather than one reduced X→X row that would hide the temporary
+implementation. Equal-value writes reach the maps through the persistence
+rules' `storage_noop` callback; they are consumed only for pointer slots and
+remain suppressed as balance effects.
+
 **Evaluation at a selected clock.** To value a holder at block N, a consumer
 takes the holder's latest `HolderBasis` at or before N, the latest
 `GlobalState` per `(market, field, key)` at or before N under the same epoch,

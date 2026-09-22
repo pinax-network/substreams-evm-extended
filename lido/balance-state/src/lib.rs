@@ -118,6 +118,10 @@ pub struct EpochConfig {
     pub model_id: String,
     pub source_pin: String,
     pub activation_block: u64,
+    /// First execution ordinal of `activation_block` at which the epoch
+    /// applies; earlier writes in that block belong to the previous epoch.
+    #[serde(default)]
+    pub activation_ordinal: u64,
     pub implementation: String,
     pub aragon: AragonConfig,
     pub shares_slot: String,
@@ -196,6 +200,7 @@ pub struct Epoch {
     pub model_id: String,
     pub source_pin: String,
     pub activation_block: u64,
+    pub activation_ordinal: u64,
     pub implementation: Vec<u8>,
     pub aragon: AragonBinding,
     pub shares_slot: [u8; 32],
@@ -214,6 +219,13 @@ pub struct Config {
     pub heartbeat_blocks: u64,
     pub epochs: Vec<Epoch>,
     pub parameters_sha256: String,
+}
+
+impl Epoch {
+    /// Whether this epoch applies to an effect at `(block, ordinal)`.
+    pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
+        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+    }
 }
 
 pub fn parse(params: &str) -> Result<Config, Error> {
@@ -242,6 +254,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             model_id: e.model_id.clone(),
             source_pin: e.source_pin.clone(),
             activation_block: e.activation_block,
+            activation_ordinal: e.activation_ordinal,
             implementation: hex_bytes(&e.implementation, 20, "implementation")?,
             aragon: AragonBinding::parse(&e.aragon)?,
             shares_slot: slot(&e.shares_slot, "shares_slot")?,
@@ -523,6 +536,7 @@ fn epoch_row(config: &Config, epoch: &Epoch, kind: pb::EpochEventKind) -> pb::Mo
         basis_signed: false,
         implementation: epoch.implementation.clone(),
         activation_block: epoch.activation_block,
+        activation_ordinal: epoch.activation_ordinal,
         balance_asset: epoch.steth.clone(),
         balance_decimals: 18,
         basis_carryover: true,
@@ -609,13 +623,19 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     .into_iter()
                     .filter(|w| active.iter().any(|e| resolution_reason(e, &w.address, &w.key).is_some())),
             )
-            .filter(|w| active.iter().any(|e| w.address == e.steth || e.aragon.watches_kernel_slot(&w.address, &w.key)))
+            // Each epoch owns only effects at or after its activation position;
+            // earlier writes of the activation block belong to the previous one.
+            .filter(|w| {
+                active
+                    .iter()
+                    .any(|e| (w.address == e.steth || e.aragon.watches_kernel_slot(&w.address, &w.key)) && e.active_at(block.number, w.ordinal))
+            })
             .collect();
         // Validate continuity before emitting per-transition evidence. Reducing
         // pointers to only their final value would conceal temporary upgrades.
         let reduced = reduce(relevant.clone())?;
         for w in &relevant {
-            for epoch in &active {
+            for epoch in active.iter().filter(|e| e.active_at(block.number, w.ordinal)) {
                 let reason = resolution_reason(epoch, &w.address, &w.key).or_else(|| {
                     (w.address == epoch.steth && w.key == epoch.contract_version_slot && unsigned(&w.new) != epoch.contract_version)
                         .then_some(pb::InvalidationReason::ContractVersionSet)
@@ -745,7 +765,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         {
             let Some(receipt) = &tx.receipt else { continue };
             for log in &receipt.logs {
-                let Some(epoch) = active.iter().find(|e| e.steth == log.address) else {
+                let Some(epoch) = active.iter().find(|e| e.steth == log.address && e.active_at(block.number, log.ordinal)) else {
                     continue;
                 };
                 if log.topics.first().map(|t| t.as_slice()) != Some(&TOKEN_REBASED_TOPIC0[..]) {
@@ -777,7 +797,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             }
         }
         for c in &collected.codes {
-            for epoch in &active {
+            for epoch in active.iter().filter(|e| e.active_at(block.number, c.ordinal)) {
                 if c.address == epoch.steth
                     || c.address == epoch.implementation
                     || c.address == epoch.aragon.kernel
@@ -810,7 +830,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             } else {
                 continue;
             };
-            events.epochs.push(epoch_row(config, epoch, kind));
+            events.epochs.push(pb::ModelEpoch {
+                // A BOUND row applies from its activation position, after any
+                // invalidation of the previous epoch earlier in the block.
+                ordinal: if kind == pb::EpochEventKind::Bound { epoch.activation_ordinal } else { 0 },
+                ..epoch_row(config, epoch, kind)
+            });
             for (contract, pointer_contract, pointer_slot, is_kernel) in [
                 (&epoch.aragon.kernel, &epoch.steth, &epoch.aragon.kernel_slot, true),
                 (&epoch.implementation, &epoch.aragon.kernel, &epoch.aragon.app_base_slot, false),

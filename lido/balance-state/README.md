@@ -85,6 +85,21 @@ Other Kernel storage (including other app bases) is not a conversion input.
 The map never follows a newly observed, unqualified pointer: consumers must
 retain the invalidation until an independently qualified epoch replaces it.
 
+`activation_ordinal` (optional, default `0`) is the first execution ordinal of
+`activation_block` at which the epoch applies. Effects earlier in that block,
+such as the upgrade write that installs this epoch's implementation, belong to
+the previous epoch: they are neither decoded under this epoch nor treated as
+invalidating it. The BOUND row carries the activation ordinal as its `ordinal`,
+so a consumer applying rows in ordinal order sees the previous epoch's
+invalidation before this epoch's binding.
+
+Every persisted write to a storage-pointer slot invalidates the epoch with its
+own evidence row, including a write back to the same value and each step of an
+excursion that restores the pointer within the block, as the
+`BINDING_KIND_STORAGE_POINTER` contract in `proto/v1/balance_state.proto`
+requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
+temporary implementation that ran inside the block.
+
 ## Fail-closed rules
 
 | Condition | Result |

@@ -380,13 +380,18 @@ fn pointer_and_code_changes_invalidate_with_evidence_and_the_block_keeps_decodin
         )
     );
     assert_eq!((e.ordinal, e.transaction_index, &e.evidence_contract), (11, 9, &m.comet));
-    // The upgrade write that lands on the bound implementation is the binding, not an invalidation.
+    // STORAGE_POINTER contract: a write onto the bound implementation still
+    // invalidates an epoch that is already active. Installing the epoch's own
+    // implementation is expressed with `activation_ordinal` instead.
     b.transaction_traces = vec![tx(eth::Call {
         address: m.comet.clone(),
         storage_changes: vec![write(m.implementation_slot, w(0xdead), word(&m.implementation).unwrap(), 10)],
         ..Default::default()
     })];
-    assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+    assert_eq!(
+        project(&b, &cfg).unwrap().epochs[0].reason,
+        pb::InvalidationReason::ImplementationPointerWrite as i32
+    );
     for address in [&m.comet, &m.implementation] {
         b.transaction_traces = vec![tx(eth::Call {
             code_changes: vec![eth::CodeChange {
@@ -623,4 +628,110 @@ fn bit_helpers_decode_signed_and_unsigned_ranges() {
     let w = principal_word(42, 0);
     assert_eq!(signed_bits(&w, 0, 104).to_string(), "42");
     assert_eq!(bits(&pack(&[(248, 8, 0xab)]), 248, 8).to_string(), "171");
+}
+
+#[test]
+fn every_pointer_write_is_evidenced_including_excursions_and_equal_value_writes() {
+    let m = market();
+    let cfg = config();
+    let bound = word(&m.implementation).unwrap();
+    let rogue = w(0xbad);
+    // An in-block excursion X -> Z -> X reduces to X -> X; each transition must
+    // still be evidenced, so the temporary implementation is never concealed.
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: m.comet.clone(),
+        storage_changes: vec![write(m.implementation_slot, bound, rogue, 10), write(m.implementation_slot, rogue, bound, 12)],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    let evidence: Vec<(u64, Vec<u8>, Vec<u8>)> = events
+        .epochs
+        .iter()
+        .map(|e| (e.ordinal, e.evidence_previous_word.clone(), e.evidence_word.clone()))
+        .collect();
+    assert_eq!(evidence, vec![(10, bound.to_vec(), rogue.to_vec()), (12, rogue.to_vec(), bound.to_vec())]);
+    assert!(events
+        .epochs
+        .iter()
+        .all(|e| e.kind == pb::EpochEventKind::Invalidated as i32 && e.reason == pb::InvalidationReason::ImplementationPointerWrite as i32));
+    // An equal-value write is dropped as a balance effect but still invalidates.
+    b.transaction_traces = vec![tx(eth::Call {
+        address: m.comet.clone(),
+        storage_changes: vec![write(m.implementation_slot, bound, bound, 10)],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), 1);
+    assert_eq!(
+        (&events.epochs[0].evidence_previous_word, &events.epochs[0].evidence_word),
+        (&bound.to_vec(), &bound.to_vec())
+    );
+    assert!(events.global_state.is_empty() && events.holder_basis.is_empty());
+    // A reverted pointer write is not persisted and invalidates nothing.
+    let mut reverted = eth::Call {
+        address: m.comet.clone(),
+        storage_changes: vec![write(m.implementation_slot, bound, rogue, 10)],
+        ..Default::default()
+    };
+    reverted.state_reverted = true;
+    b.transaction_traces = vec![tx(reverted)];
+    assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+}
+
+#[test]
+fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
+    let m = market();
+    let cfg = mutate(&|v| {
+        v["markets"][0]["activation_block"] = 10.into();
+        v["markets"][0]["activation_ordinal"] = 100.into();
+    })
+    .unwrap();
+    let bound = word(&m.implementation).unwrap();
+    let key = mapping_key(&[9; 20], &m.user_basic_slot);
+    let mut b = block(10);
+    // The upgrade that installs this epoch's implementation (ordinal 50), a
+    // holder write under the previous epoch (60), a code change of the
+    // previous implementation (70), then a holder write under this epoch (150).
+    let mut call = user_basic_call(&[9; 20], principal_word(1, 0), principal_word(2, 0), 60);
+    call.storage_changes.insert(0, write(m.implementation_slot, w(0xdead), bound, 50));
+    call.storage_changes.push(write(key, principal_word(2, 0), principal_word(7, 0), 150));
+    call.code_changes = vec![eth::CodeChange {
+        address: m.implementation.clone(),
+        old_hash: vec![1; 32],
+        new_hash: vec![2; 32],
+        ordinal: 70,
+        ..Default::default()
+    }];
+    b.transaction_traces = vec![tx(call)];
+    let events = project(&b, &cfg).unwrap();
+    // Nothing before ordinal 100 is attributed to this epoch.
+    assert!(events.epochs.iter().all(|e| e.kind != pb::EpochEventKind::Invalidated as i32));
+    assert_eq!(events.holder_basis.len(), 1);
+    let h = &events.holder_basis[0];
+    assert_eq!((&*h.previous_value, &*h.value, h.first_ordinal, h.change_count), ("2", "7", 150, 1));
+    // The BOUND row states its activation position and sorts after it.
+    let bound_row = events.epochs.iter().find(|e| e.kind == pb::EpochEventKind::Bound as i32).unwrap();
+    assert_eq!((bound_row.activation_block, bound_row.activation_ordinal, bound_row.ordinal), (10, 100, 100));
+    // A pointer write after the activation ordinal invalidates this epoch.
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: m.comet.clone(),
+        storage_changes: vec![write(m.implementation_slot, bound, w(0xbad), 120)],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    let invalidated: Vec<u64> = events
+        .epochs
+        .iter()
+        .filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32)
+        .map(|e| e.ordinal)
+        .collect();
+    assert_eq!(invalidated, vec![120]);
+    // In later blocks every ordinal belongs to the epoch.
+    let mut b = block(11);
+    b.transaction_traces = vec![tx(user_basic_call(&[9; 20], principal_word(7, 0), principal_word(8, 0), 1))];
+    assert_eq!(project(&b, &cfg).unwrap().holder_basis.len(), 1);
+    // The default activation ordinal 0 keeps the whole activation block.
+    assert_eq!(config().markets[0].activation_ordinal, 0);
 }

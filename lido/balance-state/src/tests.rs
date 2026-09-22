@@ -917,3 +917,95 @@ fn validate_block_refusals_provenance_and_multi_epoch_attribution() {
     assert_eq!(rows, vec![(&other, "9"), (&e.steth, "2")]);
     assert_eq!(events.clocks[0].holder_basis_count, 2);
 }
+
+#[test]
+fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
+    let mut v: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+    v["epochs"][0]["activation_block"] = 10.into();
+    v["epochs"][0]["activation_ordinal"] = 100.into();
+    let cfg = parse(&v.to_string()).unwrap();
+    let e = cfg.epochs[0].clone();
+    let holder = [9u8; 20];
+    let key = mapping_key(&holder, &e.shares_slot);
+    // The Kernel app-base write that installs this epoch's implementation
+    // (ordinal 50) belongs to the previous epoch and must not invalidate this one.
+    let mut implementation_word = [0u8; 32];
+    implementation_word[12..].copy_from_slice(&e.implementation);
+    let kernel_write = eth::StorageChange {
+        address: e.aragon.kernel.clone(),
+        key: e.aragon.app_base_slot.to_vec(),
+        old_value: w(0xdead).to_vec(),
+        new_value: implementation_word.to_vec(),
+        ordinal: 50,
+    };
+    let rebased = |ordinal: u64| {
+        let mut data = Vec::new();
+        for value in [3600u128, 900, 1_000_000, 1_000_100, 1_000_500, 100] {
+            data.extend_from_slice(&w(value));
+        }
+        eth::Log {
+            address: e.steth.clone(),
+            topics: vec![TOKEN_REBASED_TOPIC0.to_vec(), w(1_789_689_600).to_vec()],
+            data,
+            index: 0,
+            block_index: 0,
+            ordinal,
+        }
+    };
+    let mut call = shares_call(&holder, 1, 2, 60);
+    call.storage_changes.push(write(key, w(2), w(9), 150));
+    let mut kernel_call = eth::Call {
+        index: 2,
+        address: e.aragon.kernel.clone(),
+        storage_changes: vec![kernel_write],
+        ..Default::default()
+    };
+    kernel_call.logs = vec![];
+    let mut t = tx(call);
+    t.calls.push(kernel_call);
+    t.receipt = Some(eth::TransactionReceipt {
+        logs: vec![rebased(70)],
+        ..Default::default()
+    });
+    let mut b = block(10);
+    b.transaction_traces = vec![t];
+    let events = project(&b, &cfg).unwrap();
+    assert!(events.epochs.iter().all(|ep| ep.kind != pb::EpochEventKind::Invalidated as i32));
+    // The report log at ordinal 70 predates the epoch and is not its evidence.
+    assert!(events.global_state.iter().all(|g| g.observation != pb::Observation::ObservedLog as i32));
+    assert_eq!(events.holder_basis.len(), 1);
+    assert_eq!(
+        (
+            &*events.holder_basis[0].previous_value,
+            &*events.holder_basis[0].value,
+            events.holder_basis[0].first_ordinal
+        ),
+        ("2", "9", 150)
+    );
+    let bound = events.epochs.iter().find(|ep| ep.kind == pb::EpochEventKind::Bound as i32).unwrap();
+    assert_eq!((bound.activation_ordinal, bound.ordinal), (100, 100));
+    // After the activation ordinal the same Kernel write invalidates.
+    let mut late = eth::Call {
+        index: 1,
+        address: e.aragon.kernel.clone(),
+        storage_changes: vec![eth::StorageChange {
+            address: e.aragon.kernel.clone(),
+            key: e.aragon.app_base_slot.to_vec(),
+            old_value: implementation_word.to_vec(),
+            new_value: w(0xbad).to_vec(),
+            ordinal: 120,
+        }],
+        ..Default::default()
+    };
+    late.logs = vec![];
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(late)];
+    let invalidated: Vec<(i32, u64)> = project(&b, &cfg)
+        .unwrap()
+        .epochs
+        .iter()
+        .filter(|ep| ep.kind == pb::EpochEventKind::Invalidated as i32)
+        .map(|ep| (ep.reason, ep.ordinal))
+        .collect();
+    assert_eq!(invalidated, vec![(pb::InvalidationReason::DependencyPointerWrite as i32, 120)]);
+}

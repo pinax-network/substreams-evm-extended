@@ -169,6 +169,10 @@ pub struct VaultConfig {
     pub model_id: String,
     pub source_pin: String,
     pub activation_block: u64,
+    /// First execution ordinal of `activation_block` at which the epoch
+    /// applies; earlier writes in that block belong to the previous epoch.
+    #[serde(default)]
+    pub activation_ordinal: u64,
     pub asset: String,
     pub asset_decimals: u32,
     pub vault_decimals: u32,
@@ -223,6 +227,7 @@ pub struct Vault {
     pub model_id: String,
     pub source_pin: String,
     pub activation_block: u64,
+    pub activation_ordinal: u64,
     pub asset: Vec<u8>,
     pub asset_decimals: u32,
     pub vault_decimals: u32,
@@ -234,6 +239,10 @@ pub struct Vault {
     pub other_mapping_slots: Vec<[u8; 32]>,
 }
 impl Vault {
+    /// Whether this epoch applies to an effect at `(block, ordinal)`.
+    pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
+        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+    }
     fn family(&self) -> pb::ModelFamily {
         pb::ModelFamily::Erc4626Vault
     }
@@ -383,6 +392,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             model_id: v.model_id.clone(),
             source_pin: v.source_pin.clone(),
             activation_block: v.activation_block,
+            activation_ordinal: v.activation_ordinal,
             asset,
             asset_decimals: v.asset_decimals,
             vault_decimals: v.vault_decimals,
@@ -659,6 +669,7 @@ fn epoch_row(config: &Config, vault: &Vault, kind: pb::EpochEventKind) -> pb::Mo
         implementation: vault.implementation.clone().unwrap_or_default(),
         implementation_slot: vault.implementation_slot.map(|s| s.to_vec()).unwrap_or_default(),
         activation_block: vault.activation_block,
+        activation_ordinal: vault.activation_ordinal,
         // The ERC-20 amount is the share count of the vault itself.
         balance_asset: vault.vault.clone(),
         balance_decimals: vault.vault_decimals,
@@ -740,188 +751,192 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 preimages.insert(word(&key)?, value);
             }
         }
-        let watched = |a: &[u8]| active.iter().any(|v| a == v.vault || v.dependencies().iter().any(|d| d == a));
-        let mut writes: Vec<Change> = collected.writes.into_iter().filter(|w| watched(&w.address)).collect();
-        // The canonical StoragePointer contract invalidates on *any* persisted
-        // write, even the same address. Normal balance noops remain suppressed.
-        writes.extend(
-            collected
-                .noop_writes
-                .into_iter()
-                .filter(|w| active.iter().any(|vault| vault.pointer_reason(&w.address, &w.key).is_some())),
-        );
-        let reduced = reduce(writes.clone())?;
-        // Keep each implementation transition as evidence, including an
-        // upgrade followed by restoration before this block ends. Reducing
-        // first would preserve the invalidation but erase the changed target.
-        for w in &writes {
-            for vault in &active {
+        // Each epoch owns only the effects at or after its activation position.
+        // Dependencies (a Pool, a Pot, an asset) can be shared by vaults with
+        // different activation positions, so writes are selected per vault.
+        for vault in &active {
+            let dependencies = vault.dependencies();
+            let owns = |w: &Change| (w.address == vault.vault || dependencies.contains(&w.address)) && vault.active_at(block.number, w.ordinal);
+            let mut writes: Vec<Change> = collected.writes.iter().filter(|w| owns(w)).cloned().collect();
+            // STORAGE_POINTER contract: any persisted write to a pointer slot
+            // invalidates, including a write back to the same value.
+            writes.extend(
+                collected
+                    .noop_writes
+                    .iter()
+                    .filter(|w| owns(w) && vault.pointer_reason(&w.address, &w.key).is_some())
+                    .cloned(),
+            );
+            let reduced = reduce(writes.clone())?;
+            // Keep each implementation transition as evidence, including an
+            // upgrade followed by restoration before this block ends. Reducing
+            // first would preserve the invalidation but erase the changed target.
+            for w in &writes {
                 if let Some(reason) = vault.pointer_reason(&w.address, &w.key) {
                     events.epochs.push(invalidation(config, vault, reason, w));
                 }
             }
-        }
-        for r in reduced {
-            for vault in active.iter().filter(|v| r.address == v.vault) {
-                if vault.pointer_reason(&r.address, &r.key).is_some() {
-                    // Every pointer write was invalidated before reduction.
-                } else if r.key == vault.total_supply_slot {
-                    events.global_state.push(field_row(
-                        config,
-                        vault,
-                        &r,
-                        Field {
-                            field: pb::StateField::Erc4626TotalSupply,
-                            offset: 0,
-                            width: 256,
-                            scale: "1",
-                            key: Vec::new(),
-                        },
-                    ));
-                } else if let Some(holder) = preimages
-                    .get(&r.key)
-                    .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == vault.balances_slot)
-                    .map(|p| p[12..32].to_vec())
-                {
-                    events.holder_basis.push(pb::HolderBasis {
-                        chain_id: config.chain_id,
-                        market: vault.vault.clone(),
-                        holder,
-                        epoch: vault.epoch,
-                        basis_kind: pb::BasisKind::Shares as i32,
-                        value: bits(&r.new, 0, 256).to_string(),
-                        previous_value: bits(&r.old, 0, 256).to_string(),
-                        observation: pb::Observation::ObservedWrite as i32,
-                        boundary: pb::Boundary::EndOfBlock as i32,
-                        scope: scope_of(r.scope) as i32,
-                        ordinal: r.ordinal,
-                        first_ordinal: r.first_ordinal,
-                        change_count: r.count,
-                        transaction_index: r.tx_index,
-                        transaction_hash: r.tx_hash.clone(),
-                        call_index: r.call_index,
-                        storage_contract: r.address.clone(),
-                        storage_slot: r.key.to_vec(),
-                        raw_previous_word: r.old.to_vec(),
-                        raw_word: r.new.to_vec(),
-                        bit_offset: 0,
-                        bit_width: 256,
-                        signed: false,
-                    });
-                } else if vault.other_slots.contains(&r.key) || vault.other_mapping_slots.iter().any(|base| mapping_has_base(r.key, &preimages, base)) {
-                    // Reviewed non-balance storage: metadata, allowances,
-                    // permit nonces, reward bookkeeping, initializer state.
+            for r in reduced {
+                if r.address == vault.vault {
+                    if vault.pointer_reason(&r.address, &r.key).is_some() {
+                        // Every pointer write was invalidated before reduction.
+                    } else if r.key == vault.total_supply_slot {
+                        events.global_state.push(field_row(
+                            config,
+                            vault,
+                            &r,
+                            Field {
+                                field: pb::StateField::Erc4626TotalSupply,
+                                offset: 0,
+                                width: 256,
+                                scale: "1",
+                                key: Vec::new(),
+                            },
+                        ));
+                    } else if let Some(holder) = preimages
+                        .get(&r.key)
+                        .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == vault.balances_slot)
+                        .map(|p| p[12..32].to_vec())
+                    {
+                        events.holder_basis.push(pb::HolderBasis {
+                            chain_id: config.chain_id,
+                            market: vault.vault.clone(),
+                            holder,
+                            epoch: vault.epoch,
+                            basis_kind: pb::BasisKind::Shares as i32,
+                            value: bits(&r.new, 0, 256).to_string(),
+                            previous_value: bits(&r.old, 0, 256).to_string(),
+                            observation: pb::Observation::ObservedWrite as i32,
+                            boundary: pb::Boundary::EndOfBlock as i32,
+                            scope: scope_of(r.scope) as i32,
+                            ordinal: r.ordinal,
+                            first_ordinal: r.first_ordinal,
+                            change_count: r.count,
+                            transaction_index: r.tx_index,
+                            transaction_hash: r.tx_hash.clone(),
+                            call_index: r.call_index,
+                            storage_contract: r.address.clone(),
+                            storage_slot: r.key.to_vec(),
+                            raw_previous_word: r.old.to_vec(),
+                            raw_word: r.new.to_vec(),
+                            bit_offset: 0,
+                            bit_width: 256,
+                            signed: false,
+                        });
+                    } else if vault.other_slots.contains(&r.key) || vault.other_mapping_slots.iter().any(|base| mapping_has_base(r.key, &preimages, base)) {
+                        // Reviewed non-balance storage: metadata, allowances,
+                        // permit nonces, reward bookkeeping, initializer state.
+                    } else {
+                        return Err(Error::msg(format!(
+                            "unresolved storage for vault 0x{} at key 0x{}; refusing incomplete balance state",
+                            hex::encode(&r.address),
+                            hex::encode(r.key)
+                        )));
+                    }
                 } else {
-                    return Err(Error::msg(format!(
-                        "unresolved storage for vault 0x{} at key 0x{}; refusing incomplete balance state",
-                        hex::encode(&r.address),
-                        hex::encode(r.key)
-                    )));
-                }
-            }
-            for vault in active.iter().filter(|v| r.address != v.vault) {
-                match &vault.model {
-                    Model::AaveStaticAToken {
-                        pool,
-                        reserve_base,
-                        implementation_slot,
-                        ..
-                    } if r.address == *pool => {
-                        if Some(r.key) == *implementation_slot {
-                            // Every pointer write was invalidated before reduction.
-                        } else if r.key == add_offset(reserve_base, 1) {
-                            for (field, offset, width) in [
-                                (pb::StateField::AaveLiquidityIndex, 0, 128),
-                                (pb::StateField::AaveCurrentLiquidityRate, 128, 128),
-                            ] {
+                    match &vault.model {
+                        Model::AaveStaticAToken {
+                            pool,
+                            reserve_base,
+                            implementation_slot,
+                            ..
+                        } if r.address == *pool => {
+                            if Some(r.key) == *implementation_slot {
+                                // Every pointer write was invalidated before reduction.
+                            } else if r.key == add_offset(reserve_base, 1) {
+                                for (field, offset, width) in [
+                                    (pb::StateField::AaveLiquidityIndex, 0, 128),
+                                    (pb::StateField::AaveCurrentLiquidityRate, 128, 128),
+                                ] {
+                                    events.global_state.push(field_row(
+                                        config,
+                                        vault,
+                                        &r,
+                                        Field {
+                                            field,
+                                            offset,
+                                            width,
+                                            scale: RAY,
+                                            key: vault.asset.clone(),
+                                        },
+                                    ));
+                                }
+                            } else if r.key == add_offset(reserve_base, 3) {
+                                events.global_state.push(field_row(
+                                    config,
+                                    vault,
+                                    &r,
+                                    Field {
+                                        field: pb::StateField::AaveLastUpdateTimestamp,
+                                        offset: 128,
+                                        width: 40,
+                                        scale: "1",
+                                        key: vault.asset.clone(),
+                                    },
+                                ));
+                            }
+                            // Other Pool storage (other reserves, configuration) is not a conversion input.
+                        }
+                        Model::MakerSavingsDai {
+                            pot,
+                            dsr_slot,
+                            chi_slot,
+                            rho_slot,
+                        } if r.address == *pot => {
+                            let field = if r.key == *dsr_slot {
+                                Some((pb::StateField::MakerPotDsr, RAY))
+                            } else if r.key == *chi_slot {
+                                Some((pb::StateField::MakerPotChi, RAY))
+                            } else if r.key == *rho_slot {
+                                Some((pb::StateField::MakerPotRho, "1"))
+                            } else {
+                                None
+                            };
+                            if let Some((field, scale)) = field {
                                 events.global_state.push(field_row(
                                     config,
                                     vault,
                                     &r,
                                     Field {
                                         field,
-                                        offset,
-                                        width,
-                                        scale: RAY,
-                                        key: vault.asset.clone(),
+                                        offset: 0,
+                                        width: 256,
+                                        scale,
+                                        key: Vec::new(),
                                     },
                                 ));
                             }
-                        } else if r.key == add_offset(reserve_base, 3) {
-                            events.global_state.push(field_row(
-                                config,
-                                vault,
-                                &r,
-                                Field {
-                                    field: pb::StateField::AaveLastUpdateTimestamp,
-                                    offset: 128,
-                                    width: 40,
-                                    scale: "1",
-                                    key: vault.asset.clone(),
-                                },
-                            ));
                         }
-                        // Other Pool storage (other reserves, configuration) is not a conversion input.
-                    }
-                    Model::MakerSavingsDai {
-                        pot,
-                        dsr_slot,
-                        chi_slot,
-                        rho_slot,
-                    } if r.address == *pot => {
-                        let field = if r.key == *dsr_slot {
-                            Some((pb::StateField::MakerPotDsr, RAY))
-                        } else if r.key == *chi_slot {
-                            Some((pb::StateField::MakerPotChi, RAY))
-                        } else if r.key == *rho_slot {
-                            Some((pb::StateField::MakerPotRho, "1"))
-                        } else {
-                            None
-                        };
-                        if let Some((field, scale)) = field {
-                            events.global_state.push(field_row(
-                                config,
-                                vault,
-                                &r,
-                                Field {
-                                    field,
-                                    offset: 0,
-                                    width: 256,
-                                    scale,
-                                    key: Vec::new(),
-                                },
-                            ));
+                        Model::OzVirtualOffset {
+                            asset_balance_key,
+                            asset_balance_model,
+                            asset_implementation_slot,
+                            ..
+                        } if r.address == vault.asset => {
+                            if Some(r.key) == *asset_implementation_slot {
+                                // Each transition was invalidated before reduction.
+                            } else if r.key == *asset_balance_key {
+                                events.global_state.push(field_row(
+                                    config,
+                                    vault,
+                                    &r,
+                                    Field {
+                                        field: pb::StateField::Erc4626TotalAssets,
+                                        offset: 0,
+                                        width: asset_balance_model.value_bits(),
+                                        scale: "1",
+                                        key: vault.vault.clone(),
+                                    },
+                                ));
+                            }
                         }
+                        _ => {}
                     }
-                    Model::OzVirtualOffset {
-                        asset_balance_key,
-                        asset_balance_model,
-                        asset_implementation_slot,
-                        ..
-                    } if r.address == vault.asset => {
-                        if Some(r.key) == *asset_implementation_slot {
-                            // Each transition was invalidated before reduction.
-                        } else if r.key == *asset_balance_key {
-                            events.global_state.push(field_row(
-                                config,
-                                vault,
-                                &r,
-                                Field {
-                                    field: pb::StateField::Erc4626TotalAssets,
-                                    offset: 0,
-                                    width: asset_balance_model.value_bits(),
-                                    scale: "1",
-                                    key: vault.vault.clone(),
-                                },
-                            ));
-                        }
-                    }
-                    _ => {}
                 }
             }
         }
         for c in &collected.codes {
-            for vault in &active {
+            for vault in active.iter().filter(|v| v.active_at(block.number, c.ordinal)) {
                 let reason = if c.address == vault.vault || vault.implementation.as_deref() == Some(c.address.as_slice()) {
                     pb::InvalidationReason::CodeChange
                 } else if vault.dependencies().contains(&c.address) {
@@ -950,7 +965,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             } else {
                 continue;
             };
-            events.epochs.push(epoch_row(config, vault, kind));
+            events.epochs.push(pb::ModelEpoch {
+                // A BOUND row applies from its activation position, after any
+                // invalidation of the previous epoch earlier in the block.
+                ordinal: if kind == pb::EpochEventKind::Bound { vault.activation_ordinal } else { 0 },
+                ..epoch_row(config, vault, kind)
+            });
             if let (Some(implementation), Some(slot)) = (&vault.implementation, vault.implementation_slot) {
                 events.dependencies.push(pointer(
                     config,

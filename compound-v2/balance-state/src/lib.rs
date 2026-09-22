@@ -186,6 +186,10 @@ pub struct MarketConfig {
     pub model_id: String,
     pub source_pin: String,
     pub activation_block: u64,
+    /// First execution ordinal of `activation_block` at which the epoch
+    /// applies; earlier writes in that block belong to the previous epoch.
+    #[serde(default)]
+    pub activation_ordinal: u64,
     #[serde(default)]
     pub implementation_slot: Option<String>,
     #[serde(default)]
@@ -217,6 +221,7 @@ pub struct Market {
     pub model_id: String,
     pub source_pin: String,
     pub activation_block: u64,
+    pub activation_ordinal: u64,
     pub implementation_slot: Option<[u8; 32]>,
     pub implementation: Option<Vec<u8>>,
     /// (slot, field, scale) scalar words of the cToken.
@@ -252,6 +257,33 @@ fn irm_field(name: &str) -> Result<(pb::StateField, &'static str), Error> {
         "blocks_per_year" => (pb::StateField::CompoundV2IrmBlocksPerYear, "1"),
         other => return Err(Error::msg(format!("unknown rate model parameter `{other}`"))),
     })
+}
+
+impl Market {
+    /// Whether this epoch applies to an effect at `(block, ordinal)`.
+    pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
+        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+    }
+    fn watches(&self, address: &[u8]) -> bool {
+        address == self.ctoken || address == self.rate_model || self.implementation.as_deref() == Some(address) || self.underlying.as_deref() == Some(address)
+    }
+    /// STORAGE_POINTER slots: any persisted write, including a write back to
+    /// the same value, invalidates the epoch.
+    fn pointer_reason(&self, address: &[u8], key: &[u8; 32]) -> Option<pb::InvalidationReason> {
+        if address == self.ctoken && Some(*key) == self.implementation_slot {
+            Some(pb::InvalidationReason::ImplementationPointerWrite)
+        } else if address == self.ctoken && *key == self.rate_model_slot {
+            Some(pb::InvalidationReason::RateModelChange)
+        } else if let Cash::Erc20Mapping {
+            implementation_slot: Some(slot),
+            ..
+        } = &self.cash
+        {
+            (self.underlying.as_deref() == Some(address) && key == slot).then_some(pb::InvalidationReason::DependencyPointerWrite)
+        } else {
+            None
+        }
+    }
 }
 
 pub fn parse(params: &str) -> Result<Config, Error> {
@@ -395,6 +427,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             model_id: m.model_id.clone(),
             source_pin: m.source_pin.clone(),
             activation_block: m.activation_block,
+            activation_ordinal: m.activation_ordinal,
             implementation_slot,
             implementation,
             scalars,
@@ -454,6 +487,8 @@ struct CodeChanged {
 #[derive(Default)]
 struct Collected {
     writes: Vec<Change>,
+    /// Equal-value writes; only pointer slots consume them.
+    noops: Vec<Change>,
     balances: Vec<Change>,
     codes: Vec<CodeChanged>,
     errors: usize,
@@ -478,6 +513,15 @@ impl persist::Sink for Collected {
             .and_then(|key| change(&c.address, key, &c.old_value, &c.new_value, c.ordinal, ctx))
         {
             Some(w) => self.writes.push(w),
+            None => self.errors += 1,
+        }
+    }
+    fn storage_noop(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+        match word(&c.key)
+            .ok()
+            .and_then(|key| change(&c.address, key, &c.old_value, &c.new_value, c.ordinal, ctx))
+        {
+            Some(w) => self.noops.push(w),
             None => self.errors += 1,
         }
     }
@@ -670,6 +714,7 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         implementation: market.implementation.clone().unwrap_or_default(),
         implementation_slot: market.implementation_slot.map(|s| s.to_vec()).unwrap_or_default(),
         activation_block: market.activation_block,
+        activation_ordinal: market.activation_ordinal,
         // The ERC-20 amount is the share count of the cToken itself; the
         // underlying claim is a separate, dependency-bound conversion.
         balance_asset: market.ctoken.clone(),
@@ -682,7 +727,7 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         ..Default::default()
     }
 }
-fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason, r: &Reduced) -> pb::ModelEpoch {
+fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason, r: &Change) -> pb::ModelEpoch {
     pb::ModelEpoch {
         reason: reason as i32,
         scope: scope_of(r.scope) as i32,
@@ -750,98 +795,102 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 preimages.insert(word(&key)?, value);
             }
         }
-        let watched = |a: &[u8]| {
-            active
-                .iter()
-                .any(|m| a == m.ctoken || a == m.rate_model || m.implementation.as_deref() == Some(a) || m.underlying.as_deref() == Some(a))
-        };
-        let writes: Vec<Change> = collected.writes.into_iter().filter(|w| watched(&w.address)).collect();
-        for r in reduce(writes, "storage")? {
-            for market in active.iter().filter(|m| r.address == m.ctoken) {
-                if Some(r.key) == market.implementation_slot {
-                    events
-                        .epochs
-                        .push(invalidation(config, market, pb::InvalidationReason::ImplementationPointerWrite, &r));
-                } else if r.key == market.rate_model_slot {
-                    events.epochs.push(invalidation(config, market, pb::InvalidationReason::RateModelChange, &r));
-                } else if let Some((_, field, scale)) = market.scalars.iter().find(|(k, _, _)| *k == r.key) {
-                    events.global_state.push(global_row(config, market, &r, *field, scale, Vec::new()));
-                } else if let Some(holder) = preimages
-                    .get(&r.key)
-                    .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == market.account_tokens_slot)
-                    .map(|p| p[12..32].to_vec())
-                {
-                    events.holder_basis.push(pb::HolderBasis {
-                        chain_id: config.chain_id,
-                        market: market.ctoken.clone(),
-                        holder,
-                        epoch: market.epoch,
-                        basis_kind: pb::BasisKind::Shares as i32,
-                        value: unsigned(&r.new),
-                        previous_value: unsigned(&r.old),
-                        observation: pb::Observation::ObservedWrite as i32,
-                        boundary: pb::Boundary::EndOfBlock as i32,
-                        scope: scope_of(r.scope) as i32,
-                        ordinal: r.ordinal,
-                        first_ordinal: r.first_ordinal,
-                        change_count: r.count,
-                        transaction_index: r.tx_index,
-                        transaction_hash: r.tx_hash.clone(),
-                        call_index: r.call_index,
-                        storage_contract: r.address.clone(),
-                        storage_slot: r.key.to_vec(),
-                        raw_previous_word: r.old.to_vec(),
-                        raw_word: r.new.to_vec(),
-                        bit_offset: 0,
-                        bit_width: 256,
-                        signed: false,
-                    });
-                } else if market.other_slots.contains(&r.key) || market.other_mapping_slots.iter().any(|base| mapping_member(r.key, &preimages, base)) {
-                    // Reviewed non-balance storage: reentrancy flag, metadata,
-                    // admin, comptroller, allowances, borrow snapshots.
-                } else {
-                    return Err(Error::msg(format!(
-                        "unresolved storage for cToken 0x{} at key 0x{}; refusing incomplete balance state",
-                        hex::encode(&r.address),
-                        hex::encode(r.key)
-                    )));
+        // Each epoch owns only the effects at or after its activation position,
+        // so writes are selected per market before reduction.
+        for market in &active {
+            let owns = |w: &Change| market.watches(&w.address) && market.active_at(block.number, w.ordinal);
+            let mut writes: Vec<Change> = collected.writes.iter().filter(|w| owns(w)).cloned().collect();
+            writes.extend(
+                collected
+                    .noops
+                    .iter()
+                    .filter(|w| owns(w) && market.pointer_reason(&w.address, &w.key).is_some())
+                    .cloned(),
+            );
+            // Validate continuity first, then evidence every pointer transition
+            // individually: an in-block excursion X->Z->X must not be concealed.
+            let reduced = reduce(writes.clone(), "storage")?;
+            for w in &writes {
+                if let Some(reason) = market.pointer_reason(&w.address, &w.key) {
+                    events.epochs.push(invalidation(config, market, reason, w));
                 }
             }
-            for market in active.iter().filter(|m| r.address == m.rate_model) {
-                if let Some((_, field)) = market.rate_model_slots.iter().find(|(k, _)| *k == r.key) {
-                    events.global_state.push(global_row(config, market, &r, *field, EXP_SCALE, Vec::new()));
-                }
-                // Other rate-model storage (owner) is not a balance input.
-            }
-            for market in active.iter().filter(|m| m.underlying.as_deref() == Some(r.address.as_slice())) {
-                if let Cash::Erc20Mapping {
-                    balances_slot,
-                    implementation_slot,
-                    value_bits,
-                } = &market.cash
-                {
-                    if r.key == mapping_key(&market.ctoken, balances_slot) {
-                        // Only the low `value_bits` are the balance (FiatToken V2.2 keeps
-                        // the blacklist flag in bit 255 and `_balanceOf` masks it).
-                        let mut row = global_row(config, market, &r, pb::StateField::CompoundV2TotalCash, "1", market.ctoken.clone());
-                        row.value = bits(&r.new, 0, *value_bits).to_string();
-                        row.previous_value = bits(&r.old, 0, *value_bits).to_string();
-                        row.bit_width = *value_bits;
-                        events.global_state.push(row);
-                    } else if Some(r.key) == *implementation_slot {
-                        events
-                            .epochs
-                            .push(invalidation(config, market, pb::InvalidationReason::DependencyPointerWrite, &r));
+            for r in reduced {
+                if market.pointer_reason(&r.address, &r.key).is_some() {
+                    // Every pointer write was invalidated above.
+                } else if r.address == market.ctoken {
+                    if let Some((_, field, scale)) = market.scalars.iter().find(|(k, _, _)| *k == r.key) {
+                        events.global_state.push(global_row(config, market, &r, *field, scale, Vec::new()));
+                    } else if let Some(holder) = preimages
+                        .get(&r.key)
+                        .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == market.account_tokens_slot)
+                        .map(|p| p[12..32].to_vec())
+                    {
+                        events.holder_basis.push(pb::HolderBasis {
+                            chain_id: config.chain_id,
+                            market: market.ctoken.clone(),
+                            holder,
+                            epoch: market.epoch,
+                            basis_kind: pb::BasisKind::Shares as i32,
+                            value: unsigned(&r.new),
+                            previous_value: unsigned(&r.old),
+                            observation: pb::Observation::ObservedWrite as i32,
+                            boundary: pb::Boundary::EndOfBlock as i32,
+                            scope: scope_of(r.scope) as i32,
+                            ordinal: r.ordinal,
+                            first_ordinal: r.first_ordinal,
+                            change_count: r.count,
+                            transaction_index: r.tx_index,
+                            transaction_hash: r.tx_hash.clone(),
+                            call_index: r.call_index,
+                            storage_contract: r.address.clone(),
+                            storage_slot: r.key.to_vec(),
+                            raw_previous_word: r.old.to_vec(),
+                            raw_word: r.new.to_vec(),
+                            bit_offset: 0,
+                            bit_width: 256,
+                            signed: false,
+                        });
+                    } else if market.other_slots.contains(&r.key) || market.other_mapping_slots.iter().any(|base| mapping_member(r.key, &preimages, base)) {
+                        // Reviewed non-balance storage: reentrancy flag, metadata,
+                        // admin, comptroller, allowances, borrow snapshots.
+                    } else {
+                        return Err(Error::msg(format!(
+                            "unresolved storage for cToken 0x{} at key 0x{}; refusing incomplete balance state",
+                            hex::encode(&r.address),
+                            hex::encode(r.key)
+                        )));
                     }
-                    // Every other underlying write (other holders, supply,
-                    // allowances) is that token's own state.
+                } else if r.address == market.rate_model {
+                    if let Some((_, field)) = market.rate_model_slots.iter().find(|(k, _)| *k == r.key) {
+                        events.global_state.push(global_row(config, market, &r, *field, EXP_SCALE, Vec::new()));
+                    }
+                    // Other rate-model storage (owner) is not a balance input.
+                } else if market.underlying.as_deref() == Some(r.address.as_slice()) {
+                    if let Cash::Erc20Mapping { balances_slot, value_bits, .. } = &market.cash {
+                        if r.key == mapping_key(&market.ctoken, balances_slot) {
+                            // Only the low `value_bits` are the balance (FiatToken V2.2 keeps
+                            // the blacklist flag in bit 255 and `_balanceOf` masks it).
+                            let mut row = global_row(config, market, &r, pb::StateField::CompoundV2TotalCash, "1", market.ctoken.clone());
+                            row.value = bits(&r.new, 0, *value_bits).to_string();
+                            row.previous_value = bits(&r.old, 0, *value_bits).to_string();
+                            row.bit_width = *value_bits;
+                            events.global_state.push(row);
+                        }
+                        // Every other underlying write (other holders, supply,
+                        // allowances) is that token's own state.
+                    }
                 }
             }
         }
         let balances: Vec<Change> = collected
             .balances
             .into_iter()
-            .filter(|b| active.iter().any(|m| m.cash == Cash::Native && b.address == m.ctoken))
+            .filter(|b| {
+                active
+                    .iter()
+                    .any(|m| m.cash == Cash::Native && b.address == m.ctoken && m.active_at(block.number, b.ordinal))
+            })
             .collect();
         for r in reduce(balances, "native balance")? {
             let market = active.iter().find(|m| m.ctoken == r.address).unwrap();
@@ -850,7 +899,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 .push(global_row(config, market, &r, pb::StateField::CompoundV2TotalCash, "1", market.ctoken.clone()));
         }
         for c in &collected.codes {
-            for market in &active {
+            for market in active.iter().filter(|m| m.active_at(block.number, c.ordinal)) {
                 let reason = if c.address == market.ctoken || market.implementation.as_deref() == Some(c.address.as_slice()) {
                     pb::InvalidationReason::CodeChange
                 } else if c.address == market.rate_model {
@@ -871,7 +920,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             } else {
                 continue;
             };
-            events.epochs.push(epoch_row(config, market, kind));
+            events.epochs.push(pb::ModelEpoch {
+                // A BOUND row applies from its activation position, after any
+                // invalidation of the previous epoch earlier in the block.
+                ordinal: if kind == pb::EpochEventKind::Bound { market.activation_ordinal } else { 0 },
+                ..epoch_row(config, market, kind)
+            });
             if let (Some(implementation), Some(slot)) = (&market.implementation, market.implementation_slot) {
                 events.dependencies.push(pb::Dependency {
                     binding: pb::BindingKind::StoragePointer as i32,
@@ -881,14 +935,21 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     ..dependency(config, market, kind, pb::DependencyRole::Implementation, implementation, &market.source_pin)
                 });
             }
-            events.dependencies.push(dependency(
-                config,
-                market,
-                kind,
-                pb::DependencyRole::InterestRateModel,
-                &market.rate_model,
-                &market.rate_model_pin,
-            ));
+            // The cToken resolves its rate model through `interestRateModel`.
+            events.dependencies.push(pb::Dependency {
+                binding: pb::BindingKind::StoragePointer as i32,
+                pointer_contract: market.ctoken.clone(),
+                pointer_slot: market.rate_model_slot.to_vec(),
+                pointer_value: word(&market.rate_model)?.to_vec(),
+                ..dependency(
+                    config,
+                    market,
+                    kind,
+                    pb::DependencyRole::InterestRateModel,
+                    &market.rate_model,
+                    &market.rate_model_pin,
+                )
+            });
             if let Some(underlying) = &market.underlying {
                 events.dependencies.push(dependency(
                     config,
@@ -922,9 +983,28 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     events
         .global_state
         .sort_by(|a, b| (&a.market, a.field, &a.key, a.ordinal).cmp(&(&b.market, b.field, &b.key, b.ordinal)));
-    events
-        .epochs
-        .sort_by(|a, b| (&a.market, a.epoch, a.ordinal, a.kind).cmp(&(&b.market, b.epoch, b.ordinal, b.kind)));
+    events.epochs.sort_by(|a, b| {
+        (
+            &a.market,
+            a.epoch,
+            a.ordinal,
+            a.kind,
+            a.reason,
+            &a.evidence_contract,
+            &a.evidence_slot,
+            &a.evidence_code_hash,
+        )
+            .cmp(&(
+                &b.market,
+                b.epoch,
+                b.ordinal,
+                b.kind,
+                b.reason,
+                &b.evidence_contract,
+                &b.evidence_slot,
+                &b.evidence_code_hash,
+            ))
+    });
     events
         .dependencies
         .sort_by(|a, b| (&a.market, a.epoch, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.role, &b.contract)));

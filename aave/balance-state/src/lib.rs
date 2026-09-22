@@ -144,6 +144,10 @@ pub struct MarketConfig {
     pub source_pin: String,
     pub implementation_revision: String,
     pub activation_block: u64,
+    /// First execution ordinal of `activation_block` at which the epoch
+    /// applies; earlier writes in that block belong to the previous epoch.
+    #[serde(default)]
+    pub activation_ordinal: u64,
     pub balance_decimals: u32,
     /// "floor" (aToken revision 4 and later) or "half_up" (earlier).
     pub rounding: String,
@@ -178,6 +182,7 @@ pub struct Market {
     pub source_pin: String,
     pub implementation_revision: String,
     pub activation_block: u64,
+    pub activation_ordinal: u64,
     pub balance_decimals: u32,
     pub rounding: pb::Rounding,
     pub basis_bits: u32,
@@ -196,6 +201,13 @@ pub struct Config {
     pub pool: Option<Pool>,
     pub markets: Vec<Market>,
     pub parameters_sha256: String,
+}
+
+impl Market {
+    /// Whether this epoch applies to an effect at `(block, ordinal)`.
+    pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
+        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+    }
 }
 
 pub fn parse(params: &str) -> Result<Config, Error> {
@@ -237,6 +249,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             source_pin: m.source_pin.clone(),
             implementation_revision: m.implementation_revision.clone(),
             activation_block: m.activation_block,
+            activation_ordinal: m.activation_ordinal,
             balance_decimals: m.balance_decimals,
             rounding,
             basis_bits: m.basis_bits,
@@ -302,13 +315,28 @@ struct CodeChanged {
 #[derive(Default)]
 struct Collected {
     writes: Vec<Write>,
+    /// Equal-value writes; only STORAGE_POINTER slots consume them.
+    noops: Vec<Write>,
     codes: Vec<CodeChanged>,
     errors: Vec<String>,
 }
 impl persist::Sink for Collected {
     fn storage(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+        self.storage_change(c, ctx, false);
+    }
+    fn storage_noop(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+        self.storage_change(c, ctx, true);
+    }
+    fn balance(&mut self, _: &eth::BalanceChange, _: persist::Ctx) {}
+    fn nonce(&mut self, _: &eth::NonceChange, _: persist::Ctx) {}
+    fn code(&mut self, c: &eth::CodeChange, ctx: persist::Ctx) {
+        self.push_code(c, ctx);
+    }
+}
+impl Collected {
+    fn storage_change(&mut self, c: &eth::StorageChange, ctx: persist::Ctx, noop: bool) {
         match (word(&c.key), word(&c.old_value), word(&c.new_value)) {
-            (Ok(key), Ok(old), Ok(new)) => self.writes.push(Write {
+            (Ok(key), Ok(old), Ok(new)) => (if noop { &mut self.noops } else { &mut self.writes }).push(Write {
                 address: c.address.clone(),
                 key,
                 old,
@@ -322,9 +350,7 @@ impl persist::Sink for Collected {
             _ => self.errors.push(format!("malformed storage change at 0x{}", hex::encode(&c.address))),
         }
     }
-    fn balance(&mut self, _: &eth::BalanceChange, _: persist::Ctx) {}
-    fn nonce(&mut self, _: &eth::NonceChange, _: persist::Ctx) {}
-    fn code(&mut self, c: &eth::CodeChange, ctx: persist::Ctx) {
+    fn push_code(&mut self, c: &eth::CodeChange, ctx: persist::Ctx) {
         self.codes.push(CodeChanged {
             address: c.address.clone(),
             new_hash: c.new_hash.clone(),
@@ -518,7 +544,7 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         implementation: market.implementation.clone(),
         implementation_slot: market.implementation_slot.to_vec(),
         activation_block: market.activation_block,
-        activation_ordinal: 0,
+        activation_ordinal: market.activation_ordinal,
         balance_asset: market.underlying.clone(),
         balance_decimals: market.balance_decimals,
         basis_carryover: true,
@@ -527,7 +553,7 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         ..Default::default()
     }
 }
-fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason, r: &Reduced) -> pb::ModelEpoch {
+fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason, r: &Write) -> pb::ModelEpoch {
     pb::ModelEpoch {
         reason: reason as i32,
         scope: scope_of(r.scope) as i32,
@@ -557,7 +583,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         // implementation invalidate the affected epochs with evidence; the
         // block's other writes are still decoded.
         for c in &collected.codes {
-            for market in &active {
+            for market in active.iter().filter(|m| m.active_at(block.number, c.ordinal)) {
                 let reason = if c.address == market.atoken || c.address == market.implementation {
                     pb::InvalidationReason::CodeChange
                 } else if c.address == pool.address || c.address == pool.implementation {
@@ -595,24 +621,49 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 preimages.insert(word(&key)?, value);
             }
         }
-        let relevant: Vec<Write> = collected
-            .writes
-            .into_iter()
-            .filter(|w| w.address == pool.address || active.iter().any(|m| w.address == m.atoken))
-            .collect();
-        for r in reduce(relevant)? {
+        // Each epoch owns only the effects at or after its activation
+        // position. Reserve words are keyed by the market's underlying, so a
+        // Pool write is owned by the market whose reserve it belongs to.
+        let owned = |w: &Write| {
+            if w.address == pool.address {
+                if w.key == pool.implementation_slot {
+                    active.iter().any(|m| m.active_at(block.number, w.ordinal))
+                } else {
+                    active
+                        .iter()
+                        .any(|m| m.active_at(block.number, w.ordinal) && struct_offset(&w.key, &m.reserve_base, RESERVE_WORDS).is_some())
+                }
+            } else {
+                active.iter().any(|m| w.address == m.atoken && m.active_at(block.number, w.ordinal))
+            }
+        };
+        let is_pointer = |w: &Write| {
+            (w.address == pool.address && w.key == pool.implementation_slot) || active.iter().any(|m| w.address == m.atoken && w.key == m.implementation_slot)
+        };
+        let mut relevant: Vec<Write> = collected.writes.into_iter().filter(&owned).collect();
+        // STORAGE_POINTER contract: any persisted write to a pointer slot
+        // invalidates, including a write back to the same value.
+        relevant.extend(collected.noops.into_iter().filter(|w| is_pointer(w) && owned(w)));
+        // Validate continuity first, then evidence each pointer transition:
+        // an in-block excursion X->Z->X must not be concealed by reduction.
+        let reduced = reduce(relevant.clone())?;
+        for w in relevant.iter().filter(|w| is_pointer(w)) {
+            if w.address == pool.address {
+                for market in active.iter().filter(|m| m.active_at(block.number, w.ordinal)) {
+                    events
+                        .epochs
+                        .push(invalidation(config, market, pb::InvalidationReason::DependencyPointerWrite, w));
+                }
+            } else if let Some(market) = active.iter().find(|m| w.address == m.atoken) {
+                events
+                    .epochs
+                    .push(invalidation(config, market, pb::InvalidationReason::ImplementationPointerWrite, w));
+            }
+        }
+        for r in reduced {
             if r.address == pool.address {
                 if r.key == pool.implementation_slot {
-                    // A write that lands on the bound Pool implementation is the
-                    // binding itself; any other target invalidates every epoch.
-                    if r.new != word(&pool.implementation)? {
-                        for market in &active {
-                            events
-                                .epochs
-                                .push(invalidation(config, market, pb::InvalidationReason::DependencyPointerWrite, &r));
-                        }
-                    }
-                    continue;
+                    continue; // Every pointer write was invalidated above.
                 }
                 for market in &active {
                     let Some(offset) = struct_offset(&r.key, &market.reserve_base, RESERVE_WORDS) else {
@@ -669,12 +720,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             }
             let market = active.iter().find(|m| m.atoken == r.address).unwrap();
             if r.key == market.implementation_slot {
-                if r.new != word(&market.implementation)? {
-                    events
-                        .epochs
-                        .push(invalidation(config, market, pb::InvalidationReason::ImplementationPointerWrite, &r));
-                }
-                continue;
+                continue; // Every pointer write was invalidated above.
             }
             if let Some(holder) = preimages
                 .get(&r.key)
@@ -737,7 +783,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             } else {
                 continue;
             };
-            events.epochs.push(epoch_row(config, market, kind));
+            events.epochs.push(pb::ModelEpoch {
+                // A BOUND row applies from its activation position, after any
+                // invalidation of the previous epoch earlier in the block.
+                ordinal: if kind == pb::EpochEventKind::Bound { market.activation_ordinal } else { 0 },
+                ..epoch_row(config, market, kind)
+            });
             let dependency = |role: pb::DependencyRole, contract: &Vec<u8>, binding: pb::BindingKind, pin: &str| pb::Dependency {
                 chain_id: config.chain_id,
                 market: market.atoken.clone(),
@@ -783,9 +834,28 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     events
         .global_state
         .sort_by(|a, b| (&a.market, a.field, &a.key, a.ordinal).cmp(&(&b.market, b.field, &b.key, b.ordinal)));
-    events
-        .epochs
-        .sort_by(|a, b| (&a.market, a.epoch, a.ordinal, a.kind).cmp(&(&b.market, b.epoch, b.ordinal, b.kind)));
+    events.epochs.sort_by(|a, b| {
+        (
+            &a.market,
+            a.epoch,
+            a.ordinal,
+            a.kind,
+            a.reason,
+            &a.evidence_contract,
+            &a.evidence_slot,
+            &a.evidence_code_hash,
+        )
+            .cmp(&(
+                &b.market,
+                b.epoch,
+                b.ordinal,
+                b.kind,
+                b.reason,
+                &b.evidence_contract,
+                &b.evidence_slot,
+                &b.evidence_code_hash,
+            ))
+    });
     events
         .dependencies
         .sort_by(|a, b| (&a.market, a.epoch, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.role, &b.contract)));

@@ -51,13 +51,28 @@ the aToken revision activation block are **not** bound offline; the
 configured `activation_block` is the start of the saved window, not the
 upgrade block.
 
+`activation_ordinal` (optional, default `0`) is the first execution ordinal of
+`activation_block` at which the epoch applies. Effects earlier in that block,
+such as the upgrade write that installs this epoch's implementation, belong to
+the previous epoch: they are neither decoded under this epoch nor treated as
+invalidating it. The BOUND row carries the activation ordinal as its `ordinal`,
+so a consumer applying rows in ordinal order sees the previous epoch's
+invalidation before this epoch's binding.
+
+Every persisted write to a storage-pointer slot invalidates the epoch with its
+own evidence row, including a write back to the same value and each step of an
+excursion that restores the pointer within the block, as the
+`BINDING_KIND_STORAGE_POINTER` contract in `proto/v1/balance_state.proto`
+requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
+temporary implementation that ran inside the block.
+
 ## Fail-closed rules
 
 | Condition | Result |
 | --- | --- |
 | Non-Extended block, `Block.ver` not listed (only 4 and 5 may be listed), incomplete transaction data | block fails |
 | Code change on the Pool, its implementation, an aToken or its implementation | `ModelEpoch` INVALIDATED (`CODE_CHANGE` for the aToken or its implementation, `DEPENDENCY_CODE_CHANGE` for the Pool side) with the new code hash as evidence; the block's other writes are still decoded |
-| Write to the Pool or aToken implementation pointer slot with a value other than the bound implementation | `ModelEpoch` INVALIDATED (`DEPENDENCY_POINTER_WRITE` / `IMPLEMENTATION_POINTER_WRITE`) with the old and new words as evidence; a write that lands on the bound implementation is the binding itself |
+| Any persisted write to the Pool or aToken implementation pointer slot, including an equal-value write and each step of an in-block excursion that restores the bound implementation | `ModelEpoch` INVALIDATED per write (`DEPENDENCY_POINTER_WRITE` for every market active at that ordinal / `IMPLEMENTATION_POINTER_WRITE`) with the old and new words as evidence; the block's other writes are still decoded |
 | aToken write that is not `_userState` (verified preimage), `_totalSupply`, or a reviewed `other_slots` / `other_mapping_slots` entry | `unresolved storage for aToken … refusing incomplete balance state` |
 | Two writes to one key with equal ordinals, or a write whose old word differs from the previous new word | `ambiguous` / `discontinuous` |
 | Pool writes to `ReserveData` words other than 1 and 3 (configuration, variable-debt index and rate, addresses, treasury accrual, virtual balance) | recognized, not emitted |
@@ -91,6 +106,10 @@ Reverted frames and failed transactions never produce rows
   the identical 4 holder, 22 global and 4 epoch rows: 1,438 blocks, 0
   projection errors, 14/14 continuity checks, 6/6 index-oracle checks,
   1,445 clock links, 0 mismatches.
+- After aligning pointer handling with the `STORAGE_POINTER` contract and
+  adding `activation_ordinal` (2026-09-22), the same replay produces a
+  byte-identical `rows.jsonl` (sha256 `a42b84a6…`, [report](docs/evidence/replay-bsc-v5-rev3.json)):
+  no pointer write, equal-value or otherwise, occurs in the saved window.
 
 ```sh
 cargo test --locked -p aave-balance-state -p aave-balance-state-tools -p conformance

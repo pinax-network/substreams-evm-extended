@@ -668,3 +668,122 @@ fn validate_block_refusals_provenance_and_multi_market_attribution() {
     assert_eq!(rows, expected);
     assert_eq!(events.clocks[0].holder_basis_count, 2);
 }
+
+#[test]
+fn every_pointer_write_is_evidenced_including_excursions_and_equal_value_writes() {
+    let cfg = config();
+    let m = cusdc();
+    let bound_irm = word(&m.rate_model).unwrap();
+    let rogue = w(0xbad);
+    // A rate-model excursion X -> Z -> X within one block: two invalidations
+    // carrying the intermediate model, not one reduced X -> X.
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: m.ctoken.clone(),
+        storage_changes: vec![
+            write(&m.ctoken, m.rate_model_slot, bound_irm, rogue, 10),
+            write(&m.ctoken, m.rate_model_slot, rogue, bound_irm, 12),
+        ],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    let evidence: Vec<(i32, u64, Vec<u8>)> = events
+        .epochs
+        .iter()
+        .filter(|e| e.market == m.ctoken)
+        .map(|e| (e.reason, e.ordinal, e.evidence_word.clone()))
+        .collect();
+    assert_eq!(
+        evidence,
+        vec![
+            (pb::InvalidationReason::RateModelChange as i32, 10, rogue.to_vec()),
+            (pb::InvalidationReason::RateModelChange as i32, 12, bound_irm.to_vec()),
+        ]
+    );
+    // An equal-value write to the underlying's proxy implementation slot is
+    // dropped as a balance effect but still invalidates the dependency.
+    let underlying = m.underlying.clone().unwrap();
+    let Cash::Erc20Mapping {
+        implementation_slot: Some(underlying_slot),
+        ..
+    } = m.cash.clone()
+    else {
+        panic!()
+    };
+    b.transaction_traces = vec![tx(eth::Call {
+        address: underlying.clone(),
+        storage_changes: vec![write(&underlying, underlying_slot, w(7), w(7), 10)],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), 1);
+    assert_eq!(
+        (events.epochs[0].reason, &events.epochs[0].evidence_contract),
+        (pb::InvalidationReason::DependencyPointerWrite as i32, &underlying)
+    );
+    // The same equal-value write on a non-pointer slot is not an effect at all.
+    b.transaction_traces = vec![tx(eth::Call {
+        address: m.ctoken.clone(),
+        storage_changes: vec![write(&m.ctoken, m.scalars[0].0, w(7), w(7), 10)],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert!(events.epochs.is_empty() && events.global_state.is_empty());
+    // The rate model is bound as a storage pointer on the cToken.
+    let bound = project(&block(1), &cfg).unwrap();
+    let irm = bound
+        .dependencies
+        .iter()
+        .find(|d| d.market == m.ctoken && d.role == pb::DependencyRole::InterestRateModel as i32)
+        .unwrap();
+    assert_eq!(
+        (irm.binding, &irm.pointer_contract, &irm.pointer_slot, &irm.pointer_value),
+        (
+            pb::BindingKind::StoragePointer as i32,
+            &m.ctoken,
+            &m.rate_model_slot.to_vec(),
+            &bound_irm.to_vec()
+        )
+    );
+}
+
+#[test]
+fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
+    let mut v: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    v["markets"][0]["activation_block"] = 10.into();
+    v["markets"][0]["activation_ordinal"] = 100.into();
+    let cfg = parse(&v.to_string()).unwrap();
+    let m = cfg.markets[0].clone();
+    let holder = [9u8; 20];
+    let key = mapping_key(&holder, &m.account_tokens_slot);
+    let mut b = block(10);
+    // The rate-model switch that starts this epoch (50) and a share write
+    // under the previous epoch (60) are not this epoch's; the write at 150 is.
+    let mut call = shares_call(&m, &holder, 1, 2, 60);
+    call.storage_changes
+        .insert(0, write(&m.ctoken, m.rate_model_slot, w(0xdead), word(&m.rate_model).unwrap(), 50));
+    call.storage_changes.push(write(&m.ctoken, key, w(2), w(9), 150));
+    b.transaction_traces = vec![tx(call)];
+    let events = project(&b, &cfg).unwrap();
+    let mine: Vec<_> = events.epochs.iter().filter(|e| e.market == m.ctoken).collect();
+    assert!(mine.iter().all(|e| e.kind != pb::EpochEventKind::Invalidated as i32));
+    let bound_row = mine.iter().find(|e| e.kind == pb::EpochEventKind::Bound as i32).unwrap();
+    assert_eq!((bound_row.activation_ordinal, bound_row.ordinal), (100, 100));
+    let h: Vec<_> = events.holder_basis.iter().filter(|h| h.market == m.ctoken).collect();
+    assert_eq!(h.len(), 1);
+    assert_eq!((&*h[0].previous_value, &*h[0].value, h[0].first_ordinal), ("2", "9", 150));
+    // An unresolved write before the activation ordinal belongs to the
+    // previous epoch and does not refuse the block; after it, it does.
+    b.transaction_traces = vec![tx(eth::Call {
+        address: m.ctoken.clone(),
+        storage_changes: vec![write(&m.ctoken, w(0x77), w(0), w(1), 60)],
+        ..Default::default()
+    })];
+    assert!(project(&b, &cfg).is_ok());
+    b.transaction_traces = vec![tx(eth::Call {
+        address: m.ctoken.clone(),
+        storage_changes: vec![write(&m.ctoken, w(0x77), w(0), w(1), 160)],
+        ..Default::default()
+    })];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("unresolved"));
+}
