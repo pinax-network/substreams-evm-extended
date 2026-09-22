@@ -37,6 +37,7 @@ added; it is not approximated by a generic ratio.
 
 | Table | Row |
 | --- | --- |
+| `ModelEpoch` INVALIDATED (ERC-4626 asset rebinding) | a persisted write to the vault's ERC-7201 `openzeppelin.storage.ERC4626` word, which holds `_asset` and `_underlyingDecimals`: the model would convert into a different asset, so the epoch is invalidated with the raw words as evidence rather than silently re-bound |
 | `ModelEpoch` INVALIDATED | vault implementation pointer write (`IMPLEMENTATION_POINTER_WRITE`), Pool or OZ asset implementation pointer write (`DEPENDENCY_POINTER_WRITE`), code change on the vault or its implementation (`CODE_CHANGE`), on the asset, OZ asset implementation, Pool, Pool implementation, aToken or Pot (`DEPENDENCY_CODE_CHANGE`), each with evidence |
 | `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat; Pool and OZ asset implementations are depth-2 pointers under their respective dependencies |
 | `BlockClock` | exactly one per block |
@@ -58,7 +59,11 @@ The default manifest parameters bind no vault and emit only `BlockClock`.
   2, `nonces` 3; no proxy) to `MCD_POT` `0x197E…7cf7` (`dsr` 3, `chi` 4, `rho`
   7), and a placeholder OpenZeppelin vault using the ERC-7201 `ERC20Storage`
   namespace (`keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ERC20")) - 1)) & ~0xff`,
-  re-derived in a test) with a 12-decimal offset.
+  re-derived in a test) with a 12-decimal offset. All five `ERC20Storage`
+  members are accounted for (`_balances`, `_allowances` and `_totalSupply`
+  decoded; `_name` and `_symbol` reviewed because `__ERC20_init_unchained`
+  writes them), and the `openzeppelin.storage.ERC4626` word is bound so that
+  `__ERC4626_init_unchained` invalidates instead of failing the block.
 
 The OZ dependency block requires `asset_balance_model` and `asset_source_pin`.
 Supported source-qualified decoders are `uint256` and

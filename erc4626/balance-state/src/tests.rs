@@ -888,3 +888,61 @@ fn pointer_guards_attribute_shared_pool_and_direct_vault_writes_deterministicall
     }
     assert_eq!(events.encode_to_vec(), project(&b, &cfg).unwrap().encode_to_vec());
 }
+
+#[test]
+fn an_openzeppelin_initializing_block_is_reviewed_and_rebinding_the_asset_invalidates() {
+    let cfg = mainnet();
+    let oz = cfg.vaults[1].clone();
+    let Model::OzVirtualOffset { erc4626_storage_slot, .. } = oz.model.clone() else {
+        panic!()
+    };
+    let erc4626_slot = erc4626_storage_slot.expect("the fixture binds the ERC4626Storage namespace slot");
+    // `__ERC20_init_unchained` writes `_name` (+3) and `_symbol` (+4) of the
+    // openzeppelin.storage.ERC20 namespace; `__ERC4626_init_unchained` writes
+    // `_asset` and `_underlyingDecimals`, which share the ERC4626 namespace word.
+    let name_slot = add_offset(&oz.balances_slot, 3);
+    let symbol_slot = add_offset(&oz.balances_slot, 4);
+    assert!(oz.other_slots.contains(&name_slot) && oz.other_slots.contains(&symbol_slot));
+    let mut asset_word = [0u8; 32];
+    asset_word[12..].copy_from_slice(&oz.asset);
+    asset_word[11] = 6; // _underlyingDecimals packed above the address
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: oz.vault.clone(),
+        storage_changes: vec![
+            write(&oz.vault, name_slot, w(0), w(0x6161), 10),
+            write(&oz.vault, symbol_slot, w(0), w(0x6262), 11),
+            write(&oz.vault, oz.total_supply_slot, w(0), w(1_000), 12),
+            write(&oz.vault, erc4626_slot, [0; 32], asset_word, 13),
+        ],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    // The metadata writes are reviewed, the supply is carried, and rebinding
+    // the asset invalidates the epoch with evidence instead of failing.
+    assert_eq!(
+        fields(&events, &oz.vault),
+        vec![(pb::StateField::Erc4626TotalSupply as i32, "0".into(), "1000".into(), 1)]
+    );
+    let invalidations: Vec<_> = events.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
+    assert_eq!(invalidations.len(), 1);
+    assert_eq!(
+        (invalidations[0].reason, &invalidations[0].evidence_slot, &invalidations[0].evidence_word),
+        (
+            pb::InvalidationReason::DependencyPointerWrite as i32,
+            &erc4626_slot.to_vec(),
+            &asset_word.to_vec()
+        )
+    );
+    // Without the binding the same block fails closed, which is the defect
+    // this test pins: every initializing or reinitializing block was refused.
+    let mut v: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+    v["vaults"][1]["oz"].as_object_mut().unwrap().remove("erc4626_storage_slot");
+    v["vaults"][1]["other_slots"] = serde_json::json!([]);
+    let unbound = parse(&v.to_string()).unwrap();
+    assert!(project(&b, &unbound).unwrap_err().to_string().contains("unresolved"));
+    // The bound slot may not collide with a decoded one.
+    let mut v: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+    v["vaults"][1]["oz"]["erc4626_storage_slot"] = v["vaults"][1]["total_supply_slot"].clone();
+    assert!(parse(&v.to_string()).unwrap_err().to_string().contains("overlap"));
+}

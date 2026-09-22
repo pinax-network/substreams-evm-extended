@@ -108,6 +108,26 @@ fn openzeppelin_namespace_constants_match_the_fixture() {
     for (_, l) in doc["contracts"].as_object().unwrap() {
         assert!(l["storage"].as_array().unwrap().is_empty());
     }
+    // Every namespace member must be decoded, reviewed or guarded: `_name`
+    // (+3) and `_symbol` (+4) are written by `__ERC20_init_unchained`, and the
+    // ERC4626 namespace word (`_asset`, `_underlyingDecimals`) by
+    // `__ERC4626_init_unchained`, so an initializing block would otherwise be
+    // refused as unresolved storage.
+    let members = doc["namespaces"]["openzeppelin.storage.ERC20"]["members"].as_array().unwrap();
+    assert_eq!(members.len(), 5);
+    let decoded = [oz.balances_slot, add_offset(&base, 1), oz.total_supply_slot];
+    for (i, member) in members.iter().enumerate() {
+        let slot = add_offset(&base, i as u8);
+        let covered = decoded.contains(&slot) || oz.other_slots.contains(&slot) || oz.other_mapping_slots.contains(&slot);
+        assert!(covered, "ERC20 namespace member {member} (+{i}) is neither decoded nor reviewed");
+    }
+    let erc4626 = doc["namespaces"]["openzeppelin.storage.ERC4626"]["value"].as_str().unwrap();
+    let erc4626: [u8; 32] = hex::decode(&erc4626[2..]).unwrap().try_into().unwrap();
+    let Model::OzVirtualOffset { erc4626_storage_slot, .. } = cfg.vaults[1].model.clone() else {
+        panic!()
+    };
+    assert_eq!(erc4626_storage_slot, Some(erc4626));
+    assert_eq!(doc["namespaces"]["openzeppelin.storage.ERC4626"]["members"].as_array().unwrap().len(), 2);
 }
 
 #[test]

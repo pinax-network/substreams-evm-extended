@@ -136,6 +136,11 @@ pub struct OzConfig {
     pub asset_implementation_slot: Option<String>,
     #[serde(default)]
     pub asset_implementation: Option<String>,
+    /// ERC-7201 `openzeppelin.storage.ERC4626` slot on the vault, holding
+    /// `_asset` and `_underlyingDecimals` in one word. A persisted write
+    /// rebinds the asset this model converts into, so it invalidates.
+    #[serde(default)]
+    pub erc4626_storage_slot: Option<String>,
     pub decimals_offset: u8,
 }
 /// Only independently reviewed `balanceOf` decoders are admitted. A slot
@@ -206,6 +211,7 @@ pub enum Model {
         asset_source_pin: String,
         asset_implementation_slot: Option<[u8; 32]>,
         asset_implementation: Option<Vec<u8>>,
+        erc4626_storage_slot: Option<[u8; 32]>,
         decimals_offset: u8,
     },
 }
@@ -238,7 +244,16 @@ impl Vault {
         }
         let dependency_pointer = match &self.model {
             Model::AaveStaticAToken { pool, implementation_slot, .. } => address == pool && Some(*key) == *implementation_slot,
-            Model::OzVirtualOffset { asset_implementation_slot, .. } => address == self.asset && Some(*key) == *asset_implementation_slot,
+            Model::OzVirtualOffset {
+                asset_implementation_slot,
+                erc4626_storage_slot,
+                ..
+            } => {
+                (address == self.asset && Some(*key) == *asset_implementation_slot)
+                    // `_asset` and `_underlyingDecimals` share this word; a
+                    // write rebinds what the vault converts into.
+                    || (address == self.vault && Some(*key) == *erc4626_storage_slot)
+            }
             Model::MakerSavingsDai { .. } => false,
         };
         dependency_pointer.then_some(pb::InvalidationReason::DependencyPointerWrite)
@@ -313,6 +328,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
                     .as_deref()
                     .map(|s| hex_bytes(s, 20, "oz.asset_implementation"))
                     .transpose()?,
+                erc4626_storage_slot: o.erc4626_storage_slot.as_deref().map(|s| slot(s, "oz.erc4626_storage_slot")).transpose()?,
                 decimals_offset: o.decimals_offset,
             },
             (model, ..) => return Err(Error::msg(format!("model `{model}` does not match its dependency block"))),
@@ -381,6 +397,9 @@ pub fn parse(params: &str) -> Result<Config, Error> {
         all.extend(out.implementation_slot);
         all.extend(out.other_slots.iter().copied());
         all.extend(out.other_mapping_slots.iter().copied());
+        if let Model::OzVirtualOffset { erc4626_storage_slot, .. } = &out.model {
+            all.extend(*erc4626_storage_slot);
+        }
         require(all.iter().collect::<BTreeSet<_>>().len() == all.len(), "vault slots overlap")?;
         require(vaults.iter().all(|o| o.vault != out.vault), "duplicate vault")?;
         vaults.push(out);
@@ -744,7 +763,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         }
         for r in reduced {
             for vault in active.iter().filter(|v| r.address == v.vault) {
-                if Some(r.key) == vault.implementation_slot {
+                if vault.pointer_reason(&r.address, &r.key).is_some() {
                     // Every pointer write was invalidated before reduction.
                 } else if r.key == vault.total_supply_slot {
                     events.global_state.push(field_row(
