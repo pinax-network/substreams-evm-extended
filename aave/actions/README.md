@@ -49,6 +49,8 @@ unless `include_attempted` is false.
 
 The default manifest binds no Pool. [`tests/fixtures/bsc-aave-v3-pool.json`](tests/fixtures/bsc-aave-v3-pool.json)
 binds the Aave V3 BNB Pool; its runtime code hash is not bound offline.
+`producer_versions` must be a nonempty subset of the reviewed Extended versions
+4 and 5; explicitly listing another version does not authorize its semantics.
 
 ## Evidence
 

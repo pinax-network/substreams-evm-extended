@@ -1,6 +1,8 @@
 {
   "chain_id": 1,
-  "producer_versions": [5],
+  "producer_versions": [
+    5
+  ],
   "heartbeat_blocks": 1000,
   "vaults": [
     {
@@ -31,7 +33,7 @@
       "epoch": 1,
       "model": "oz-virtual-offset",
       "model_id": "erc4626/openzeppelin-v5/virtual-offset",
-      "source_pin": "OpenZeppelin/openzeppelin-contracts@932fddf69a699a9a80fd2396fd1a2ab91cdda123 (v5.0.0) contracts/token/ERC20/extensions/ERC4626.sol; placeholder vault, synthetic tests only",
+      "source_pin": "OpenZeppelin/openzeppelin-contracts@932fddf69a699a9a80fd2396fd1a2ab91cdda123 (v5.0.0) contracts/token/ERC20/extensions/ERC4626.sol; placeholder vault, synthetic tests only; ERC-7201 namespaces openzeppelin.storage.ERC20 (_balances +0, _allowances +1, _totalSupply +2, _name +3, _symbol +4) and openzeppelin.storage.ERC4626 (_asset, _underlyingDecimals in one word)",
       "activation_block": 1,
       "asset": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       "asset_decimals": 6,
@@ -43,8 +45,17 @@
       ],
       "oz": {
         "asset_balances_slot": "0x0000000000000000000000000000000000000000000000000000000000000009",
-        "decimals_offset": 12
-      }
+        "asset_balance_model": "fiat-token-v2_2-low255",
+        "asset_source_pin": "circlefin/stablecoin-evm@405efc100c016ed1a437063b6274b4e24ea7b8b1 (v2.2.0) contracts/v1/FiatTokenV1.sol slot 9 balanceAndBlacklistStates; contracts/v2/FiatTokenV2_2.sol _balanceOf low255; contracts/upgradeability/UpgradeabilityProxy.sol org.zeppelinos.proxy.implementation; placeholder implementation, synthetic tests only",
+        "asset_implementation_slot": "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3",
+        "asset_implementation": "0x0000000000000000000000000000000000000022",
+        "decimals_offset": 12,
+        "erc4626_storage_slot": "0x0773e532dfede91f04b12a73d3d2acd361424f41f76b4fb79f090161e36b4e00"
+      },
+      "other_slots": [
+        "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace03",
+        "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace04"
+      ]
     }
   ]
 }

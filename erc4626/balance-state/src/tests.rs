@@ -250,6 +250,7 @@ fn sdai_model_carries_pot_dsr_chi_rho_and_oz_model_carries_asset_balance_and_off
     let Model::OzVirtualOffset {
         asset_balance_key,
         decimals_offset,
+        ..
     } = oz.model.clone()
     else {
         panic!()
@@ -479,4 +480,469 @@ fn the_openzeppelin_namespace_slot_is_derived_from_its_id_and_shared_rules_hold(
     let mut reversed = b.clone();
     reversed.transaction_traces.reverse();
     assert_eq!(forward.encode_to_vec(), project(&reversed, &cfg).unwrap().encode_to_vec());
+}
+
+#[test]
+fn validate_block_refusals_provenance_and_multi_vault_attribution() {
+    let cfg = mainnet();
+    let sdai = cfg.vaults[0].clone();
+    let oz = cfg.vaults[1].clone();
+    type Mutation = Box<dyn Fn(&mut eth::Block)>;
+    let cases: Vec<(&str, Mutation)> = vec![
+        (
+            "Extended blocks required",
+            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32),
+        ),
+        ("producer version", Box::new(|b| b.ver = 3)),
+        ("missing header", Box::new(|b| b.header = None)),
+        ("invalid block identity", Box::new(|b| b.hash = vec![1; 31])),
+        ("invalid block identity", Box::new(|b| b.header.as_mut().unwrap().parent_hash = vec![])),
+        ("header number mismatch", Box::new(|b| b.header.as_mut().unwrap().number += 1)),
+        ("missing timestamp", Box::new(|b| b.header.as_mut().unwrap().timestamp = None)),
+        (
+            "negative timestamp",
+            Box::new(|b| b.header.as_mut().unwrap().timestamp.as_mut().unwrap().seconds = -1),
+        ),
+    ];
+    for (message, apply) in cases {
+        let mut b = block(10);
+        apply(&mut b);
+        let err = project(&b, &cfg).unwrap_err().to_string();
+        assert!(err.contains(message), "expected `{message}`, got `{err}`");
+    }
+    // Same-block repeated writes keep the first old value and the last write's provenance.
+    let holder = [9u8; 20];
+    let mut b = block(10);
+    let mut second = tx(shares_call(&sdai, &holder, 2, 7, 20));
+    second.index = 10;
+    second.hash = vec![8; 32];
+    b.transaction_traces = vec![tx(shares_call(&sdai, &holder, 1, 2, 10)), second];
+    let events = project(&b, &cfg).unwrap();
+    let h = &events.holder_basis[0];
+    assert_eq!(
+        (
+            &*h.previous_value,
+            &*h.value,
+            h.change_count,
+            h.first_ordinal,
+            h.ordinal,
+            h.transaction_index,
+            &h.transaction_hash
+        ),
+        ("1", "7", 2, 10, 20, 10, &vec![8; 32])
+    );
+    // Two vaults written in one block are attributed by storage address, with their own decimals.
+    let mut b = block(10);
+    let mut oz_tx = tx(shares_call(&oz, &holder, 5, 6, 12));
+    oz_tx.index = 10;
+    oz_tx.hash = vec![8; 32];
+    b.transaction_traces = vec![tx(shares_call(&sdai, &holder, 1, 2, 10)), oz_tx];
+    let events = project(&b, &cfg).unwrap();
+    let rows: Vec<(&Vec<u8>, &str)> = events.holder_basis.iter().map(|h| (&h.market, h.value.as_str())).collect();
+    let mut expected = vec![(&sdai.vault, "2"), (&oz.vault, "6")];
+    expected.sort();
+    assert_eq!(rows, expected);
+    let bound = project(&block(1), &cfg).unwrap();
+    let decimals: Vec<(Vec<u8>, u32)> = bound.epochs.iter().map(|e| (e.market.clone(), e.balance_decimals)).collect();
+    assert!(decimals.contains(&(sdai.vault.clone(), 18)) && decimals.contains(&(oz.vault.clone(), 18)));
+}
+
+#[test]
+fn oz_asset_decoder_masks_only_the_source_bound_blacklist_bit() {
+    let cfg = mainnet();
+    let oz = &cfg.vaults[1];
+    let Model::OzVirtualOffset { asset_balance_key, .. } = &oz.model else {
+        panic!()
+    };
+    let mut flagged = w(17);
+    flagged[0] = 0x80;
+    let mut maximum = [0xff; 32];
+    maximum[0] = 0x7f;
+    for (old, new, previous, value) in [
+        (w(17), flagged, "17".to_string(), "17".to_string()),
+        (flagged, w(0), "17".into(), "0".into()),
+        (w(0), maximum, "0".into(), bits(&maximum, 0, 256).to_string()),
+    ] {
+        let mut b = block(10);
+        b.transaction_traces = vec![tx(eth::Call {
+            // A delegatecall writes the proxy's storage.
+            address: vec![0x22; 20],
+            storage_changes: vec![write(&oz.asset, *asset_balance_key, old, new, 10)],
+            ..Default::default()
+        })];
+        let events = project(&b, &cfg).unwrap();
+        assert_eq!(events.global_state.len(), 1);
+        let row = &events.global_state[0];
+        assert_eq!((&row.previous_value, &row.value), (&previous, &value));
+        assert_eq!((row.bit_offset, row.bit_width), (0, 255));
+        assert_eq!((&row.raw_previous_word, &row.raw_word), (&old.to_vec(), &new.to_vec()));
+        assert_eq!((&row.storage_contract, &row.key), (&oz.asset, &oz.vault));
+        assert!(events.holder_basis.is_empty());
+    }
+    // An explicitly qualified uint256 asset must retain its high balance bit.
+    let mut raw: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+    raw["vaults"][1]["oz"]["asset_balance_model"] = "uint256".into();
+    raw["vaults"][1]["oz"]["asset_source_pin"] = "synthetic full uint256 mapping fixture".into();
+    let cfg = parse(&raw.to_string()).unwrap();
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        storage_changes: vec![write(&oz.asset, *asset_balance_key, w(0), flagged, 10)],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.global_state[0].bit_width, 256);
+    assert_eq!(events.global_state[0].value, bits(&flagged, 0, 256).to_string());
+}
+
+#[test]
+fn oz_asset_proxy_binding_invalidates_pointer_and_implementation_changes() {
+    let cfg = mainnet();
+    let oz = &cfg.vaults[1];
+    let Model::OzVirtualOffset {
+        asset_implementation_slot: Some(slot),
+        asset_implementation: Some(implementation),
+        asset_source_pin,
+        ..
+    } = &oz.model
+    else {
+        panic!()
+    };
+    assert_eq!(*slot, keccak(b"org.zeppelinos.proxy.implementation"));
+    for number in [1, 1_001] {
+        let events = project(&block(number), &cfg).unwrap();
+        let rows: Vec<_> = events.dependencies.iter().filter(|d| d.market == oz.vault).collect();
+        assert_eq!(rows.len(), 2);
+        let dep = rows.iter().find(|d| d.depth == 2).unwrap();
+        assert_eq!((&dep.contract, &dep.parent, &dep.pointer_contract), (implementation, &oz.asset, &oz.asset));
+        assert_eq!(
+            (&dep.pointer_slot, &dep.pointer_value),
+            (&slot.to_vec(), &word(implementation).unwrap().to_vec())
+        );
+        assert_eq!(dep.binding, pb::BindingKind::StoragePointer as i32);
+        assert_eq!(dep.role, pb::DependencyRole::Implementation as i32);
+        assert!(rows.iter().all(|d| &d.source_pin == asset_source_pin));
+        assert_eq!(
+            dep.kind,
+            if number == 1 {
+                pb::EpochEventKind::Bound
+            } else {
+                pb::EpochEventKind::Reaffirmed
+            } as i32
+        );
+    }
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: implementation.clone(),
+        storage_changes: vec![
+            write(&oz.asset, *slot, w(1), w(2), 10),
+            // An upgrade then restoration still invalidates the bound epoch.
+            write(&oz.asset, *slot, w(2), w(1), 11),
+        ],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), 2);
+    assert_eq!(events.epochs[0].evidence_previous_word, w(1));
+    assert_eq!(events.epochs[0].evidence_word, w(2));
+    let e = &events.epochs[1];
+    assert_eq!(
+        (&e.market, e.reason, e.ordinal),
+        (&oz.vault, pb::InvalidationReason::DependencyPointerWrite as i32, 11)
+    );
+    assert_eq!((&e.evidence_contract, &e.evidence_slot), (&oz.asset, &slot.to_vec()));
+    assert_eq!((&e.evidence_previous_word, &e.evidence_word), (&w(2).to_vec(), &w(1).to_vec()));
+    assert_eq!((&e.transaction_hash, e.transaction_index), (&vec![7; 32], 9));
+    b.transaction_traces[0].calls[0].state_reverted = true;
+    assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+    b.transaction_traces = vec![tx(eth::Call {
+        address: oz.asset.clone(),
+        storage_changes: vec![write(&oz.asset, *slot, w(1), w(1), 12)],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), 1);
+    assert_eq!(events.epochs[0].reason, pb::InvalidationReason::DependencyPointerWrite as i32);
+    assert_eq!(
+        (&events.epochs[0].evidence_previous_word, &events.epochs[0].evidence_word),
+        (&w(1).to_vec(), &w(1).to_vec())
+    );
+    b.transaction_traces[0].calls[0].state_reverted = true;
+    assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+    // Same-value balance writes do not turn into a fabricated state change.
+    let mut b_noop = block(10);
+    b_noop.transaction_traces = vec![tx(shares_call(oz, &[4; 20], 5, 5, 13))];
+    assert!(project(&b_noop, &cfg).unwrap().holder_basis.is_empty());
+    for address in [&oz.asset, implementation] {
+        b.transaction_traces = vec![tx(eth::Call {
+            code_changes: vec![eth::CodeChange {
+                address: address.clone(),
+                old_hash: vec![1; 32],
+                new_hash: vec![2; 32],
+                ordinal: 15,
+                ..Default::default()
+            }],
+            ..Default::default()
+        })];
+        let events = project(&b, &cfg).unwrap();
+        assert_eq!(events.epochs.len(), 1);
+        assert_eq!(events.epochs[0].market, oz.vault);
+        assert_eq!(events.epochs[0].reason, pb::InvalidationReason::DependencyCodeChange as i32);
+        assert_eq!(&events.epochs[0].evidence_contract, address);
+        assert_eq!(events.epochs[0].evidence_code_hash, vec![2; 32]);
+    }
+}
+
+#[test]
+fn oz_asset_layout_and_proxy_parameters_are_explicit_and_consistent() {
+    let check = |f: &dyn Fn(&mut serde_json::Value), message: &str| {
+        let mut raw: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+        f(&mut raw["vaults"][1]);
+        let error = parse(&raw.to_string()).unwrap_err().to_string();
+        assert!(error.contains(message), "{error}");
+    };
+    check(
+        &|v| {
+            v["oz"].as_object_mut().unwrap().remove("asset_balance_model");
+        },
+        "asset_balance_model",
+    );
+    check(&|v| v["oz"]["asset_balance_model"] = "unreviewed-layout".into(), "unknown variant");
+    check(&|v| v["oz"]["asset_source_pin"] = " ".into(), "asset_source_pin required");
+    check(&|v| v["oz"]["asset_implementation"] = serde_json::Value::Null, "go together");
+    check(&|v| v["oz"]["asset_implementation_slot"] = serde_json::Value::Null, "go together");
+    check(&|v| v["oz"]["asset_implementation"] = "0x01".into(), "20 bytes");
+    check(&|v| v["oz"]["decimals_offset"] = 78.into(), "overflows uint256");
+    check(&|v| v["vault_decimals"] = 19.into(), "vault_decimals");
+    check(
+        &|v| {
+            v["vault_decimals"] = 262.into();
+            v["asset_decimals"] = 250.into();
+        },
+        "within uint8",
+    );
+    check(&|v| v["asset"] = v["vault"].clone(), "differ from vault");
+    let Model::OzVirtualOffset { asset_balance_key, .. } = mainnet().vaults[1].model else {
+        panic!()
+    };
+    check(
+        &|v| v["oz"]["asset_implementation_slot"] = format!("0x{}", hex::encode(asset_balance_key)).into(),
+        "slots overlap",
+    );
+}
+
+#[test]
+fn vault_and_pool_pointer_writes_preserve_noops_restoration_and_persistence() {
+    let cfg = bsc();
+    let vault = &cfg.vaults[0];
+    let Model::AaveStaticAToken {
+        pool,
+        implementation_slot: Some(pool_slot),
+        implementation: Some(pool_implementation),
+        ..
+    } = &vault.model
+    else {
+        panic!()
+    };
+    for (address, slot, implementation, reason) in [
+        (
+            &vault.vault,
+            vault.implementation_slot.unwrap(),
+            vault.implementation.as_ref().unwrap(),
+            pb::InvalidationReason::ImplementationPointerWrite,
+        ),
+        (pool, *pool_slot, pool_implementation, pb::InvalidationReason::DependencyPointerWrite),
+    ] {
+        let expected = word(implementation).unwrap();
+        for transitions in [vec![(expected, expected)], vec![(expected, w(2)), (w(2), expected)]] {
+            let mut b = block(10);
+            b.transaction_traces = transitions
+                .iter()
+                .enumerate()
+                .map(|(i, (old, new))| {
+                    let mut t = tx(eth::Call {
+                        index: 3 + i as u32,
+                        address: implementation.clone(), // delegatecall storage belongs to the proxy
+                        storage_changes: vec![write(address, slot, *old, *new, 10 + i as u64)],
+                        ..Default::default()
+                    });
+                    t.index = 9 + i as u32;
+                    t.hash = vec![7 + i as u8; 32];
+                    t
+                })
+                .collect();
+            let events = project(&b, &cfg).unwrap();
+            assert_eq!(events.epochs.len(), transitions.len());
+            assert!(events.holder_basis.is_empty() && events.global_state.is_empty());
+            for (i, row) in events.epochs.iter().enumerate() {
+                assert_eq!((&row.market, row.reason), (&vault.vault, reason as i32));
+                assert_eq!(row.kind, pb::EpochEventKind::Invalidated as i32);
+                assert_eq!((&row.evidence_contract, &row.evidence_slot), (address, &slot.to_vec()));
+                assert_eq!(
+                    (&row.evidence_previous_word, &row.evidence_word),
+                    (&transitions[i].0.to_vec(), &transitions[i].1.to_vec())
+                );
+                assert_eq!(
+                    (row.ordinal, row.transaction_index, row.call_index),
+                    (10 + i as u64, 9 + i as u32, 3 + i as u32)
+                );
+                assert_eq!(row.transaction_hash, vec![7 + i as u8; 32]);
+            }
+            for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
+                for t in &mut b.transaction_traces {
+                    t.status = status as i32;
+                }
+                assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+            }
+            for t in &mut b.transaction_traces {
+                t.status = eth::TransactionTraceStatus::Succeeded as i32;
+                t.calls[0].state_reverted = true;
+            }
+            assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+            b.system_calls = b
+                .transaction_traces
+                .iter()
+                .map(|t| eth::Call {
+                    state_reverted: false,
+                    ..t.calls[0].clone()
+                })
+                .collect();
+            b.transaction_traces.clear();
+            let events = project(&b, &cfg).unwrap();
+            assert_eq!(events.epochs.len(), transitions.len());
+            assert!(events
+                .epochs
+                .iter()
+                .all(|e| e.scope == pb::Scope::SystemCall as i32 && e.transaction_hash.is_empty()));
+        }
+        // True noops participate in ordering/continuity validation like every other pointer write.
+        for (second_old, ordinal, error) in [(w(2), 10, "ambiguous"), (w(3), 11, "discontinuous")] {
+            let mut b = block(10);
+            b.transaction_traces = vec![tx(eth::Call {
+                storage_changes: vec![write(address, slot, expected, w(2), 10), write(address, slot, second_old, second_old, ordinal)],
+                ..Default::default()
+            })];
+            let actual = project(&b, &cfg).unwrap_err().to_string();
+            assert!(actual.contains(error) && actual.contains(&hex::encode(address)) && actual.contains(&hex::encode(slot)));
+        }
+    }
+    // Ordinary holder, total-supply and reserve-word noops remain suppressed.
+    let Model::AaveStaticAToken { reserve_base, .. } = &vault.model else {
+        panic!()
+    };
+    let mut call = shares_call(vault, &[4; 20], 5, 5, 10);
+    call.storage_changes.extend([
+        write(&vault.vault, vault.total_supply_slot, w(9), w(9), 11),
+        write(pool, add_offset(reserve_base, 1), w(12), w(12), 12),
+    ]);
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(call)];
+    let events = project(&b, &cfg).unwrap();
+    assert!(events.epochs.is_empty() && events.holder_basis.is_empty() && events.global_state.is_empty());
+}
+
+#[test]
+fn pointer_guards_attribute_shared_pool_and_direct_vault_writes_deterministically() {
+    use prost::Message;
+    let mut raw: serde_json::Value = serde_json::from_str(BSC).unwrap();
+    let mut other = raw["vaults"][0].clone();
+    other["vault"] = format!("0x{}", hex::encode([0x33; 20])).into();
+    other["epoch"] = 2.into();
+    raw["vaults"].as_array_mut().unwrap().push(other);
+    let cfg = parse(&raw.to_string()).unwrap();
+    let first = &cfg.vaults[0];
+    let second = &cfg.vaults[1];
+    let Model::AaveStaticAToken {
+        pool,
+        implementation_slot: Some(slot),
+        ..
+    } = &first.model
+    else {
+        panic!()
+    };
+    let mut b = block(10);
+    b.transaction_traces = vec![
+        tx(eth::Call {
+            storage_changes: vec![write(pool, *slot, w(1), w(1), 10)],
+            ..Default::default()
+        }),
+        tx(eth::Call {
+            storage_changes: vec![
+                write(&first.vault, first.implementation_slot.unwrap(), w(1), w(2), 20),
+                write(&first.vault, first.implementation_slot.unwrap(), w(2), w(1), 30),
+            ],
+            ..Default::default()
+        }),
+    ];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), 4);
+    assert_eq!(events.epochs.iter().filter(|e| e.market == first.vault && e.epoch == first.epoch).count(), 3);
+    let second_rows: Vec<_> = events.epochs.iter().filter(|e| e.market == second.vault).collect();
+    assert_eq!(second_rows.len(), 1);
+    assert_eq!(
+        (second_rows[0].epoch, second_rows[0].reason),
+        (2, pb::InvalidationReason::DependencyPointerWrite as i32)
+    );
+    b.transaction_traces.reverse();
+    for t in &mut b.transaction_traces {
+        t.calls[0].storage_changes.reverse();
+    }
+    assert_eq!(events.encode_to_vec(), project(&b, &cfg).unwrap().encode_to_vec());
+}
+
+#[test]
+fn an_openzeppelin_initializing_block_is_reviewed_and_rebinding_the_asset_invalidates() {
+    let cfg = mainnet();
+    let oz = cfg.vaults[1].clone();
+    let Model::OzVirtualOffset { erc4626_storage_slot, .. } = oz.model.clone() else {
+        panic!()
+    };
+    let erc4626_slot = erc4626_storage_slot.expect("the fixture binds the ERC4626Storage namespace slot");
+    // `__ERC20_init_unchained` writes `_name` (+3) and `_symbol` (+4) of the
+    // openzeppelin.storage.ERC20 namespace; `__ERC4626_init_unchained` writes
+    // `_asset` and `_underlyingDecimals`, which share the ERC4626 namespace word.
+    let name_slot = add_offset(&oz.balances_slot, 3);
+    let symbol_slot = add_offset(&oz.balances_slot, 4);
+    assert!(oz.other_slots.contains(&name_slot) && oz.other_slots.contains(&symbol_slot));
+    let mut asset_word = [0u8; 32];
+    asset_word[12..].copy_from_slice(&oz.asset);
+    asset_word[11] = 6; // _underlyingDecimals packed above the address
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: oz.vault.clone(),
+        storage_changes: vec![
+            write(&oz.vault, name_slot, w(0), w(0x6161), 10),
+            write(&oz.vault, symbol_slot, w(0), w(0x6262), 11),
+            write(&oz.vault, oz.total_supply_slot, w(0), w(1_000), 12),
+            write(&oz.vault, erc4626_slot, [0; 32], asset_word, 13),
+        ],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    // The metadata writes are reviewed, the supply is carried, and rebinding
+    // the asset invalidates the epoch with evidence instead of failing.
+    assert_eq!(
+        fields(&events, &oz.vault),
+        vec![(pb::StateField::Erc4626TotalSupply as i32, "0".into(), "1000".into(), 1)]
+    );
+    let invalidations: Vec<_> = events.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
+    assert_eq!(invalidations.len(), 1);
+    assert_eq!(
+        (invalidations[0].reason, &invalidations[0].evidence_slot, &invalidations[0].evidence_word),
+        (
+            pb::InvalidationReason::DependencyPointerWrite as i32,
+            &erc4626_slot.to_vec(),
+            &asset_word.to_vec()
+        )
+    );
+    // Without the binding the same block fails closed, which is the defect
+    // this test pins: every initializing or reinitializing block was refused.
+    let mut v: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+    v["vaults"][1]["oz"].as_object_mut().unwrap().remove("erc4626_storage_slot");
+    v["vaults"][1]["other_slots"] = serde_json::json!([]);
+    let unbound = parse(&v.to_string()).unwrap();
+    assert!(project(&b, &unbound).unwrap_err().to_string().contains("unresolved"));
+    // The bound slot may not collide with a decoded one.
+    let mut v: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+    v["vaults"][1]["oz"]["erc4626_storage_slot"] = v["vaults"][1]["total_supply_slot"].clone();
+    assert!(parse(&v.to_string()).unwrap_err().to_string().contains("overlap"));
 }

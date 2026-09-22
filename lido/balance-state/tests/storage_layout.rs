@@ -61,7 +61,15 @@ fn regular_storage_of_the_linearized_lido_chain_matches_the_fixture() {
 fn every_unstructured_position_constant_is_configured_or_reviewed() {
     let e = parse(FIXTURE).unwrap().epochs[0].clone();
     let doc: Value = serde_json::from_str(LAYOUT).unwrap();
-    let mut configured: BTreeSet<[u8; 32]> = [e.total_and_external_shares_slot, e.buffered_slot, e.cl_slot, e.contract_version_slot].into();
+    let mut configured: BTreeSet<[u8; 32]> = [
+        e.total_and_external_shares_slot,
+        e.buffered_slot,
+        e.cl_slot,
+        e.contract_version_slot,
+        e.aragon.kernel_slot,
+        e.aragon.app_id_slot,
+    ]
+    .into();
     configured.extend(e.other_slots.iter().copied());
     let mut positions = 0;
     for c in doc["bytes32_constants"].as_array().unwrap() {

@@ -64,7 +64,7 @@ The pinned Rust toolchain includes the WASM target. Building packages also
 requires the Substreams CLI.
 
 ```sh
-cargo test --workspace --lib --bins --locked
+cargo test --workspace --lib --bins --tests --locked
 make -C erc20/balances pack
 ```
 

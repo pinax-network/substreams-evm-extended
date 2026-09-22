@@ -52,3 +52,8 @@ required before using it.
 
 The original audit and Rust helper files remain under
 `out/role-width-audit` and `out/next-candidate-rust-scripts/role-width-audit`.
+
+A subsequent [bounded candidate migration](role-path-candidates.md) replaces
+the legacy role widths for Token and CYS in a separate two-profile fixture,
+with source bindings, refusal tests and a full saved-window replay. The
+published baseline and the other reviewed profiles remain unchanged.

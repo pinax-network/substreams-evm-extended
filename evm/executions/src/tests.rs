@@ -208,6 +208,138 @@ fn receipt_disagreement_fails_closed() {
 }
 
 #[test]
+fn captured_version_four_logs_reconcile_with_receipts() {
+    let b = eth::Block::decode(include_bytes!("../../../erc20/balances/tests/fixtures/hlbp-active/104727184.pb").as_slice()).unwrap();
+    assert_eq!(b.ver, 4);
+    let config = parse(r#"{"chain_id":56,"producer_versions":[4]}"#).unwrap();
+    let events = project(&b, &config).unwrap();
+    assert!(events.logs.iter().any(|log| log.persisted));
+    assert_eq!(
+        events.logs.iter().filter(|log| log.persisted).count(),
+        b.transaction_traces
+            .iter()
+            .filter_map(|tx| tx.receipt.as_ref())
+            .map(|r| r.logs.len())
+            .sum::<usize>()
+    );
+}
+
+#[test]
+fn receipt_validation_checks_every_log_field_even_when_log_output_is_disabled() {
+    let captured = eth::Block::decode(FULL_BLOCK).unwrap();
+    let tx_position = captured
+        .transaction_traces
+        .iter()
+        .position(|tx| tx.receipt.as_ref().is_some_and(|r| !r.logs.is_empty()))
+        .unwrap();
+    type Mutation = fn(&mut eth::Log);
+    let mutations: [(&str, Mutation); 7] = [
+        ("address", |l| l.address[0] ^= 1),
+        ("topic", |l| l.topics[0][0] ^= 1),
+        ("topic count", |l| {
+            l.topics.pop();
+        }),
+        ("data", |l| l.data.push(1)),
+        ("transaction log index", |l| l.index += 1),
+        ("block log index", |l| l.block_index += 1),
+        ("ordinal", |l| l.ordinal += 1),
+    ];
+    for params in [
+        r#"{"chain_id":56,"producer_versions":[5]}"#,
+        r#"{"chain_id":56,"producer_versions":[5],"include_calls":false,"include_logs":false}"#,
+    ] {
+        let config = parse(params).unwrap();
+        for (name, mutate) in mutations {
+            let mut tampered = captured.clone();
+            mutate(&mut tampered.transaction_traces[tx_position].receipt.as_mut().unwrap().logs[0]);
+            let error = project(&tampered, &config).unwrap_err().to_string();
+            assert!(error.contains("receipt logs disagree"), "{name}: {error}");
+            assert!(error.contains(&format!("transaction {} position 0", tampered.transaction_traces[tx_position].index)));
+        }
+    }
+    let mut reordered = captured.clone();
+    let receipt = reordered
+        .transaction_traces
+        .iter_mut()
+        .filter_map(|tx| tx.receipt.as_mut())
+        .find(|r| r.logs.len() > 1)
+        .unwrap();
+    receipt.logs.swap(0, 1);
+    assert!(project(&reordered, &config()).unwrap_err().to_string().contains("receipt logs disagree"));
+}
+
+#[test]
+fn receipt_validation_uses_canonical_trace_order_and_excludes_reverted_logs() {
+    let mut first = log(1, 1, 10);
+    first.index = 0;
+    let mut child = log(2, 2, 20);
+    child.index = 1;
+    child.block_index = 1;
+    let mut last = log(1, 1, 30);
+    last.index = 3; // The reverted log occupies an attempted index only.
+    last.block_index = 2;
+    let attempted = log(3, 1, 25);
+    let mut t = tx(vec![
+        eth::Call {
+            index: 1,
+            logs: vec![last.clone(), first.clone()],
+            ..Default::default()
+        },
+        eth::Call {
+            index: 2,
+            logs: vec![child.clone()],
+            ..Default::default()
+        },
+        eth::Call {
+            index: 3,
+            state_reverted: true,
+            logs: vec![attempted.clone()],
+            ..Default::default()
+        },
+    ]);
+    t.receipt.as_mut().unwrap().logs = vec![first, child, last];
+    let mut b = block();
+    b.transaction_traces = vec![t];
+    let expected = project(&b, &config()).unwrap();
+    assert_eq!(expected.logs.iter().filter(|l| l.persisted).count(), 3);
+    b.transaction_traces[0].calls.reverse();
+    assert_eq!(project(&b, &config()).unwrap(), expected);
+    b.transaction_traces[0].receipt.as_mut().unwrap().logs.insert(2, attempted);
+    assert!(project(&b, &config()).unwrap_err().to_string().contains("receipt logs disagree"));
+
+    for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
+        b.transaction_traces[0].status = status as i32;
+        b.transaction_traces[0].receipt.as_mut().unwrap().logs.clear();
+        assert!(project(&b, &config()).unwrap().logs.iter().all(|log| !log.persisted));
+    }
+}
+
+#[test]
+fn ambiguous_persisted_log_ordinals_are_rejected() {
+    for ordinal in [0, 10] {
+        let logs = vec![log(1, 1, 10), log(2, 1, ordinal)];
+        let mut b = block();
+        let mut t = tx(vec![eth::Call {
+            logs: logs.clone(),
+            ..Default::default()
+        }]);
+        t.receipt.as_mut().unwrap().logs = logs;
+        b.transaction_traces = vec![t];
+        assert!(project(&b, &config()).unwrap_err().to_string().contains("persisted log ordinals"));
+    }
+}
+
+#[test]
+fn only_reviewed_producer_versions_can_be_configured() {
+    for versions in ["[]", "[0]", "[-1]", "[3]", "[6]", "[999]", "[4,999]"] {
+        assert!(parse(&format!(r#"{{"chain_id":56,"producer_versions":{versions}}}"#)).is_err());
+    }
+    for versions in ["[4]", "[5]", "[4,5]"] {
+        assert!(parse(&format!(r#"{{"chain_id":56,"producer_versions":{versions}}}"#)).is_ok());
+    }
+}
+
+#[test]
 fn reverted_frames_system_calls_and_block_records_carry_their_scope_and_persistence() {
     let mut b = block();
     let mut t = tx(vec![

@@ -1,0 +1,30 @@
+{
+  "topic": "ERC-4626 offline arithmetic and underlying dependency corrections, 2026-09-21",
+  "facts": [
+    {
+      "key": "oz_fullprecision_checked_boundaries",
+      "value": "Conversion evaluates checked uint256 totalAssets+1, totalSupply+10**offset, then Math.mulDiv with a 512-bit product and bounded quotient. Ceil also checks the final increment. A product exceeding uint256 alone is not an overflow.",
+      "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/932fddf69a699a9a80fd2396fd1a2ab91cdda123/contracts/utils/math/Math.sol",
+      "source_pin": "OpenZeppelin/openzeppelin-contracts@932fddf69a699a9a80fd2396fd1a2ab91cdda123 contracts/utils/math/Math.sol; contracts/token/ERC20/extensions/ERC4626.sol",
+      "note": "conformance/fixtures/oz-v5-oracle.md records compiler/source/runtime hashes and the Rust-built offline source-execution oracle. The oracle executes inherited conversion methods without copying their formulas into a Solidity wrapper. This is not deployed-runtime qualification."
+    },
+    {
+      "key": "fiat_token_v2_2_balance_mask",
+      "value": "FiatTokenV2_2._balanceOf masks balanceAndBlacklistStates with (2**255)-1; bit 255 is blacklist state. The compiled inherited FiatTokenV1 layout places this mapping at slot 9.",
+      "source_url": "https://raw.githubusercontent.com/circlefin/stablecoin-evm/405efc100c016ed1a437063b6274b4e24ea7b8b1/contracts/v2/FiatTokenV2_2.sol",
+      "source_pin": "circlefin/stablecoin-evm@405efc100c016ed1a437063b6274b4e24ea7b8b1 contracts/v1/FiatTokenV1.sol; contracts/v2/FiatTokenV2_2.sol",
+      "note": "Existing compiler evidence docs/evidence/storage-layouts/fiat-token@v2.2.0.json is preserved. The OZ fixture explicitly selects fiat-token-v2_2-low255; another layout cannot inherit this decoder implicitly."
+    },
+    {
+      "key": "fiat_token_proxy_implementation",
+      "value": "UpgradeabilityProxy stores the implementation at keccak256(org.zeppelinos.proxy.implementation), 0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3. The bound asset implementation is a depth-2 storage-pointer dependency. Every persisted pointer write and code changes to the asset or bound implementation invalidate the vault epoch.",
+      "source_url": "https://raw.githubusercontent.com/circlefin/stablecoin-evm/405efc100c016ed1a437063b6274b4e24ea7b8b1/contracts/upgradeability/UpgradeabilityProxy.sol",
+      "source_pin": "circlefin/stablecoin-evm@405efc100c016ed1a437063b6274b4e24ea7b8b1 contracts/upgradeability/UpgradeabilityProxy.sol",
+      "note": "Synthetic fixture implementation 0x0000000000000000000000000000000000000022 is an explicit placeholder. Same-value SSTORE and change-and-restore writes are covered separately; reverted writes do not contribute. No claim is made about USDC's current runtime."
+    }
+  ],
+  "open_questions": [
+    "Deployed runtime hashes, actual implementation addresses and activation blocks require separate owner-authorized live qualification.",
+    "Static-aToken withdrawal eligibility and underlying liquidity are not emitted; extraction remains insufficient for self-contained maxWithdraw."
+  ]
+}

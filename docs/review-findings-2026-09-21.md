@@ -23,6 +23,34 @@ every written word, INVALIDATED rows instead of failing the block, constant cros
 versions 4/5 only, contextual reduce() messages, the int104-min negation refusal in `conformance::comet`,
 and the listed tests). The "balance-state consistency" PR then applied the sibling notes: unconditional decoded-field rows in `lido` and `erc4626`, producer versions 4/5 in every map crate, INVALIDATED rows in `aave/balance-state`, `blocks_per_year` pinned and `global_carryover = false` in `compound-v2`, contextual `reduce()` messages everywhere, and a shared hardening test per crate.
 
+### Hand review of the sibling crates (2026-09-22)
+
+The automated review of `compound-v2`, `lido`, `erc4626` and `common/retention`
+was launched twice and lost every agent to the account spend limit, so the
+maintainer reviewed the one dimension that had already produced a real defect
+in `compound-v3`: **which slots do routine operations write that the fixture
+does not cover?**
+
+Found and fixed (`erc4626`, high): the OpenZeppelin vault fixture covered only
+three of the five `openzeppelin.storage.ERC20` members and none of
+`openzeppelin.storage.ERC4626`. `__ERC20_init_unchained` writes `_name` (+3)
+and `_symbol` (+4) and `__ERC4626_init_unchained` writes the `ERC4626Storage`
+word (`_asset`, `_underlyingDecimals`), so any block that initializes or
+re-initializes an upgradeable vault was refused as `unresolved storage`. The
+metadata slots are now reviewed, the `ERC4626Storage` word is bound as an
+invalidating pointer (rebinding `_asset` changes what the vault converts into,
+so it must not be silently accepted either), and a layout test now asserts that
+every namespace member is decoded, reviewed or guarded.
+
+Checked and found correct: `compound-v2` and `lido` cannot have the same class
+of defect, because their `tests/storage_layout.rs` completeness assertions
+already require every compiled slot (cToken 0–18, JumpRateModelV2 0–4) and
+every Lido `*_POSITION` constant (16 of them) to be decoded or reviewed, and
+neither contract family uses storage outside those sets.
+
+The other three dimensions (pinned-source conformance, contract conformance,
+test adequacy) of those four crates remain unreviewed by an independent reader.
+
 Legend: severity is the reviewer's; "applies to siblings" is the maintainer's note on where the same pattern exists.
 
 

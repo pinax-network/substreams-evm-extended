@@ -13,6 +13,12 @@
       "source_pin": "lidofinance/core@2da0f48f1a2a103a394dcf8760810fe9165697fb (v4.0.1) contracts/0.4.24/StETH.sol, Lido.sol, utils/Versioned.sol, utils/UnstructuredStorageExt.sol; docs.lido.fi/deployed-contracts",
       "activation_block": 1,
       "implementation": "0x028271E30a695c0527A0C50cA30603feD004cDb0",
+      "aragon": {
+        "kernel": "0xb8FFC3Cd6e7Cf5a098A1c92F48009765B24088Dc",
+        "app_id": "0x3ca7c3e38968823ccb4c78ea688df41356f182ae1d159e4ee608d30d68cef320",
+        "kernel_implementation": "0x2b33CF282f867A7FF693A66e11B0FcC5552e4425",
+        "source_pin": "aragon/aragonOS@f3ae59b00f73984e562df00129c925339cd069ff (v4.4.0) contracts/apps/AppStorage.sol, AppProxyBase.sol, AppProxyUpgradeable.sol, contracts/kernel/KernelStorage.sol, KernelConstants.sol, KernelProxy.sol, Kernel.sol; lidofinance/core@2da0f48f1a2a103a394dcf8760810fe9165697fb deployed-mainnet.json"
+      },
       "shares_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "other_mapping_slots": [
         "0x0000000000000000000000000000000000000000000000000000000000000001",
@@ -35,8 +41,6 @@
       "accounting": "0x23ED611be0e1a820978875C0122F92260804cdDf",
       "other_slot_names": [
         "aragonOS.reentrancyGuard.mutex",
-        "aragonOS.appStorage.kernel",
-        "aragonOS.appStorage.appId",
         "aragonOS.initializable.initializationBlock",
         "lido.StETHPermit.eip712StETH"
       ]

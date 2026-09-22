@@ -18,8 +18,8 @@ the ERC-20 qualification tools, in the earlier
 | Origin | Meaning | Allowed when | Recorded as |
 | --- | --- | --- | --- |
 | **Complete history** | Every block since the token or market was created has been applied; every holder that ever received a balance has an emitted row | The stream started at or before the creation block and no gap occurred | `Origin::Observed` for every holder; `first_block` at or before creation |
-| **Deployment zero baseline** | EVM-initial storage of a token created inside the applied range is zero for every slot, so holders that cannot precede the creation start at a known `0` | Only after the map validated the pinned first `CREATE` of that exact address (code hash, source binding), never for a pre-existing token | `Origin::DeploymentZero { block }`; the ERC-20 tools distinguish this from an RPC checkpoint (`deployment_holder_baseline_is_distinct_from_an_rpc_checkpoint`) |
-| **Verified checkpoint** | An independently produced snapshot at the block immediately before the first applied block, with its evidence reference | Values come from a host-side qualification tool (RPC allowed on the host, `eth_call balanceOf` at the checkpoint hash) or a previously published, hash-bound sink state; the checkpoint block must equal `first_block - 1` and its hash must be the first block's parent | `Origin::Checkpoint { block, evidence }` |
+| **Deployment zero baseline** | EVM-initial storage of a token created inside the applied range is zero for every slot, so holders that cannot precede the creation start at a known `0` | Only after the map validated the pinned first `CREATE` of that exact address (code hash, source binding), never for a pre-existing token | `Origin::DeploymentZero { block, hash }`; the ERC-20 tools distinguish this from an RPC checkpoint (`deployment_holder_baseline_is_distinct_from_an_rpc_checkpoint`) |
+| **Verified checkpoint** | An independently produced snapshot at the block immediately before the first applied block, with its evidence reference | Values come from a host-side qualification tool (RPC allowed on the host, `eth_call balanceOf` at the checkpoint hash) or a previously published, hash-bound sink state; the checkpoint block must equal `first_block - 1` and its hash must be the first block's parent | `Origin::Checkpoint { block, hash, evidence }` |
 
 Anything else is **unknown**. In particular:
 
@@ -30,6 +30,16 @@ Anything else is **unknown**. In particular:
   is rejected by the ERC-20 tools (`known_checkpoint_amount` returns nothing);
   a deployment baseline for a token that already has state is rejected by
   both ledgers.
+- `seed_checkpoint` accepts an explicit 32-byte hash in addition to the
+  height and evidence reference. Every seed must share that identity; the
+  first applied block must extend it. A hash written only in an evidence
+  filename is insufficient.
+- `seed_deployment_zero` accepts the full creation `Clock` immediately after
+  that exact block was applied and before the next block. Its retained undo
+  journal is required (`undo_depth` must be nonzero). The seeds are journaled
+  as creation-block effects, so undoing creation makes those holders unknown
+  again. The caller still supplies independently qualified creation evidence;
+  accepting a clock alone does not prove contract creation.
 - Passive state (Aave index, Comet base indices, cToken exchange-rate inputs,
   stETH `totalShares`/`totalPooledEther`) is initialized the same way. A
   holder basis without the market's global words is not evaluable; the
@@ -67,7 +77,12 @@ with synthetic rows, and by saved-data replays where noted:
   hash. A block whose number is not `last + 1` is a gap and a block whose
   parent hash differs from the retained hash is a fork; both are refused. The
   maps emit exactly one `BlockClock` per block for this purpose and the
-  `evm.balance_state.v1` clock must match the applied block.
+  `evm.balance_state.v1` number, hash and parent hash must match the applied
+  block.
+- **Atomic application.** Every holder row and epoch kind is validated
+  before changing retained entries, suspensions, clocks, counters or the
+  undo journal. A refused block has no effect and can be retried after its
+  cause is resolved. Unsupported contracts are refused by both row APIs.
 - **Undo.** Forks are resolved by `undo(to_number)`, which restores the exact
   prior entries and suspensions from a journal bounded by `undo_depth`. An
   undo beyond the journal fails; the consumer then re-initializes from a

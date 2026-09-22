@@ -130,7 +130,35 @@ pub struct OzConfig {
     /// Base slot of the asset's balances mapping; `totalAssets()` is
     /// `asset.balanceOf(vault)` in the OpenZeppelin base.
     pub asset_balances_slot: String,
+    pub asset_balance_model: AssetBalanceModel,
+    pub asset_source_pin: String,
+    #[serde(default)]
+    pub asset_implementation_slot: Option<String>,
+    #[serde(default)]
+    pub asset_implementation: Option<String>,
+    /// ERC-7201 `openzeppelin.storage.ERC4626` slot on the vault, holding
+    /// `_asset` and `_underlyingDecimals` in one word. A persisted write
+    /// rebinds the asset this model converts into, so it invalidates.
+    #[serde(default)]
+    pub erc4626_storage_slot: Option<String>,
     pub decimals_offset: u8,
+}
+/// Only independently reviewed `balanceOf` decoders are admitted. A slot
+/// number alone cannot establish the meaning of its packed storage word.
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum AssetBalanceModel {
+    Uint256,
+    #[serde(rename = "fiat-token-v2_2-low255")]
+    FiatTokenV2_2Low255,
+}
+impl AssetBalanceModel {
+    pub fn value_bits(self) -> u32 {
+        match self {
+            Self::Uint256 => 256,
+            Self::FiatTokenV2_2Low255 => 255,
+        }
+    }
 }
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -179,6 +207,11 @@ pub enum Model {
     },
     OzVirtualOffset {
         asset_balance_key: [u8; 32],
+        asset_balance_model: AssetBalanceModel,
+        asset_source_pin: String,
+        asset_implementation_slot: Option<[u8; 32]>,
+        asset_implementation: Option<Vec<u8>>,
+        erc4626_storage_slot: Option<[u8; 32]>,
         decimals_offset: u8,
     },
 }
@@ -204,6 +237,27 @@ impl Vault {
     fn family(&self) -> pb::ModelFamily {
         pb::ModelFamily::Erc4626Vault
     }
+    /// All emitted STORAGE_POINTER edges share the same any-write invariant.
+    fn pointer_reason(&self, address: &[u8], key: &[u8; 32]) -> Option<pb::InvalidationReason> {
+        if address == self.vault && Some(*key) == self.implementation_slot {
+            return Some(pb::InvalidationReason::ImplementationPointerWrite);
+        }
+        let dependency_pointer = match &self.model {
+            Model::AaveStaticAToken { pool, implementation_slot, .. } => address == pool && Some(*key) == *implementation_slot,
+            Model::OzVirtualOffset {
+                asset_implementation_slot,
+                erc4626_storage_slot,
+                ..
+            } => {
+                (address == self.asset && Some(*key) == *asset_implementation_slot)
+                    // `_asset` and `_underlyingDecimals` share this word; a
+                    // write rebinds what the vault converts into.
+                    || (address == self.vault && Some(*key) == *erc4626_storage_slot)
+            }
+            Model::MakerSavingsDai { .. } => false,
+        };
+        dependency_pointer.then_some(pb::InvalidationReason::DependencyPointerWrite)
+    }
     /// Contracts whose code changes invalidate the epoch besides the vault.
     fn dependencies(&self) -> Vec<Vec<u8>> {
         let mut out = vec![self.asset.clone()];
@@ -217,7 +271,7 @@ impl Vault {
                 out.push(atoken.clone());
             }
             Model::MakerSavingsDai { pot, .. } => out.push(pot.clone()),
-            Model::OzVirtualOffset { .. } => {}
+            Model::OzVirtualOffset { asset_implementation, .. } => out.extend(asset_implementation.clone()),
         }
         out
     }
@@ -262,6 +316,19 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             },
             ("oz-virtual-offset", None, None, Some(o)) => Model::OzVirtualOffset {
                 asset_balance_key: mapping_key(&vault, &slot(&o.asset_balances_slot, "oz.asset_balances_slot")?),
+                asset_balance_model: o.asset_balance_model,
+                asset_source_pin: o.asset_source_pin.clone(),
+                asset_implementation_slot: o
+                    .asset_implementation_slot
+                    .as_deref()
+                    .map(|s| slot(s, "oz.asset_implementation_slot"))
+                    .transpose()?,
+                asset_implementation: o
+                    .asset_implementation
+                    .as_deref()
+                    .map(|s| hex_bytes(s, 20, "oz.asset_implementation"))
+                    .transpose()?,
+                erc4626_storage_slot: o.erc4626_storage_slot.as_deref().map(|s| slot(s, "oz.erc4626_storage_slot")).transpose()?,
                 decimals_offset: o.decimals_offset,
             },
             (model, ..) => return Err(Error::msg(format!("model `{model}` does not match its dependency block"))),
@@ -282,6 +349,28 @@ pub fn parse(params: &str) -> Result<Config, Error> {
         } = &model
         {
             require(dsr_slot != chi_slot && chi_slot != rho_slot && dsr_slot != rho_slot, "pot slots overlap")?;
+        }
+        if let Model::OzVirtualOffset {
+            asset_balance_key,
+            asset_source_pin,
+            asset_implementation_slot,
+            asset_implementation,
+            decimals_offset,
+            ..
+        } = &model
+        {
+            require(!asset_source_pin.trim().is_empty(), "oz.asset_source_pin required")?;
+            require(
+                asset_implementation_slot.is_some() == asset_implementation.is_some(),
+                "oz asset implementation slot and address go together",
+            )?;
+            require(asset_implementation_slot.as_ref() != Some(asset_balance_key), "oz asset slots overlap")?;
+            require(asset != vault, "oz asset must differ from vault")?;
+            require(*decimals_offset <= 77, "oz decimals_offset overflows uint256 virtual shares")?;
+            require(
+                v.asset_decimals <= 255 && v.vault_decimals <= 255 && v.asset_decimals.checked_add(u32::from(*decimals_offset)) == Some(v.vault_decimals),
+                "oz vault_decimals must equal asset_decimals plus decimals_offset within uint8",
+            )?;
         }
         require(
             v.implementation_slot.is_some() == v.implementation.is_some(),
@@ -308,6 +397,9 @@ pub fn parse(params: &str) -> Result<Config, Error> {
         all.extend(out.implementation_slot);
         all.extend(out.other_slots.iter().copied());
         all.extend(out.other_mapping_slots.iter().copied());
+        if let Model::OzVirtualOffset { erc4626_storage_slot, .. } = &out.model {
+            all.extend(*erc4626_storage_slot);
+        }
         require(all.iter().collect::<BTreeSet<_>>().len() == all.len(), "vault slots overlap")?;
         require(vaults.iter().all(|o| o.vault != out.vault), "duplicate vault")?;
         vaults.push(out);
@@ -350,25 +442,37 @@ struct CodeChanged {
 #[derive(Default)]
 struct Collected {
     writes: Vec<Change>,
+    noop_writes: Vec<Change>,
     codes: Vec<CodeChanged>,
     errors: usize,
 }
-impl persist::Sink for Collected {
-    fn storage(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+impl Collected {
+    fn storage_change(&mut self, c: &eth::StorageChange, ctx: persist::Ctx, noop: bool) {
         match (word(&c.key), word(&c.old_value), word(&c.new_value)) {
-            (Ok(key), Ok(old), Ok(new)) => self.writes.push(Change {
-                address: c.address.clone(),
-                key,
-                old,
-                new,
-                ordinal: c.ordinal,
-                scope: ctx.scope,
-                tx_hash: ctx.tx_hash.to_vec(),
-                tx_index: ctx.tx_index,
-                call_index: ctx.call_index,
-            }),
+            (Ok(key), Ok(old), Ok(new)) => {
+                let destination = if noop { &mut self.noop_writes } else { &mut self.writes };
+                destination.push(Change {
+                    address: c.address.clone(),
+                    key,
+                    old,
+                    new,
+                    ordinal: c.ordinal,
+                    scope: ctx.scope,
+                    tx_hash: ctx.tx_hash.to_vec(),
+                    tx_index: ctx.tx_index,
+                    call_index: ctx.call_index,
+                });
+            }
             _ => self.errors += 1,
         }
+    }
+}
+impl persist::Sink for Collected {
+    fn storage(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+        self.storage_change(c, ctx, false);
+    }
+    fn storage_noop(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+        self.storage_change(c, ctx, true);
     }
     fn balance(&mut self, _: &eth::BalanceChange, _: persist::Ctx) {}
     fn nonce(&mut self, _: &eth::NonceChange, _: persist::Ctx) {}
@@ -564,7 +668,7 @@ fn epoch_row(config: &Config, vault: &Vault, kind: pb::EpochEventKind) -> pb::Mo
         ..Default::default()
     }
 }
-fn invalidation(config: &Config, vault: &Vault, reason: pb::InvalidationReason, r: &Reduced) -> pb::ModelEpoch {
+fn invalidation(config: &Config, vault: &Vault, reason: pb::InvalidationReason, r: &Change) -> pb::ModelEpoch {
     pb::ModelEpoch {
         reason: reason as i32,
         scope: scope_of(r.scope) as i32,
@@ -637,13 +741,30 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             }
         }
         let watched = |a: &[u8]| active.iter().any(|v| a == v.vault || v.dependencies().iter().any(|d| d == a));
-        let writes: Vec<Change> = collected.writes.into_iter().filter(|w| watched(&w.address)).collect();
-        for r in reduce(writes)? {
+        let mut writes: Vec<Change> = collected.writes.into_iter().filter(|w| watched(&w.address)).collect();
+        // The canonical StoragePointer contract invalidates on *any* persisted
+        // write, even the same address. Normal balance noops remain suppressed.
+        writes.extend(
+            collected
+                .noop_writes
+                .into_iter()
+                .filter(|w| active.iter().any(|vault| vault.pointer_reason(&w.address, &w.key).is_some())),
+        );
+        let reduced = reduce(writes.clone())?;
+        // Keep each implementation transition as evidence, including an
+        // upgrade followed by restoration before this block ends. Reducing
+        // first would preserve the invalidation but erase the changed target.
+        for w in &writes {
+            for vault in &active {
+                if let Some(reason) = vault.pointer_reason(&w.address, &w.key) {
+                    events.epochs.push(invalidation(config, vault, reason, w));
+                }
+            }
+        }
+        for r in reduced {
             for vault in active.iter().filter(|v| r.address == v.vault) {
-                if Some(r.key) == vault.implementation_slot {
-                    events
-                        .epochs
-                        .push(invalidation(config, vault, pb::InvalidationReason::ImplementationPointerWrite, &r));
+                if vault.pointer_reason(&r.address, &r.key).is_some() {
+                    // Every pointer write was invalidated before reduction.
                 } else if r.key == vault.total_supply_slot {
                     events.global_state.push(field_row(
                         config,
@@ -707,9 +828,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                         ..
                     } if r.address == *pool => {
                         if Some(r.key) == *implementation_slot {
-                            events
-                                .epochs
-                                .push(invalidation(config, vault, pb::InvalidationReason::DependencyPointerWrite, &r));
+                            // Every pointer write was invalidated before reduction.
                         } else if r.key == add_offset(reserve_base, 1) {
                             for (field, offset, width) in [
                                 (pb::StateField::AaveLiquidityIndex, 0, 128),
@@ -774,19 +893,28 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                             ));
                         }
                     }
-                    Model::OzVirtualOffset { asset_balance_key, .. } if r.address == vault.asset && r.key == *asset_balance_key => {
-                        events.global_state.push(field_row(
-                            config,
-                            vault,
-                            &r,
-                            Field {
-                                field: pb::StateField::Erc4626TotalAssets,
-                                offset: 0,
-                                width: 256,
-                                scale: "1",
-                                key: vault.vault.clone(),
-                            },
-                        ));
+                    Model::OzVirtualOffset {
+                        asset_balance_key,
+                        asset_balance_model,
+                        asset_implementation_slot,
+                        ..
+                    } if r.address == vault.asset => {
+                        if Some(r.key) == *asset_implementation_slot {
+                            // Each transition was invalidated before reduction.
+                        } else if r.key == *asset_balance_key {
+                            events.global_state.push(field_row(
+                                config,
+                                vault,
+                                &r,
+                                Field {
+                                    field: pb::StateField::Erc4626TotalAssets,
+                                    offset: 0,
+                                    width: asset_balance_model.value_bits(),
+                                    scale: "1",
+                                    key: vault.vault.clone(),
+                                },
+                            ));
+                        }
                     }
                     _ => {}
                 }
@@ -834,9 +962,11 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     &slot,
                 )?);
             }
-            events
-                .dependencies
-                .push(dependency(config, vault, kind, pb::DependencyRole::Underlying, &vault.asset));
+            let mut underlying = dependency(config, vault, kind, pb::DependencyRole::Underlying, &vault.asset);
+            if let Model::OzVirtualOffset { asset_source_pin, .. } = &vault.model {
+                underlying.source_pin = asset_source_pin.clone();
+            }
+            events.dependencies.push(underlying);
             match &vault.model {
                 Model::AaveStaticAToken {
                     pool,
@@ -860,19 +990,35 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 Model::MakerSavingsDai { pot, .. } => events
                     .dependencies
                     .push(dependency(config, vault, kind, pb::DependencyRole::RateAccumulator, pot)),
-                Model::OzVirtualOffset { decimals_offset, .. } => events.global_state.push(pb::GlobalState {
-                    chain_id: config.chain_id,
-                    market: vault.vault.clone(),
-                    epoch: vault.epoch,
-                    field: pb::StateField::Erc4626DecimalsOffset as i32,
-                    value: decimals_offset.to_string(),
-                    scale: "1".into(),
-                    observation: pb::Observation::QualifiedConstant as i32,
-                    boundary: pb::Boundary::Declaration as i32,
-                    scope: pb::Scope::Epoch as i32,
-                    storage_contract: vault.vault.clone(),
-                    ..Default::default()
-                }),
+                Model::OzVirtualOffset {
+                    decimals_offset,
+                    asset_source_pin,
+                    asset_implementation_slot,
+                    asset_implementation,
+                    ..
+                } => {
+                    if let (Some(implementation), Some(slot)) = (asset_implementation, asset_implementation_slot) {
+                        events.dependencies.push(pb::Dependency {
+                            depth: 2,
+                            parent: vault.asset.clone(),
+                            source_pin: asset_source_pin.clone(),
+                            ..pointer(config, vault, kind, pb::DependencyRole::Implementation, implementation, &vault.asset, slot)?
+                        });
+                    }
+                    events.global_state.push(pb::GlobalState {
+                        chain_id: config.chain_id,
+                        market: vault.vault.clone(),
+                        epoch: vault.epoch,
+                        field: pb::StateField::Erc4626DecimalsOffset as i32,
+                        value: decimals_offset.to_string(),
+                        scale: "1".into(),
+                        observation: pb::Observation::QualifiedConstant as i32,
+                        boundary: pb::Boundary::Declaration as i32,
+                        scope: pb::Scope::Epoch as i32,
+                        storage_contract: vault.vault.clone(),
+                        ..Default::default()
+                    });
+                }
             }
         }
     }

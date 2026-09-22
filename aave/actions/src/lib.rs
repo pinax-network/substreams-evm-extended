@@ -89,8 +89,8 @@ pub fn parse(params: &str) -> Result<Config, Error> {
     let raw: Params = serde_json::from_str(params).map_err(|e| Error::msg(format!("invalid aave actions params: {e}")))?;
     require(raw.chain_id > 0, "chain_id required")?;
     require(
-        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| *v > 0),
-        "qualified producer versions required",
+        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| matches!(v, 4 | 5)),
+        "producer_versions must be a nonempty subset of the reviewed Extended versions 4 and 5",
     )?;
     let mut pools = Vec::new();
     for p in &raw.pools {

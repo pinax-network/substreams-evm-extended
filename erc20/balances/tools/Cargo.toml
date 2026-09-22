@@ -19,6 +19,8 @@ serde_json = "1"
 sha2 = "0.10"
 ureq = { version = "2.12", default-features = false, features = ["tls", "json"] }
 erc20-balances = { path = ".." }
+evm-retention = { path = "../../../common/retention" }
+proto = { path = "../../../proto" }
 prost = { workspace = true }
 substreams-ethereum = { workspace = true }
 

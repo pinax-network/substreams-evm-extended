@@ -1,5 +1,12 @@
 # Session handoff (2026-09-21): roadmap state, evidence, and how to continue
 
+The subsequent [offline issue-audit remediation](audit-remediation-2026-09-21.md)
+tracks retention correctness, executed layout tests, ERC-4626 arithmetic and
+asset bindings, Aragon upgrade guards, execution receipt validation and a
+bounded legacy-profile candidate migration. Consult that record for the
+follow-up implementation and validation; the historical evidence below keeps
+its original scope.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and
@@ -119,14 +126,37 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
 6. `conformance::comet`: **done** (int104-min negation refused; exact rates
    on both sides of the kink and at the market's utilization; exact indices
    after 3600 s and one year; uint64 overflow arms).
-7. Tests listed in the findings: **done for `compound-v3`** (14 tests) and
-   the shared subset (producer versions, delegatecall frame shape, FAILED and
-   REVERTED transactions, pre-activation blocks, contextual reduce()
-   diagnostics, determinism under permutation) **in `compound-v2`, `lido`,
-   `erc4626` and `aave`**. Not yet mirrored in the siblings: the full
+7. Tests listed in the findings: **done everywhere.** `compound-v3` has 14
+   tests; the shared subset (producer versions, delegatecall frame shape,
+   FAILED and REVERTED transactions, pre-activation blocks, contextual
+   `reduce()` diagnostics, determinism under permutation) and then the full
    `validate_block` refusal table, same-block provenance and multi-market
-   attribution tests.
+   attribution were mirrored into `compound-v2`, `lido`, `erc4626` and
+   `aave`.
 8. Re-run the review for `compound-v2`, `lido`, `erc4626`, `common/retention`.
+   **Still not done, and now blocked twice.** A second workflow (16 finders,
+   no verifiers) was launched on 2026-09-21 and every one of its 16 agents
+   died on the account spend limit, so those four crates have never been
+   reviewed by an independent reader. Their fixes so far came from applying
+   the `compound-v3` findings by analogy, not from evidence about them. When
+   credit is available, re-run
+   `workflows/scripts/review-remaining-balance-state-crates-wf_2c8ed0bb-fb7.js`
+   (run id `wf_2c8ed0bb-fb7`, nothing cached) or review by hand with the four
+   dimensions above. Treat this as the highest-value open item: the one crate
+   that *was* reviewed turned out to have a defect that would have failed
+   every real block.
+
+### Open pull request with mixed provenance
+
+[PR #46](https://github.com/pinax-network/substreams-evm-extended/pull/46) is
+open and **deliberately unmerged**. It preserves the offline issue-audit
+remediation (authored by a concurrent session in this same working tree; see
+[`audit-remediation-2026-09-21.md`](audit-remediation-2026-09-21.md)) together
+with the sibling-crate refusal tests, because the two touch the same files and
+were both uncommitted. It is green on every check. Whoever picks this up should
+review it or hand it back to the authoring session; note that it changes the
+`common/retention` host API (`seed_checkpoint` and `seed_deployment_zero` now
+require explicit identities).
 
 ## 5. Facts learned that are not written anywhere else
 

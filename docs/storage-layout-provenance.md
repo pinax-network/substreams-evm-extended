@@ -79,7 +79,7 @@ qualification.
 | 8 … 12 | `_aToken`, `_aTokenUnderlying`, `_rewardTokens`, `_startIndex`, `_userRewardsData` | compiler-verified | |
 | SavingsDai 0 … 3 | `totalSupply`, `balanceOf`, `allowance`, `nonces` | compiler-verified | `solc 0.8.17` ([layout](evidence/storage-layouts/sdai@66587976.json)) |
 | Pot 0 … 8 | `wards`, `pie`, `Pie`, `dsr`, `chi`, `vat`, `vow`, `rho`, `live` | compiler-verified | `solc 0.6.12` ([layout](evidence/storage-layouts/dss-pot@fa4f6630.json)); dss master at capture, mainnet MCD_POT bytecode not bound |
-| `0x52c6…ce00` (+0, +1, +2) | ERC-7201 `openzeppelin.storage.ERC20`: `_balances`, `_allowances`, `_totalSupply` | standard + compiled constant | formula re-derived in the erc4626 tests and equal to `ERC20StorageLocation` in the pinned `ERC20Upgradeable.sol` ([evidence](evidence/storage-layouts/openzeppelin-upgradeable@v5.0.0.json)); the compiled harness has no regular storage |
+| `0x52c6…ce00` (+0, +1, +2) | ERC-7201 `openzeppelin.storage.ERC20`: `_balances`, `_allowances`, `_totalSupply` | standard + compiled constant | formula re-derived in the erc4626 tests and equal to `ERC20StorageLocation` in the pinned `ERC20Upgradeable.sol` ([evidence](evidence/storage-layouts/openzeppelin-upgradeable@v5.0.0.json)); the compiled harness has no regular storage. All five members are covered: `_name` (+3) and `_symbol` (+4) are reviewed, and the separate `openzeppelin.storage.ERC4626` word (`_asset`, `_underlyingDecimals`) is bound as an invalidating pointer |
 
 ## Compiler verification plan (offline, no RPC) — executed on 2026-09-21
 

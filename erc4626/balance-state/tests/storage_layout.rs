@@ -11,6 +11,7 @@ const STATA: &str = include_str!("../../../docs/evidence/storage-layouts/static-
 const SDAI: &str = include_str!("../../../docs/evidence/storage-layouts/sdai@66587976.json");
 const POT: &str = include_str!("../../../docs/evidence/storage-layouts/dss-pot@fa4f6630.json");
 const OZ: &str = include_str!("../../../docs/evidence/storage-layouts/openzeppelin-upgradeable@v5.0.0.json");
+const FIAT_TOKEN: &str = include_str!("../../../docs/evidence/storage-layouts/fiat-token@v2.2.0.json");
 const BSC: &str = include_str!("fixtures/bsc-stata-usdt-epoch.json");
 const MAINNET: &str = include_str!("fixtures/mainnet-sdai-and-oz-epochs.json");
 
@@ -107,4 +108,51 @@ fn openzeppelin_namespace_constants_match_the_fixture() {
     for (_, l) in doc["contracts"].as_object().unwrap() {
         assert!(l["storage"].as_array().unwrap().is_empty());
     }
+    // Every namespace member must be decoded, reviewed or guarded: `_name`
+    // (+3) and `_symbol` (+4) are written by `__ERC20_init_unchained`, and the
+    // ERC4626 namespace word (`_asset`, `_underlyingDecimals`) by
+    // `__ERC4626_init_unchained`, so an initializing block would otherwise be
+    // refused as unresolved storage.
+    let members = doc["namespaces"]["openzeppelin.storage.ERC20"]["members"].as_array().unwrap();
+    assert_eq!(members.len(), 5);
+    let decoded = [oz.balances_slot, add_offset(&base, 1), oz.total_supply_slot];
+    for (i, member) in members.iter().enumerate() {
+        let slot = add_offset(&base, i as u8);
+        let covered = decoded.contains(&slot) || oz.other_slots.contains(&slot) || oz.other_mapping_slots.contains(&slot);
+        assert!(covered, "ERC20 namespace member {member} (+{i}) is neither decoded nor reviewed");
+    }
+    let erc4626 = doc["namespaces"]["openzeppelin.storage.ERC4626"]["value"].as_str().unwrap();
+    let erc4626: [u8; 32] = hex::decode(&erc4626[2..]).unwrap().try_into().unwrap();
+    let Model::OzVirtualOffset { erc4626_storage_slot, .. } = cfg.vaults[1].model.clone() else {
+        panic!()
+    };
+    assert_eq!(erc4626_storage_slot, Some(erc4626));
+    assert_eq!(doc["namespaces"]["openzeppelin.storage.ERC4626"]["members"].as_array().unwrap().len(), 2);
+}
+
+#[test]
+fn usdc_asset_layout_and_proxy_slot_match_the_pinned_source() {
+    use erc4626_balance_state::{keccak, mapping_key, AssetBalanceModel};
+    let cfg = parse(MAINNET).unwrap();
+    let oz = &cfg.vaults[1];
+    let vars = slots(FIAT_TOKEN, "FiatTokenV2_2");
+    let Model::OzVirtualOffset {
+        asset_balance_key,
+        asset_balance_model,
+        asset_source_pin,
+        asset_implementation_slot,
+        asset_implementation,
+        ..
+    } = &oz.model
+    else {
+        panic!()
+    };
+    assert_eq!(*asset_balance_key, mapping_key(&oz.vault, &slot_of(&vars, "balanceAndBlacklistStates")));
+    assert_eq!(slot_of(&vars, "balanceAndBlacklistStates"), word(9));
+    assert_eq!(*asset_balance_model, AssetBalanceModel::FiatTokenV2_2Low255);
+    assert_eq!(asset_balance_model.value_bits(), 255);
+    assert_eq!(*asset_implementation_slot, Some(keccak(b"org.zeppelinos.proxy.implementation")));
+    assert!(asset_implementation.is_some());
+    assert!(asset_source_pin.contains("405efc100c016ed1a437063b6274b4e24ea7b8b1"));
+    assert!(asset_source_pin.contains("placeholder implementation"));
 }
