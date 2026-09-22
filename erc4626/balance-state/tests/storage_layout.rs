@@ -3,7 +3,7 @@
 //! SavingsDai (0.8.17), Pot (0.6.12) and the OpenZeppelin ERC-7201 namespace
 //! constants (v5.0.0). Host-only evidence check; not part of the map.
 #![cfg(not(target_arch = "wasm32"))]
-use erc4626_balance_state::{add_offset, parse, Model};
+use erc4626_balance_state::{add_offset, keccak, parse, Model};
 use serde_json::Value;
 use std::collections::BTreeSet;
 
@@ -15,7 +15,7 @@ const FIAT_TOKEN: &str = include_str!("../../../docs/evidence/storage-layouts/fi
 const BSC: &str = include_str!("fixtures/bsc-stata-usdt-epoch.json");
 const MAINNET: &str = include_str!("fixtures/mainnet-sdai-and-oz-epochs.json");
 
-fn slots(doc: &str, contract: &str) -> Vec<(String, u64)> {
+fn layout(doc: &str, contract: &str) -> Value {
     let doc: Value = serde_json::from_str(doc).unwrap();
     let (_, l) = doc["contracts"]
         .as_object()
@@ -23,12 +23,42 @@ fn slots(doc: &str, contract: &str) -> Vec<(String, u64)> {
         .iter()
         .find(|(k, _)| k.ends_with(&format!(":{contract}")))
         .unwrap_or_else(|| panic!("{contract} not in layout"));
-    l["storage"]
+    l.clone()
+}
+fn slots(doc: &str, contract: &str) -> Vec<(String, u64)> {
+    layout(doc, contract)["storage"]
         .as_array()
         .unwrap()
         .iter()
         .map(|s| (s["label"].as_str().unwrap().to_string(), s["slot"].as_str().unwrap().parse().unwrap()))
         .collect()
+}
+/// Slots whose data lives at `keccak256(slot) + i`: dynamic arrays and
+/// `bytes`/`string` (long values spill out of the root slot).
+fn dynamic_slots(doc: &str, contract: &str) -> BTreeSet<[u8; 32]> {
+    let l = layout(doc, contract);
+    l["storage"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|s| matches!(l["types"][s["type"].as_str().unwrap()]["encoding"].as_str(), Some("bytes" | "dynamic_array")))
+        .map(|s| word(s["slot"].as_str().unwrap().parse().unwrap()))
+        .collect()
+}
+/// ERC-7201: `keccak256(abi.encode(uint256(keccak256(id)) - 1)) & ~bytes32(uint256(0xff))`.
+fn erc7201(id: &str) -> [u8; 32] {
+    let mut h = keccak(id.as_bytes());
+    for byte in h.iter_mut().rev() {
+        if *byte == 0 {
+            *byte = 0xff;
+        } else {
+            *byte -= 1;
+            break;
+        }
+    }
+    let mut out = keccak(&h);
+    out[31] = 0;
+    out
 }
 fn word(slot: u64) -> [u8; 32] {
     let mut w = [0u8; 32];
@@ -50,13 +80,23 @@ fn static_atoken_fixture_matches_the_compiled_layout() {
         .map(|l| slot_of(&vars, l))
         .collect();
     assert_eq!(mappings, v.other_mapping_slots.iter().copied().collect());
-    let scalars: BTreeSet<[u8; 32]> = ["_initialized", "name", "symbol", "decimals", "_aToken", "_aTokenUnderlying", "_rewardTokens"]
+    let scalars: BTreeSet<[u8; 32]> = ["_initialized", "name", "symbol", "decimals", "_rewardTokens"]
         .iter()
         .map(|l| slot_of(&vars, l))
         .collect();
     assert_eq!(scalars, v.other_slots.iter().copied().collect());
+    // `_aToken` and `_aTokenUnderlying` select the reserve and are pointers.
+    let Model::AaveStaticAToken {
+        atoken_slot, underlying_slot, ..
+    } = v.model
+    else {
+        panic!()
+    };
+    assert_eq!((atoken_slot, underlying_slot), (slot_of(&vars, "_aToken"), slot_of(&vars, "_aTokenUnderlying")));
+    // Every dynamic area (`name`, `symbol`, `_rewardTokens`) is reviewed as such.
+    assert_eq!(dynamic_slots(STATA, "StaticATokenLM"), v.other_dynamic_slots.iter().copied().collect());
     let compiled: BTreeSet<[u8; 32]> = vars.iter().map(|(_, s)| word(*s)).collect();
-    let mut covered: BTreeSet<[u8; 32]> = [v.balances_slot, v.total_supply_slot].into();
+    let mut covered: BTreeSet<[u8; 32]> = [v.balances_slot, v.total_supply_slot, atoken_slot, underlying_slot].into();
     covered.extend(v.other_slots.iter().copied());
     covered.extend(v.other_mapping_slots.iter().copied());
     assert_eq!(compiled, covered);
@@ -77,6 +117,7 @@ fn savings_dai_and_pot_fixtures_match_the_compiled_layouts() {
     let mappings: BTreeSet<[u8; 32]> = ["allowance", "nonces"].iter().map(|l| slot_of(&vars, l)).collect();
     assert_eq!(mappings, sdai.other_mapping_slots.iter().copied().collect());
     assert_eq!(vars.len(), 4);
+    assert!(dynamic_slots(SDAI, "SavingsDai").is_empty() && sdai.other_dynamic_slots.is_empty());
     let Model::MakerSavingsDai {
         dsr_slot, chi_slot, rho_slot, ..
     } = sdai.model
@@ -126,8 +167,19 @@ fn openzeppelin_namespace_constants_match_the_fixture() {
     let Model::OzVirtualOffset { erc4626_storage_slot, .. } = cfg.vaults[1].model.clone() else {
         panic!()
     };
-    assert_eq!(erc4626_storage_slot, Some(erc4626));
+    assert_eq!(erc4626_storage_slot, erc4626);
     assert_eq!(doc["namespaces"]["openzeppelin.storage.ERC4626"]["members"].as_array().unwrap().len(), 2);
+    // `_name` and `_symbol` are strings: their data areas are reviewed too.
+    assert_eq!(oz.other_dynamic_slots, vec![add_offset(&base, 3), add_offset(&base, 4)]);
+    // The captured harness evidence lists two namespaces, but the compiled
+    // `Initializable` of the same commit keeps `_initialized`/`_initializing`
+    // in a third one, `INITIALIZABLE_STORAGE` (Initializable.sol:77), written
+    // by every `initializer` and `reinitializer`.
+    let initializable = erc7201("openzeppelin.storage.Initializable");
+    assert_eq!(hex::encode(initializable), "f0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00");
+    assert!(oz.other_slots.contains(&initializable));
+    assert_eq!(erc7201("openzeppelin.storage.ERC20"), base);
+    assert_eq!(erc7201("openzeppelin.storage.ERC4626"), erc4626);
 }
 
 #[test]

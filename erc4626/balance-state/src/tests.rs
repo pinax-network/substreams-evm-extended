@@ -126,6 +126,8 @@ fn aave_model_carries_the_pool_reserve_words_of_the_asset_and_its_pointers() {
         implementation_slot,
         implementation,
         atoken,
+        atoken_slot,
+        underlying_slot,
     } = v.model.clone()
     else {
         panic!()
@@ -174,18 +176,32 @@ fn aave_model_carries_the_pool_reserve_words_of_the_asset_and_its_pointers() {
     // Pool implementation pointer write and dependency code changes invalidate.
     b.transaction_traces = vec![tx(eth::Call {
         address: pool.clone(),
-        storage_changes: vec![write(&pool, implementation_slot.unwrap(), w(1), w(2), 10)],
+        storage_changes: vec![write(&pool, implementation_slot, w(1), w(2), 10)],
         ..Default::default()
     })];
     assert_eq!(
         project(&b, &cfg).unwrap().epochs[0].reason,
         pb::InvalidationReason::DependencyPointerWrite as i32
     );
+    // `_aToken` and `_aTokenUnderlying` select the reserve `rate()` reads:
+    // a write to either is a dependency pointer write, never reviewed storage.
+    for slot in [atoken_slot, underlying_slot] {
+        b.transaction_traces = vec![tx(eth::Call {
+            address: v.vault.clone(),
+            storage_changes: vec![write(&v.vault, slot, w(1), w(2), 10)],
+            ..Default::default()
+        })];
+        let events = project(&b, &cfg).unwrap();
+        assert_eq!(
+            (events.epochs.len(), events.epochs[0].reason, &events.epochs[0].evidence_slot),
+            (1, pb::InvalidationReason::DependencyPointerWrite as i32, &slot.to_vec())
+        );
+    }
     for (address, reason) in [
         (v.vault.clone(), pb::InvalidationReason::CodeChange),
         (v.implementation.clone().unwrap(), pb::InvalidationReason::CodeChange),
         (pool.clone(), pb::InvalidationReason::DependencyCodeChange),
-        (implementation.clone().unwrap(), pb::InvalidationReason::DependencyCodeChange),
+        (implementation.clone(), pb::InvalidationReason::DependencyCodeChange),
         (atoken.clone(), pb::InvalidationReason::DependencyCodeChange),
         (v.asset.clone(), pb::InvalidationReason::DependencyCodeChange),
     ] {
@@ -219,16 +235,35 @@ fn aave_model_carries_the_pool_reserve_words_of_the_asset_and_its_pointers() {
         vec![
             (1, pb::DependencyRole::Implementation as i32, pb::BindingKind::StoragePointer as i32),
             (1, pb::DependencyRole::Pool as i32, pb::BindingKind::Declared as i32),
-            (1, pb::DependencyRole::Underlying as i32, pb::BindingKind::Declared as i32),
-            (1, pb::DependencyRole::WrappedAsset as i32, pb::BindingKind::Declared as i32),
+            (1, pb::DependencyRole::Underlying as i32, pb::BindingKind::StoragePointer as i32),
+            (1, pb::DependencyRole::WrappedAsset as i32, pb::BindingKind::StoragePointer as i32),
             (2, pb::DependencyRole::Implementation as i32, pb::BindingKind::StoragePointer as i32),
         ]
     );
     assert_eq!(events.dependencies[4].parent, pool);
+    let pointers: Vec<(&[u8], &[u8], &[u8])> = events.dependencies[2..4]
+        .iter()
+        .map(|d| (d.pointer_contract.as_slice(), d.pointer_slot.as_slice(), &d.pointer_value[12..]))
+        .collect();
+    assert_eq!(
+        pointers,
+        vec![
+            (v.vault.as_slice(), underlying_slot.as_slice(), v.asset.as_slice()),
+            (v.vault.as_slice(), atoken_slot.as_slice(), atoken.as_slice()),
+        ]
+    );
+    // The evaluated balance is the underlying asset; the basis is shares.
     let e = &events.epochs[0];
     assert_eq!(
-        (e.family, e.basis_kind, &e.balance_asset, e.balance_decimals),
-        (pb::ModelFamily::Erc4626Vault as i32, pb::BasisKind::Shares as i32, &v.vault, 18)
+        (
+            e.family,
+            e.basis_kind,
+            &e.balance_asset,
+            e.balance_decimals,
+            &*e.basis_scale,
+            &*e.implementation_revision
+        ),
+        (pb::ModelFamily::Erc4626Vault as i32, pb::BasisKind::Shares as i32, &v.asset, 18, RAY, "2")
     );
     assert!(events.global_state.is_empty());
 }
@@ -370,7 +405,22 @@ fn reverts_ordering_versions_and_parameters_fail_closed() {
             serde_json::json!({"address":"0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7","dsr_slot":"0x03","chi_slot":"0x04","rho_slot":"0x07"})
     )
     .contains("exactly one"));
-    assert!(mutate(BSC, &|v| v["vaults"][0]["aave"]["implementation"] = serde_json::Value::Null).contains("go together"));
+    // The Pool is always a proxy: its pointer is required, not optional.
+    assert!(mutate(BSC, &|v| v["vaults"][0]["aave"]["implementation"] = serde_json::Value::Null).contains("invalid type"));
+    for field in ["implementation_slot", "atoken_slot", "underlying_slot"] {
+        let error = mutate(BSC, &|v| {
+            v["vaults"][0]["aave"].as_object_mut().unwrap().remove(field);
+        });
+        assert!(error.contains(&format!("missing field `{field}`")), "{error}");
+    }
+    assert!(mutate(BSC, &|v| v["vaults"][0]["aave"]["atoken_slot"] =
+        v["vaults"][0]["aave"]["underlying_slot"].clone())
+    .contains("pointer slots overlap"));
+    assert!(mutate(BSC, &|v| v["vaults"][0]["aave"]["atoken_slot"] = v["vaults"][0]["total_supply_slot"].clone()).contains("vault slots overlap"));
+    // A dynamic area's root must itself be reviewed.
+    assert!(mutate(BSC, &|v| v["vaults"][0]["other_dynamic_slots"] =
+        serde_json::json!([format!("0x{}", hex::encode(w(0x77)))]))
+    .contains("also be listed in other_slots"));
     assert!(mutate(BSC, &|v| v["vaults"][0]["implementation"] = serde_json::Value::Null).contains("go together"));
     assert!(mutate(BSC, &|v| v["vaults"][0]["total_supply_slot"] = v["vaults"][0]["balances_slot"].clone()).contains("overlap"));
     assert!(mutate(MAINNET, &|v| v["vaults"][0]["pot"]["rho_slot"] = v["vaults"][0]["pot"]["chi_slot"].clone()).contains("pot slots overlap"));
@@ -543,8 +593,15 @@ fn validate_block_refusals_provenance_and_multi_vault_attribution() {
     expected.sort();
     assert_eq!(rows, expected);
     let bound = project(&block(1), &cfg).unwrap();
-    let decimals: Vec<(Vec<u8>, u32)> = bound.epochs.iter().map(|e| (e.market.clone(), e.balance_decimals)).collect();
-    assert!(decimals.contains(&(sdai.vault.clone(), 18)) && decimals.contains(&(oz.vault.clone(), 18)));
+    // Each epoch evaluates into its own underlying asset: DAI (18) and USDC (6);
+    // the share ratio of the OZ vault has no scale, sDAI's chi is a ray.
+    let metadata: Vec<(Vec<u8>, Vec<u8>, u32, String)> = bound
+        .epochs
+        .iter()
+        .map(|e| (e.market.clone(), e.balance_asset.clone(), e.balance_decimals, e.basis_scale.clone()))
+        .collect();
+    assert!(metadata.contains(&(sdai.vault.clone(), sdai.asset.clone(), 18, RAY.into())));
+    assert!(metadata.contains(&(oz.vault.clone(), oz.asset.clone(), 6, String::new())));
 }
 
 #[test]
@@ -620,6 +677,31 @@ fn oz_asset_proxy_binding_invalidates_pointer_and_implementation_changes() {
         );
         assert_eq!(dep.binding, pb::BindingKind::StoragePointer as i32);
         assert_eq!(dep.role, pb::DependencyRole::Implementation as i32);
+        // The underlying is bound by the ERC4626Storage word: `_asset` in the
+        // low 160 bits and `_underlyingDecimals` (6) above it.
+        let underlying = rows.iter().find(|d| d.depth == 1).unwrap();
+        let Model::OzVirtualOffset { erc4626_storage_slot, .. } = &oz.model else {
+            panic!()
+        };
+        let mut expected = [0u8; 32];
+        expected[11] = 6;
+        expected[12..].copy_from_slice(&oz.asset);
+        assert_eq!(
+            (
+                underlying.role,
+                underlying.binding,
+                &underlying.pointer_contract,
+                &underlying.pointer_slot,
+                &underlying.pointer_value
+            ),
+            (
+                pb::DependencyRole::Underlying as i32,
+                pb::BindingKind::StoragePointer as i32,
+                &oz.vault,
+                &erc4626_storage_slot.to_vec(),
+                &expected.to_vec()
+            )
+        );
         assert!(rows.iter().all(|d| &d.source_pin == asset_source_pin));
         assert_eq!(
             dep.kind,
@@ -711,6 +793,30 @@ fn oz_asset_layout_and_proxy_parameters_are_explicit_and_consistent() {
     check(&|v| v["oz"]["asset_implementation"] = serde_json::Value::Null, "go together");
     check(&|v| v["oz"]["asset_implementation_slot"] = serde_json::Value::Null, "go together");
     check(&|v| v["oz"]["asset_implementation"] = "0x01".into(), "20 bytes");
+    // Omitting the asset pointer needs an explicit statement that there is none,
+    // and the FiatToken model is always a proxy.
+    let unpointed = |v: &mut serde_json::Value| {
+        let oz = v["oz"].as_object_mut().unwrap();
+        oz.remove("asset_implementation");
+        oz.remove("asset_implementation_slot");
+    };
+    check(&unpointed, "needs its implementation pointer");
+    check(
+        &|v| {
+            unpointed(v);
+            v["oz"]["asset_not_proxy"] = true.into();
+        },
+        "FiatToken asset model is a proxy",
+    );
+    check(
+        &|v| v["oz"]["asset_not_proxy"] = true.into(),
+        "needs its implementation pointer, or asset_not_proxy",
+    );
+    let mut raw: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+    unpointed(&mut raw["vaults"][1]);
+    raw["vaults"][1]["oz"]["asset_not_proxy"] = true.into();
+    raw["vaults"][1]["oz"]["asset_balance_model"] = "uint256".into();
+    assert!(parse(&raw.to_string()).is_ok());
     check(&|v| v["oz"]["decimals_offset"] = 78.into(), "overflows uint256");
     check(&|v| v["vault_decimals"] = 19.into(), "vault_decimals");
     check(
@@ -736,8 +842,8 @@ fn vault_and_pool_pointer_writes_preserve_noops_restoration_and_persistence() {
     let vault = &cfg.vaults[0];
     let Model::AaveStaticAToken {
         pool,
-        implementation_slot: Some(pool_slot),
-        implementation: Some(pool_implementation),
+        implementation_slot: pool_slot,
+        implementation: pool_implementation,
         ..
     } = &vault.model
     else {
@@ -853,7 +959,7 @@ fn pointer_guards_attribute_shared_pool_and_direct_vault_writes_deterministicall
     let second = &cfg.vaults[1];
     let Model::AaveStaticAToken {
         pool,
-        implementation_slot: Some(slot),
+        implementation_slot: slot,
         ..
     } = &first.model
     else {
@@ -896,24 +1002,41 @@ fn an_openzeppelin_initializing_block_is_reviewed_and_rebinding_the_asset_invali
     let Model::OzVirtualOffset { erc4626_storage_slot, .. } = oz.model.clone() else {
         panic!()
     };
-    let erc4626_slot = erc4626_storage_slot.expect("the fixture binds the ERC4626Storage namespace slot");
-    // `__ERC20_init_unchained` writes `_name` (+3) and `_symbol` (+4) of the
-    // openzeppelin.storage.ERC20 namespace; `__ERC4626_init_unchained` writes
-    // `_asset` and `_underlyingDecimals`, which share the ERC4626 namespace word.
+    let erc4626_slot = erc4626_storage_slot;
+    // `initializer` sets `_initialized` and flips `_initializing` in the
+    // openzeppelin.storage.Initializable word; `__ERC20_init_unchained` writes
+    // `_name` (+3) and `_symbol` (+4) of the openzeppelin.storage.ERC20
+    // namespace, a long name spilling into `keccak256(+3) + i`;
+    // `__ERC4626_init_unchained` writes `_asset` and `_underlyingDecimals`,
+    // which share the ERC4626 namespace word.
+    let initializable = erc7201("openzeppelin.storage.Initializable");
     let name_slot = add_offset(&oz.balances_slot, 3);
     let symbol_slot = add_offset(&oz.balances_slot, 4);
     assert!(oz.other_slots.contains(&name_slot) && oz.other_slots.contains(&symbol_slot));
+    assert!(oz.other_slots.contains(&initializable));
+    let name_data = keccak(&name_slot);
     let mut asset_word = [0u8; 32];
     asset_word[12..].copy_from_slice(&oz.asset);
     asset_word[11] = 6; // _underlyingDecimals packed above the address
+    let mut initializing = [0u8; 32];
+    initializing[31] = 1;
+    initializing[30] = 1;
+    let mut initialized = [0u8; 32];
+    initialized[31] = 1;
     let mut b = block(10);
     b.transaction_traces = vec![tx(eth::Call {
         address: oz.vault.clone(),
+        keccak_preimages: [(hex::encode(name_data), hex::encode(name_slot))].into(),
         storage_changes: vec![
-            write(&oz.vault, name_slot, w(0), w(0x6161), 10),
-            write(&oz.vault, symbol_slot, w(0), w(0x6262), 11),
-            write(&oz.vault, oz.total_supply_slot, w(0), w(1_000), 12),
-            write(&oz.vault, erc4626_slot, [0; 32], asset_word, 13),
+            write(&oz.vault, initializable, [0; 32], initializing, 8),
+            // A 40-byte name: the root holds 2 * length + 1, the data two words.
+            write(&oz.vault, name_slot, w(0), w(81), 9),
+            write(&oz.vault, name_data, w(0), w(0x6161), 10),
+            write(&oz.vault, add_offset(&name_data, 1), w(0), w(0x6161), 11),
+            write(&oz.vault, symbol_slot, w(0), w(0x6262), 12),
+            write(&oz.vault, oz.total_supply_slot, w(0), w(1_000), 13),
+            write(&oz.vault, erc4626_slot, [0; 32], asset_word, 14),
+            write(&oz.vault, initializable, initializing, initialized, 15),
         ],
         ..Default::default()
     })];
@@ -934,13 +1057,22 @@ fn an_openzeppelin_initializing_block_is_reviewed_and_rebinding_the_asset_invali
             &asset_word.to_vec()
         )
     );
-    // Without the binding the same block fails closed, which is the defect
-    // this test pins: every initializing or reinitializing block was refused.
+    // Without the Initializable word or the name's data area the same block
+    // fails closed, which is the defect this test pins: every initializing or
+    // reinitializing block was refused.
+    let initializable_hex = format!("0x{}", hex::encode(initializable));
     let mut v: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
-    v["vaults"][1]["oz"].as_object_mut().unwrap().remove("erc4626_storage_slot");
-    v["vaults"][1]["other_slots"] = serde_json::json!([]);
+    v["vaults"][1]["other_slots"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|s| s.as_str() != Some(initializable_hex.as_str()));
     let unbound = parse(&v.to_string()).unwrap();
-    assert!(project(&b, &unbound).unwrap_err().to_string().contains("unresolved"));
+    let error = project(&b, &unbound).unwrap_err().to_string();
+    assert!(error.contains("unresolved") && error.contains(&hex::encode(initializable)), "{error}");
+    let mut v: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+    v["vaults"][1]["other_dynamic_slots"] = serde_json::json!([]);
+    let error = project(&b, &parse(&v.to_string()).unwrap()).unwrap_err().to_string();
+    assert!(error.contains("unresolved") && error.contains(&hex::encode(name_data)), "{error}");
     // The bound slot may not collide with a decoded one.
     let mut v: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
     v["vaults"][1]["oz"]["erc4626_storage_slot"] = v["vaults"][1]["total_supply_slot"].clone();
@@ -1019,4 +1151,108 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
         .map(|e| (e.market.clone(), e.ordinal))
         .collect();
     assert_eq!(invalidated, vec![(oz.vault.clone(), 160)]);
+}
+
+#[test]
+fn reward_token_registration_writes_the_reviewed_array_data_and_nothing_else_passes() {
+    // `refreshRewardTokens()` is permissionless: `_rewardTokens.push(reward)`
+    // writes the length (slot 10) and `keccak256(10) + i`, and
+    // `_startIndex[reward]` a mapping member of slot 11.
+    let cfg = bsc();
+    let v = cfg.vaults[0].clone();
+    let array = w(10);
+    let data = keccak(&array);
+    let reward = [0x44u8; 20];
+    let start_index_base = w(11);
+    let push = |i: u8, extra: Vec<eth::StorageChange>, with_preimage: bool| {
+        let mut preimages: std::collections::HashMap<String, String> = [preimage(&reward, &start_index_base)].into();
+        if with_preimage {
+            preimages.insert(hex::encode(data), hex::encode(array));
+        }
+        let mut element = [0u8; 32];
+        element[12..].copy_from_slice(&reward);
+        let mut changes = vec![
+            write(&v.vault, array, w(i as u128), w(i as u128 + 1), 10),
+            write(&v.vault, add_offset(&data, i), [0; 32], element, 11),
+            write(&v.vault, mapping_key(&reward, &start_index_base), w(0), w(1), 12),
+        ];
+        changes.extend(extra);
+        let mut b = block(10);
+        b.transaction_traces = vec![tx(eth::Call {
+            address: v.vault.clone(),
+            keccak_preimages: preimages,
+            storage_changes: changes,
+            ..Default::default()
+        })];
+        project(&b, &cfg)
+    };
+    for i in [0, 1, 5] {
+        let events = push(i, vec![], true).unwrap();
+        assert!(events.holder_basis.is_empty() && events.global_state.is_empty() && events.epochs.is_empty());
+    }
+    // Without the verified preimage of keccak256(10) the element is unresolved.
+    assert!(push(1, vec![], false).unwrap_err().to_string().contains("unresolved"));
+    // Data areas of slots that are not dynamic stay unreviewed: `decimals`
+    // (slot 3) is a reviewed scalar, not an array.
+    let decimals_data = keccak(&w(3));
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: v.vault.clone(),
+        keccak_preimages: [(hex::encode(decimals_data), hex::encode(w(3)))].into(),
+        storage_changes: vec![write(&v.vault, decimals_data, w(0), w(1), 10)],
+        ..Default::default()
+    })];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("unresolved"));
+    // An offset beyond the reviewed bound is not an array element.
+    let mut far = data;
+    far[27] = far[27].wrapping_add(1); // + 2^32
+    let error = push(0, vec![write(&v.vault, far, w(0), w(1), 13)], true).unwrap_err().to_string();
+    assert!(error.contains("unresolved") && error.contains(&hex::encode(far)), "{error}");
+    assert_eq!(offset_from(&add_offset(&data, 7), &data), Some(7));
+    assert_eq!(offset_from(&data, &add_offset(&data, 1)), None);
+}
+
+#[test]
+fn nested_allowances_resolve_through_both_preimages_and_reverted_child_frames_are_dropped() {
+    let cfg = bsc();
+    let v = cfg.vaults[0].clone();
+    // allowance[owner][spender] = keccak(spender . keccak(owner . 6)).
+    let allowance = w(6);
+    let (owner, spender) = ([0x0au8; 20], [0x0bu8; 20]);
+    let inner = mapping_key(&owner, &allowance);
+    let outer = mapping_key(&spender, &inner);
+    let inner_preimage = preimage(&owner, &allowance);
+    let outer_preimage = preimage(&spender, &inner);
+    let approve = |preimages: std::collections::HashMap<String, String>| {
+        let mut b = block(10);
+        b.transaction_traces = vec![tx(eth::Call {
+            address: v.vault.clone(),
+            keccak_preimages: preimages,
+            storage_changes: vec![write(&v.vault, outer, w(0), w(5), 10)],
+            ..Default::default()
+        })];
+        project(&b, &cfg)
+    };
+    assert!(approve([inner_preimage.clone(), outer_preimage.clone()].into())
+        .unwrap()
+        .holder_basis
+        .is_empty());
+    assert!(approve([outer_preimage].into()).unwrap_err().to_string().contains("unresolved"));
+    // A reverted child frame inside a successful transaction contributes nothing.
+    let holder = [9u8; 20];
+    let other = [8u8; 20];
+    let parent = shares_call(&v, &holder, 1, 2, 10);
+    let mut child = shares_call(&v, &other, 5, 6, 11);
+    child.index = 2;
+    child.parent_index = 1;
+    child.depth = 1;
+    child.state_reverted = true;
+    let mut b = block(10);
+    b.transaction_traces = vec![eth::TransactionTrace {
+        calls: vec![parent, child],
+        ..tx(eth::Call::default())
+    }];
+    let events = project(&b, &cfg).unwrap();
+    let holders: Vec<(&[u8], &str)> = events.holder_basis.iter().map(|h| (h.holder.as_slice(), h.value.as_str())).collect();
+    assert_eq!(holders, vec![(holder.as_slice(), "2")]);
 }

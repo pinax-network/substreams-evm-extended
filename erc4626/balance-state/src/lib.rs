@@ -110,11 +110,15 @@ pub struct Params {
 pub struct AaveConfig {
     pub pool: String,
     pub reserves_slot: String,
-    #[serde(default)]
-    pub implementation_slot: Option<String>,
-    #[serde(default)]
-    pub implementation: Option<String>,
+    /// An Aave V3 Pool is always a proxy: its implementation pointer is
+    /// required so an upgrade cannot pass unobserved.
+    pub implementation_slot: String,
+    pub implementation: String,
     pub atoken: String,
+    /// Vault slots of `_aToken` and `_aTokenUnderlying`. They select the
+    /// reserve `rate()` reads, so a write to either invalidates.
+    pub atoken_slot: String,
+    pub underlying_slot: String,
 }
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -132,15 +136,19 @@ pub struct OzConfig {
     pub asset_balances_slot: String,
     pub asset_balance_model: AssetBalanceModel,
     pub asset_source_pin: String,
+    /// The asset's proxy pointer. Required unless `asset_not_proxy` states
+    /// that the asset has no implementation pointer; omitting both is refused
+    /// so an upgradeable asset cannot be bound without its pointer.
     #[serde(default)]
     pub asset_implementation_slot: Option<String>,
     #[serde(default)]
     pub asset_implementation: Option<String>,
+    #[serde(default)]
+    pub asset_not_proxy: bool,
     /// ERC-7201 `openzeppelin.storage.ERC4626` slot on the vault, holding
     /// `_asset` and `_underlyingDecimals` in one word. A persisted write
     /// rebinds the asset this model converts into, so it invalidates.
-    #[serde(default)]
-    pub erc4626_storage_slot: Option<String>,
+    pub erc4626_storage_slot: String,
     pub decimals_offset: u8,
 }
 /// Only independently reviewed `balanceOf` decoders are admitted. A slot
@@ -186,6 +194,14 @@ pub struct VaultConfig {
     pub other_slots: Vec<String>,
     #[serde(default)]
     pub other_mapping_slots: Vec<String>,
+    /// Reviewed dynamic arrays and long strings: the root slot (length) is in
+    /// `other_slots`, the data lives at `keccak256(slot) + i` and is accepted
+    /// only with that verified 32-byte preimage in the block.
+    #[serde(default)]
+    pub other_dynamic_slots: Vec<String>,
+    /// Protocol-declared revision (StaticATokenLM `STATIC__ATOKEN_LM_REVISION`).
+    #[serde(default)]
+    pub implementation_revision: String,
     #[serde(default)]
     pub aave: Option<AaveConfig>,
     #[serde(default)]
@@ -199,9 +215,11 @@ pub enum Model {
     AaveStaticAToken {
         pool: Vec<u8>,
         reserve_base: [u8; 32],
-        implementation_slot: Option<[u8; 32]>,
-        implementation: Option<Vec<u8>>,
+        implementation_slot: [u8; 32],
+        implementation: Vec<u8>,
         atoken: Vec<u8>,
+        atoken_slot: [u8; 32],
+        underlying_slot: [u8; 32],
     },
     MakerSavingsDai {
         pot: Vec<u8>,
@@ -215,7 +233,7 @@ pub enum Model {
         asset_source_pin: String,
         asset_implementation_slot: Option<[u8; 32]>,
         asset_implementation: Option<Vec<u8>>,
-        erc4626_storage_slot: Option<[u8; 32]>,
+        erc4626_storage_slot: [u8; 32],
         decimals_offset: u8,
     },
 }
@@ -237,6 +255,8 @@ pub struct Vault {
     pub total_supply_slot: [u8; 32],
     pub other_slots: Vec<[u8; 32]>,
     pub other_mapping_slots: Vec<[u8; 32]>,
+    pub other_dynamic_slots: Vec<[u8; 32]>,
+    pub implementation_revision: String,
 }
 impl Vault {
     /// Whether this epoch applies to an effect at `(block, ordinal)`.
@@ -252,7 +272,13 @@ impl Vault {
             return Some(pb::InvalidationReason::ImplementationPointerWrite);
         }
         let dependency_pointer = match &self.model {
-            Model::AaveStaticAToken { pool, implementation_slot, .. } => address == pool && Some(*key) == *implementation_slot,
+            Model::AaveStaticAToken {
+                pool,
+                implementation_slot,
+                atoken_slot,
+                underlying_slot,
+                ..
+            } => (address == pool && key == implementation_slot) || (address == self.vault && (key == atoken_slot || key == underlying_slot)),
             Model::OzVirtualOffset {
                 asset_implementation_slot,
                 erc4626_storage_slot,
@@ -261,11 +287,19 @@ impl Vault {
                 (address == self.asset && Some(*key) == *asset_implementation_slot)
                     // `_asset` and `_underlyingDecimals` share this word; a
                     // write rebinds what the vault converts into.
-                    || (address == self.vault && Some(*key) == *erc4626_storage_slot)
+                    || (address == self.vault && key == erc4626_storage_slot)
             }
             Model::MakerSavingsDai { .. } => false,
         };
         dependency_pointer.then_some(pb::InvalidationReason::DependencyPointerWrite)
+    }
+    /// Denominator constant of the shares -> assets conversion ("" for a
+    /// share ratio).
+    fn basis_scale(&self) -> &'static str {
+        match self.model {
+            Model::AaveStaticAToken { .. } | Model::MakerSavingsDai { .. } => RAY,
+            Model::OzVirtualOffset { .. } => "",
+        }
     }
     /// Contracts whose code changes invalidate the epoch besides the vault.
     fn dependencies(&self) -> Vec<Vec<u8>> {
@@ -276,7 +310,7 @@ impl Vault {
                 pool, implementation, atoken, ..
             } => {
                 out.push(pool.clone());
-                out.extend(implementation.clone());
+                out.push(implementation.clone());
                 out.push(atoken.clone());
             }
             Model::MakerSavingsDai { pot, .. } => out.push(pot.clone()),
@@ -313,9 +347,11 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             ("aave-static-atoken-lm", Some(a), None, None) => Model::AaveStaticAToken {
                 pool: hex_bytes(&a.pool, 20, "aave.pool")?,
                 reserve_base: mapping_key(&asset, &slot(&a.reserves_slot, "aave.reserves_slot")?),
-                implementation_slot: a.implementation_slot.as_deref().map(|s| slot(s, "aave.implementation_slot")).transpose()?,
-                implementation: a.implementation.as_deref().map(|s| hex_bytes(s, 20, "aave.implementation")).transpose()?,
+                implementation_slot: slot(&a.implementation_slot, "aave.implementation_slot")?,
+                implementation: hex_bytes(&a.implementation, 20, "aave.implementation")?,
                 atoken: hex_bytes(&a.atoken, 20, "aave.atoken")?,
+                atoken_slot: slot(&a.atoken_slot, "aave.atoken_slot")?,
+                underlying_slot: slot(&a.underlying_slot, "aave.underlying_slot")?,
             },
             ("maker-savings-dai", None, Some(p), None) => Model::MakerSavingsDai {
                 pot: hex_bytes(&p.address, 20, "pot.address")?,
@@ -337,21 +373,16 @@ pub fn parse(params: &str) -> Result<Config, Error> {
                     .as_deref()
                     .map(|s| hex_bytes(s, 20, "oz.asset_implementation"))
                     .transpose()?,
-                erc4626_storage_slot: o.erc4626_storage_slot.as_deref().map(|s| slot(s, "oz.erc4626_storage_slot")).transpose()?,
+                erc4626_storage_slot: slot(&o.erc4626_storage_slot, "oz.erc4626_storage_slot")?,
                 decimals_offset: o.decimals_offset,
             },
             (model, ..) => return Err(Error::msg(format!("model `{model}` does not match its dependency block"))),
         };
         if let Model::AaveStaticAToken {
-            implementation_slot,
-            implementation,
-            ..
+            atoken_slot, underlying_slot, ..
         } = &model
         {
-            require(
-                implementation_slot.is_some() == implementation.is_some(),
-                "aave pool implementation slot and address go together",
-            )?;
+            require(atoken_slot != underlying_slot, "aave vault pointer slots overlap")?;
         }
         if let Model::MakerSavingsDai {
             dsr_slot, chi_slot, rho_slot, ..
@@ -372,6 +403,15 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             require(
                 asset_implementation_slot.is_some() == asset_implementation.is_some(),
                 "oz asset implementation slot and address go together",
+            )?;
+            let not_proxy = v.oz.as_ref().is_some_and(|o| o.asset_not_proxy);
+            require(
+                asset_implementation_slot.is_some() != not_proxy,
+                "oz asset needs its implementation pointer, or asset_not_proxy when it has none",
+            )?;
+            require(
+                !(not_proxy && matches!(o_model(&model), Some(AssetBalanceModel::FiatTokenV2_2Low255))),
+                "the FiatToken asset model is a proxy and needs its implementation pointer",
             )?;
             require(asset_implementation_slot.as_ref() != Some(asset_balance_key), "oz asset slots overlap")?;
             require(asset != vault, "oz asset must differ from vault")?;
@@ -402,13 +442,24 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             total_supply_slot: slot(&v.total_supply_slot, "total_supply_slot")?,
             other_slots: v.other_slots.iter().map(|s| slot(s, "other_slots")).collect::<Result<_, _>>()?,
             other_mapping_slots: v.other_mapping_slots.iter().map(|s| slot(s, "other_mapping_slots")).collect::<Result<_, _>>()?,
+            other_dynamic_slots: v.other_dynamic_slots.iter().map(|s| slot(s, "other_dynamic_slots")).collect::<Result<_, _>>()?,
+            implementation_revision: v.implementation_revision.clone(),
         };
+        // A dynamic area's root (its length or short string) is a reviewed slot.
+        require(
+            out.other_dynamic_slots.iter().all(|s| out.other_slots.contains(s)),
+            "every other_dynamic_slots root must also be listed in other_slots",
+        )?;
         let mut all = vec![out.balances_slot, out.total_supply_slot];
         all.extend(out.implementation_slot);
         all.extend(out.other_slots.iter().copied());
         all.extend(out.other_mapping_slots.iter().copied());
-        if let Model::OzVirtualOffset { erc4626_storage_slot, .. } = &out.model {
-            all.extend(*erc4626_storage_slot);
+        match &out.model {
+            Model::OzVirtualOffset { erc4626_storage_slot, .. } => all.push(*erc4626_storage_slot),
+            Model::AaveStaticAToken {
+                atoken_slot, underlying_slot, ..
+            } => all.extend([*atoken_slot, *underlying_slot]),
+            Model::MakerSavingsDai { .. } => {}
         }
         require(all.iter().collect::<BTreeSet<_>>().len() == all.len(), "vault slots overlap")?;
         require(vaults.iter().all(|o| o.vault != out.vault), "duplicate vault")?;
@@ -592,6 +643,38 @@ fn mapping_has_base(mut key: [u8; 32], preimages: &BTreeMap<[u8; 32], Vec<u8>>, 
     false
 }
 
+fn o_model(model: &Model) -> Option<AssetBalanceModel> {
+    match model {
+        Model::OzVirtualOffset { asset_balance_model, .. } => Some(*asset_balance_model),
+        _ => None,
+    }
+}
+/// Largest element offset accepted inside a reviewed dynamic area. Arrays and
+/// strings of reviewed contracts are far shorter; an unrelated slot landing
+/// this close above a Keccak output is not a realistic collision.
+const DYNAMIC_AREA_WORDS: u64 = 1 << 32;
+/// Whether `key` is `keccak256(base) + i` for a reviewed `base`, proven by a
+/// verified 32-byte preimage recorded in the block, with `i` below the bound.
+fn dynamic_member(key: &[u8; 32], preimages: &BTreeMap<[u8; 32], Vec<u8>>, bases: &[[u8; 32]]) -> bool {
+    preimages.iter().any(|(start, preimage)| {
+        preimage.len() == 32 && bases.iter().any(|b| b.as_slice() == preimage.as_slice()) && offset_from(key, start).is_some_and(|i| i < DYNAMIC_AREA_WORDS)
+    })
+}
+/// `key - start` when `key >= start` and the difference fits in 64 bits.
+fn offset_from(key: &[u8; 32], start: &[u8; 32]) -> Option<u64> {
+    let mut diff = [0u8; 32];
+    let mut borrow = 0i16;
+    for i in (0..32).rev() {
+        let mut d = key[i] as i16 - start[i] as i16 - borrow;
+        borrow = i16::from(d < 0);
+        if d < 0 {
+            d += 256;
+        }
+        diff[i] = d as u8;
+    }
+    (borrow == 0 && diff[..24].iter().all(|b| *b == 0)).then(|| u64::from_be_bytes(diff[24..].try_into().unwrap()))
+}
+
 pub fn validate_block(block: &eth::Block, config: &Config) -> Result<u64, Error> {
     require(
         block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32,
@@ -660,8 +743,9 @@ fn epoch_row(config: &Config, vault: &Vault, kind: pb::EpochEventKind) -> pb::Mo
         family: vault.family() as i32,
         model_id: vault.model_id.clone(),
         source_pin: vault.source_pin.clone(),
+        implementation_revision: vault.implementation_revision.clone(),
         basis_kind: pb::BasisKind::Shares as i32,
-        basis_scale: "1".into(),
+        basis_scale: vault.basis_scale().into(),
         balance_rounding: pb::Rounding::Floor as i32,
         basis_bit_offset: 0,
         basis_bit_width: 256,
@@ -670,9 +754,10 @@ fn epoch_row(config: &Config, vault: &Vault, kind: pb::EpochEventKind) -> pb::Mo
         implementation_slot: vault.implementation_slot.map(|s| s.to_vec()).unwrap_or_default(),
         activation_block: vault.activation_block,
         activation_ordinal: vault.activation_ordinal,
-        // The ERC-20 amount is the share count of the vault itself.
-        balance_asset: vault.vault.clone(),
-        balance_decimals: vault.vault_decimals,
+        // The basis is the vault's own share count (`basis_kind` SHARES); the
+        // evaluated balance is the conversion into the underlying asset.
+        balance_asset: vault.asset.clone(),
+        balance_decimals: vault.asset_decimals,
         basis_carryover: true,
         global_carryover: true,
         scope: pb::Scope::Epoch as i32,
@@ -823,7 +908,10 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                             bit_width: 256,
                             signed: false,
                         });
-                    } else if vault.other_slots.contains(&r.key) || vault.other_mapping_slots.iter().any(|base| mapping_has_base(r.key, &preimages, base)) {
+                    } else if vault.other_slots.contains(&r.key)
+                        || vault.other_mapping_slots.iter().any(|base| mapping_has_base(r.key, &preimages, base))
+                        || dynamic_member(&r.key, &preimages, &vault.other_dynamic_slots)
+                    {
                         // Reviewed non-balance storage: metadata, allowances,
                         // permit nonces, reward bookkeeping, initializer state.
                     } else {
@@ -841,7 +929,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                             implementation_slot,
                             ..
                         } if r.address == *pool => {
-                            if Some(r.key) == *implementation_slot {
+                            if r.key == *implementation_slot {
                                 // Every pointer write was invalidated before reduction.
                             } else if r.key == add_offset(reserve_base, 1) {
                                 for (field, offset, width) in [
@@ -982,41 +1070,79 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     &slot,
                 )?);
             }
-            let mut underlying = dependency(config, vault, kind, pb::DependencyRole::Underlying, &vault.asset);
-            if let Model::OzVirtualOffset { asset_source_pin, .. } = &vault.model {
-                underlying.source_pin = asset_source_pin.clone();
-            }
-            events.dependencies.push(underlying);
             match &vault.model {
                 Model::AaveStaticAToken {
                     pool,
                     implementation_slot,
                     implementation,
                     atoken,
+                    atoken_slot,
+                    underlying_slot,
                     ..
                 } => {
-                    if let (Some(implementation), Some(slot)) = (implementation, implementation_slot) {
-                        events.dependencies.push(pb::Dependency {
-                            depth: 2,
-                            parent: pool.clone(),
-                            ..pointer(config, vault, kind, pb::DependencyRole::Implementation, implementation, pool, slot)?
-                        });
-                    }
+                    // `_aTokenUnderlying` and `_aToken` are vault storage pointers.
+                    events.dependencies.push(pointer(
+                        config,
+                        vault,
+                        kind,
+                        pb::DependencyRole::Underlying,
+                        &vault.asset,
+                        &vault.vault,
+                        underlying_slot,
+                    )?);
+                    events.dependencies.push(pointer(
+                        config,
+                        vault,
+                        kind,
+                        pb::DependencyRole::WrappedAsset,
+                        atoken,
+                        &vault.vault,
+                        atoken_slot,
+                    )?);
+                    events.dependencies.push(pb::Dependency {
+                        depth: 2,
+                        parent: pool.clone(),
+                        ..pointer(
+                            config,
+                            vault,
+                            kind,
+                            pb::DependencyRole::Implementation,
+                            implementation,
+                            pool,
+                            implementation_slot,
+                        )?
+                    });
                     events.dependencies.push(dependency(config, vault, kind, pb::DependencyRole::Pool, pool));
+                }
+                Model::MakerSavingsDai { pot, .. } => {
+                    // SavingsDai binds `dai` as an immutable: declared, with code-change invalidation.
                     events
                         .dependencies
-                        .push(dependency(config, vault, kind, pb::DependencyRole::WrappedAsset, atoken));
+                        .push(dependency(config, vault, kind, pb::DependencyRole::Underlying, &vault.asset));
+                    events
+                        .dependencies
+                        .push(dependency(config, vault, kind, pb::DependencyRole::RateAccumulator, pot));
                 }
-                Model::MakerSavingsDai { pot, .. } => events
-                    .dependencies
-                    .push(dependency(config, vault, kind, pb::DependencyRole::RateAccumulator, pot)),
                 Model::OzVirtualOffset {
                     decimals_offset,
                     asset_source_pin,
                     asset_implementation_slot,
                     asset_implementation,
+                    erc4626_storage_slot,
                     ..
                 } => {
+                    // `ERC4626Storage` packs `_asset` (bits 0..160) and
+                    // `_underlyingDecimals` (bits 160..168) in one vault word.
+                    let mut expected = word(&vault.asset)?;
+                    expected[11] = u8::try_from(vault.asset_decimals).map_err(|_| Error::msg("asset_decimals exceeds uint8"))?;
+                    events.dependencies.push(pb::Dependency {
+                        binding: pb::BindingKind::StoragePointer as i32,
+                        pointer_contract: vault.vault.clone(),
+                        pointer_slot: erc4626_storage_slot.to_vec(),
+                        pointer_value: expected.to_vec(),
+                        source_pin: asset_source_pin.clone(),
+                        ..dependency(config, vault, kind, pb::DependencyRole::Underlying, &vault.asset)
+                    });
                     if let (Some(implementation), Some(slot)) = (asset_implementation, asset_implementation_slot) {
                         events.dependencies.push(pb::Dependency {
                             depth: 2,
@@ -1035,7 +1161,10 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                         observation: pb::Observation::QualifiedConstant as i32,
                         boundary: pb::Boundary::Declaration as i32,
                         scope: pb::Scope::Epoch as i32,
-                        storage_contract: vault.vault.clone(),
+                        // A declaration sits at the epoch boundary and names the
+                        // implementation whose code binds the constant.
+                        ordinal: if kind == pb::EpochEventKind::Bound { vault.activation_ordinal } else { 0 },
+                        storage_contract: vault.implementation.clone().unwrap_or_else(|| vault.vault.clone()),
                         ..Default::default()
                     });
                 }

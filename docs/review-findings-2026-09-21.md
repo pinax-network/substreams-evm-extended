@@ -76,6 +76,29 @@ fixed, and one more was found while fixing them (the last row).
 | 12 | low | Undoing the first block left `first_block` set | Reset when no block remains applied |
 | + | medium | Rows of two epochs for one holder in an activation block were refused as duplicates | Duplicate key is `(market, epoch, holder)` |
 
+### Independent review of `erc4626/balance-state` (2026-09-22)
+
+A fresh-context reviewer compared the crate with the pinned StaticATokenLM,
+RayMathExplicitRounding, SavingsDai, Pot and OpenZeppelin sources, the proto
+and #24, and reproduced each finding with a throwaway test. The maintainer
+re-derived each from the pinned source (`StaticATokenLM.sol:52,59,75,81,683`,
+OpenZeppelin upgradeable `625fb3c2` `Initializable.sol:77`) or the proto; all
+ten were confirmed and fixed. The earlier hand review's fix for initializing
+blocks was incomplete (item 2).
+
+| # | Severity | Finding | Fix |
+| --- | --- | --- | --- |
+| 1 | high | `_rewardTokens.push` (the permissionless `refreshRewardTokens()`) and long `name`/`symbol` write `keccak256(slot) + i`, which no rule reviewed: the first reward registration halted the stream. The layout test compared root slots only | `other_dynamic_slots`: an element is reviewed when the block carries the verified preimage of `keccak256(slot)` and the offset is below 2³²; the layout test now requires every `bytes`/dynamic-array slot to be listed |
+| 2 | high | OpenZeppelin v5 `initializer`/`reinitializer` write the `openzeppelin.storage.Initializable` word, which the fixture did not cover | Reviewed (`0xf0c5…6a00`, re-derived by ERC-7201 in the layout test); the initializing-block test now writes it and a long name |
+| 3 | medium | The Aave Pool and OZ asset implementation pointers were optional, so omitting them failed open | Pool pointer required; an OZ asset needs its pointer or an explicit `asset_not_proxy`, never for the FiatToken model |
+| 4 | medium | The static aToken's `_aToken`/`_aTokenUnderlying` (select the reserve `rate()` reads) were reviewed storage; the OZ `_asset` edge was DECLARED although its word invalidates | Both are `STORAGE_POINTER` edges and invalidating pointers; the OZ edge carries the packed `(_underlyingDecimals, _asset)` word |
+| 5 | medium | `ModelEpoch` named the vault as `balance_asset` with vault decimals and `basis_scale "1"`, contrary to the proto; `implementation_revision` empty | Underlying asset and its decimals; RAY for stata/sDAI, `""` for the OZ ratio; revision `2` for the static aToken |
+| 6 | medium | No test fed emitted rows into `conformance::erc4626`; two-level allowance keys and a reverted child frame untested | `tests/conformance_rows.rs` evaluates all three models from emitted rows; unit tests for both cases |
+| 7 | low | `ray_mul_round_up` / `ray_div_round_up` checked only the final sum, so `(a·b) + RAY` overflow went unnoticed | Checked in Solidity's order; boundary test |
+| 8 | low | The OZ `source_pin` cited the non-upgradeable `ERC4626.sol` | Pins openzeppelin-contracts-upgradeable `625fb3c2` |
+| 9 | low | The decimals-offset declaration had ordinal 0 on an activation-ordinal BOUND and named the vault instead of the implementation | Uses the activation ordinal and the implementation when bound |
+| 10 | low | The contract's sDAI example put Pot `chi`/`rho` at slots 2/3 | Slots 4/7 and the RAY basis scale |
+
 Legend: severity is the reviewer's; "applies to siblings" is the maintainer's note on where the same pattern exists.
 
 

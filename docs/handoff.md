@@ -139,8 +139,9 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
    attribution were mirrored into `compound-v2`, `lido`, `erc4626` and
    `aave`.
 8. Re-run the review for `compound-v2`, `lido`, `erc4626`, `common/retention`.
-   **2026-09-22: `common/retention` reviewed independently; 12 findings, all
-   fixed (see the findings doc). The three map crates are under review.**
+   **2026-09-22: `common/retention` (12 findings) and `erc4626` (10 findings,
+   two high) reviewed independently; all fixed (see the findings doc).
+   `compound-v2` and `lido` are under review.**
    Earlier state: blocked twice. A second workflow (16 finders,
    no verifiers) was launched on 2026-09-21 and every one of its 16 agents
    died on the account spend limit, so those four crates have never been

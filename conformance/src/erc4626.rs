@@ -63,12 +63,14 @@ pub fn ray_mul_round_down(a: &BigUint, b: &BigUint) -> Result<BigUint> {
     checked(a * b)?;
     Ok(a * b / ray())
 }
-/// `rayMulRoundUp(a, b)`: `(a * b + RAY - 1) / RAY`, 0 when either is 0.
+/// `rayMulRoundUp(a, b)`: `((a * b) + RAY - 1) / RAY`, 0 when either is 0.
+/// Solidity checks `a * b` and then `(a * b) + RAY` before subtracting one,
+/// so a product within `RAY - 1` of the limit still reverts.
 pub fn ray_mul_round_up(a: &BigUint, b: &BigUint) -> Result<BigUint> {
     if a.is_zero() || b.is_zero() {
         return Ok(BigUint::zero());
     }
-    let p = checked(a * b + ray() - BigUint::one())?;
+    let p = checked(checked(a * b)? + ray())? - BigUint::one();
     Ok(p / ray())
 }
 /// `rayDivRoundDown(a, b)`: `a * RAY / b`.
@@ -78,12 +80,13 @@ pub fn ray_div_round_down(a: &BigUint, b: &BigUint) -> Result<BigUint> {
     }
     Ok(checked(a * ray())? / b)
 }
-/// `rayDivRoundUp(a, b)`: `(a * RAY + b - 1) / b`.
+/// `rayDivRoundUp(a, b)`: `((a * RAY) + b - 1) / b`, with the same
+/// left-to-right checked arithmetic as `ray_mul_round_up`.
 pub fn ray_div_round_up(a: &BigUint, b: &BigUint) -> Result<BigUint> {
     if b.is_zero() {
         return Err(Unknown::Invalid("division by zero"));
     }
-    Ok(checked(a * ray() + b - BigUint::one())? / b)
+    Ok((checked(checked(a * ray())? + b)? - BigUint::one()) / b)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -512,5 +515,22 @@ mod tests {
         };
         assert_eq!(ceil_limit_inverse.convert_to_shares(&x).unwrap(), max);
         assert_eq!(ceil_limit_inverse.preview_withdraw(&x), overflow);
+    }
+
+    #[test]
+    fn round_up_reverts_where_solidity_checks_the_sum_before_subtracting_one() {
+        // rayMulRoundUp: ((a * b) + RAY - 1) / RAY. A product in
+        // (2^256 - 1 - RAY, 2^256 - RAY] makes `(a * b) + RAY` overflow even
+        // though `(a * b) + RAY - 1` would fit.
+        let max = max_uint256();
+        let edge = &max + BigUint::one() - ray();
+        assert!(ray_mul_round_up(&edge, &n(1)).is_err());
+        let below = &max - ray();
+        assert_eq!(ray_mul_round_up(&below, &n(1)).unwrap(), (&below + ray() - BigUint::one()) / ray());
+        // rayDivRoundUp: ((a * RAY) + b - 1) / b.
+        assert!(ray_div_round_up(&n(1), &edge).is_err());
+        let b = &max - ray() + BigUint::one() - ray();
+        assert_eq!(ray_div_round_up(&n(1), &b).unwrap(), n(1));
+        assert!(ray_div_round_up(&n(0), &BigUint::zero()).is_err());
     }
 }
