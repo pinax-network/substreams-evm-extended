@@ -557,6 +557,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "evm-executions-tools"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "evm-executions",
+ "hex",
+ "prost 0.13.5",
+ "proto",
+ "serde_json",
+ "sha2",
+ "substreams-ethereum",
+ "tempfile",
+]
+
+[[package]]
 name = "evm-persist"
 version = "0.1.0"
 dependencies = [

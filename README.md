@@ -43,7 +43,7 @@ The shared schema stays in the repository-root `proto/` crate:
 - `lido/balance-state/`: Lido stETH holder shares, packed global words, derived pooled ether and report evidence module.
 - `compound-v3/balance-state/`: Compound III (Comet) signed principal and market index module.
 - `aave/actions/`: Aave V3 Pool lending-action evidence.
-- `evm/executions/`: call trees, logs, code changes and SetCode authorizations.
+- `evm/executions/`: call trees, logs, code changes and SetCode authorizations, with an offline replay and producer-capability tool.
 - [`dex/pool-state/`](dex/pool-state/README.md): one RPC-free `map_events` for complete Extended-block V2 reserves and ordered V3 changes; no price or pool-admission policy.
 - `conformance/`: host-only exact integer reference models (Aave V3, Comet, Compound v2, Lido stETH, ERC-4626 models).
 

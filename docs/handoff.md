@@ -39,7 +39,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `erc20/balances` | `evm.balances.v1` | pre-existing production module; #2–#6, #22 | RPC-qualified historical evidence under `erc20/balances/docs`; typed-path baseline replay (1,024 blocks, 110,139 rows, 4,012 retained matches, 66,265 cold unknowns) | RPC-qualified layouts |
 | `native/balances` | `evm.balances.v1` (`contract` absent) | #17 open | saved-block replay: 1,439 v5 blocks, 126,180 rows, 86,564 continuity checks, 0 mismatches; 1,510 with v4 ([evidence](../native/balances/docs/evidence)) | n/a |
 | `erc20/events` | `erc20.events.v1` | #19 closed | BSC single-tx fixtures | n/a |
-| `evm/executions` | `evm.executions.v1` | #18 open | BSC single-tx fixtures | n/a |
+| `evm/executions` | `evm.executions.v1` | #18 closed; producer semantics under #8 | saved-block replay: 1,509 BSC v4/v5 blocks, 116,951 txs, 1,075,108 receipt logs matched, 2,093,149 writes in storage context, 0 errors, determinism checked ([evidence](../evm/executions/docs/evidence/replay-bsc-v4-v5.json)) | n/a |
 | `aave/actions` | `aave.actions.v1` | #20 open | BSC single-tx fixtures (borrow, supply) | n/a |
 | `aave/balance-state` | `evm.balance_state.v1` | #13 open | saved-block replay: 1,433 BSC blocks, index oracle 6/6, 0 errors ([evidence](../aave/balance-state/docs/evidence/replay-bsc-v5.json)) | **observed** from Keccak preimages in saved blocks (Pool `_reserves` 52; aToken 0x34/0x35/0x36) |
 | `compound-v2/balance-state` | `evm.balance_state.v1` | #14 open | synthetic tests only | **compiler-verified** (`solc 0.8.10`; USDC FiatToken 0.6.12; `tests/storage_layout.rs`) |
@@ -51,9 +51,10 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `conformance` | host library | #16 open | Aave has a captured-block index oracle; Comet, Compound v2, Lido, ERC-4626 are source-line models with synthetic tests | – |
 | `dex/pool-state` | `dex` protos | (other agent, PR #40) | see its README | – |
 
-Merged this pass: PRs #25–#39 (this agent) and #40 (other agent). Closed
-issues: #11, #12, #19, #22. Open with offline progress recorded in a comment:
-#7, #13, #14, #15, #16, #17, #18, #20, #23, #24. Not started because they need
+Merged this pass: PRs #25–#39 (this agent) and #40 (other agent); later
+#46 (audit remediation), #47 (pointer contract) and the `evm/executions`
+regression PR. Closed issues: #11, #12, #18, #19, #22. Open with offline
+progress recorded in a comment: #7, #13, #14, #15, #16, #17, #20, #23, #24. Not started because they need
 RPC or SPKG qualification: #2, #3, #4, #5, #6, #8.
 
 ## 3. Where the artifacts live
@@ -168,10 +169,24 @@ require explicit identities).
   mapping word as the balance (`balanceAndBlacklistStates`, slot 9) and
   `_balanceOf` masks it; any "raw balances slot" model of USDC must decode
   255 bits, which the compound-v2 cash model does via `value_bits`.
-- `common/persist` drops storage writes whose old and new values are equal
-  (Firehose records them; the rules do not persist them). A reentrancy flag
-  that goes 0→1→0 within one frame is two persisted writes that reduce to
-  `old == new`; it is still a write and must be a reviewed slot.
+- The BSC producer (versions 4 and 5) records **no** equal-value storage
+  change: none of 2,093,149 storage changes in the saved data is equal-valued
+  (`evm/executions/docs/evidence/replay-bsc-v4-v5.json`). An earlier version of
+  this page claimed the opposite; that was wrong. `common/persist` would route
+  such a record to `storage_noop` anyway. A reentrancy flag that goes 0→1→0
+  within one frame is two *changing* writes that reduce to `old == new`; it is
+  still a write and must be a reviewed slot.
+- The same producer **does** record a code change whose old and new code are
+  identical: a SetCode authorization re-delegating an account to its current
+  target (86 cases in the saved data). `evm/executions` keeps the row as
+  `DELEGATION_SET` with `persisted = false` (it compares the hashes).
+  `common/persist` does not compare them and passes the change on, so a
+  balance-state package would invalidate a watched contract's epoch on it:
+  fail-closed, like an equal-value pointer write. (A watched protocol contract
+  has code and cannot be a SetCode authority, so this is not expected.)
+- Storage context: a `DELEGATE` or `CALLCODE` frame writes its `caller`'s
+  storage, every other frame its own `address`; this held for all 2,093,149
+  saved writes.
 - Firehose facts observed in saved blocks: a contract-creation transaction
   has `to` equal to the created address; logs of reverted frames keep their
   receipt `index` (with `block_index` 0) and are absent from the receipt;

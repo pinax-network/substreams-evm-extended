@@ -498,3 +498,158 @@ fn empty_block_still_emits_exactly_one_clock() {
     assert!(events.transactions.is_empty() && events.calls.is_empty());
     assert_eq!(events.clocks[0].parameters_sha256, config().parameters_sha256);
 }
+
+const SAME_TARGET_REDELEGATION: &[u8] = include_bytes!("../tests/fixtures/bsc-104727218-tx55-same-target-redelegation.pb");
+
+#[test]
+fn a_same_target_redelegation_is_recorded_but_changes_no_code() {
+    // Captured BSC v4 transaction: a self-sponsored SetCode transaction whose
+    // authority is already delegated to the same target. The producer records a
+    // code change whose old and new code are identical.
+    let b = eth::Block::decode(SAME_TARGET_REDELEGATION).unwrap();
+    assert_eq!((b.number, b.ver, b.transaction_traces.len()), (104727218, 4, 1));
+    let raw_tx = &b.transaction_traces[0];
+    let raw = raw_tx.calls.iter().flat_map(|c| &c.code_changes).next().unwrap();
+    assert_eq!((raw.old_hash == raw.new_hash, raw.old_code == raw.new_code), (true, true));
+    let config = parse(r#"{"chain_id":56,"producer_versions":[4,5]}"#).unwrap();
+    let events = project(&b, &config).unwrap();
+    assert_eq!(events.code_changes.len(), 1);
+    let change = &events.code_changes[0];
+    // The row keeps what was written (a delegation indicator to the target) and
+    // states that no code state changed.
+    assert_eq!(change.kind, pb::CodeChangeKind::DelegationSet as i32);
+    assert_eq!(change.delegation_target, raw.new_code[3..].to_vec());
+    assert!(!change.persisted);
+    // It is not an attempt in a reverted frame: the frame persisted and the
+    // authorization was applied.
+    let call = events.calls.iter().find(|c| c.index == change.call_index).unwrap();
+    assert!(call.persisted && !call.state_reverted);
+    assert_eq!(events.transactions[0].status, eth::TransactionTraceStatus::Succeeded as i32);
+    let auth = events.set_code_authorizations.iter().find(|a| a.authority == change.address).unwrap();
+    assert!(auth.applied && !auth.discarded);
+    assert_eq!(auth.address, change.delegation_target);
+}
+
+#[test]
+fn delegate_and_callcode_frames_expose_code_address_and_caller_context_across_an_upgrade() {
+    // A proxy P delegating to I1, an upgrade that writes P's implementation
+    // slot, then P delegating to I2. The facts carry the code address of each
+    // delegate frame and its storage context (the caller); interpreting the
+    // change of code address as an upgrade is the consumer's job.
+    let (user, proxy, i1, i2) = (vec![1u8; 20], vec![0xaa; 20], vec![0x11; 20], vec![0x22; 20]);
+    let slot = vec![0x36; 32];
+    let frame = |index: u32, parent: u32, depth: u32, kind: eth::CallType, caller: &[u8], address: &[u8], writes: Vec<eth::StorageChange>| eth::Call {
+        index,
+        parent_index: parent,
+        depth,
+        call_type: kind as i32,
+        caller: caller.to_vec(),
+        address: address.to_vec(),
+        storage_changes: writes,
+        begin_ordinal: 10 * u64::from(index) + 1,
+        end_ordinal: 10 * u64::from(index) + 9,
+        ..Default::default()
+    };
+    let write = |address: &[u8], key: Vec<u8>, old: u8, new: u8, ordinal: u64| eth::StorageChange {
+        address: address.to_vec(),
+        key,
+        old_value: vec![old],
+        new_value: vec![new],
+        ordinal,
+    };
+    let transaction = |index: u32, calls: Vec<eth::Call>| eth::TransactionTrace {
+        index,
+        hash: vec![index as u8 + 1; 32],
+        ..tx(calls)
+    };
+    let mut b = block();
+    b.transaction_traces = vec![
+        transaction(
+            0,
+            vec![
+                frame(1, 0, 0, eth::CallType::Call, &user, &proxy, vec![]),
+                frame(2, 1, 1, eth::CallType::Delegate, &proxy, &i1, vec![write(&proxy, vec![5; 32], 0, 1, 25)]),
+            ],
+        ),
+        transaction(
+            1,
+            vec![
+                frame(1, 0, 0, eth::CallType::Call, &user, &proxy, vec![]),
+                frame(2, 1, 1, eth::CallType::Delegate, &proxy, &i1, vec![write(&proxy, slot.clone(), 0x11, 0x22, 25)]),
+            ],
+        ),
+        transaction(
+            2,
+            vec![
+                frame(1, 0, 0, eth::CallType::Call, &user, &proxy, vec![]),
+                frame(2, 1, 1, eth::CallType::Delegate, &proxy, &i2, vec![write(&proxy, vec![5; 32], 1, 2, 25)]),
+                // A CALLCODE from I2's frame also runs against the proxy's storage.
+                frame(3, 2, 2, eth::CallType::Callcode, &proxy, &i1, vec![write(&proxy, vec![6; 32], 0, 1, 35)]),
+            ],
+        ),
+    ];
+    let events = project(&b, &config()).unwrap();
+    // (transaction, call type, caller, code address, storage writes, persisted)
+    type Frame = (u32, i32, Vec<u8>, Vec<u8>, u32, bool);
+    let delegated: Vec<Frame> = events
+        .calls
+        .iter()
+        .filter(|c| c.depth > 0)
+        .map(|c| {
+            (
+                c.transaction_index,
+                c.call_type,
+                c.caller.clone(),
+                c.address.clone(),
+                c.storage_change_count,
+                c.persisted,
+            )
+        })
+        .collect();
+    assert_eq!(
+        delegated,
+        vec![
+            (0, pb::CallType::Delegate as i32, proxy.clone(), i1.clone(), 1, true),
+            (1, pb::CallType::Delegate as i32, proxy.clone(), i1.clone(), 1, true),
+            (2, pb::CallType::Delegate as i32, proxy.clone(), i2.clone(), 1, true),
+            (2, pb::CallType::Callcode as i32, proxy.clone(), i1.clone(), 1, true),
+        ]
+    );
+    // The package reports facts only: no storage rows, no upgrade label.
+    assert!(events.code_changes.is_empty());
+}
+
+#[test]
+fn transaction_types_outside_the_named_set_keep_their_raw_value() {
+    let mut b = block();
+    let cases: [(i32, pb::TransactionType); 10] = [
+        (0, pb::TransactionType::Legacy),
+        (1, pb::TransactionType::AccessList),
+        (2, pb::TransactionType::DynamicFee),
+        (3, pb::TransactionType::Blob),
+        (4, pb::TransactionType::SetCode),
+        (100, pb::TransactionType::Arbitrum),
+        (120, pb::TransactionType::Arbitrum),
+        // 103 lies inside Arbitrum's numeric range but is not one of its types.
+        (103, pb::TransactionType::Other),
+        (126, pb::TransactionType::OptimismDeposit),
+        (200, pb::TransactionType::Other),
+    ];
+    b.transaction_traces = cases
+        .iter()
+        .enumerate()
+        .map(|(i, (raw, _))| eth::TransactionTrace {
+            index: i as u32,
+            hash: vec![i as u8 + 1; 32],
+            r#type: *raw,
+            ..tx(vec![eth::Call {
+                index: 1,
+                ..Default::default()
+            }])
+        })
+        .collect();
+    let events = project(&b, &config()).unwrap();
+    let got: Vec<(u32, i32)> = events.transactions.iter().map(|t| (t.type_raw, t.r#type)).collect();
+    let want: Vec<(u32, i32)> = cases.iter().map(|(raw, kind)| (*raw as u32, *kind as i32)).collect();
+    assert_eq!(got, want);
+}
