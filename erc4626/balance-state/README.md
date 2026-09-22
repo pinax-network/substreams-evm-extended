@@ -22,9 +22,16 @@ Deposit/Withdraw ratio is never a conversion.
 
 | `model` | Conversion (pinned) | Dependency rows carried |
 | --- | --- | --- |
-| `aave-static-atoken-lm` | `rayMulRoundDown(shares, POOL.getReserveNormalizedIncome(asset))` (bgd-labs/static-a-token-v3 `101f5d97…`); `previewMint` rounds up; `maxRedeem` is 0 while the reserve is inactive or paused | Aave Pool `ReserveData` words of the asset: `AAVE_LIQUIDITY_INDEX`, `AAVE_CURRENT_LIQUIDITY_RATE`, `AAVE_LAST_UPDATE_TIMESTAMP` (`key` = asset), one row per decoded field of every written word; dependencies POOL, WRAPPED_ASSET (aToken), UNDERLYING, Pool implementation pointer |
+| `aave-static-atoken-lm` | `rayMulRoundDown(shares, POOL.getReserveNormalizedIncome(asset))` (bgd-labs/static-a-token-v3 `101f5d97…`); `previewMint` rounds up; `maxRedeem` is 0 while the reserve is inactive or paused | Aave Pool `ReserveData` words of the asset: `AAVE_LIQUIDITY_INDEX`, `AAVE_CURRENT_LIQUIDITY_RATE`, `AAVE_LAST_UPDATE_TIMESTAMP` (`key` = asset), one row per decoded field of every written word; dependencies POOL, WRAPPED_ASSET (aToken) and UNDERLYING as `STORAGE_POINTER` edges on the vault's `_aToken` (8) and `_aTokenUnderlying` (9), Pool implementation pointer |
 | `maker-savings-dai` | `shares × chi′ / RAY`, `chi′ = rpow(dsr, now − rho) × chi / RAY` when `now > rho` (sky-ecosystem/sdai `66587976…`, makerdao/dss `pot.sol`); `previewWithdraw` rounds up | Maker Pot `MAKER_POT_DSR`, `MAKER_POT_CHI`, `MAKER_POT_RHO`; dependency RATE_ACCUMULATOR (Pot), UNDERLYING |
-| `oz-virtual-offset` | `shares × (totalAssets + 1) / (totalSupply + 10^offset)` floor using fullprecision `Math.mulDiv` (OpenZeppelin v5.0.0 `ERC4626.sol`); `totalAssets = asset.balanceOf(vault)` in the base | `ERC4626_TOTAL_ASSETS` from the source-bound asset balance decoder (`key` = vault), `ERC4626_DECIMALS_OFFSET` as a qualified constant; dependency UNDERLYING and its bound implementation |
+| `oz-virtual-offset` | `shares × (totalAssets + 1) / (totalSupply + 10^offset)` floor using fullprecision `Math.mulDiv` (openzeppelin-contracts-upgradeable v5.0.0 `625fb3c2…` `ERC4626Upgradeable.sol`); `totalAssets = asset.balanceOf(vault)` in the base | `ERC4626_TOTAL_ASSETS` from the source-bound asset balance decoder (`key` = vault), `ERC4626_DECIMALS_OFFSET` as a qualified constant; dependency UNDERLYING as a `STORAGE_POINTER` edge on the `ERC4626Storage` word (`_asset` in bits 0–160, `_underlyingDecimals` above) and the asset's bound implementation |
+
+`ModelEpoch` states the evaluated balance, not the share token:
+`balance_asset` and `balance_decimals` are the underlying asset and its
+decimals, `basis_scale` is RAY for the static aToken and sDAI (`shares × rate /
+RAY`) and `""` for the OpenZeppelin share ratio, and `implementation_revision`
+is the declared revision (`STATIC__ATOKEN_LM_REVISION` = 2 for the static
+aToken).
 
 Every model also carries the vault's `totalSupply` as `ERC4626_TOTAL_SUPPLY`.
 Total-assets changes without share transfers (yield, loss, donations, Pot
@@ -38,7 +45,7 @@ added; it is not approximated by a generic ratio.
 | Table | Row |
 | --- | --- |
 | `ModelEpoch` INVALIDATED (ERC-4626 asset rebinding) | a persisted write to the vault's ERC-7201 `openzeppelin.storage.ERC4626` word, which holds `_asset` and `_underlyingDecimals`: the model would convert into a different asset, so the epoch is invalidated with the raw words as evidence rather than silently re-bound |
-| `ModelEpoch` INVALIDATED | vault implementation pointer write (`IMPLEMENTATION_POINTER_WRITE`), Pool or OZ asset implementation pointer write (`DEPENDENCY_POINTER_WRITE`), code change on the vault or its implementation (`CODE_CHANGE`), on the asset, OZ asset implementation, Pool, Pool implementation, aToken or Pot (`DEPENDENCY_CODE_CHANGE`), each with evidence |
+| `ModelEpoch` INVALIDATED | vault implementation pointer write (`IMPLEMENTATION_POINTER_WRITE`), Pool or OZ asset implementation pointer write or a write to the static aToken's `_aToken` / `_aTokenUnderlying` (`DEPENDENCY_POINTER_WRITE`), code change on the vault or its implementation (`CODE_CHANGE`), on the asset, OZ asset implementation, Pool, Pool implementation, aToken or Pot (`DEPENDENCY_CODE_CHANGE`), each with evidence |
 | `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat; Pool and OZ asset implementations are depth-2 pointers under their respective dependencies |
 | `BlockClock` | exactly one per block |
 
@@ -52,8 +59,13 @@ The default manifest parameters bind no vault and emit only `BlockClock`.
   aBnbUSDT. Vault slots follow the pinned declaration order
   (`Initializable` 0; `ERC20` name 1, symbol 2, decimals 3, totalSupply 4,
   balanceOf 5, allowance 6, nonces 7; `_aToken` 8, `_aTokenUnderlying` 9,
-  `_rewardTokens` 10, `_startIndex` 11, `_userRewardsData` 12). The vault
-  implementation address is a placeholder.
+  `_rewardTokens` 10, `_startIndex` 11, `_userRewardsData` 12). `_aToken` and
+  `_aTokenUnderlying` are pointers (`aave.atoken_slot`, `aave.underlying_slot`)
+  because they select the reserve `rate()` reads. `name`, `symbol` and
+  `_rewardTokens` are `other_dynamic_slots`: their data at `keccak256(slot) + i`
+  is reviewed, so the permissionless `refreshRewardTokens()` push is accepted.
+  The Pool implementation pointer is required: an Aave V3 Pool is always a
+  proxy. The vault implementation address is a placeholder.
 - [`tests/fixtures/mainnet-sdai-and-oz-epochs.json`](tests/fixtures/mainnet-sdai-and-oz-epochs.json)
   binds Savings DAI `0x83F2…BEeA` (`totalSupply` 0, `balanceOf` 1, `allowance`
   2, `nonces` 3; no proxy) to `MCD_POT` `0x197E…7cf7` (`dsr` 3, `chi` 4, `rho`
@@ -61,8 +73,11 @@ The default manifest parameters bind no vault and emit only `BlockClock`.
   namespace (`keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ERC20")) - 1)) & ~0xff`,
   re-derived in a test) with a 12-decimal offset. All five `ERC20Storage`
   members are accounted for (`_balances`, `_allowances` and `_totalSupply`
-  decoded; `_name` and `_symbol` reviewed because `__ERC20_init_unchained`
-  writes them), and the `openzeppelin.storage.ERC4626` word is bound so that
+  decoded; `_name` and `_symbol` reviewed, with their long-string data areas,
+  because `__ERC20_init_unchained` writes them), the
+  `openzeppelin.storage.Initializable` word (`0xf0c5…6a00`) that every
+  `initializer` and `reinitializer` writes is reviewed, and the
+  `openzeppelin.storage.ERC4626` word is bound so that
   `__ERC4626_init_unchained` invalidates instead of failing the block.
 
 The OZ dependency block requires `asset_balance_model` and `asset_source_pin`.
@@ -73,7 +88,9 @@ preserves the full raw words as evidence. Its fixture pins Circle
 `keccak256("org.zeppelinos.proxy.implementation")`; the implementation address
 `0x0000000000000000000000000000000000000022` is an **unqualified placeholder**.
 `asset_implementation_slot` and `asset_implementation` must be supplied together
-for a proxy; direct assets omit both. Every persisted write to this bound
+for a proxy. A direct asset omits both and states `asset_not_proxy: true`;
+omitting the pointer without that statement is refused, and the FiatToken
+model always needs its pointer. Every persisted write to this bound
 pointer, a vault implementation pointer or an Aave Pool implementation pointer
 invalidates, including same-value writes; change-and-restore retains both
 intermediate transitions with their own provenance. Pointer writes undergo
@@ -114,9 +131,9 @@ temporary implementation that ran inside the block.
 | Condition | Result |
 | --- | --- |
 | Non-Extended block, `Block.ver` not listed (only 4 and 5 may be listed), incomplete transaction data | block fails |
-| Persisted vault write that is not `totalSupply`, a `balances` entry, the pointer or a reviewed slot / mapping member | `unresolved storage … refusing incomplete balance state` |
+| Persisted vault write that is not `totalSupply`, a `balances` entry, a pointer, a reviewed slot / mapping member, or a reviewed dynamic area element proven by the verified preimage of `keccak256(slot)` (offset below 2³²) | `unresolved storage … refusing incomplete balance state` |
 | Two writes to one key with equal ordinals, or a write whose old value is not the previous new value | `ambiguous` / `discontinuous`, naming the contract, key and ordinals |
-| Model and dependency block mismatch, more or fewer than one dependency block, missing asset decoder/source pin, pointer slot without address, overlapping slots, unknown fields, OZ decimals inconsistent with its offset or virtual shares exceeding uint256 | parameters rejected |
+| Model and dependency block mismatch, more or fewer than one dependency block, missing asset decoder/source pin, missing Pool pointer or static aToken asset pointers, an OZ asset without its pointer or `asset_not_proxy`, pointer slot without address, a dynamic area whose root is not reviewed, overlapping slots, unknown fields, OZ decimals inconsistent with its offset or virtual shares exceeding uint256 | parameters rejected |
 
 Dependency contracts' other storage (other Pool reserves, Pot `Pie`, other
 asset holders) is that contract's own state and is not carried. Reverted
@@ -137,7 +154,9 @@ reserve words with 128/40-bit extraction and the other-reserve filter, Pot
 drips and rate changes, donation-only total-assets changes, offset constant,
 every invalidation, binding rows with depth, reverts, ties, discontinuities
 and parameter refusals, plus equal-value/restored vault and Pool pointer writes,
-shared-Pool attribution and deterministic evidence. `conformance::erc4626` tests cover floor/ceil
+shared-Pool attribution and deterministic evidence, reward-token array pushes,
+two-level allowance keys, a reverted child frame and a complete OpenZeppelin
+initializing block (Initializable word, long name, namespace words). `conformance::erc4626` tests cover floor/ceil
 rounding, zero supply with and without offset, `rpow` half-up rounding and
 overflow, paused-reserve `maxWithdraw`, and uint256 overflow. OZ regression
 tests execute 1,224 conversion/preview calls against compiled pinned Solidity

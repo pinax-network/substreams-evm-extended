@@ -472,8 +472,10 @@ dependencies = [
 name = "erc4626-balance-state"
 version = "0.1.0"
 dependencies = [
+ "conformance",
  "evm-persist",
  "hex",
+ "num-bigint",
  "prost 0.13.5",
  "prost-types 0.13.5",
  "proto",

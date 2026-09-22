@@ -339,7 +339,7 @@ fn erc4626_conversion_input_change_lives_in_the_dependency_family() {
         transaction_hash: word(0x2f),
         call_index: 3,
         storage_contract: addr(0x19), // the Maker Pot
-        storage_slot: word(0x02),
+        storage_slot: word(0x04),     // chi (compiled Pot: Pie 2, dsr 3, chi 4, rho 7)
         raw_previous_word: word(0x09),
         raw_word: word(0x0a),
         bit_width: 256,
@@ -354,6 +354,8 @@ fn erc4626_conversion_input_change_lives_in_the_dependency_family() {
         model_id: "erc4626/sdai/pot-rpow".into(),
         source_pin: "sky-ecosystem/sdai@665879762f8b5df5d234463f45d1d6a49bd4fbeb".into(),
         basis_kind: BasisKind::Shares as i32,
+        // assets = shares * chi / RAY
+        basis_scale: "1000000000000000000000000000".into(),
         balance_rounding: Rounding::Floor as i32,
         basis_bit_width: 256,
         market_code_hash: word(0xc0),
@@ -389,7 +391,7 @@ fn erc4626_conversion_input_change_lives_in_the_dependency_family() {
         global_state: vec![
             pot(StateField::MakerPotChi, "1097654321098765432109876543", "1000000000000000000000000000"),
             GlobalState {
-                storage_slot: word(0x03),
+                storage_slot: word(0x07), // rho
                 ..pot(StateField::MakerPotRho, "1789689600", "1")
             },
         ],

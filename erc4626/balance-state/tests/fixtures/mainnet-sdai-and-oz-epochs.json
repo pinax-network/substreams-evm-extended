@@ -33,7 +33,7 @@
       "epoch": 1,
       "model": "oz-virtual-offset",
       "model_id": "erc4626/openzeppelin-v5/virtual-offset",
-      "source_pin": "OpenZeppelin/openzeppelin-contracts@932fddf69a699a9a80fd2396fd1a2ab91cdda123 (v5.0.0) contracts/token/ERC20/extensions/ERC4626.sol; placeholder vault, synthetic tests only; ERC-7201 namespaces openzeppelin.storage.ERC20 (_balances +0, _allowances +1, _totalSupply +2, _name +3, _symbol +4) and openzeppelin.storage.ERC4626 (_asset, _underlyingDecimals in one word)",
+      "source_pin": "OpenZeppelin/openzeppelin-contracts-upgradeable@625fb3c2b2696f1747ba2e72d1e1113066e6c177 (v5.0.0) contracts/token/ERC20/extensions/ERC4626Upgradeable.sol, contracts/token/ERC20/ERC20Upgradeable.sol, contracts/proxy/utils/Initializable.sol; placeholder vault, synthetic tests only; ERC-7201 namespaces openzeppelin.storage.ERC20 (_balances +0, _allowances +1, _totalSupply +2, _name +3, _symbol +4), openzeppelin.storage.ERC4626 (_asset, _underlyingDecimals in one word) and openzeppelin.storage.Initializable (_initialized, _initializing in one word)",
       "activation_block": 1,
       "asset": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       "asset_decimals": 6,
@@ -53,6 +53,11 @@
         "erc4626_storage_slot": "0x0773e532dfede91f04b12a73d3d2acd361424f41f76b4fb79f090161e36b4e00"
       },
       "other_slots": [
+        "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace03",
+        "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace04",
+        "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00"
+      ],
+      "other_dynamic_slots": [
         "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace03",
         "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace04"
       ]
