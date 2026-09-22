@@ -476,7 +476,8 @@ fn reverted_frames_failed_transactions_and_ordering_faults_are_handled() {
 #[test]
 fn validate_block_refuses_every_malformed_identity() {
     let cfg = config();
-    let cases: Vec<(&str, Box<dyn Fn(&mut eth::Block)>)> = vec![
+    type Mutation = Box<dyn Fn(&mut eth::Block)>;
+    let cases: Vec<(&str, Mutation)> = vec![
         (
             "Extended blocks required",
             Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32),
