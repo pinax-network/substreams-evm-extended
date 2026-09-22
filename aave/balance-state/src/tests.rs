@@ -597,3 +597,74 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
     })];
     assert!(project(&block, &cfg).unwrap_err().to_string().contains("unresolved"));
 }
+
+#[test]
+fn validate_block_refuses_every_malformed_identity_and_incomplete_transaction() {
+    let cfg = config();
+    type Mutation = Box<dyn Fn(&mut eth::Block)>;
+    let cases: Vec<(&str, Mutation)> = vec![
+        (
+            "Extended blocks required",
+            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32),
+        ),
+        ("producer version", Box::new(|b| b.ver = 3)),
+        ("producer version", Box::new(|b| b.ver = 4)), // the fixture lists version 5 only
+        ("missing header", Box::new(|b| b.header = None)),
+        ("invalid block identity", Box::new(|b| b.hash = vec![1; 31])),
+        ("invalid block identity", Box::new(|b| b.header.as_mut().unwrap().parent_hash = vec![])),
+        ("invalid block identity", Box::new(|b| b.header.as_mut().unwrap().state_root = vec![3; 33])),
+        ("header number mismatch", Box::new(|b| b.header.as_mut().unwrap().number += 1)),
+        ("missing timestamp", Box::new(|b| b.header.as_mut().unwrap().timestamp = None)),
+        (
+            "negative timestamp",
+            Box::new(|b| b.header.as_mut().unwrap().timestamp.as_mut().unwrap().seconds = -1),
+        ),
+        (
+            "incomplete transaction persistence data",
+            Box::new(|b| b.transaction_traces[0].status = eth::TransactionTraceStatus::Unknown as i32),
+        ),
+        ("incomplete transaction persistence data", Box::new(|b| b.transaction_traces[0].calls.clear())),
+    ];
+    for (message, apply) in cases {
+        let mut b = synthetic_block(122288100);
+        b.transaction_traces = vec![tx(user_state_call(&[9; 20], 1, 2, 10))];
+        apply(&mut b);
+        let err = project(&b, &cfg).unwrap_err().to_string();
+        assert!(err.contains(message), "expected `{message}`, got `{err}`");
+    }
+    let mut b = synthetic_block(0);
+    b.header.as_mut().unwrap().number = 0;
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("header number mismatch"));
+    // Version 4 is accepted when listed.
+    let mut v: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    v["producer_versions"] = serde_json::json!([4, 5]);
+    let both = parse(&v.to_string()).unwrap();
+    let mut b = synthetic_block(122288100);
+    b.ver = 4;
+    assert_eq!(project(&b, &both).unwrap().clocks[0].producer_version, 4);
+}
+
+#[test]
+fn output_is_deterministic_under_input_permutation() {
+    let cfg = config();
+    let mut b = synthetic_block(122288100);
+    let mut call_a = user_state_call(&[9; 20], 1, 2, 10);
+    let second_holder = user_state_call(&[8; 20], 5, 6, 12);
+    call_a.keccak_preimages.extend(second_holder.keccak_preimages.clone());
+    call_a.storage_changes.extend(second_holder.storage_changes.clone());
+    let mut tx_b = tx(user_state_call(&[7; 20], 3, 4, 20));
+    tx_b.index = 10;
+    tx_b.hash = vec![8; 32];
+    b.transaction_traces = vec![tx(call_a), tx_b];
+    let forward = project(&b, &cfg).unwrap();
+    let mut reversed = b.clone();
+    reversed.transaction_traces.reverse();
+    for t in &mut reversed.transaction_traces {
+        for c in &mut t.calls {
+            c.storage_changes.reverse();
+        }
+    }
+    let backward = project(&reversed, &cfg).unwrap();
+    assert_eq!(forward.encode_to_vec(), backward.encode_to_vec());
+    assert_eq!(forward.holder_basis.iter().map(|h| h.holder[0]).collect::<Vec<_>>(), vec![7, 8, 9]);
+}

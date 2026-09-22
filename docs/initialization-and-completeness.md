@@ -29,7 +29,18 @@ Anything else is **unknown**. In particular:
 - A checkpoint for a token that was not yet created at the checkpoint block
   is rejected by the ERC-20 tools (`known_checkpoint_amount` returns nothing);
   a deployment baseline for a token that already has state is rejected by
-  both ledgers.
+  both ledgers. `common/retention` remembers the first block at which it held
+  any state for a contract (a checkpoint, a row, a seed or an epoch row), so
+  a token whose entries a `BOUND` without carryover dropped is still not new.
+  Holders the creation block itself wrote (a constructor mint) keep their
+  observed row; only the other listed holders are seeded with `0`.
+- One ledger retains one output (`Domain::Balances` or
+  `Domain::BalanceState`). `evm.balances.v1` amounts and
+  `evm.balance_state.v1` bases of the same token share a key but are different
+  quantities: a `Balances` checkpoint holds unsigned `balanceOf` values, a
+  `BalanceState` checkpoint holds the market's basis in the units of its
+  epoch (negative only for a signed principal). Values are exact uint256 or
+  int256 decimals.
 - `seed_checkpoint` accepts an explicit 32-byte hash in addition to the
   height and evidence reference. Every seed must share that identity; the
   first applied block must extend it. A hash written only in an evidence
@@ -66,10 +77,10 @@ with synthetic rows, and by saved-data replays where noted:
 | Scenario | Rule | Evidence |
 | --- | --- | --- |
 | Empty output blocks | entries unchanged; `updated` stays at the last emitted block; the block still advances the clock | unit test; native replay of 1,439 saved BSC blocks with 86,564 cross-block continuity checks ([evidence](../native/balances/docs/evidence/replay-bsc-v5.json)) |
-| Passive / reflection / reward changes | a `GlobalState` row touches no holder entry; every initialized holder's *evaluated* amount moves without a write; a holder without a row stays unknown | unit test; Aave index oracle in [`aave/balance-state`](../aave/balance-state/docs/evidence/replay-bsc-v5.json); ERC-20 `captured_pending_rewards_make_a_correct_checkpoint_stale_without_balance_writes` |
-| Migrations / upgrades | `INVALIDATED` suspends lookups for the market; a later `BOUND` decides carryover; the ERC-20 map fails closed instead | unit test; `runtime_qualification_rejects_changed_proxy_target_or_implementation_code` |
+| Passive / reflection / reward changes | a `GlobalState` row touches no holder entry (it is validated, not retained); a holder's evaluated amount moves without a write, so evaluating it needs the market's global words from the stream, which this ledger does not keep; a holder without a row stays unknown | unit test; Aave index oracle in [`aave/balance-state`](../aave/balance-state/docs/evidence/replay-bsc-v5.json); ERC-20 `captured_pending_rewards_make_a_correct_checkpoint_stale_without_balance_writes` |
+| Migrations / upgrades | `INVALIDATED` or `SUSPENDED` suspends lookups for the market and `REAFFIRMED` does not resume it; a later `BOUND` of a strictly newer epoch resumes it and decides carryover. Epoch rows apply in `(ordinal, kind)` order, and rows of the previous epoch in an activation block are applied just before the new `BOUND`, so they are carried over or dropped with the rest of the basis. Rows or epoch rows of a stale or future epoch are refused; the ERC-20 map fails closed instead | unit test; `runtime_qualification_rejects_changed_proxy_target_or_implementation_code` |
 | Burn / mint transitions | `Known(v)` → `Known("0")` and `Unknown` → `Known(v)` are transitions between distinct states; `since` records the first known block | unit test |
-| Final-state snapshot | `compare` reports matches, known-zero matches, mismatches, unknown, unknown-nonzero, unsupported and suspended separately; status is `bounded_parity`, `coverage_gap` or `mismatch` | unit test; typed-path baseline replay below |
+| Final-state snapshot | `compare` reports matches, known-zero matches, mismatches, unknown, unknown-nonzero, unsupported and suspended separately; status is `bounded_parity`, `coverage_gap`, `mismatch`, or `no_reference` for an empty reference | unit test; typed-path baseline replay below |
 
 ## 4. Continuity, gaps, forks and publication
 
@@ -79,10 +90,13 @@ with synthetic rows, and by saved-data replays where noted:
   maps emit exactly one `BlockClock` per block for this purpose and the
   `evm.balance_state.v1` number, hash and parent hash must match the applied
   block.
-- **Atomic application.** Every holder row and epoch kind is validated
-  before changing retained entries, suspensions, clocks, counters or the
-  undo journal. A refused block has no effect and can be retried after its
-  cause is resolved. Unsupported contracts are refused by both row APIs.
+- **Atomic application.** Every holder, global and epoch row is validated
+  (known enum values, `END_OF_BLOCK` holder rows, a sign only for a signed
+  principal, exact decimals, the stream's chain, the market's epoch sequence)
+  before changing retained entries, suspensions, epochs, clocks, counters or
+  the undo journal. A refused block has no effect and can be retried after its
+  cause is resolved. Unsupported contracts are refused by both row APIs and
+  by both seeding calls.
 - **Undo.** Forks are resolved by `undo(to_number)`, which restores the exact
   prior entries and suspensions from a journal bounded by `undo_depth`. An
   undo beyond the journal fails; the consumer then re-initializes from a
@@ -96,8 +110,13 @@ with synthetic rows, and by saved-data replays where noted:
   published state is complete for a block only when every row of that block
   and every earlier block since the initialization origin is stored, and the
   stored clock chain is unbroken from the origin to that block. Partial
-  publication of a block is not a state; consumers check the clock chain, not
-  row counts.
+  publication of a block is not a state: consumers check the clock chain and
+  each block's `BlockClock` row counts against the rows stored for it, and
+  `apply_state` refuses a block whose counts differ. A balance-state ledger
+  also binds the stream identity of its first block (chain, package, package
+  version, spec revision, parameters SHA-256) and refuses a block from a
+  different stream; a changed package or parameter set starts a new ledger
+  from a checkpoint.
 
 ## 5. Reporting completeness
 
@@ -111,7 +130,8 @@ figure:
 | Checkpoint-seeded and deployment-seeded holders | entries by origin | that the checkpoint was complete |
 | Known-zero holders | entries with value `"0"` | that other holders are zero |
 | Cold unknown lookups / rows | queries or reference rows without an entry | errors |
-| Globally enumerated set | only from independent evidence attached with its reference (`attach_enumeration`) | correctness of values |
+| Globally enumerated set | only from independent evidence attached with its reference (`attach_enumeration`) at the latest applied block; every attachment is reported with its block and the holders it lists that were not retained at that block, and undoing the block discards it | correctness of values |
+| Entries of unsupported contracts | entries retained before `mark_unsupported`, counted as `unsupported_entries` and excluded from every holder count | anything about that contract |
 
 The tested interval and the initialized observed-holder set are part of every
 claim. The existing ERC-20 evidence follows this shape: the

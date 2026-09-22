@@ -139,7 +139,9 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
    attribution were mirrored into `compound-v2`, `lido`, `erc4626` and
    `aave`.
 8. Re-run the review for `compound-v2`, `lido`, `erc4626`, `common/retention`.
-   **Still not done, and now blocked twice.** A second workflow (16 finders,
+   **2026-09-22: `common/retention` reviewed independently; 12 findings, all
+   fixed (see the findings doc). The three map crates are under review.**
+   Earlier state: blocked twice. A second workflow (16 finders,
    no verifiers) was launched on 2026-09-21 and every one of its 16 agents
    died on the account spend limit, so those four crates have never been
    reviewed by an independent reader. Their fixes so far came from applying
@@ -151,17 +153,15 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
    that *was* reviewed turned out to have a defect that would have failed
    every real block.
 
-### Open pull request with mixed provenance
+### Mixed-provenance pull request (merged)
 
-[PR #46](https://github.com/pinax-network/substreams-evm-extended/pull/46) is
-open and **deliberately unmerged**. It preserves the offline issue-audit
-remediation (authored by a concurrent session in this same working tree; see
-[`audit-remediation-2026-09-21.md`](audit-remediation-2026-09-21.md)) together
-with the sibling-crate refusal tests, because the two touch the same files and
-were both uncommitted. It is green on every check. Whoever picks this up should
-review it or hand it back to the authoring session; note that it changes the
-`common/retention` host API (`seed_checkpoint` and `seed_deployment_zero` now
-require explicit identities).
+[PR #46](https://github.com/pinax-network/substreams-evm-extended/pull/46)
+combined the offline issue-audit remediation (authored by a concurrent session
+in this same working tree; see
+[`audit-remediation-2026-09-21.md`](audit-remediation-2026-09-21.md)) with the
+sibling-crate refusal tests. It was reviewed and merged on 2026-09-22. It
+changed the `common/retention` host API: `seed_checkpoint` and
+`seed_deployment_zero` now require explicit identities.
 
 ## 5. Facts learned that are not written anywhere else
 
@@ -212,10 +212,10 @@ require explicit identities).
 
 ## 6. Next steps, in order
 
-1. Comment the §4 outcomes on #13, #14, #15, #23, #24; mirror the remaining
-   `compound-v3`-only tests (validate_block table, same-block provenance,
-   multi-market attribution) in the siblings.
-2. Finish the review for the other four crates (workflow resume or by hand).
+1. **Done:** the `compound-v3`-only tests (validate_block table, same-block
+   provenance, multi-market attribution) are mirrored in every sibling.
+2. Finish the independent review of `compound-v2`, `lido`, `erc4626` and
+   `common/retention` (§4 item 8).
 3. **Done 2026-09-21:** solc storage layouts for every pinned contract are
    committed under `docs/evidence/storage-layouts/` with a `tests/storage_layout.rs`
    per package ([provenance](storage-layout-provenance.md)). The USDC FiatToken

@@ -51,6 +51,31 @@ neither contract family uses storage outside those sets.
 The other three dimensions (pinned-source conformance, contract conformance,
 test adequacy) of those four crates remain unreviewed by an independent reader.
 
+### Independent review of `common/retention` (2026-09-22)
+
+One fresh-context reviewer read `common/retention` against
+`initialization-and-completeness.md`, the balance-state contract and the #7
+acceptance list, and proved each claim with a probe test in a scratch copy of
+the crate. It reported 12 findings and no atomicity or undo-restoration
+defect. The maintainer re-read each code path; all 12 were confirmed and
+fixed, and one more was found while fixing them (the last row).
+
+| # | Severity | Finding | Fix |
+| --- | --- | --- | --- |
+| 1 | medium | A deployment-zero seed was refused whenever the creation block emitted a row for the token (a constructor mint), so the origin was unusable for most tokens | Holders the creation block wrote keep their row; the others are seeded. Test `a_constructor_mint_keeps_its_row_and_the_other_holders_start_at_zero` |
+| 2 | medium | A `BOUND` without carryover dropped a pre-existing market's entries, after which it could be seeded as newly deployed | The ledger keeps the first block at which it held any state per contract (journaled). Test `a_token_with_earlier_state_is_never_new_again_even_after_its_entries_are_dropped` |
+| 3 | medium | `evm.balances.v1` amounts and `evm.balance_state.v1` bases shared one key space, suspension map and unsupported set | `Ledger::new(undo_depth, Domain)`: one ledger per output; checkpoint units follow the domain |
+| 4 | medium | Epoch numbers were ignored: an older epoch's `INVALIDATED` suspended a newer binding, an older `BOUND` resumed it, and an older epoch's rows survived a `BOUND` without carryover | Epochs must strictly increase; rows name the epoch in force or one a `BOUND` of the same block supersedes; older-epoch rows apply just before that `BOUND` |
+| 5 | medium | `BlockClock` counts and stream identity were not checked, so a partially stored block or a switched package was accepted | Counts must equal rows; chain, package, version, spec revision and parameters hash are bound (journaled, released by undoing the first block) |
+| 6 | medium | `compare(&[])` reported `bounded_parity` | New status `no_reference` |
+| 7 | medium | Only the last enumeration was reported; its block was unchecked and survived undo | All enumerations reported; each must describe the latest applied block; undo discards later ones |
+| 8 | medium | Entries of unsupported contracts were counted as initialized, and seeds for them were accepted | Seeds refused; entries counted separately as `unsupported_entries` |
+| 9 | medium | Documented rules (epoch ordering, `SUSPENDED`, `REAFFIRMED` not resuming, `Applied` counts, `first_block`) had no tests; mutants passed; §3 over-claimed evaluation | Tests added for each; §3 now says the ledger keeps basis only |
+| 10 | low/medium | `GlobalState` rows and holder enums were not validated | Known enum values, `END_OF_BLOCK` holder rows, sign only for a signed principal, decimal globals, unsupported markets refused |
+| 11 | low | Checkpoints accepted negative values for unsigned balances and values beyond 256 bits | Exact uint256 / int256 decimals; sign per domain |
+| 12 | low | Undoing the first block left `first_block` set | Reset when no block remains applied |
+| + | medium | Rows of two epochs for one holder in an activation block were refused as duplicates | Duplicate key is `(market, epoch, holder)` |
+
 Legend: severity is the reviewer's; "applies to siblings" is the maintainer's note on where the same pattern exists.
 
 
