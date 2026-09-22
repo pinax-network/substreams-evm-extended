@@ -11,7 +11,7 @@ mod offline {
     // Offline-only replay: no RPC client, endpoint, process runner or sink.
     use anyhow::{bail, ensure, Context, Result};
     use base64::{engine::general_purpose::STANDARD, Engine};
-    use evm_retention::{Clock, Key as RetainedKey, Ledger, Lookup};
+    use evm_retention::{Clock, Domain, Key as RetainedKey, Ledger, Lookup};
     use prost::Message;
     use proto::pb::evm::balances::v1::{Balance, Events};
     use serde_json::{json, Value};
@@ -448,7 +448,7 @@ mod offline {
         let mut block_counts = BufWriter::new(File::create(output.join("per-block.jsonl"))?);
         let mut native_only = BufWriter::new(File::create(output.join("native-only-vs-reference.jsonl"))?);
         let mut reference_only = BufWriter::new(File::create(output.join("reference-only-configured.jsonl"))?);
-        let mut ledger = Ledger::new(1);
+        let mut ledger = Ledger::new(1, Domain::Balances);
         let mut selected_counts: BTreeMap<String, BTreeMap<&str, u64>> = candidates
             .as_array()
             .unwrap()
