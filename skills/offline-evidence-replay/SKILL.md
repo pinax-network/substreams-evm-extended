@@ -34,7 +34,10 @@ records are dropped, so tests that need them must use full blocks.
 
 ## Replay tools (per package, host-only crates under `<pkg>/tools`)
 
-Pattern from `native/balances/tools` and `aave/balance-state/tools`:
+Replay tools exist for `native/balances`, `aave/balance-state` and
+`evm/executions` (the last also tabulates what each producer version records;
+see its README's capability table before assuming an absent fact is absent on
+chain). Pattern from `native/balances/tools` and `aave/balance-state/tools`:
 
 1. Read every `<height>.pb` in the given directories in height order.
 2. Refuse unqualified `Block.ver` and count those blocks separately.

@@ -1,0 +1,431 @@
+{
+  "blocks": {
+    "projected": 1509,
+    "projection_error_examples": [],
+    "projection_errors": 0,
+    "ranges": [
+      [
+        51995162,
+        51995163
+      ],
+      [
+        57207279,
+        57207280
+      ],
+      [
+        58585250,
+        58585251
+      ],
+      [
+        58597371,
+        58597374
+      ],
+      [
+        104727168,
+        104727232
+      ],
+      [
+        104975334,
+        104975335
+      ],
+      [
+        119571736,
+        119571737
+      ],
+      [
+        120607788,
+        120608044
+      ],
+      [
+        121118665,
+        121118666
+      ],
+      [
+        122037457,
+        122037458
+      ],
+      [
+        122259869,
+        122259870
+      ],
+      [
+        122264480,
+        122264544
+      ],
+      [
+        122279966,
+        122279967
+      ],
+      [
+        122284478,
+        122284510
+      ],
+      [
+        122284514,
+        122284515
+      ],
+      [
+        122284541,
+        122284542
+      ],
+      [
+        122284543,
+        122284544
+      ],
+      [
+        122284546,
+        122284547
+      ],
+      [
+        122284550,
+        122284552
+      ],
+      [
+        122284571,
+        122284572
+      ],
+      [
+        122284574,
+        122284575
+      ],
+      [
+        122284577,
+        122284578
+      ],
+      [
+        122284586,
+        122284587
+      ],
+      [
+        122284599,
+        122284600
+      ],
+      [
+        122284617,
+        122284618
+      ],
+      [
+        122284622,
+        122284626
+      ],
+      [
+        122284627,
+        122284628
+      ],
+      [
+        122284630,
+        122284631
+      ],
+      [
+        122284637,
+        122284638
+      ],
+      [
+        122284645,
+        122284646
+      ],
+      [
+        122284659,
+        122284660
+      ],
+      [
+        122284666,
+        122284667
+      ],
+      [
+        122284671,
+        122284672
+      ],
+      [
+        122284697,
+        122284698
+      ],
+      [
+        122284699,
+        122284700
+      ],
+      [
+        122284714,
+        122284715
+      ],
+      [
+        122284734,
+        122284736
+      ],
+      [
+        122284739,
+        122284740
+      ],
+      [
+        122284752,
+        122284753
+      ],
+      [
+        122284762,
+        122284763
+      ],
+      [
+        122284770,
+        122284772
+      ],
+      [
+        122284775,
+        122284776
+      ],
+      [
+        122284801,
+        122284802
+      ],
+      [
+        122284809,
+        122284810
+      ],
+      [
+        122284812,
+        122284813
+      ],
+      [
+        122284821,
+        122284822
+      ],
+      [
+        122284829,
+        122284830
+      ],
+      [
+        122284834,
+        122284835
+      ],
+      [
+        122284843,
+        122284844
+      ],
+      [
+        122284849,
+        122284850
+      ],
+      [
+        122284851,
+        122284852
+      ],
+      [
+        122284879,
+        122284880
+      ],
+      [
+        122284883,
+        122284884
+      ],
+      [
+        122284909,
+        122284910
+      ],
+      [
+        122284911,
+        122284912
+      ],
+      [
+        122284913,
+        122284914
+      ],
+      [
+        122284916,
+        122284917
+      ],
+      [
+        122284927,
+        122284928
+      ],
+      [
+        122284938,
+        122284939
+      ],
+      [
+        122284954,
+        122284955
+      ],
+      [
+        122284969,
+        122284970
+      ],
+      [
+        122284985,
+        122284987
+      ],
+      [
+        122284988,
+        122284990
+      ],
+      [
+        122288006,
+        122289030
+      ]
+    ],
+    "refused_unqualified_producer_version": {}
+  },
+  "capabilities_by_producer_version": {
+    "4": {
+      "blob_transactions": 13,
+      "block_level_balance_changes": 142,
+      "block_level_code_changes": 0,
+      "blocks": 71,
+      "delegated_frames_eip7702": 1640,
+      "equal_value_storage_changes": 0,
+      "frames": 181522,
+      "frames_by_call_type": {
+        "CALL": 55762,
+        "CREATE": 26,
+        "DELEGATE": 19588,
+        "STATIC": 106146
+      },
+      "frames_with_keccak_preimages": 106999,
+      "logs_in_reverted_frames": 1718,
+      "set_code_authorizations": 136,
+      "storage_changes": 90703,
+      "system_calls": 71,
+      "transaction_types_raw": {
+        "0": 5626,
+        "1": 165,
+        "2": 4369,
+        "3": 13,
+        "4": 97
+      },
+      "transactions": 10270,
+      "transactions_with_blob_gas": 13,
+      "zero_begin_ordinal_frames": 0
+    },
+    "5": {
+      "blob_transactions": 217,
+      "block_level_balance_changes": 2876,
+      "block_level_code_changes": 0,
+      "blocks": 1438,
+      "delegated_frames_eip7702": 14273,
+      "equal_value_storage_changes": 0,
+      "frames": 3133811,
+      "frames_by_call_type": {
+        "CALL": 1038512,
+        "CREATE": 600,
+        "DELEGATE": 1191616,
+        "STATIC": 903083
+      },
+      "frames_with_keccak_preimages": 1393948,
+      "logs_in_reverted_frames": 24630,
+      "set_code_authorizations": 890,
+      "storage_changes": 2002446,
+      "system_calls": 1438,
+      "transaction_types_raw": {
+        "0": 69120,
+        "1": 2261,
+        "2": 34520,
+        "3": 217,
+        "4": 563
+      },
+      "transactions": 106681,
+      "transactions_with_blob_gas": 217,
+      "zero_begin_ordinal_frames": 0
+    }
+  },
+  "clocks": {
+    "checked": 1509,
+    "mismatches": 0
+  },
+  "determinism": {
+    "checked": 1509,
+    "mismatches": 0
+  },
+  "inputs": {
+    "block_files": 1509,
+    "directories": [
+      "erc20/balances/out/4stock-creation-blocks",
+      "erc20/balances/out/4stock-launch-blocks",
+      "erc20/balances/out/clone-holder-blocks",
+      "erc20/balances/out/clone-holder-gap-blocks",
+      "erc20/balances/out/computed-holder-blocks",
+      "erc20/balances/out/computed-holder-gap-blocks",
+      "erc20/balances/out/deployment-holder-blocks",
+      "erc20/balances/out/fallback-holder-blocks-public",
+      "erc20/balances/out/hlbp-active-blocks",
+      "erc20/balances/out/holder-coverage-blocks",
+      "erc20/balances/out/log-only-creation",
+      "erc20/balances/out/log-only-creation-review",
+      "erc20/balances/out/lp400-sixfield-fixtures/lp400",
+      "erc20/balances/out/next50-sample-blocks",
+      "erc20/balances/out/pending300-dia-activity/rank266",
+      "erc20/balances/out/pending300-list-activity/rank298",
+      "erc20/balances/out/ranks101-150-sample-blocks",
+      "erc20/balances/out/ranks151-200-fixtures-incomplete",
+      "erc20/balances/out/ranks151-200-sample-blocks",
+      "erc20/balances/out/ranks201-250-sample-blocks",
+      "erc20/balances/out/ranks251-300-sample-blocks",
+      "erc20/balances/out/ranks301-350-sample-blocks",
+      "erc20/balances/out/ranks351-400-sample-blocks",
+      "erc20/balances/out/ranks401-450-sample-blocks",
+      "erc20/balances/out/roles450-initial-fixtures",
+      "erc20/balances/out/shareholder-removal-blocks",
+      "erc20/balances/out/shareholder-removal-reproducer",
+      "erc20/balances/out/shareholder-removal-window-blocks",
+      "erc20/balances/out/spro-divisor-qualification",
+      "erc20/balances/out/star-mint-blocks",
+      "erc20/balances/out/top-tokens-active-blocks",
+      "erc20/balances/out/top-tokens-discovery-blocks",
+      "erc20/balances/out/top50-active-blocks",
+      "erc20/balances/out/top50-full-holder-blocks",
+      "erc20/balances/out/top50-holder-extension512",
+      "erc20/balances/out/top50-holder-extension60",
+      "erc20/balances/out/tops-list-activity/rank236",
+      "erc20/balances/out/vote-history-blocks",
+      "erc20/balances/out/voting-burn-activity-v2/rank214",
+      "erc20/balances/out/voting-burn-activity-v2/rank240",
+      "erc20/balances/out/voting-burn-activity-v2/rank246"
+    ],
+    "duplicate_identical_captures": 4548
+  },
+  "mode": "offline_saved_data_only",
+  "network": "bsc",
+  "parameters": {
+    "chain_id": 56,
+    "producer_versions": [
+      4,
+      5
+    ]
+  },
+  "parameters_sha256": "7131fbb93a16682c988fb13e705f84bb0dd66e369454ef0c3b7cf72234cf2d16",
+  "rows": {
+    "calls": 3315333,
+    "calls_persisted": 3190593,
+    "code_changes_by_scope_kind_persistence": {
+      "SCOPE_TRANSACTION/CODE_CHANGE_KIND_CREATED/attempted": 1,
+      "SCOPE_TRANSACTION/CODE_CHANGE_KIND_CREATED/persisted": 605,
+      "SCOPE_TRANSACTION/CODE_CHANGE_KIND_DELEGATION_CLEARED/persisted": 3,
+      "SCOPE_TRANSACTION/CODE_CHANGE_KIND_DELEGATION_SET/attempted": 86,
+      "SCOPE_TRANSACTION/CODE_CHANGE_KIND_DELEGATION_SET/persisted": 640
+    },
+    "logs": 1101456,
+    "logs_attempted_in_reverted_frames": 26348,
+    "logs_persisted": 1075108,
+    "receipt_logs": 1075108,
+    "root_created_contracts": 18,
+    "set_code_authorizations_applied": 1022,
+    "set_code_authorizations_discarded": 4,
+    "transactions": 116951
+  },
+  "rpc_in_replay": 0,
+  "sources": {
+    "common/persist/src/lib.rs": "c33c2f5aab193316cbe0b84c91d3260f5499a2bb655c8760fbcad648d2987c96",
+    "evm/executions/src/lib.rs": "374a76034b0bf869c2b4667e71ecf564bfbd2129a16a5e1d7f153e75f68e90e6"
+  },
+  "status": "passed",
+  "storage_context": {
+    "frames_with_writes": 678629,
+    "rule": "DELEGATE and CALLCODE frames write the storage of Call.caller; every other frame writes the storage of Call.address",
+    "violation_examples": [],
+    "violations": 0,
+    "writes_by_call_type": {
+      "CALL": 945147,
+      "CREATE": 471,
+      "DELEGATE": 1147531
+    },
+    "writes_checked": 2093149
+  },
+  "tool": "evm-executions-tools replay"
+}

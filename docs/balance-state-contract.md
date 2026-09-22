@@ -116,7 +116,11 @@ values. An excursion X→Z→X inside one block therefore yields two rows that
 name Z, rather than one reduced X→X row that would hide the temporary
 implementation. Equal-value writes reach the maps through the persistence
 rules' `storage_noop` callback; they are consumed only for pointer slots and
-remain suppressed as balance effects.
+remain suppressed as balance effects. The BSC producers reviewed so far
+(versions 4 and 5) record no equal-value storage change at all (0 of
+2,093,149 in the saved data), so there the rule is enforced for every
+*changing* write, which is what an excursion consists of; a pure same-value
+re-set leaves no record to act on.
 
 **Evaluation at a selected clock.** To value a holder at block N, a consumer
 takes the holder's latest `HolderBasis` at or before N, the latest

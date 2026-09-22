@@ -61,6 +61,55 @@ supply fallback rows.
   canonical block and are not modeled. A "cancel" is whichever transaction
   consumed the nonce.
 
+## Call context
+
+`Call.address` is the address whose code the frame runs, and `Call.caller`
+is the frame's caller. For `CALL_TYPE_DELEGATE` and `CALL_TYPE_CALLCODE`
+frames the storage (and `msg.sender` context) is the **caller**'s; for every
+other frame it is the frame's own `address`. A proxy upgrade is therefore
+visible as a change of `address` among the delegate frames whose `caller` is
+the proxy; the package records that fact and does not label it. The replay
+below checked this rule against every persisted storage write in the saved
+data: 2,093,149 writes in 678,629 frames, 1,147,531 of them in delegate
+frames, with no exception. No `CALLCODE` frame occurs in the saved data; the
+rule for it is covered by a synthetic regression.
+
+## Producer capabilities (saved BSC data)
+
+What each reviewed producer version supplied in the saved blocks, from the
+[replay report](docs/evidence/replay-bsc-v4-v5.json). An absent fact is only
+meaningful relative to what the producer records.
+
+| Fact | `Block.ver` 4 (71 blocks) | `Block.ver` 5 (1,438 blocks) |
+| --- | --- | --- |
+| Transaction types observed | 0–4 | 0–4 |
+| EIP-7702 delegated frames / authorizations | 1,640 / 136 | 14,273 / 890 |
+| Blob transactions (all with `blob_gas`) | 13 | 217 |
+| System calls | 1 per block | 1 per block |
+| Block-level balance changes | 142 | 2,876 |
+| Block-level code changes | 0 | 0 |
+| Logs in reverted frames (attempts) | 1,718 | 24,630 |
+| Equal-value storage changes | 0 of 90,703 | 0 of 2,002,446 |
+| Frames with a zero `begin_ordinal` | 0 | 0 |
+
+Two consequences for consumers:
+
+- **An `SSTORE` that writes the current value leaves no record** on these
+  producers: none of 2,093,149 storage changes is equal-valued. Only changing
+  writes are observable, which is why the balance-state packages evidence
+  every changing pointer write individually rather than relying on a no-op.
+- **Code changes, by contrast, are recorded even when nothing changes.** A
+  SetCode authorization that re-delegates an account to its current target
+  produces a code change whose old and new code are identical (86 cases, all
+  in successful transactions with applied authorizations). The row keeps kind
+  `DELEGATION_SET` and the target, with `persisted = false` because no code
+  state changed; the frame's `Call.persisted` is `true` and the
+  `SetCodeAuthorization` row shows the authorization `applied`, so it is
+  distinguishable from an attempt in a reverted frame.
+
+Producer semantics on other chains and versions are qualified under
+[#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
+
 ## Parameters
 
 ```json
@@ -83,11 +132,26 @@ clone-factory transactions, the two captured failed SetCode transactions
 (applied authorizations, no persisted frame), and synthetic cases for receipt
 same-count receipt tampering, receipt ordering, parent/child trace ordering,
 ambiguous log ordinals, reverted children, system calls, block records, code-change
-kinds and parameter guards. Producer semantics on other chains are
-qualified under [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
+kinds and parameter guards, plus a captured same-target re-delegation,
+delegate and `CALLCODE` context across a proxy upgrade, and transaction types
+outside the named set (raw value kept, `OTHER` when unnamed). Producer
+semantics on other chains are qualified under
+[#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
+
+The host-only replay tool (`tools/`, excluded from the WASM path) projects
+every saved block, checks one clock per block, determinism and the storage
+context rule, and tabulates producer capabilities. Over all 41 cached BSC
+directories ([report](docs/evidence/replay-bsc-v4-v5.json)): 1,509 distinct
+blocks (71 version 4, 1,438 version 5) project with **0 errors**, including
+the receipt/trace log agreement check on 116,951 transactions (1,075,108
+persisted trace logs equal 1,075,108 receipt logs), 1,509/1,509 deterministic
+re-projections and 0 storage-context violations. This is saved-data evidence,
+not a package qualification.
 
 ```sh
-cargo test --locked -p evm-executions
+cargo test --locked -p evm-executions -p evm-executions-tools
+cargo run --release --locked -p evm-executions-tools -- replay \
+  --blocks <dir> [--blocks <dir> ...] --producer-versions 4,5 --output evm/executions/out/replay
 make -C evm/executions build
 ```
 
