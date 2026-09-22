@@ -482,3 +482,98 @@ fn add_small(word: &[u8; 32], n: u8) -> [u8; 32] {
     }
     out
 }
+
+#[test]
+fn shared_hardening_rules_hold_for_ctokens() {
+    use prost::Message;
+    let cfg = config();
+    let m = cusdc();
+    // Only Extended producer versions 4 and 5 are qualified.
+    let mut v: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    v["producer_versions"] = serde_json::json!([3]);
+    assert!(parse(&v.to_string()).unwrap_err().to_string().contains("4 and 5"));
+    v["producer_versions"] = serde_json::json!([4, 5]);
+    assert!(parse(&v.to_string()).is_ok());
+    // blocksPerYear is a pinned constant of both rate models.
+    v = serde_json::from_str(EPOCHS).unwrap();
+    v["markets"][0]["rate_model"]["constants"]["blocks_per_year"] = "2628000".into();
+    assert!(parse(&v.to_string()).unwrap_err().to_string().contains("2102400"));
+    // Carryover: shares persist across upgrades, rate-model rows do not.
+    let bound = project(&block(1), &cfg).unwrap();
+    assert!(bound.epochs.iter().all(|e| e.basis_carryover && !e.global_carryover));
+    // A delegatecall frame (Call.address == implementation) writing the cToken's storage.
+    let holder = [9u8; 20];
+    let key = mapping_key(&holder, &m.account_tokens_slot);
+    let mut b = block(10);
+    b.transaction_traces = vec![eth::TransactionTrace {
+        status: eth::TransactionTraceStatus::Succeeded as i32,
+        hash: vec![7; 32],
+        index: 9,
+        calls: vec![
+            eth::Call {
+                index: 0,
+                address: m.ctoken.clone(),
+                ..Default::default()
+            },
+            eth::Call {
+                index: 1,
+                parent_index: 0,
+                depth: 1,
+                call_type: eth::CallType::Delegate as i32,
+                address: vec![0xee; 20],
+                keccak_preimages: [preimage(&holder, &m.account_tokens_slot)].into(),
+                storage_changes: vec![
+                    write(&m.ctoken, key, w(1), w(2), 10),
+                    write(&m.ctoken, w(0), w(1), w(0), 11),
+                    write(&m.ctoken, w(0), w(0), w(1), 12),
+                ],
+                ..Default::default()
+            },
+        ],
+        ..Default::default()
+    }];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!((events.holder_basis.len(), &*events.holder_basis[0].value), (1, "2"));
+    // FAILED and REVERTED transactions contribute nothing; status 0 is refused.
+    for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
+        let mut t = tx(shares_call(&m, &holder, 1, 2, 10));
+        t.status = status as i32;
+        b.transaction_traces = vec![t];
+        assert!(project(&b, &cfg).unwrap().holder_basis.is_empty());
+    }
+    let mut t = tx(eth::Call::default());
+    t.status = 0;
+    b.transaction_traces = vec![t];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("incomplete transaction"));
+    // Blocks before activation emit only the clock, even for unresolved writes.
+    v = serde_json::from_str(EPOCHS).unwrap();
+    v["markets"][0]["activation_block"] = 100.into();
+    v["markets"][1]["activation_block"] = 100.into();
+    let late = parse(&v.to_string()).unwrap();
+    let mut b = block(50);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: m.ctoken.clone(),
+        storage_changes: vec![write(&m.ctoken, w(0x77), w(0), w(1), 10)],
+        ..Default::default()
+    })];
+    let events = project(&b, &late).unwrap();
+    assert!(events.holder_basis.is_empty() && events.global_state.is_empty() && events.epochs.is_empty());
+    assert_eq!(events.clocks.len(), 1);
+    // Ordering faults name the contract, key and ordinals.
+    let mut call = shares_call(&m, &holder, 1, 2, 10);
+    call.storage_changes.push(write(&m.ctoken, key, w(3), w(4), 11));
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(call)];
+    let err = project(&b, &cfg).unwrap_err().to_string();
+    assert!(err.contains("discontinuous") && err.contains(&hex::encode(&m.ctoken)) && err.contains(&hex::encode(key)) && err.contains("ordinal 11"));
+    // Output is deterministic under input permutation.
+    let mut b = block(10);
+    let mut second = tx(shares_call(&m, &[8; 20], 5, 6, 12));
+    second.index = 10;
+    second.hash = vec![8; 32];
+    b.transaction_traces = vec![tx(shares_call(&m, &holder, 1, 2, 10)), second];
+    let forward = project(&b, &cfg).unwrap();
+    let mut reversed = b.clone();
+    reversed.transaction_traces.reverse();
+    assert_eq!(forward.encode_to_vec(), project(&reversed, &cfg).unwrap().encode_to_vec());
+}

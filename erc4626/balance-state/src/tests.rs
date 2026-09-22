@@ -154,6 +154,13 @@ fn aave_model_carries_the_pool_reserve_words_of_the_asset_and_its_pointers() {
         fields(&events, &v.vault),
         vec![
             (pb::StateField::AaveLiquidityIndex as i32, ray.to_string(), (ray + ray / 1000).to_string(), 1),
+            // The unchanged rate half of the written word is still a row (one row per decoded field).
+            (
+                pb::StateField::AaveCurrentLiquidityRate as i32,
+                (3 * ray / 100).to_string(),
+                (3 * ray / 100).to_string(),
+                1
+            ),
             (pb::StateField::AaveLastUpdateTimestamp as i32, "1789689000".into(), "1789689600".into(), 1),
         ]
     );
@@ -162,7 +169,8 @@ fn aave_model_carries_the_pool_reserve_words_of_the_asset_and_its_pointers() {
         (&index.key, &index.storage_contract, &*index.scale, index.bit_width),
         (&v.asset, &pool, RAY, 128)
     );
-    assert_eq!((events.global_state[1].bit_offset, events.global_state[1].bit_width), (128, 40));
+    assert_eq!((events.global_state[1].bit_offset, events.global_state[1].bit_width), (128, 128));
+    assert_eq!((events.global_state[2].bit_offset, events.global_state[2].bit_width), (128, 40));
     // Pool implementation pointer write and dependency code changes invalidate.
     b.transaction_traces = vec![tx(eth::Call {
         address: pool.clone(),
@@ -368,4 +376,107 @@ fn reverts_ordering_versions_and_parameters_fail_closed() {
     assert!(mutate(MAINNET, &|v| v["vaults"][1]["vault"] = v["vaults"][0]["vault"].clone()).contains("duplicate"));
     assert!(mutate(MAINNET, &|v| v["vaults"][1]["oz"]["fee_bps"] = 1.into()).contains("unknown field"));
     assert!(mutate(BSC, &|v| v["vaults"][0]["source_pin"] = "".into()).contains("source_pin"));
+}
+
+/// ERC-7201: `keccak256(abi.encode(uint256(keccak256(id)) - 1)) & ~bytes32(uint256(0xff))`.
+fn erc7201(id: &str) -> [u8; 32] {
+    let mut h = keccak(id.as_bytes());
+    // minus one, big-endian with borrow
+    for byte in h.iter_mut().rev() {
+        if *byte == 0 {
+            *byte = 0xff;
+        } else {
+            *byte -= 1;
+            break;
+        }
+    }
+    let mut out = keccak(&h);
+    out[31] = 0;
+    out
+}
+
+#[test]
+fn the_openzeppelin_namespace_slot_is_derived_from_its_id_and_shared_rules_hold() {
+    use prost::Message;
+    let cfg = mainnet();
+    let oz = cfg.vaults[1].clone();
+    assert_eq!(erc7201("openzeppelin.storage.ERC20"), oz.balances_slot);
+    assert_eq!(add_offset(&erc7201("openzeppelin.storage.ERC20"), 2), oz.total_supply_slot);
+    assert_eq!(add_offset(&erc7201("openzeppelin.storage.ERC20"), 1), oz.other_mapping_slots[0]);
+    // Only Extended producer versions 4 and 5 are qualified.
+    let mut v: serde_json::Value = serde_json::from_str(BSC).unwrap();
+    v["producer_versions"] = serde_json::json!([3]);
+    assert!(parse(&v.to_string()).unwrap_err().to_string().contains("4 and 5"));
+    // A delegatecall frame (Call.address == implementation) writing the vault proxy's storage.
+    let cfg = bsc();
+    let vlt = cfg.vaults[0].clone();
+    let holder = [9u8; 20];
+    let key = mapping_key(&holder, &vlt.balances_slot);
+    let mut b = block(10);
+    b.transaction_traces = vec![eth::TransactionTrace {
+        status: eth::TransactionTraceStatus::Succeeded as i32,
+        hash: vec![7; 32],
+        index: 9,
+        calls: vec![
+            eth::Call {
+                index: 0,
+                address: vlt.vault.clone(),
+                ..Default::default()
+            },
+            eth::Call {
+                index: 1,
+                parent_index: 0,
+                depth: 1,
+                call_type: eth::CallType::Delegate as i32,
+                address: vlt.implementation.clone().unwrap(),
+                keccak_preimages: [preimage(&holder, &vlt.balances_slot)].into(),
+                storage_changes: vec![write(&vlt.vault, key, w(1), w(2), 10)],
+                ..Default::default()
+            },
+        ],
+        ..Default::default()
+    }];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!((events.holder_basis.len(), &*events.holder_basis[0].value), (1, "2"));
+    // FAILED and REVERTED transactions contribute nothing; status 0 is refused.
+    for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
+        let mut t = tx(shares_call(&vlt, &holder, 1, 2, 10));
+        t.status = status as i32;
+        b.transaction_traces = vec![t];
+        assert!(project(&b, &cfg).unwrap().holder_basis.is_empty());
+    }
+    let mut t = tx(eth::Call::default());
+    t.status = 0;
+    b.transaction_traces = vec![t];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("incomplete transaction"));
+    // Blocks before activation emit only the clock.
+    let mut v: serde_json::Value = serde_json::from_str(BSC).unwrap();
+    v["vaults"][0]["activation_block"] = 100.into();
+    let late = parse(&v.to_string()).unwrap();
+    let mut b = block(50);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: vlt.vault.clone(),
+        storage_changes: vec![write(&vlt.vault, w(0x77), w(0), w(1), 10)],
+        ..Default::default()
+    })];
+    let events = project(&b, &late).unwrap();
+    assert!(events.holder_basis.is_empty() && events.global_state.is_empty() && events.epochs.is_empty());
+    assert_eq!(events.clocks.len(), 1);
+    // Ordering faults name the contract, key and ordinals.
+    let mut call = shares_call(&vlt, &holder, 1, 2, 10);
+    call.storage_changes.push(write(&vlt.vault, key, w(3), w(4), 11));
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(call)];
+    let err = project(&b, &cfg).unwrap_err().to_string();
+    assert!(err.contains("discontinuous") && err.contains(&hex::encode(&vlt.vault)) && err.contains(&hex::encode(key)) && err.contains("ordinal 11"));
+    // Determinism under input permutation.
+    let mut b = block(10);
+    let mut second = tx(shares_call(&vlt, &[8; 20], 5, 6, 12));
+    second.index = 10;
+    second.hash = vec![8; 32];
+    b.transaction_traces = vec![tx(shares_call(&vlt, &holder, 1, 2, 10)), second];
+    let forward = project(&b, &cfg).unwrap();
+    let mut reversed = b.clone();
+    reversed.transaction_traces.reverse();
+    assert_eq!(forward.encode_to_vec(), project(&reversed, &cfg).unwrap().encode_to_vec());
 }

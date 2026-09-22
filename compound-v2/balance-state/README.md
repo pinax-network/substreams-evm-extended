@@ -27,7 +27,7 @@ underlying-equivalent value.
 | `GlobalState` `COMPOUND_V2_TOTAL_CASH` (`key` = cToken) | CErc20: `underlying.balances[cToken]` from the qualified underlying's mapping; CEther: persisted native balance changes of the cToken | underlying storage or cToken balance changes |
 | `GlobalState` `COMPOUND_V2_IRM_*` | rate-model storage writes for configured slots (JumpRateModelV2 `updateJumpRateModel`), and qualified constants (`blocksPerYear`, WhitePaper immutables) at BOUND / REAFFIRMED | rate-model storage, parameters |
 | `ModelEpoch` INVALIDATED | rate-model pointer write on the cToken (`RATE_MODEL_CHANGE`), delegator implementation pointer write, underlying implementation pointer write, code change on the cToken, its implementation, the rate model or the underlying; each with evidence word or code hash | persisted writes and code changes |
-| `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat: implementation (delegators), interest-rate model, underlying | parameters |
+| `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (`basis_carryover = true`: share storage persists across upgrades; `global_carryover = false`: a rate-model replacement starts an epoch whose IRM rows do not carry): implementation (delegators), interest-rate model, underlying | parameters |
 | `BlockClock` | exactly one per block | header |
 
 Cash is cross-contract state. A direct USDC transfer to cUSDC or an ETH
@@ -59,10 +59,10 @@ requalified before any live use.
 
 | Condition | Result |
 | --- | --- |
-| Non-Extended block, unlisted `Block.ver`, incomplete transaction data | block fails |
+| Non-Extended block, `Block.ver` not listed (only 4 and 5 may be listed), incomplete transaction data | block fails |
 | Persisted cToken write that is not a configured scalar, `accountTokens` entry, pointer or reviewed slot / mapping member (struct words and nested mappings through verified preimages) | `unresolved storage … refusing incomplete balance state` |
-| Two changes to one key with equal ordinals, or a change whose old value is not the previous new value | `ambiguous` / `discontinuous` |
-| Cash kind not matching the market kind, unqualified underlying model, overlapping slots, a rate-model parameter bound both as slot and constant, missing `blocks_per_year`, unknown fields | parameters rejected |
+| Two changes to one key with equal ordinals, or a change whose old value is not the previous new value | `ambiguous` / `discontinuous`, naming the contract, key and ordinals |
+| Cash kind not matching the market kind, unqualified underlying model, overlapping slots, a rate-model parameter bound both as slot and constant, `blocks_per_year` other than the pinned `2102400`, producer versions outside 4 and 5, unknown fields | parameters rejected |
 
 Reverted frames and failed transactions never contribute, per the shared
 [`common/persist`](../../common/persist) rules.

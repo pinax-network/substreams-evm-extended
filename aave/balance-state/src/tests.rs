@@ -248,7 +248,7 @@ fn reverted_writes_and_failed_transactions_emit_nothing() {
 }
 
 #[test]
-fn unresolved_atoken_writes_pointer_writes_and_code_changes_fail_closed() {
+fn unresolved_atoken_writes_fail_closed_and_pointer_writes_and_code_changes_invalidate() {
     let cfg = config();
     let market = &cfg.markets[0];
     let mut block = synthetic_block(122288100);
@@ -276,20 +276,56 @@ fn unresolved_atoken_writes_pointer_writes_and_code_changes_fail_closed() {
         ..Default::default()
     })];
     assert!(project(&block, &cfg).unwrap().holder_basis.is_empty());
-    // Implementation pointer writes on the aToken and on the Pool.
+    // Implementation pointer writes: another target invalidates the epoch with
+    // evidence; a write onto the bound implementation is the binding itself.
     block.transaction_traces = vec![tx(eth::Call {
         address: market.atoken.clone(),
         storage_changes: vec![write(AUSDT, market.implementation_slot, 1, 2, 10)],
         ..Default::default()
     })];
-    assert!(project(&block, &cfg).unwrap_err().to_string().contains("aToken implementation pointer"));
+    let events = project(&block, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), 1);
+    let e = &events.epochs[0];
+    assert_eq!(
+        (e.kind, e.reason, &e.market, &e.evidence_slot, e.ordinal),
+        (
+            pb::EpochEventKind::Invalidated as i32,
+            pb::InvalidationReason::ImplementationPointerWrite as i32,
+            &market.atoken,
+            &market.implementation_slot.to_vec(),
+            10
+        )
+    );
+    let mut onto_bound = eth::StorageChange {
+        address: market.atoken.clone(),
+        key: market.implementation_slot.to_vec(),
+        old_value: vec![1],
+        new_value: vec![],
+        ordinal: 10,
+    };
+    onto_bound.new_value = {
+        let mut w = vec![0u8; 12];
+        w.extend_from_slice(&market.implementation);
+        w
+    };
+    block.transaction_traces = vec![tx(eth::Call {
+        address: market.atoken.clone(),
+        storage_changes: vec![onto_bound],
+        ..Default::default()
+    })];
+    assert!(project(&block, &cfg).unwrap().epochs.is_empty());
     let pool = cfg.pool.as_ref().unwrap();
     block.transaction_traces = vec![tx(eth::Call {
         address: pool.address.clone(),
         storage_changes: vec![write(POOL, pool.implementation_slot, 1, 2, 10)],
         ..Default::default()
     })];
-    assert!(project(&block, &cfg).unwrap_err().to_string().contains("Pool implementation pointer"));
+    let events = project(&block, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), cfg.markets.len());
+    assert!(events
+        .epochs
+        .iter()
+        .all(|e| e.reason == pb::InvalidationReason::DependencyPointerWrite as i32 && e.evidence_contract == pool.address));
     // Unrelated Pool writes are outside the bound reserve structs.
     block.transaction_traces = vec![tx(eth::Call {
         address: pool.address.clone(),
@@ -297,8 +333,20 @@ fn unresolved_atoken_writes_pointer_writes_and_code_changes_fail_closed() {
         ..Default::default()
     })];
     assert!(project(&block, &cfg).unwrap().global_state.is_empty());
-    // Code changes on any bound contract.
-    for address in [&pool.address, &pool.implementation, &market.atoken, &market.implementation] {
+    // Code changes on any bound contract invalidate with the code hash as
+    // evidence: the aToken and its implementation affect one market, the Pool
+    // and its implementation every active market.
+    for (address, reason, count) in [
+        (&pool.address, pb::InvalidationReason::DependencyCodeChange, cfg.markets.len()),
+        (&pool.implementation, pb::InvalidationReason::DependencyCodeChange, cfg.markets.len()),
+        (&market.atoken, pb::InvalidationReason::CodeChange, 1),
+        // aBnbUSDT and aBnbUSDC share one aToken implementation.
+        (
+            &market.implementation,
+            pb::InvalidationReason::CodeChange,
+            cfg.markets.iter().filter(|m| m.implementation == market.implementation).count(),
+        ),
+    ] {
         block.transaction_traces = vec![tx(eth::Call {
             code_changes: vec![eth::CodeChange {
                 address: address.clone(),
@@ -309,7 +357,12 @@ fn unresolved_atoken_writes_pointer_writes_and_code_changes_fail_closed() {
             }],
             ..Default::default()
         })];
-        assert!(project(&block, &cfg).unwrap_err().to_string().contains("code changed"));
+        let events = project(&block, &cfg).unwrap();
+        assert_eq!(events.epochs.len(), count);
+        assert!(events
+            .epochs
+            .iter()
+            .all(|e| e.reason == reason as i32 && e.evidence_code_hash == vec![2; 32] && e.kind == pb::EpochEventKind::Invalidated as i32));
     }
 }
 
@@ -422,4 +475,15 @@ fn every_fixture_carries_its_recorded_identity() {
         assert_eq!(case["transaction"], format!("0x{}", hex::encode(&block.transaction_traces[0].hash)));
         assert_eq!(case["fixture_sha256"], hex::encode(sha2::Sha256::digest(bytes)));
     }
+}
+
+#[test]
+fn producer_versions_are_restricted_to_the_qualified_extended_versions() {
+    let mut v: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    v["producer_versions"] = serde_json::json!([3]);
+    assert!(parse(&v.to_string()).unwrap_err().to_string().contains("4 and 5"));
+    v["producer_versions"] = serde_json::json!([4, 5]);
+    assert!(parse(&v.to_string()).is_ok());
+    v["producer_versions"] = serde_json::json!([]);
+    assert!(parse(&v.to_string()).is_err());
 }

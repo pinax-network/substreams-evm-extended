@@ -30,6 +30,9 @@ use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "lido_balance_state";
 pub const SPEC_REVISION: u32 = 1;
+/// Producer versions whose execution ordinals are qualified (version 3 has
+/// broken system-call ordinals and is refused by the contract).
+pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
 /// `TokenRebased(uint256 indexed reportTimestamp, uint256 timeElapsed, uint256
 /// preTotalShares, uint256 preTotalEther, uint256 postTotalShares, uint256
 /// postTotalEther, uint256 sharesMintedAsFees)`.
@@ -159,8 +162,8 @@ pub fn parse(params: &str) -> Result<Config, Error> {
     let raw: Params = serde_json::from_str(params).map_err(|e| Error::msg(format!("invalid lido balance-state params: {e}")))?;
     require(raw.chain_id > 0, "chain_id required")?;
     require(
-        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| *v > 0),
-        "qualified producer versions required",
+        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| QUALIFIED_PRODUCER_VERSIONS.contains(v)),
+        "producer_versions must be a non-empty subset of the qualified Extended versions 4 and 5",
     )?;
     let mut epochs: Vec<Epoch> = Vec::new();
     for e in &raw.epochs {
@@ -300,11 +303,30 @@ fn reduce(mut changes: Vec<Change>) -> Result<Vec<Reduced>, Error> {
     changes.sort_by_key(|w| w.ordinal);
     let mut rows: BTreeMap<(Vec<u8>, [u8; 32]), Reduced> = BTreeMap::new();
     for w in changes {
-        require(w.ordinal > 0, "persisted storage write has no execution ordinal")?;
+        let at = || format!("0x{} key 0x{}", hex::encode(&w.address), hex::encode(w.key));
+        require(w.ordinal > 0, &format!("persisted storage write at {} has no execution ordinal", at()))?;
         match rows.get_mut(&(w.address.clone(), w.key)) {
             Some(r) => {
-                require(w.ordinal > r.ordinal, "ambiguous storage execution order")?;
-                require(w.old == r.new, "discontinuous storage writes within block")?;
+                require(
+                    w.ordinal > r.ordinal,
+                    &format!(
+                        "ambiguous storage execution order at {}: ordinal {} repeats after {}",
+                        at(),
+                        w.ordinal,
+                        r.ordinal
+                    ),
+                )?;
+                require(
+                    w.old == r.new,
+                    &format!(
+                        "discontinuous storage writes at {}: ordinal {} starts from 0x{} but ordinal {} ended at 0x{}",
+                        at(),
+                        w.ordinal,
+                        hex::encode(w.old),
+                        r.ordinal,
+                        hex::encode(r.new)
+                    ),
+                )?;
                 r.new = w.new;
                 r.ordinal = w.ordinal;
                 r.count += 1;
@@ -470,26 +492,17 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             let epoch = active.iter().find(|e| e.steth == r.address).unwrap();
             if r.key == epoch.total_and_external_shares_slot {
                 for (field, offset) in [(pb::StateField::LidoTotalShares, 0), (pb::StateField::LidoExternalShares, 128)] {
-                    let row = packed_row(config, epoch, &r, field, offset, 128);
-                    if row.value != row.previous_value {
-                        events.global_state.push(row);
-                    }
+                    events.global_state.push(packed_row(config, epoch, &r, field, offset, 128));
                 }
                 words.insert((r.address.clone(), r.key), r);
             } else if r.key == epoch.buffered_slot {
                 for (field, offset) in [(pb::StateField::LidoBufferedEther, 0), (pb::StateField::LidoDepositedPostReport, 128)] {
-                    let row = packed_row(config, epoch, &r, field, offset, 128);
-                    if row.value != row.previous_value {
-                        events.global_state.push(row);
-                    }
+                    events.global_state.push(packed_row(config, epoch, &r, field, offset, 128));
                 }
                 words.insert((r.address.clone(), r.key), r);
             } else if r.key == epoch.cl_slot {
                 for (field, offset) in [(pb::StateField::LidoClValidatorsBalance, 0), (pb::StateField::LidoClPendingBalance, 128)] {
-                    let row = packed_row(config, epoch, &r, field, offset, 128);
-                    if row.value != row.previous_value {
-                        events.global_state.push(row);
-                    }
+                    events.global_state.push(packed_row(config, epoch, &r, field, offset, 128));
                 }
                 words.insert((r.address.clone(), r.key), r);
             } else if r.key == epoch.contract_version_slot {

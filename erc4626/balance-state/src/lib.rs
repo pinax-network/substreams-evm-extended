@@ -26,6 +26,9 @@ use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "erc4626_balance_state";
 pub const SPEC_REVISION: u32 = 1;
+/// Producer versions whose execution ordinals are qualified (version 3 has
+/// broken system-call ordinals and is refused by the contract).
+pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
 const RAY: &str = "1000000000000000000000000000";
 
 fn require(ok: bool, message: &str) -> Result<(), Error> {
@@ -232,8 +235,8 @@ pub fn parse(params: &str) -> Result<Config, Error> {
     let raw: Params = serde_json::from_str(params).map_err(|e| Error::msg(format!("invalid erc4626 balance-state params: {e}")))?;
     require(raw.chain_id > 0, "chain_id required")?;
     require(
-        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| *v > 0),
-        "qualified producer versions required",
+        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| QUALIFIED_PRODUCER_VERSIONS.contains(v)),
+        "producer_versions must be a non-empty subset of the qualified Extended versions 4 and 5",
     )?;
     let mut vaults: Vec<Vault> = Vec::new();
     for v in &raw.vaults {
@@ -399,11 +402,30 @@ fn reduce(mut changes: Vec<Change>) -> Result<Vec<Reduced>, Error> {
     changes.sort_by_key(|w| w.ordinal);
     let mut rows: BTreeMap<(Vec<u8>, [u8; 32]), Reduced> = BTreeMap::new();
     for w in changes {
-        require(w.ordinal > 0, "persisted storage write has no execution ordinal")?;
+        let at = || format!("0x{} key 0x{}", hex::encode(&w.address), hex::encode(w.key));
+        require(w.ordinal > 0, &format!("persisted storage write at {} has no execution ordinal", at()))?;
         match rows.get_mut(&(w.address.clone(), w.key)) {
             Some(r) => {
-                require(w.ordinal > r.ordinal, "ambiguous storage execution order")?;
-                require(w.old == r.new, "discontinuous storage writes within block")?;
+                require(
+                    w.ordinal > r.ordinal,
+                    &format!(
+                        "ambiguous storage execution order at {}: ordinal {} repeats after {}",
+                        at(),
+                        w.ordinal,
+                        r.ordinal
+                    ),
+                )?;
+                require(
+                    w.old == r.new,
+                    &format!(
+                        "discontinuous storage writes at {}: ordinal {} starts from 0x{} but ordinal {} ended at 0x{}",
+                        at(),
+                        w.ordinal,
+                        hex::encode(w.old),
+                        r.ordinal,
+                        hex::encode(r.new)
+                    ),
+                )?;
                 r.new = w.new;
                 r.ordinal = w.ordinal;
                 r.count += 1;
@@ -693,7 +715,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                                 (pb::StateField::AaveLiquidityIndex, 0, 128),
                                 (pb::StateField::AaveCurrentLiquidityRate, 128, 128),
                             ] {
-                                let row = field_row(
+                                events.global_state.push(field_row(
                                     config,
                                     vault,
                                     &r,
@@ -704,13 +726,10 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                                         scale: RAY,
                                         key: vault.asset.clone(),
                                     },
-                                );
-                                if row.value != row.previous_value {
-                                    events.global_state.push(row);
-                                }
+                                ));
                             }
                         } else if r.key == add_offset(reserve_base, 3) {
-                            let row = field_row(
+                            events.global_state.push(field_row(
                                 config,
                                 vault,
                                 &r,
@@ -721,10 +740,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                                     scale: "1",
                                     key: vault.asset.clone(),
                                 },
-                            );
-                            if row.value != row.previous_value {
-                                events.global_state.push(row);
-                            }
+                            ));
                         }
                         // Other Pool storage (other reserves, configuration) is not a conversion input.
                     }

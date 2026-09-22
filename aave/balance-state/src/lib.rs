@@ -32,6 +32,9 @@ use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "aave_balance_state";
 pub const SPEC_REVISION: u32 = 1;
+/// Producer versions whose execution ordinals are qualified (version 3 has
+/// broken system-call ordinals and is refused by the contract).
+pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
 /// Storage word offsets inside `DataTypes.ReserveData` that the model binds.
 const RESERVE_INDEX_RATE_OFFSET: u8 = 1;
 const RESERVE_CLOCK_OFFSET: u8 = 3;
@@ -198,8 +201,8 @@ pub struct Config {
 pub fn parse(params: &str) -> Result<Config, Error> {
     let raw: Params = serde_json::from_str(params).map_err(|e| Error::msg(format!("invalid aave balance-state params: {e}")))?;
     require(
-        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| *v > 0),
-        "qualified producer versions required",
+        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| QUALIFIED_PRODUCER_VERSIONS.contains(v)),
+        "producer_versions must be a non-empty subset of the qualified Extended versions 4 and 5",
     )?;
     require(raw.chain_id > 0, "chain_id required")?;
     let pool = match &raw.pool {
@@ -286,10 +289,20 @@ struct Write {
     tx_index: u32,
     call_index: u32,
 }
+#[derive(Clone, Debug)]
+struct CodeChanged {
+    address: Vec<u8>,
+    new_hash: Vec<u8>,
+    ordinal: u64,
+    scope: persist::Scope,
+    tx_hash: Vec<u8>,
+    tx_index: u32,
+    call_index: u32,
+}
 #[derive(Default)]
 struct Collected {
     writes: Vec<Write>,
-    codes: Vec<Vec<u8>>,
+    codes: Vec<CodeChanged>,
     errors: Vec<String>,
 }
 impl persist::Sink for Collected {
@@ -311,8 +324,16 @@ impl persist::Sink for Collected {
     }
     fn balance(&mut self, _: &eth::BalanceChange, _: persist::Ctx) {}
     fn nonce(&mut self, _: &eth::NonceChange, _: persist::Ctx) {}
-    fn code(&mut self, c: &eth::CodeChange, _: persist::Ctx) {
-        self.codes.push(c.address.clone());
+    fn code(&mut self, c: &eth::CodeChange, ctx: persist::Ctx) {
+        self.codes.push(CodeChanged {
+            address: c.address.clone(),
+            new_hash: c.new_hash.clone(),
+            ordinal: c.ordinal,
+            scope: ctx.scope,
+            tx_hash: ctx.tx_hash.to_vec(),
+            tx_index: ctx.tx_index,
+            call_index: ctx.call_index,
+        });
     }
 }
 
@@ -335,11 +356,30 @@ fn reduce(mut writes: Vec<Write>) -> Result<Vec<Reduced>, Error> {
     writes.sort_by_key(|w| w.ordinal);
     let mut rows: BTreeMap<(Vec<u8>, [u8; 32]), Reduced> = BTreeMap::new();
     for w in writes {
-        require(w.ordinal > 0, "persisted storage write has no execution ordinal")?;
+        let at = || format!("0x{} key 0x{}", hex::encode(&w.address), hex::encode(w.key));
+        require(w.ordinal > 0, &format!("persisted storage write at {} has no execution ordinal", at()))?;
         match rows.get_mut(&(w.address.clone(), w.key)) {
             Some(r) => {
-                require(w.ordinal > r.ordinal, "ambiguous storage execution order")?;
-                require(w.old == r.new, "discontinuous storage writes within block")?;
+                require(
+                    w.ordinal > r.ordinal,
+                    &format!(
+                        "ambiguous storage execution order at {}: ordinal {} repeats after {}",
+                        at(),
+                        w.ordinal,
+                        r.ordinal
+                    ),
+                )?;
+                require(
+                    w.old == r.new,
+                    &format!(
+                        "discontinuous storage writes at {}: ordinal {} starts from 0x{} but ordinal {} ended at 0x{}",
+                        at(),
+                        w.ordinal,
+                        hex::encode(w.old),
+                        r.ordinal,
+                        hex::encode(r.new)
+                    ),
+                )?;
                 r.new = w.new;
                 r.ordinal = w.ordinal;
                 r.count += 1;
@@ -459,6 +499,50 @@ fn field_row(config: &Config, market: &Market, r: &Reduced, f: Field) -> pb::Glo
 }
 const RAY: &str = "1000000000000000000000000000";
 
+fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::ModelEpoch {
+    pb::ModelEpoch {
+        chain_id: config.chain_id,
+        market: market.atoken.clone(),
+        epoch: market.epoch,
+        kind: kind as i32,
+        family: pb::ModelFamily::AaveV3Atoken as i32,
+        model_id: market.model_id.clone(),
+        source_pin: market.source_pin.clone(),
+        implementation_revision: market.implementation_revision.clone(),
+        basis_kind: pb::BasisKind::ScaledBalance as i32,
+        basis_scale: RAY.into(),
+        balance_rounding: market.rounding as i32,
+        basis_bit_offset: 0,
+        basis_bit_width: market.basis_bits,
+        basis_signed: false,
+        implementation: market.implementation.clone(),
+        implementation_slot: market.implementation_slot.to_vec(),
+        activation_block: market.activation_block,
+        activation_ordinal: 0,
+        balance_asset: market.underlying.clone(),
+        balance_decimals: market.balance_decimals,
+        basis_carryover: true,
+        global_carryover: true,
+        scope: pb::Scope::Epoch as i32,
+        ..Default::default()
+    }
+}
+fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason, r: &Reduced) -> pb::ModelEpoch {
+    pb::ModelEpoch {
+        reason: reason as i32,
+        scope: scope_of(r.scope) as i32,
+        ordinal: r.ordinal,
+        transaction_index: r.tx_index,
+        transaction_hash: r.tx_hash.clone(),
+        call_index: r.call_index,
+        evidence_contract: r.address.clone(),
+        evidence_slot: r.key.to_vec(),
+        evidence_previous_word: r.old.to_vec(),
+        evidence_word: r.new.to_vec(),
+        ..epoch_row(config, market, pb::EpochEventKind::Invalidated)
+    }
+}
+
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
     let header = block.header.as_ref().unwrap();
@@ -469,14 +553,31 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     persist::collect_block(block, &mut collected)?;
     require(collected.errors.is_empty(), "malformed persisted storage change")?;
     if let Some(pool) = &config.pool {
-        let guarded: Vec<&Vec<u8>> = std::iter::once(&pool.address)
-            .chain(std::iter::once(&pool.implementation))
-            .chain(active.iter().flat_map(|m| [&m.atoken, &m.implementation]))
-            .collect();
-        require(
-            !collected.codes.iter().any(|a| guarded.contains(&a)),
-            "Pool, aToken or implementation code changed; requalify the epoch",
-        )?;
+        // Code changes on the Pool, its implementation, an aToken or its
+        // implementation invalidate the affected epochs with evidence; the
+        // block's other writes are still decoded.
+        for c in &collected.codes {
+            for market in &active {
+                let reason = if c.address == market.atoken || c.address == market.implementation {
+                    pb::InvalidationReason::CodeChange
+                } else if c.address == pool.address || c.address == pool.implementation {
+                    pb::InvalidationReason::DependencyCodeChange
+                } else {
+                    continue;
+                };
+                events.epochs.push(pb::ModelEpoch {
+                    reason: reason as i32,
+                    scope: scope_of(c.scope) as i32,
+                    ordinal: c.ordinal,
+                    transaction_index: c.tx_index,
+                    transaction_hash: c.tx_hash.clone(),
+                    call_index: c.call_index,
+                    evidence_contract: c.address.clone(),
+                    evidence_code_hash: c.new_hash.clone(),
+                    ..epoch_row(config, market, pb::EpochEventKind::Invalidated)
+                });
+            }
+        }
         // Preimages are discovery hints, verified before use; only persisted
         // writes become rows.
         let mut preimages = BTreeMap::new();
@@ -501,7 +602,18 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             .collect();
         for r in reduce(relevant)? {
             if r.address == pool.address {
-                require(r.key != pool.implementation_slot, "Pool implementation pointer changed; requalify the epoch")?;
+                if r.key == pool.implementation_slot {
+                    // A write that lands on the bound Pool implementation is the
+                    // binding itself; any other target invalidates every epoch.
+                    if r.new != word(&pool.implementation)? {
+                        for market in &active {
+                            events
+                                .epochs
+                                .push(invalidation(config, market, pb::InvalidationReason::DependencyPointerWrite, &r));
+                        }
+                    }
+                    continue;
+                }
                 for market in &active {
                     let Some(offset) = struct_offset(&r.key, &market.reserve_base, RESERVE_WORDS) else {
                         continue;
@@ -556,10 +668,14 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 continue;
             }
             let market = active.iter().find(|m| m.atoken == r.address).unwrap();
-            require(
-                r.key != market.implementation_slot,
-                "aToken implementation pointer changed; requalify the epoch",
-            )?;
+            if r.key == market.implementation_slot {
+                if r.new != word(&market.implementation)? {
+                    events
+                        .epochs
+                        .push(invalidation(config, market, pb::InvalidationReason::ImplementationPointerWrite, &r));
+                }
+                continue;
+            }
             if let Some(holder) = preimages
                 .get(&r.key)
                 .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == market.user_state_slot)
@@ -621,32 +737,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             } else {
                 continue;
             };
-            events.epochs.push(pb::ModelEpoch {
-                chain_id: config.chain_id,
-                market: market.atoken.clone(),
-                epoch: market.epoch,
-                kind: kind as i32,
-                family: pb::ModelFamily::AaveV3Atoken as i32,
-                model_id: market.model_id.clone(),
-                source_pin: market.source_pin.clone(),
-                implementation_revision: market.implementation_revision.clone(),
-                basis_kind: pb::BasisKind::ScaledBalance as i32,
-                basis_scale: RAY.into(),
-                balance_rounding: market.rounding as i32,
-                basis_bit_offset: 0,
-                basis_bit_width: market.basis_bits,
-                basis_signed: false,
-                implementation: market.implementation.clone(),
-                implementation_slot: market.implementation_slot.to_vec(),
-                activation_block: market.activation_block,
-                activation_ordinal: 0,
-                balance_asset: market.underlying.clone(),
-                balance_decimals: market.balance_decimals,
-                basis_carryover: true,
-                global_carryover: true,
-                scope: pb::Scope::Epoch as i32,
-                ..Default::default()
-            });
+            events.epochs.push(epoch_row(config, market, kind));
             let dependency = |role: pb::DependencyRole, contract: &Vec<u8>, binding: pb::BindingKind, pin: &str| pb::Dependency {
                 chain_id: config.chain_id,
                 market: market.atoken.clone(),
@@ -692,7 +783,9 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     events
         .global_state
         .sort_by(|a, b| (&a.market, a.field, &a.key, a.ordinal).cmp(&(&b.market, b.field, &b.key, b.ordinal)));
-    events.epochs.sort_by(|a, b| (&a.market, a.epoch).cmp(&(&b.market, b.epoch)));
+    events
+        .epochs
+        .sort_by(|a, b| (&a.market, a.epoch, a.ordinal, a.kind).cmp(&(&b.market, b.epoch, b.ordinal, b.kind)));
     events
         .dependencies
         .sort_by(|a, b| (&a.market, a.epoch, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.role, &b.contract)));

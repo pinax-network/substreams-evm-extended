@@ -22,8 +22,8 @@ unknown, not zero.
 | Table | Row | Source |
 | --- | --- | --- |
 | `HolderBasis` (`SHARES`) | `shares[holder]` before the first and after the last write of the block | stETH proxy storage, verified Keccak preimage `(holder, shares_slot)`; delegate-call context is the proxy address |
-| `GlobalState` `LIDO_TOTAL_SHARES` / `LIDO_EXTERNAL_SHARES` | low / high 128 bits of `keccak256("lido.StETH.totalAndExternalShares")`, only halves that changed | stETH storage |
-| `GlobalState` `LIDO_BUFFERED_ETHER` / `LIDO_DEPOSITED_POST_REPORT` | low / high 128 bits of `keccak256("lido.Lido.bufferedEtherAndDepositedPostReport")` | stETH storage |
+| `GlobalState` `LIDO_TOTAL_SHARES` / `LIDO_EXTERNAL_SHARES` | low / high 128 bits of `keccak256("lido.StETH.totalAndExternalShares")`, one row per half of every written word | stETH storage |
+| `GlobalState` `LIDO_BUFFERED_ETHER` / `LIDO_DEPOSITED_POST_REPORT` | low / high 128 bits of `keccak256("lido.Lido.bufferedEtherAndDepositedPostReport")`, one row per half of every written word | stETH storage |
 | `GlobalState` `LIDO_CL_VALIDATORS_BALANCE` / `LIDO_CL_PENDING_BALANCE` | low / high 128 bits of `keccak256("lido.Lido.clValidatorsBalanceAndClPendingBalance")`, written by `processClStateUpdate` on each oracle report | stETH storage |
 | `GlobalState` `LIDO_TOTAL_POOLED_ETHER` (`DERIVED`) | `internalEther + externalShares × internalEther / internalShares`, only when all three words were written in the block and `internalShares > 0` | pure function of the rows above |
 | `GlobalState` `LIDO_CONTRACT_VERSION` | observed write of `keccak256("lido.Versioned.contractVersion")`, and the qualified value as a constant at BOUND / REAFFIRMED | stETH storage, parameters |
@@ -59,10 +59,10 @@ use is paused.
 
 | Condition | Result |
 | --- | --- |
-| Non-Extended block, unlisted `Block.ver`, incomplete transaction data | block fails |
+| Non-Extended block, `Block.ver` not listed (only 4 and 5 may be listed), incomplete transaction data | block fails |
 | Persisted stETH write that is not a configured word, a `shares` entry or a reviewed slot / mapping member | `unresolved storage … refusing incomplete balance state` |
 | `TokenRebased` log with the wrong topic count or data length | `malformed TokenRebased log` |
-| Two writes to one key with equal ordinals, or a write whose old value is not the previous new value | `ambiguous` / `discontinuous` |
+| Two writes to one key with equal ordinals, or a write whose old value is not the previous new value | `ambiguous` / `discontinuous`, naming the contract, key and ordinals |
 | Overlapping slots (including a named slot equal to a configured one), unknown fields, zero version | parameters rejected |
 
 Reverted frames and failed transactions never contribute, per the shared

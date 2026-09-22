@@ -127,7 +127,10 @@ fn share_writes_are_holder_rows_and_packed_words_split_low_and_high() {
         fields(&events),
         vec![
             (pb::StateField::LidoTotalShares as i32, "9000000".into(), "9000500".into(), 1),
+            // Unchanged halves of a written word are still rows (one row per decoded field).
+            (pb::StateField::LidoExternalShares as i32, "100000".into(), "100000".into(), 1),
             (pb::StateField::LidoBufferedEther as i32, "5000".into(), "5600".into(), 1),
+            (pb::StateField::LidoDepositedPostReport as i32, "32000".into(), "32000".into(), 1),
         ]
     );
     let total = &events.global_state[0];
@@ -135,10 +138,9 @@ fn share_writes_are_holder_rows_and_packed_words_split_low_and_high() {
         (total.bit_offset, total.bit_width, &total.storage_slot),
         (0, 128, &e.total_and_external_shares_slot.to_vec())
     );
-    // Unchanged high halves (external shares, deposited post report) are not carried; no derived
-    // pooled ether because the CL word was not written.
+    // No derived pooled ether because the CL word was not written.
     assert!(events.epochs.is_empty());
-    assert_eq!(events.clocks[0].global_state_count, 2);
+    assert_eq!(events.clocks[0].global_state_count, 4);
     // Large values keep 128-bit precision.
     let huge = u128::MAX - 1;
     b.transaction_traces = vec![tx(eth::Call {
@@ -221,7 +223,7 @@ fn a_report_derives_total_pooled_ether_only_when_every_input_word_was_written() 
     })];
     let events = project(&b, &cfg).unwrap();
     assert!(events.global_state.iter().all(|g| g.field != pb::StateField::LidoTotalPooledEther as i32));
-    assert_eq!(events.global_state.len(), 4);
+    assert_eq!(events.global_state.len(), 6);
 }
 
 #[test]
@@ -402,5 +404,92 @@ fn activation_binds_the_epoch_and_parameters_fail_closed() {
     assert!(mutate(&|v| v["epochs"][0]["other_slot_names"] = serde_json::json!(["lido.Versioned.contractVersion"])).contains("overlap"));
     assert!(mutate(&|v| v["epochs"][0]["contract_version"] = 0.into()).contains("positive"));
     assert!(mutate(&|v| v["epochs"][0]["extra"] = 1.into()).contains("unknown field"));
-    assert!(mutate(&|v| v["producer_versions"] = serde_json::json!([])).contains("producer versions"));
+    assert!(mutate(&|v| v["producer_versions"] = serde_json::json!([])).contains("producer_versions"));
+    assert!(mutate(&|v| v["producer_versions"] = serde_json::json!([3])).contains("4 and 5"));
+}
+
+#[test]
+fn shared_hardening_rules_hold_for_steth() {
+    use prost::Message;
+    let cfg = config();
+    let e = epoch();
+    let holder = [9u8; 20];
+    let key = mapping_key(&holder, &e.shares_slot);
+    // A delegatecall frame (Call.address == implementation) writing the proxy's storage,
+    // with the Aragon reentrancy mutex flipped 0->1->0 in the same frame.
+    let mutex = keccak(b"aragonOS.reentrancyGuard.mutex");
+    let mut b = block(10);
+    b.transaction_traces = vec![eth::TransactionTrace {
+        status: eth::TransactionTraceStatus::Succeeded as i32,
+        hash: vec![7; 32],
+        index: 9,
+        calls: vec![
+            eth::Call {
+                index: 0,
+                address: e.steth.clone(),
+                ..Default::default()
+            },
+            eth::Call {
+                index: 1,
+                parent_index: 0,
+                depth: 1,
+                call_type: eth::CallType::Delegate as i32,
+                address: e.implementation.clone(),
+                keccak_preimages: [preimage(&holder, &e.shares_slot)].into(),
+                storage_changes: vec![write(mutex, w(0), w(1), 10), write(key, w(1), w(2), 11), write(mutex, w(1), w(0), 12)],
+                ..Default::default()
+            },
+        ],
+        ..Default::default()
+    }];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(
+        (
+            events.holder_basis.len(),
+            &*events.holder_basis[0].value,
+            &events.holder_basis[0].storage_contract
+        ),
+        (1, "2", &e.steth)
+    );
+    // FAILED and REVERTED transactions contribute nothing; status 0 is refused.
+    for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
+        let mut t = tx(shares_call(&holder, 1, 2, 10));
+        t.status = status as i32;
+        b.transaction_traces = vec![t];
+        assert!(project(&b, &cfg).unwrap().holder_basis.is_empty());
+    }
+    let mut t = tx(eth::Call::default());
+    t.status = 0;
+    b.transaction_traces = vec![t];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("incomplete transaction"));
+    // Blocks before activation emit only the clock.
+    let mut v: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+    v["epochs"][0]["activation_block"] = 100.into();
+    let late = parse(&v.to_string()).unwrap();
+    let mut b = block(50);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: e.steth.clone(),
+        storage_changes: vec![write(w(0x77), w(0), w(1), 10)],
+        ..Default::default()
+    })];
+    let events = project(&b, &late).unwrap();
+    assert!(events.holder_basis.is_empty() && events.global_state.is_empty() && events.epochs.is_empty());
+    assert_eq!(events.clocks.len(), 1);
+    // Ordering faults name the contract, key and ordinals.
+    let mut call = shares_call(&holder, 1, 2, 10);
+    call.storage_changes.push(write(key, w(3), w(4), 11));
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(call)];
+    let err = project(&b, &cfg).unwrap_err().to_string();
+    assert!(err.contains("discontinuous") && err.contains(&hex::encode(&e.steth)) && err.contains(&hex::encode(key)) && err.contains("ordinal 11"));
+    // Determinism under input permutation.
+    let mut b = block(10);
+    let mut second = tx(shares_call(&[8; 20], 5, 6, 12));
+    second.index = 10;
+    second.hash = vec![8; 32];
+    b.transaction_traces = vec![tx(shares_call(&holder, 1, 2, 10)), second];
+    let forward = project(&b, &cfg).unwrap();
+    let mut reversed = b.clone();
+    reversed.transaction_traces.reverse();
+    assert_eq!(forward.encode_to_vec(), project(&reversed, &cfg).unwrap().encode_to_vec());
 }

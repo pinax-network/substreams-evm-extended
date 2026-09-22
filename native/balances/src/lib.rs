@@ -38,10 +38,16 @@ pub struct Params {
     pub producer_versions: Vec<i32>,
 }
 
+/// Producer versions whose execution ordinals are qualified.
+pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
+
 pub fn parse_params(params: &str) -> Result<Params, Error> {
     let parsed: Params = serde_json::from_str(params).map_err(|e| Error::msg(format!("invalid native balance params: {e}")))?;
     require(!parsed.producer_versions.is_empty(), "no qualified Extended producer version configured")?;
-    require(parsed.producer_versions.iter().all(|v| *v > 0), "invalid Extended producer version")?;
+    require(
+        parsed.producer_versions.iter().all(|v| QUALIFIED_PRODUCER_VERSIONS.contains(v)),
+        "producer_versions must be a subset of the qualified Extended versions 4 and 5 (version 3 has broken system-call ordinals)",
+    )?;
     Ok(parsed)
 }
 
