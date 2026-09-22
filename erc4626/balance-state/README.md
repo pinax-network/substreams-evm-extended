@@ -22,7 +22,7 @@ Deposit/Withdraw ratio is never a conversion.
 
 | `model` | Conversion (pinned) | Dependency rows carried |
 | --- | --- | --- |
-| `aave-static-atoken-lm` | `rayMulRoundDown(shares, POOL.getReserveNormalizedIncome(asset))` (bgd-labs/static-a-token-v3 `101f5d97…`); `previewMint` rounds up; `maxRedeem` is 0 while the reserve is inactive or paused | Aave Pool `ReserveData` words of the asset: `AAVE_LIQUIDITY_INDEX`, `AAVE_CURRENT_LIQUIDITY_RATE`, `AAVE_LAST_UPDATE_TIMESTAMP` (`key` = asset); dependencies POOL, WRAPPED_ASSET (aToken), UNDERLYING, Pool implementation pointer |
+| `aave-static-atoken-lm` | `rayMulRoundDown(shares, POOL.getReserveNormalizedIncome(asset))` (bgd-labs/static-a-token-v3 `101f5d97…`); `previewMint` rounds up; `maxRedeem` is 0 while the reserve is inactive or paused | Aave Pool `ReserveData` words of the asset: `AAVE_LIQUIDITY_INDEX`, `AAVE_CURRENT_LIQUIDITY_RATE`, `AAVE_LAST_UPDATE_TIMESTAMP` (`key` = asset), one row per decoded field of every written word; dependencies POOL, WRAPPED_ASSET (aToken), UNDERLYING, Pool implementation pointer |
 | `maker-savings-dai` | `shares × chi′ / RAY`, `chi′ = rpow(dsr, now − rho) × chi / RAY` when `now > rho` (sky-ecosystem/sdai `66587976…`, makerdao/dss `pot.sol`); `previewWithdraw` rounds up | Maker Pot `MAKER_POT_DSR`, `MAKER_POT_CHI`, `MAKER_POT_RHO`; dependency RATE_ACCUMULATOR (Pot), UNDERLYING |
 | `oz-virtual-offset` | `shares × (totalAssets + 1) / (totalSupply + 10^offset)` floor (OpenZeppelin v5.0.0 `ERC4626.sol`); `totalAssets = asset.balanceOf(vault)` in the base | `ERC4626_TOTAL_ASSETS` from the asset's balances mapping entry of the vault (`key` = vault), `ERC4626_DECIMALS_OFFSET` as a qualified constant; dependency UNDERLYING |
 
@@ -57,7 +57,8 @@ The default manifest parameters bind no vault and emit only `BlockClock`.
   binds Savings DAI `0x83F2…BEeA` (`totalSupply` 0, `balanceOf` 1, `allowance`
   2, `nonces` 3; no proxy) to `MCD_POT` `0x197E…7cf7` (`dsr` 3, `chi` 4, `rho`
   7), and a placeholder OpenZeppelin vault using the ERC-7201 `ERC20Storage`
-  namespace with a 12-decimal offset.
+  namespace (`keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ERC20")) - 1)) & ~0xff`,
+  re-derived in a test) with a 12-decimal offset.
 
 All slots are **inferred from pinned declaration order and unverified**
 against a compiler layout or saved blocks: the 6,093 locally cached BSC
@@ -69,9 +70,9 @@ paused. Activation blocks are placeholders.
 
 | Condition | Result |
 | --- | --- |
-| Non-Extended block, unlisted `Block.ver`, incomplete transaction data | block fails |
+| Non-Extended block, `Block.ver` not listed (only 4 and 5 may be listed), incomplete transaction data | block fails |
 | Persisted vault write that is not `totalSupply`, a `balances` entry, the pointer or a reviewed slot / mapping member | `unresolved storage … refusing incomplete balance state` |
-| Two writes to one key with equal ordinals, or a write whose old value is not the previous new value | `ambiguous` / `discontinuous` |
+| Two writes to one key with equal ordinals, or a write whose old value is not the previous new value | `ambiguous` / `discontinuous`, naming the contract, key and ordinals |
 | Model and dependency block mismatch, more or fewer than one dependency block, pointer slot without address, overlapping slots, unknown fields | parameters rejected |
 
 Dependency contracts' other storage (other Pool reserves, Pot `Pie`, other

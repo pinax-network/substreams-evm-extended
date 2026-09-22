@@ -98,25 +98,34 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
    equal to `0xc98c7730…53ac` in a test, and a routine supply in a
    delegatecall frame with the `0→1→0` guard writes is a test case.
 2. Row semantics for packed words: the proto says one row per decoded field
-   of a written slot. **Done for `compound-v3`** (all six market fields per
-   written word; a holder row for every written `userBasic` word). Still to
-   apply: `lido` and `erc4626` filter unchanged halves of packed words.
-3. `producer_versions` restricted to 4 and 5: **done for `compound-v3`**;
-   still to apply in `compound-v2`, `lido`, `erc4626`, `aave/balance-state`,
-   `native/balances`.
+   of a written slot. **Done everywhere** (`compound-v3` market words and
+   holder rows; `lido` packed halves; `erc4626` Aave reserve fields).
+3. `producer_versions` restricted to 4 and 5: **done in every map crate**
+   (`compound-v3`, `compound-v2`, `lido`, `erc4626`, `aave/balance-state`,
+   `native/balances`), each with a parse test.
 4. INVALIDATED instead of failing the block on pointer writes and code
-   changes: **done for `compound-v3`** (a pointer write that lands on the bound
-   implementation is treated as the binding, not an invalidation); still to
-   apply in `aave/balance-state`.
-5. Constant cross-checks (`base_index_scale == 1e15`, `factor_scale == 1e18`,
-   `base_scale == 10^decimals`) and explicit carryover flags
-   (`basis_carryover = true`, `global_carryover = false`): **done for
-   `compound-v3`**; `compound-v2` and `erc4626` still echo caller constants.
+   changes: **done for `compound-v3` and `aave/balance-state`** (a pointer
+   write that lands on the bound implementation is the binding, not an
+   invalidation; Pool-side changes use the DEPENDENCY_* reasons and hit every
+   active market; a shared aToken implementation hits every market that uses
+   it). The Aave saved-block replay was re-run after the change (see
+   `aave/balance-state/docs/evidence/`).
+5. Constant cross-checks and carryover flags: **done for `compound-v3`**
+   (`base_index_scale == 1e15`, `factor_scale == 1e18`, `base_scale ==
+   10^decimals`, `global_carryover = false`) and **`compound-v2`**
+   (`blocks_per_year == 2102400`, `global_carryover = false`); `erc4626` has
+   no pinned constant to check beyond the ERC-7201 namespace slot, which is
+   now re-derived in a test.
 6. `conformance::comet`: **done** (int104-min negation refused; exact rates
    on both sides of the kink and at the market's utilization; exact indices
    after 3600 s and one year; uint64 overflow arms).
-7. Tests listed in the findings: **done for `compound-v3`** (14 tests); the
-   same gaps remain in the three sibling map crates.
+7. Tests listed in the findings: **done for `compound-v3`** (14 tests) and
+   the shared subset (producer versions, delegatecall frame shape, FAILED and
+   REVERTED transactions, pre-activation blocks, contextual reduce()
+   diagnostics, determinism under permutation) **in `compound-v2`, `lido`,
+   `erc4626` and `aave`**. Not yet mirrored in the siblings: the full
+   `validate_block` refusal table, same-block provenance and multi-market
+   attribution tests.
 8. Re-run the review for `compound-v2`, `lido`, `erc4626`, `common/retention`.
 
 ## 5. Facts learned that are not written anywhere else
@@ -150,10 +159,9 @@ re-derived by the maintainer from `CometCore.sol:60` and `keccak256` of the labe
 
 ## 6. Next steps, in order
 
-1. Mirror the cross-crate items of §4 (row semantics, producer versions,
-   INVALIDATED rows, constant checks, reduce() diagnostics, the test
-   checklist) in `compound-v2`, `lido`, `erc4626` and `aave/balance-state`;
-   comment on #14, #23, #24, #13.
+1. Comment the §4 outcomes on #13, #14, #15, #23, #24; mirror the remaining
+   `compound-v3`-only tests (validate_block table, same-block provenance,
+   multi-market attribution) in the siblings.
 2. Finish the review for the other four crates (workflow resume or by hand).
 3. Run the solc storage-layout verification in
    [`storage-layout-provenance.md`](storage-layout-provenance.md) and commit

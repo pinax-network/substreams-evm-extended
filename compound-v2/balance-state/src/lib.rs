@@ -31,6 +31,11 @@ use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "compound_v2_balance_state";
 pub const SPEC_REVISION: u32 = 1;
+/// Producer versions whose execution ordinals are qualified (version 3 has
+/// broken system-call ordinals and is refused by the contract).
+pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
+/// `blocksPerYear` of BaseJumpRateModelV2 and WhitePaperInterestRateModel at the pin.
+pub const BLOCKS_PER_YEAR: &str = "2102400";
 const EXP_SCALE: &str = "1000000000000000000";
 /// Words a mapping value struct may span (BorrowSnapshot has two).
 const MAX_STRUCT_WORDS: u8 = 4;
@@ -234,8 +239,8 @@ pub fn parse(params: &str) -> Result<Config, Error> {
     let raw: Params = serde_json::from_str(params).map_err(|e| Error::msg(format!("invalid compound-v2 balance-state params: {e}")))?;
     require(raw.chain_id > 0, "chain_id required")?;
     require(
-        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| *v > 0),
-        "qualified producer versions required",
+        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| QUALIFIED_PRODUCER_VERSIONS.contains(v)),
+        "producer_versions must be a non-empty subset of the qualified Extended versions 4 and 5",
     )?;
     let mut markets: Vec<Market> = Vec::new();
     for m in &raw.markets {
@@ -357,7 +362,10 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             require(!r.slots.contains_key(name), "rate model parameter bound as both slot and constant")?;
             rate_model_constants.push((field, decimal(v, name)?, scale));
         }
-        require(r.constants.contains_key("blocks_per_year"), "rate model blocks_per_year constant required")?;
+        require(
+            r.constants.get("blocks_per_year").map(String::as_str) == Some(BLOCKS_PER_YEAR),
+            "rate model blocks_per_year constant must equal the pinned 2102400",
+        )?;
         let market = Market {
             ctoken,
             ctoken_decimals: m.ctoken_decimals,
@@ -490,11 +498,30 @@ fn reduce(mut changes: Vec<Change>, what: &str) -> Result<Vec<Reduced>, Error> {
     changes.sort_by_key(|w| w.ordinal);
     let mut rows: BTreeMap<(Vec<u8>, [u8; 32]), Reduced> = BTreeMap::new();
     for w in changes {
-        require(w.ordinal > 0, &format!("persisted {what} change has no execution ordinal"))?;
+        let at = || format!("0x{} key 0x{}", hex::encode(&w.address), hex::encode(w.key));
+        require(w.ordinal > 0, &format!("persisted {what} change at {} has no execution ordinal", at()))?;
         match rows.get_mut(&(w.address.clone(), w.key)) {
             Some(r) => {
-                require(w.ordinal > r.ordinal, &format!("ambiguous {what} execution order"))?;
-                require(w.old == r.new, &format!("discontinuous {what} changes within block"))?;
+                require(
+                    w.ordinal > r.ordinal,
+                    &format!(
+                        "ambiguous {what} execution order at {}: ordinal {} repeats after {}",
+                        at(),
+                        w.ordinal,
+                        r.ordinal
+                    ),
+                )?;
+                require(
+                    w.old == r.new,
+                    &format!(
+                        "discontinuous {what} changes at {}: ordinal {} starts from 0x{} but ordinal {} ended at 0x{}",
+                        at(),
+                        w.ordinal,
+                        hex::encode(w.old),
+                        r.ordinal,
+                        hex::encode(r.new)
+                    ),
+                )?;
                 r.new = w.new;
                 r.ordinal = w.ordinal;
                 r.count += 1;
@@ -625,8 +652,10 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         // underlying claim is a separate, dependency-bound conversion.
         balance_asset: market.ctoken.clone(),
         balance_decimals: market.ctoken_decimals,
+        // Share storage persists across implementation upgrades; a rate-model
+        // replacement starts a new epoch whose IRM rows do not carry.
         basis_carryover: true,
-        global_carryover: true,
+        global_carryover: false,
         scope: pb::Scope::Epoch as i32,
         ..Default::default()
     }

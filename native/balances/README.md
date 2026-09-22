@@ -93,6 +93,8 @@ so ordering across scopes cannot be trusted (see the
 [persisted-effect matrix](docs/persisted-effects.md)). Reusing this package on
 another network requires that network's fixtures and qualification under
 [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
+Only versions 4 and 5 may be listed (a non-empty subset); version 3, whose
+system-call ordinals are broken, is refused at parse time.
 
 ## Build and test
 

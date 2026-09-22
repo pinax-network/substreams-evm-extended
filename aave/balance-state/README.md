@@ -55,9 +55,9 @@ upgrade block.
 
 | Condition | Result |
 | --- | --- |
-| Non-Extended block, unlisted `Block.ver`, incomplete transaction data | block fails |
-| Code change on the Pool, an aToken or either implementation | `code changed; requalify the epoch` |
-| Write to the Pool or aToken implementation pointer slot | `implementation pointer changed; requalify the epoch` |
+| Non-Extended block, `Block.ver` not listed (only 4 and 5 may be listed), incomplete transaction data | block fails |
+| Code change on the Pool, its implementation, an aToken or its implementation | `ModelEpoch` INVALIDATED (`CODE_CHANGE` for the aToken or its implementation, `DEPENDENCY_CODE_CHANGE` for the Pool side) with the new code hash as evidence; the block's other writes are still decoded |
+| Write to the Pool or aToken implementation pointer slot with a value other than the bound implementation | `ModelEpoch` INVALIDATED (`DEPENDENCY_POINTER_WRITE` / `IMPLEMENTATION_POINTER_WRITE`) with the old and new words as evidence; a write that lands on the bound implementation is the binding itself |
 | aToken write that is not `_userState` (verified preimage), `_totalSupply`, or a reviewed `other_slots` / `other_mapping_slots` entry | `unresolved storage for aToken … refusing incomplete balance state` |
 | Two writes to one key with equal ordinals, or a write whose old word differs from the previous new word | `ambiguous` / `discontinuous` |
 | Pool writes to `ReserveData` words other than 1 and 3 (configuration, variable-debt index and rate, addresses, treasury accrual, virtual balance) | recognized, not emitted |
@@ -84,6 +84,13 @@ Reverted frames and failed transactions never produce rows
   holders (Aave activity is sparse in the saved window). This is saved-data
   evidence for the Rust map, not packaged output or same-block `balanceOf`
   controls.
+- After the 2026-09-21 hardening (INVALIDATED rows instead of failing the
+  block on pointer writes and code changes; producer versions restricted to
+  4 and 5; contextual `reduce()` diagnostics) the same replay over every
+  cached directory ([report](docs/evidence/replay-bsc-v5-rev2.json)) produced
+  the identical 4 holder, 22 global and 4 epoch rows: 1,438 blocks, 0
+  projection errors, 14/14 continuity checks, 6/6 index-oracle checks,
+  1,445 clock links, 0 mismatches.
 
 ```sh
 cargo test --locked -p aave-balance-state -p aave-balance-state-tools -p conformance

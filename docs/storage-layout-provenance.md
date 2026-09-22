@@ -77,7 +77,7 @@ qualification.
 | 8 … 12 | `_aToken`, `_aTokenUnderlying`, `_rewardTokens`, `_startIndex`, `_userRewardsData` | inferred | `StaticATokenLM.sol` |
 | SavingsDai 0 … 3 | `totalSupply`, `balanceOf`, `allowance`, `nonces` | inferred | `SavingsDai.sol`; constants and immutables take no slot |
 | Pot 0 … 8 | `wards`, `pie`, `Pie`, `dsr`, `chi`, `vat`, `vow`, `rho`, `live` | inferred | `pot.sol` declaration order (fixture uses 3, 4, 7) |
-| `0x52c6…ce00` (+0, +1, +2) | ERC-7201 `openzeppelin.storage.ERC20`: `_balances`, `_allowances`, `_totalSupply` | standard | formula `keccak256(abi.encode(uint256(keccak256(id)) - 1)) & ~0xff`; also a literal constant in `ERC20Upgradeable.sol` v5.0.0; **not yet asserted in a test** |
+| `0x52c6…ce00` (+0, +1, +2) | ERC-7201 `openzeppelin.storage.ERC20`: `_balances`, `_allowances`, `_totalSupply` | standard | formula `keccak256(abi.encode(uint256(keccak256(id)) - 1)) & ~0xff`, re-derived in `erc4626/balance-state` tests; also a literal constant in `ERC20Upgradeable.sol` v5.0.0 |
 
 ## Compiler verification plan (offline, no RPC)
 

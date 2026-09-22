@@ -21,7 +21,7 @@ Update 2026-09-21 (later the same day): every `compound-v3` finding below was ad
 "compound-v3 hardening" PR (guard slot reviewed by name, one row per decoded field, holder rows for
 every written word, INVALIDATED rows instead of failing the block, constant cross-checks, producer
 versions 4/5 only, contextual reduce() messages, the int104-min negation refusal in `conformance::comet`,
-and the listed tests). The sibling notes remain open work.
+and the listed tests). The "balance-state consistency" PR then applied the sibling notes: unconditional decoded-field rows in `lido` and `erc4626`, producer versions 4/5 in every map crate, INVALIDATED rows in `aave/balance-state`, `blocks_per_year` pinned and `global_carryover = false` in `compound-v2`, contextual `reduce()` messages everywhere, and a shared hardening test per crate.
 
 Legend: severity is the reviewer's; "applies to siblings" is the maintainer's note on where the same pattern exists.
 
