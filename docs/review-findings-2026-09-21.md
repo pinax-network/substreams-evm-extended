@@ -46,7 +46,10 @@ Checked and found correct: `compound-v2` and `lido` cannot have the same class
 of defect, because their `tests/storage_layout.rs` completeness assertions
 already require every compiled slot (cToken 0–18, JumpRateModelV2 0–4) and
 every Lido `*_POSITION` constant (16 of them) to be decoded or reviewed, and
-neither contract family uses storage outside those sets.
+neither contract family uses storage outside those sets. **Corrected by the
+independent reviews below:** Lido's `finalizeUpgrade_v4` wipes two
+function-local v3 positions no layout lists, and the deployed cUSDC/cETH do
+not run the pinned compound-v2 source at all.
 
 The other three dimensions (pinned-source conformance, contract conformance,
 test adequacy) of those four crates remain unreviewed by an independent reader.
@@ -98,6 +101,24 @@ blocks was incomplete (item 2).
 | 8 | low | The OZ `source_pin` cited the non-upgradeable `ERC4626.sol` | Pins openzeppelin-contracts-upgradeable `625fb3c2` |
 | 9 | low | The decimals-offset declaration had ordinal 0 on an activation-ordinal BOUND and named the vault instead of the implementation | Uses the activation ordinal and the implementation when bound |
 | 10 | low | The contract's sDAI example put Pot `chi`/`rho` at slots 2/3 | Slots 4/7 and the RAY basis scale |
+
+### Independent review of `lido/balance-state` (2026-09-22)
+
+A fresh-context reviewer checked the crate against lidofinance/core
+`2da0f48f`, aragonOS `f3ae59b0`, the proto and #23, with a scratch test per
+finding. It found no defect producing a wrong balance or refusing a routine
+block (a synthetic oracle report, `submit`, `permit` and external mint pass).
+All seven findings were confirmed and fixed.
+
+| # | Severity | Finding | Fix |
+| --- | --- | --- | --- |
+| 1 | medium | The `DERIVED` total pooled ether is emitted only when all three words are written, but the contract's "latest row per key" rule would carry a stale one forward | Proto and contract: a `DERIVED` row is valid at its own block only and is re-derived from the latest inputs |
+| 2 | medium | `conformance::lido` accepted `2^128 - 1`; the getters require `< UINT128_MAX` (`StETH.sol:318,330`) | Strict bound; the test that pinned the wrong result is flipped |
+| 3 | medium | A heartbeat restates an epoch the map already invalidated (the map is stateless) | Proto and contract: `REAFFIRMED` restates configuration, never attests validity or resumes; a joining consumer reads the stored rows since activation (the retention ledger already never resumes on `REAFFIRMED`) |
+| 4 | medium | `finalizeUpgrade_v4` writes the version 3 → 4 and wipes two function-local v3 positions (`Lido.sol:311-341`) that no layout lists: an early activation ordinal halted the stream, and the 3 → 4 write was a plain row | Any version write inside the epoch is `CONTRACT_VERSION_SET`; a retired-position write is `STORAGE_MIGRATION`; README: the ordinal belongs after the migration |
+| 5 | medium | Kernel slots never pinned to literals; the reviewed-scalar path tested only with a slot Lido never writes; no routine-shaped block; no `u128::MAX` halves; topic count untested; no burn or zero-share conformance case | Tests for each |
+| 6 | low | `Dependency` rows omitted `depth` from the proto sort key | Sorted by `(market, epoch, depth, role, contract)` |
+| 7 | low | The version declaration named the proxy and a slot with ordinal 0; a succeeded transaction without a receipt dropped report evidence silently; README overstated the Accounting check | Implementation, no slot, activation ordinal; missing receipt with stETH logs fails the block; README corrected |
 
 Legend: severity is the reviewer's; "applies to siblings" is the maintainer's note on where the same pattern exists.
 

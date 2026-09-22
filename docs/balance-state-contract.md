@@ -93,7 +93,10 @@ and the activation block and ordinal. `basis_carryover` and
 boundary (Aave aToken revision 4 → 5: rounding changed, storage did not; Lido
 V2 → V3: `shares` unchanged, `totalShares` slot moved). `REAFFIRMED` rows on
 a heartbeat let a consumer joining mid-stream recover bindings without a
-competing bootstrap. Activation blocks are unknown today
+competing bootstrap. Because a map keeps no state across blocks, a heartbeat
+restates the configured binding even after that epoch was `INVALIDATED`; it
+never resumes an invalidated epoch, and a consumer joining mid-stream reads
+the epoch's stored rows since `activation_block` before trusting one. Activation blocks are unknown today
 ([open questions](extraction-coverage.md#6-open-questions)); until bound, a
 market is `SUSPENDED` with `INVALIDATION_REASON_UNQUALIFIED_ERA`.
 
@@ -123,8 +126,10 @@ remain suppressed as balance effects. The BSC producers reviewed so far
 re-set leaves no record to act on.
 
 **Evaluation at a selected clock.** To value a holder at block N, a consumer
-takes the holder's latest `HolderBasis` at or before N, the latest
-`GlobalState` per `(market, field, key)` at or before N under the same epoch,
+takes the holder's latest `HolderBasis` at or before N, the latest observed or
+constant `GlobalState` per `(market, field, key)` at or before N under the same
+epoch (a `DERIVED` row is valid at its own block only and is re-derived from
+those inputs, never carried forward),
 the `BlockClock` of N for `timestamp` and `number`, and applies the epoch's
 formula from the Rust conformance model
 ([#16](https://github.com/pinax-network/substreams-evm-extended/issues/16)):

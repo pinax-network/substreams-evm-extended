@@ -296,14 +296,20 @@ fn version_and_code_changes_invalidate_and_unknown_writes_fail_closed() {
     let e = epoch();
     let cfg = config();
     let mut b = block(10);
-    // Upgrade into the qualified version: a row, no invalidation (no-op writes are not persisted).
+    // Upgrade into the qualified version inside the epoch: the old word 3 shows
+    // the epoch was active over v3 storage, so it invalidates like any other
+    // version write (the activation ordinal belongs after the migration).
     b.transaction_traces = vec![tx(eth::Call {
         address: e.steth.clone(),
         storage_changes: vec![write(e.contract_version_slot, w(3), w(4), 10)],
         ..Default::default()
     })];
     let events = project(&b, &cfg).unwrap();
-    assert_eq!((events.global_state.len(), events.epochs.len()), (1, 0));
+    assert_eq!((events.global_state.len(), events.epochs.len()), (1, 1));
+    assert_eq!(
+        (events.epochs[0].reason, &events.epochs[0].evidence_previous_word),
+        (pb::InvalidationReason::ContractVersionSet as i32, &w(3).to_vec())
+    );
     b.transaction_traces = vec![tx(eth::Call {
         address: e.steth.clone(),
         storage_changes: vec![write(e.contract_version_slot, w(4), w(5), 10)],
@@ -388,18 +394,21 @@ fn activation_binds_the_epoch_and_parameters_fail_closed() {
         (ep.family, ep.basis_kind, &*ep.implementation_revision, ep.balance_decimals, ep.global_carryover),
         (pb::ModelFamily::LidoSteth as i32, pb::BasisKind::Shares as i32, "4", 18, false)
     );
-    let roles: Vec<i32> = events.dependencies.iter().map(|d| d.role).collect();
+    // Sorted by the proto key (market, epoch, depth, role, contract).
+    let roles: Vec<(u32, i32)> = events.dependencies.iter().map(|d| (d.depth, d.role)).collect();
     assert_eq!(
         roles,
         vec![
-            pb::DependencyRole::Implementation as i32,
-            pb::DependencyRole::Implementation as i32,
-            pb::DependencyRole::Beacon as i32,
-            pb::DependencyRole::Accounting as i32
+            (1, pb::DependencyRole::Beacon as i32),
+            (1, pb::DependencyRole::Accounting as i32),
+            (2, pb::DependencyRole::Implementation as i32),
+            (2, pb::DependencyRole::Implementation as i32),
         ]
     );
     assert_eq!(fields(&events), vec![(pb::StateField::LidoContractVersion as i32, "".into(), "4".into(), 3)]);
-    assert_eq!(events.global_state[0].storage_slot, e.contract_version_slot.to_vec());
+    // The declaration names the implementation that binds the constant; no slot.
+    let constant = &events.global_state[0];
+    assert_eq!((&constant.storage_contract, constant.storage_slot.is_empty()), (&e.implementation, true));
     assert!(project(&block(2), &cfg).unwrap().epochs.is_empty());
     assert_eq!(project(&block(1001), &cfg).unwrap().epochs[0].kind, pb::EpochEventKind::Reaffirmed as i32);
     assert!(parse(r#"{"chain_id":1,"producer_versions":[5],"epochs":[]}"#).unwrap().epochs.is_empty());
@@ -660,12 +669,15 @@ fn every_resolution_write_invalidates_even_when_restored_or_rebound_to_expected(
     })];
     let events = project(&b, &cfg).unwrap();
     assert_eq!(events.global_state[0].value, "4");
-    assert_eq!(events.epochs.len(), 1);
+    // Both writes are evidence: the excursion 4 -> 5 -> 4 is not hidden.
+    let evidence: Vec<(u64, i32, Vec<u8>)> = events.epochs.iter().map(|x| (x.ordinal, x.reason, x.evidence_word.clone())).collect();
     assert_eq!(
-        (events.epochs[0].ordinal, events.epochs[0].reason),
-        (10, pb::InvalidationReason::ContractVersionSet as i32)
+        evidence,
+        vec![
+            (10, pb::InvalidationReason::ContractVersionSet as i32, w(5).to_vec()),
+            (11, pb::InvalidationReason::ContractVersionSet as i32, w(4).to_vec()),
+        ]
     );
-    assert_eq!(events.epochs[0].evidence_word, w(5));
 }
 
 #[test]
@@ -1008,4 +1020,285 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
         .map(|ep| (ep.reason, ep.ordinal))
         .collect();
     assert_eq!(invalidated, vec![(pb::InvalidationReason::DependencyPointerWrite as i32, 120)]);
+}
+
+fn rebased_log(topics: usize, ordinal: u64) -> eth::Log {
+    let mut data = Vec::new();
+    for v in [86_400u128, 10_000, 9_800, 10_010, 10_300, 20] {
+        data.extend_from_slice(&w(v));
+    }
+    let mut all = vec![TOKEN_REBASED_TOPIC0.to_vec(), w(1_789_600_000).to_vec(), w(1).to_vec()];
+    all.truncate(topics);
+    eth::Log {
+        address: epoch().steth,
+        topics: all,
+        data,
+        index: 0,
+        block_index: 5,
+        ordinal,
+    }
+}
+fn delegate(index: u32, preimages: Vec<(String, String)>, changes: Vec<eth::StorageChange>) -> eth::Call {
+    let e = epoch();
+    eth::Call {
+        index,
+        depth: 1,
+        call_type: eth::CallType::Delegate as i32,
+        caller: e.steth.clone(),
+        address: e.implementation.clone(),
+        keccak_preimages: preimages.into_iter().collect(),
+        storage_changes: changes,
+        ..Default::default()
+    }
+}
+
+#[test]
+fn the_v3_to_v4_migration_inside_an_epoch_invalidates_with_evidence_instead_of_halting() {
+    let e = epoch();
+    let cfg = config();
+    // `_migrateStorage_v3_to_v4` (Lido.sol:311-341) wipes these function-local positions.
+    let retired: Vec<[u8; 32]> = RETIRED_V3_POSITION_NAMES.iter().map(|n| keccak(n.as_bytes())).collect();
+    assert_eq!(
+        retired.iter().map(hex::encode).collect::<Vec<_>>(),
+        vec![
+            "c36804a03ec742b57b141e4e5d8d3bd1ddb08451fd0f9983af8aaab357a78e2f",
+            "a84c096ee27e195f25d7b6c7c2a03229e49f1a2a5087e57ce7d7127707942fe3"
+        ]
+    );
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(delegate(
+        1,
+        vec![],
+        vec![
+            write(e.contract_version_slot, w(3), w(4), 10),
+            write(e.buffered_slot, packed(0, 0), packed(1_000, 64), 11),
+            write(e.cl_slot, packed(0, 0), packed(9_000, 0), 12),
+            write(retired[0], packed(9_000, 30), w(0), 13),
+            write(retired[1], packed(1_000, 32), w(0), 14),
+        ],
+    ))];
+    let events = project(&b, &cfg).unwrap();
+    let evidence: Vec<(u64, i32)> = events.epochs.iter().map(|x| (x.ordinal, x.reason)).collect();
+    assert_eq!(
+        evidence,
+        vec![
+            (10, pb::InvalidationReason::ContractVersionSet as i32),
+            (13, pb::InvalidationReason::StorageMigration as i32),
+            (14, pb::InvalidationReason::StorageMigration as i32),
+        ]
+    );
+    assert_eq!(events.epochs[1].evidence_slot, retired[0].to_vec());
+    // Activated after the migration, the same writes are the previous epoch's.
+    let mut v: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+    v["epochs"][0]["activation_block"] = 10.into();
+    v["epochs"][0]["activation_ordinal"] = 15.into();
+    let late = parse(&v.to_string()).unwrap();
+    let events = project(&b, &late).unwrap();
+    assert!(events.epochs.iter().all(|x| x.kind == pb::EpochEventKind::Bound as i32));
+    assert!(events.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+}
+
+#[test]
+fn the_kernel_resolution_slots_are_the_literal_aragon_mapping_members() {
+    // KernelStorage `apps` (slot 0): apps[keccak("base")][appId] and
+    // apps[keccak("core")][KERNEL_CORE_APP_ID]; computed independently of the
+    // crate (the review's Python keccak) and pinned so an argument swap fails.
+    let e = epoch();
+    assert_eq!(
+        hex::encode(e.aragon.app_base_slot),
+        "54b2b2de1ae6731a04bdbca30cee71852851cfcd3298aaf29f4ebff9452b27ad"
+    );
+    assert_eq!(
+        hex::encode(e.aragon.kernel_implementation_slot),
+        "8e2ed18767e9c33b25344c240cdf92034fae56be99e2c07f3d9946d949ffede4"
+    );
+}
+
+#[test]
+fn a_routine_report_submit_permit_and_external_mint_block_is_fully_accounted() {
+    use prost::Message;
+    let e = epoch();
+    let cfg = config();
+    let named = |n: &str| keccak(n.as_bytes());
+    let (wq, burner, treasury, user, spender) = ([0x55u8; 20], [0x66u8; 20], [0x77u8; 20], [0x44u8; 20], [0x33u8; 20]);
+    let share = |h: &[u8; 20]| mapping_key(h, &e.shares_slot);
+    let shares_preimage = |h: &[u8; 20]| preimage(h, &e.shares_slot);
+    // Oracle report: processClStateUpdate, receiveELRewards,
+    // collectRewardsAndProcessWithdrawals, the withdrawal queue's burn
+    // transfer, fee minting, burnShares, then TokenRebased.
+    let mut report = tx(eth::Call::default());
+    report.calls = vec![
+        eth::Call {
+            index: 0,
+            address: vec![0xac; 20],
+            ..Default::default()
+        },
+        delegate(
+            1,
+            vec![],
+            vec![
+                write(named("lido.Lido.depositedNextReportAndLastDepositNonce"), packed(5, 100), packed(0, 101), 10),
+                write(e.buffered_slot, packed(1_000, 64), packed(1_000, 0), 11),
+                write(e.cl_slot, packed(9_000, 32), packed(9_100, 0), 12),
+            ],
+        ),
+        delegate(2, vec![], vec![write(named("lido.Lido.totalELRewardsCollected"), w(7), w(9), 20)]),
+        delegate(
+            3,
+            vec![],
+            vec![
+                write(e.buffered_slot, packed(1_000, 0), packed(1_002, 0), 30),
+                write(named("lido.Lido.depositsReserve"), w(0), w(50), 31),
+            ],
+        ),
+        delegate(
+            4,
+            vec![shares_preimage(&wq), shares_preimage(&burner)],
+            vec![write(share(&wq), w(40), w(30), 40), write(share(&burner), w(0), w(10), 41)],
+        ),
+        delegate(
+            5,
+            vec![shares_preimage(&treasury)],
+            vec![
+                write(e.total_and_external_shares_slot, packed(10_000, 500), packed(10_020, 500), 50),
+                write(share(&treasury), w(1), w(21), 51),
+            ],
+        ),
+        delegate(
+            6,
+            vec![shares_preimage(&burner)],
+            vec![
+                write(e.total_and_external_shares_slot, packed(10_020, 500), packed(10_010, 500), 60),
+                write(share(&burner), w(10), w(0), 61),
+            ],
+        ),
+    ];
+    report.receipt = Some(eth::TransactionReceipt {
+        logs: vec![rebased_log(2, 70)],
+        ..Default::default()
+    });
+    // submit (stake limit), permit (nonces, a two-level allowance), and an
+    // external mint writing one packed word twice in one frame.
+    let mut submit = tx(delegate(
+        1,
+        vec![shares_preimage(&user)],
+        vec![
+            write(named("lido.Lido.stakeLimit"), w(1), w(2), 100),
+            write(e.total_and_external_shares_slot, packed(10_010, 500), packed(10_011, 500), 101),
+            write(share(&user), w(0), w(1), 102),
+            write(e.buffered_slot, packed(1_002, 0), packed(1_003, 0), 103),
+        ],
+    ));
+    submit.index = 10;
+    submit.hash = vec![8; 32];
+    let (allowances, nonces) = (e.other_mapping_slots[0], e.other_mapping_slots[1]);
+    let inner = mapping_key(&user, &allowances);
+    let allowance = mapping_key(&spender, &inner);
+    let mut permit = tx(delegate(
+        1,
+        vec![preimage(&user, &nonces), preimage(&user, &allowances), preimage(&spender, &inner)],
+        vec![write(mapping_key(&user, &nonces), w(0), w(1), 200), write(allowance, w(0), w(5), 201)],
+    ));
+    permit.index = 11;
+    permit.hash = vec![9; 32];
+    let mut external = tx(delegate(
+        1,
+        vec![shares_preimage(&user)],
+        vec![
+            write(e.total_and_external_shares_slot, packed(10_011, 500), packed(10_011, 600), 300),
+            write(e.total_and_external_shares_slot, packed(10_011, 600), packed(10_111, 600), 301),
+            write(share(&user), w(1), w(101), 302),
+        ],
+    ));
+    external.index = 12;
+    external.hash = vec![10; 32];
+    let mut b = block(10);
+    b.transaction_traces = vec![report, submit, permit, external];
+    let events = project(&b, &cfg).unwrap();
+    let holders: Vec<([u8; 1], String, String)> = events
+        .holder_basis
+        .iter()
+        .map(|h| ([h.holder[0]], h.previous_value.clone(), h.value.clone()))
+        .collect();
+    assert_eq!(
+        holders,
+        vec![
+            ([0x44], "0".into(), "101".into()),
+            ([0x55], "40".into(), "30".into()),
+            // Written twice (0 -> 10 -> 0): still an end-of-block row.
+            ([0x66], "0".into(), "0".into()),
+            ([0x77], "1".into(), "21".into()),
+        ]
+    );
+    let global = |field: pb::StateField| {
+        events
+            .global_state
+            .iter()
+            .filter(|g| g.field == field as i32)
+            .map(|g| (g.previous_value.clone(), g.value.clone(), g.change_count))
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(global(pb::StateField::LidoTotalShares), vec![("10000".into(), "10111".into(), 5)]);
+    assert_eq!(global(pb::StateField::LidoExternalShares), vec![("500".into(), "600".into(), 5)]);
+    assert_eq!(global(pb::StateField::LidoBufferedEther), vec![("1000".into(), "1003".into(), 3)]);
+    assert_eq!(global(pb::StateField::LidoClValidatorsBalance), vec![("9000".into(), "9100".into(), 1)]);
+    // internalEther 1003 + 9100 = 10103 over internalShares 9511, plus
+    // 600 × 10103 / 9511 external ether: all three words were written.
+    let derived = global(pb::StateField::LidoTotalPooledEther);
+    assert_eq!(derived[0].1, (10_103 + 600 * 10_103 / 9_511).to_string());
+    assert_eq!(global(pb::StateField::LidoReportPostTotalEther), vec![("".into(), "10300".into(), 1)]);
+    assert!(events.epochs.is_empty());
+    let mut reversed = b.clone();
+    reversed.transaction_traces.reverse();
+    assert_eq!(events.encode_to_vec(), project(&reversed, &cfg).unwrap().encode_to_vec());
+}
+
+#[test]
+fn packed_halves_decode_at_their_full_uint128_width() {
+    let e = epoch();
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        storage_changes: vec![write(e.cl_slot, packed(0, 0), packed(u128::MAX, u128::MAX), 10)],
+        ..Default::default()
+    })];
+    let events = project(&b, &config()).unwrap();
+    let values: Vec<(i32, String, u32, u32)> = events
+        .global_state
+        .iter()
+        .map(|g| (g.field, g.value.clone(), g.bit_offset, g.bit_width))
+        .collect();
+    assert_eq!(
+        values,
+        vec![
+            (pb::StateField::LidoClValidatorsBalance as i32, u128::MAX.to_string(), 0, 128),
+            (pb::StateField::LidoClPendingBalance as i32, u128::MAX.to_string(), 128, 128),
+        ]
+    );
+}
+
+#[test]
+fn report_logs_need_exactly_two_topics_and_a_receipt() {
+    let cfg = config();
+    for topics in [1, 3] {
+        let mut t = tx(eth::Call::default());
+        t.receipt = Some(eth::TransactionReceipt {
+            logs: vec![rebased_log(topics, 70)],
+            ..Default::default()
+        });
+        let mut b = block(10);
+        b.transaction_traces = vec![t];
+        assert!(project(&b, &cfg).unwrap_err().to_string().contains("malformed TokenRebased"), "{topics} topics");
+    }
+    // A succeeded transaction that logged from stETH but carries no receipt
+    // is incomplete data; logs of a reverted frame alone do not need one.
+    let mut call = eth::Call {
+        logs: vec![rebased_log(2, 70)],
+        ..Default::default()
+    };
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(call.clone())];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("no receipt"));
+    call.state_reverted = true;
+    b.transaction_traces = vec![tx(call)];
+    assert!(project(&b, &cfg).unwrap().global_state.is_empty());
 }

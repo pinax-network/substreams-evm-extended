@@ -8,7 +8,8 @@
 //! depositedPostReport`; `totalPooledEther = internalEther + externalShares *
 //! internalEther / internalShares`. Every packed field is uint128. Amounts are
 //! wei; results are truncated as the EVM does. `getPooledEthByShares` and
-//! `getSharesByPooledEth` require the argument to be below `2^128`.
+//! `getSharesByPooledEth` require the argument to be below `UINT128_MAX`
+//! (`~uint128(0)`, StETH.sol:58, 318, 330), so `2^128 - 1` itself reverts.
 use crate::{Result, Unknown};
 use num_bigint::BigUint;
 use num_traits::Zero;
@@ -26,6 +27,10 @@ pub struct Pool {
 
 fn fits_uint128(v: &BigUint) -> bool {
     v.bits() <= 128
+}
+/// `require(_amount < UINT128_MAX)`: strictly below `2^128 - 1`.
+fn below_uint128_max(v: &BigUint) -> bool {
+    v.bits() < 128 || (v.bits() == 128 && v.count_ones() < 128)
 }
 
 impl Pool {
@@ -72,7 +77,7 @@ impl Pool {
     }
     /// `getPooledEthByShares(shares)`: `shares * internalEther / internalShares`.
     pub fn pooled_eth_by_shares(&self, shares: &BigUint) -> Result<BigUint> {
-        if !fits_uint128(shares) {
+        if !below_uint128_max(shares) {
             return Err(Unknown::Invalid("SHARES_TOO_LARGE"));
         }
         let internal_shares = self.internal_shares()?;
@@ -83,7 +88,7 @@ impl Pool {
     }
     /// `getSharesByPooledEth(eth)`: `eth * internalShares / internalEther`.
     pub fn shares_by_pooled_eth(&self, eth: &BigUint) -> Result<BigUint> {
-        if !fits_uint128(eth) {
+        if !below_uint128_max(eth) {
             return Err(Unknown::Invalid("ETH_TOO_LARGE"));
         }
         let internal_ether = self.internal_ether()?;
@@ -198,7 +203,8 @@ mod tests {
         p.buffered_ether = big;
         assert_eq!(p.internal_ether(), Err(Unknown::Invalid("packed field exceeds uint128")));
         assert_eq!(pooled_eth_from_report(&n(1), &n(0), &n(1)), Err(Unknown::Invalid("zero post total shares")));
-        // Exact uint128 maxima are in range.
+        // Packed fields may hold the uint128 maximum; a getter argument may not:
+        // `require(_sharesAmount < UINT128_MAX)` rejects 2^128 - 1 itself.
         let max = (BigUint::from(1u8) << 128u32) - 1u8;
         let p = Pool {
             total_shares: max.clone(),
@@ -208,6 +214,30 @@ mod tests {
             cl_validators_balance: n(0),
             cl_pending_balance: n(0),
         };
-        assert_eq!(p.pooled_eth_by_shares(&max).unwrap(), max);
+        assert_eq!(p.pooled_eth_by_shares(&max), Err(Unknown::Invalid("SHARES_TOO_LARGE")));
+        assert_eq!(p.shares_by_pooled_eth(&max), Err(Unknown::Invalid("ETH_TOO_LARGE")));
+        assert_eq!(balance_of(Some(&max), &p), Err(Unknown::Invalid("SHARES_TOO_LARGE")));
+        let below = &max - 1u8;
+        assert_eq!(p.pooled_eth_by_shares(&below).unwrap(), below);
+        assert_eq!(p.shares_by_pooled_eth(&below).unwrap(), below);
+    }
+
+    #[test]
+    fn share_burns_and_zero_share_holders_in_a_live_pool() {
+        // burnShares: totalShares falls with no ether leaving, so every other
+        // holder's balance rises; the burned holder's zero shares read as 0.
+        let before = pool(1_000, 0, 500, 0, 500, 0);
+        let after_burn = pool(800, 0, 500, 0, 500, 0);
+        assert_eq!(before.pooled_eth_by_shares(&n(100)).unwrap(), n(100));
+        assert_eq!(after_burn.pooled_eth_by_shares(&n(100)).unwrap(), n(125));
+        assert_eq!(balance_of(Some(&n(0)), &after_burn).unwrap(), n(0));
+        assert_eq!(after_burn.shares_by_pooled_eth(&n(0)).unwrap(), n(0));
+        // Truncation at the boundary of one wei: 1 wei buys 0 shares when the
+        // rate exceeds one, and dust shares round down to 0 wei.
+        let rich = pool(1_000, 0, 1_500, 0, 1_500, 0);
+        assert_eq!(rich.shares_by_pooled_eth(&n(1)).unwrap(), n(0));
+        assert_eq!(rich.shares_by_pooled_eth(&n(3)).unwrap(), n(1));
+        let poor = pool(1_000, 0, 1, 0, 0, 0);
+        assert_eq!(poor.pooled_eth_by_shares(&n(999)).unwrap(), n(0));
     }
 }
