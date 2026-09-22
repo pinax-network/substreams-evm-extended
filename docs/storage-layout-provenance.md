@@ -12,6 +12,8 @@ Verification levels used below:
 | **observed** | the slot was seen written in saved Extended blocks with a Keccak preimage or a decode that matched an independent oracle |
 | **hashed** | the slot is `keccak256(name)` and a Rust test asserts the hex against the pinned name |
 | **standard** | a published standard constant (EIP-1967, ERC-7201) recomputed or read from the pinned source |
+| **compiler-verified** | `solc --storage-layout` of the pinned source with the exact compiler; the raw layout is committed under [`evidence/storage-layouts/`](evidence/storage-layouts/README.md) and a Rust test pins the fixture to it, including a completeness check that every compiled slot is decoded or reviewed |
+| **ast-derived** | solc 0.4.24 has no `--storage-layout`; the layout is derived from the compact AST over the linearized inheritance chain and the `bytes32` constants are read from the AST (Lido) |
 | **inferred** | derived by reading the pinned source's state-variable declaration order and applying Solidity packing rules by hand; not yet compiled |
 
 ## Per contract
@@ -30,27 +32,27 @@ Verification levels used below:
 
 | Slot | Variable | Level | Source |
 | --- | --- | --- | --- |
-| 0 | `baseSupplyIndex` 0..64, `baseBorrowIndex` 64..128, tracking indices 128..256 | inferred | `CometStorage.sol` declaration order; re-derived by four reviewers |
-| 1 | `totalSupplyBase` 0..104, `totalBorrowBase` 104..208, `lastAccrualTime` 208..248, `pauseFlags` 248..256 | inferred | same |
-| 2, 3, 4, 6, 7 | `totalsCollateral`, `isAllowed`, `userNonce`, `userCollateral`, `liquidatorPoints` mappings | inferred | same |
-| 5 | `userBasic` mapping (`principal` int104 at 0..104) | inferred | same |
+| 0 | `baseSupplyIndex` 0..64, `baseBorrowIndex` 64..128, tracking indices 128..256 | compiler-verified | `solc 0.8.15` ([layout](evidence/storage-layouts/comet@f766f515.json)); test `compound-v3/balance-state/tests/storage_layout.rs` |
+| 1 | `totalSupplyBase` 0..104, `totalBorrowBase` 104..208, `lastAccrualTime` 208..248, `pauseFlags` 248..256 | compiler-verified | byte offsets 0, 13, 26, 31 in the compiled layout |
+| 2, 3, 4, 6, 7 | `totalsCollateral`, `isAllowed`, `userNonce`, `userCollateral`, `liquidatorPoints` mappings | compiler-verified | complete: no other regular slot exists |
+| 5 | `userBasic` mapping (`principal` int104 at 0..104) | compiler-verified | `UserBasic` member `principal` slot 0 offset 0 `t_int104`, struct size 32 |
 | `0xc98c7730ba19013824f711a9ab74801459b27e6ff7685cb924587c89aeda53ac` | `REENTRANCY_GUARD_FLAG_SLOT` = `keccak256("comet.reentrancy.guard")` | hashed | `CometCore.sol:60`; reviewed by name in the fixture and asserted in a test (was missing before the [review](review-findings-2026-09-21.md)) |
 
 ### Compound v2 cTokens and JumpRateModelV2 (`compound-v2/balance-state`)
 
 | Slot | Variable | Level | Source |
 | --- | --- | --- | --- |
-| 0 | `_notEntered` | inferred | `CTokenInterfaces.sol` `CTokenStorage` |
-| 1, 2 | `name`, `symbol` | inferred | |
-| 3 | `decimals` (uint8) packed with `admin` | inferred | constants `borrowRateMaxMantissa`, `reserveFactorMaxMantissa` take no slot |
-| 4, 5 | `pendingAdmin`, `comptroller` | inferred | |
-| 6 | `interestRateModel` | inferred | |
-| 7 … 13 | `initialExchangeRateMantissa`, `reserveFactorMantissa`, `accrualBlockNumber`, `borrowIndex`, `totalBorrows`, `totalReserves`, `totalSupply` | inferred | |
-| 14, 15, 16 | `accountTokens`, `transferAllowances`, `accountBorrows` (two-word struct) | inferred | |
-| 17 | `underlying` (`CErc20Storage`) | inferred | |
-| 18 | `implementation` (`CDelegationStorage`, delegators only) | inferred | |
-| IRM 0 … 4 | `owner`, `multiplierPerBlock`, `baseRatePerBlock`, `jumpMultiplierPerBlock`, `kink` | inferred | `BaseJumpRateModelV2.sol`; `blocksPerYear` is a constant |
-| USDC 9 | FiatToken `balances` | inferred | `FiatTokenV1.sol` declaration order after Ownable/Pausable/Blacklistable; the proxy is FiatTokenProxy (implementation slot `0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3`) |
+| 0 | `_notEntered` | compiler-verified | `solc 0.8.10` ([layout](evidence/storage-layouts/compound-v2@a3214f67.json)); test `compound-v2/balance-state/tests/storage_layout.rs` |
+| 1, 2 | `name`, `symbol` | compiler-verified | |
+| 3 | `decimals` (uint8) packed with `admin` | compiler-verified | `decimals` offset 0, `admin` offset 1 in slot 3 |
+| 4, 5 | `pendingAdmin`, `comptroller` | compiler-verified | |
+| 6 | `interestRateModel` | compiler-verified | |
+| 7 … 13 | `initialExchangeRateMantissa`, `reserveFactorMantissa`, `accrualBlockNumber`, `borrowIndex`, `totalBorrows`, `totalReserves`, `totalSupply` | compiler-verified | |
+| 14, 15, 16 | `accountTokens`, `transferAllowances`, `accountBorrows` (two-word struct) | compiler-verified | |
+| 17 | `underlying` (`CErc20Storage`) | compiler-verified | |
+| 18 | `implementation` (`CDelegationStorage`, delegators only) | compiler-verified | |
+| IRM 0 … 4 | `owner`, `multiplierPerBlock`, `baseRatePerBlock`, `jumpMultiplierPerBlock`, `kink` | compiler-verified | `JumpRateModelV2` layout: `owner` 0, then 1..4; `blocksPerYear` is a constant |
+| USDC 9 | FiatToken `balances` | inferred (not compiled; circlefin/stablecoin-evm is not among the pinned trees) | `FiatTokenV1.sol` declaration order after Ownable/Pausable/Blacklistable; the proxy is FiatTokenProxy (implementation slot `0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3`) |
 
 The legacy cUSDC (`CErc20`, 2019) and cETH (`CEther`) are not delegators; whether
 their deployed bytecode has exactly this layout is a runtime question for live
@@ -60,26 +62,32 @@ qualification.
 
 | Slot | Variable | Level | Source |
 | --- | --- | --- | --- |
-| 0 | `shares` mapping | inferred | `StETH.sol` declares `shares` then `allowances`; `Versioned`, `Pausable`, Aragon `AppStorage`/`Initializable`/`ReentrancyGuard`/`ACL` bases use unstructured storage only; `StETHPermit` adds `noncesByAddress` after |
-| 1, 2 | `allowances`, `noncesByAddress` | inferred | same |
+| 0 | `shares` mapping | ast-derived | solc 0.4.24 AST over the 22-contract linearized chain ([layout](evidence/storage-layouts/lido-core@2da0f48f.json)): only `StETH` and `StETHPermit` declare regular state; test `lido/balance-state/tests/storage_layout.rs` |
+| 1, 2 | `allowances`, `noncesByAddress` | ast-derived | same |
 | `0x6038…59e6` | `lido.StETH.totalAndExternalShares` (total low 128, external high 128) | hashed | test asserts `keccak256(name)` |
 | `0x81a1…0a5f` | `lido.Lido.bufferedEtherAndDepositedPostReport` | hashed | |
 | `0x096e…8112` | `lido.Lido.clValidatorsBalanceAndClPendingBalance` | hashed | |
 | `0x4dd0…64a6` | `lido.Versioned.contractVersion` | hashed | |
-| named `other_slot_names` | locator/max ratio, deposited next report, seed deposits, stake limit, EL rewards, deposits reserve (+target), pausable flag, Aragon mutex/kernel/appId/initialization block, EIP-712 position | hashed | names from the pinned files |
+| named `other_slot_names` | locator/max ratio, deposited next report, seed deposits, stake limit, EL rewards, deposits reserve (+target), pausable flag, Aragon mutex/kernel/appId/initialization block, EIP-712 position | hashed + ast-derived | every `*_POSITION` constant of the compiled chain (16) is configured or reviewed (test) |
 
 ### ERC-4626 vaults (`erc4626/balance-state`)
 
 | Slot | Variable | Level | Source |
 | --- | --- | --- | --- |
-| StaticATokenLM 0 | `Initializable` (`_initialized` uint8 + `_initializing` bool) | inferred | solidity-utils `Initializable.sol` (assumed one slot) |
-| 1 … 7 | `name`, `symbol`, `decimals`, `totalSupply`, `balanceOf`, `allowance`, `nonces` | inferred | `src/ERC20.sol` at the pin |
-| 8 … 12 | `_aToken`, `_aTokenUnderlying`, `_rewardTokens`, `_startIndex`, `_userRewardsData` | inferred | `StaticATokenLM.sol` |
-| SavingsDai 0 … 3 | `totalSupply`, `balanceOf`, `allowance`, `nonces` | inferred | `SavingsDai.sol`; constants and immutables take no slot |
-| Pot 0 … 8 | `wards`, `pie`, `Pie`, `dsr`, `chi`, `vat`, `vow`, `rho`, `live` | inferred | `pot.sol` declaration order (fixture uses 3, 4, 7) |
-| `0x52c6…ce00` (+0, +1, +2) | ERC-7201 `openzeppelin.storage.ERC20`: `_balances`, `_allowances`, `_totalSupply` | standard | formula `keccak256(abi.encode(uint256(keccak256(id)) - 1)) & ~0xff`, re-derived in `erc4626/balance-state` tests; also a literal constant in `ERC20Upgradeable.sol` v5.0.0 |
+| StaticATokenLM 0 | `Initializable` (`_initialized` uint8 + `_initializing` bool) | compiler-verified | `solc 0.8.20` ([layout](evidence/storage-layouts/static-a-token-v3@101f5d97.json)); test `erc4626/balance-state/tests/storage_layout.rs` |
+| 1 … 7 | `name`, `symbol`, `decimals`, `totalSupply`, `balanceOf`, `allowance`, `nonces` | compiler-verified | complete with the rows below |
+| 8 … 12 | `_aToken`, `_aTokenUnderlying`, `_rewardTokens`, `_startIndex`, `_userRewardsData` | compiler-verified | |
+| SavingsDai 0 … 3 | `totalSupply`, `balanceOf`, `allowance`, `nonces` | compiler-verified | `solc 0.8.17` ([layout](evidence/storage-layouts/sdai@66587976.json)) |
+| Pot 0 … 8 | `wards`, `pie`, `Pie`, `dsr`, `chi`, `vat`, `vow`, `rho`, `live` | compiler-verified | `solc 0.6.12` ([layout](evidence/storage-layouts/dss-pot@fa4f6630.json)); dss master at capture, mainnet MCD_POT bytecode not bound |
+| `0x52c6…ce00` (+0, +1, +2) | ERC-7201 `openzeppelin.storage.ERC20`: `_balances`, `_allowances`, `_totalSupply` | standard + compiled constant | formula re-derived in the erc4626 tests and equal to `ERC20StorageLocation` in the pinned `ERC20Upgradeable.sol` ([evidence](evidence/storage-layouts/openzeppelin-upgradeable@v5.0.0.json)); the compiled harness has no regular storage |
 
-## Compiler verification plan (offline, no RPC)
+## Compiler verification plan (offline, no RPC) — executed on 2026-09-21
+
+All seven contracts below were compiled (or, for Lido, AST-derived) with the
+exact pinned compilers; the layouts live under `evidence/storage-layouts/` and
+each package has a `tests/storage_layout.rs` that fails when a fixture slot
+diverges from the compiled layout or a compiled slot is neither decoded nor
+reviewed. The steps are kept for re-runs at a new pin.
 
 `solc` is installed on the original machine (`forge` is not). For each contract:
 

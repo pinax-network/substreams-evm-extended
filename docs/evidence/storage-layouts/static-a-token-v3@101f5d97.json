@@ -1,0 +1,500 @@
+{
+ "captured": "2026-09-21",
+ "host": "macOS arm64; solc release binaries from binaries.soliditylang.org installed with solc-select, run under Rosetta where needed; no RPC, no network besides git and the binary download",
+ "repository": "bgd-labs/static-a-token-v3",
+ "commit": "101f5d977889254ca2d2711b9582b45f832d10a0",
+ "solc": {
+  "version": "Version: 0.8.20+commit.a1b79de6.Darwin.appleclang",
+  "sha256": "5d98c9ed892b74ecadc4ab7f93de6211fdde0351ef66f2cb90eb11630e30e2ab"
+ },
+ "command": "solc --combined-json storage-layout --base-path . openzeppelin-contracts/=lib/openzeppelin-contracts/ ds-test/=lib/aave-helpers/lib/forge-std/lib/ds-test/src/ forge-std/=lib/aave-helpers/lib/forge-std/src/ solidity-utils/=lib/aave-helpers/lib/solidity-utils/src/ aave-address-book/=lib/aave-helpers/lib/aave-address-book/src/ aave-helpers/=lib/aave-helpers/src/ @aave/core-v3/=lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/ aave-v3-core/=lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/ aave-v3-periphery/=lib/aave-helpers/lib/aave-address-book/lib/aave-v3-periphery/ @aave/periphery-v3/=lib/aave-helpers/lib/aave-address-book/lib/aave-v3-periphery/ src/StaticATokenLM.sol",
+ "cwd_note": "run at the repository root of the pinned checkout",
+ "method": "solc --storage-layout",
+ "contracts": {
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/contracts/interfaces/IAaveIncentivesController.sol:IAaveIncentivesController": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/contracts/interfaces/IPool.sol:IPool": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/contracts/interfaces/IPoolAddressesProvider.sol:IPoolAddressesProvider": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/contracts/interfaces/IScaledBalanceToken.sol:IScaledBalanceToken": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/contracts/protocol/libraries/configuration/ReserveConfiguration.sol:ReserveConfiguration": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/contracts/protocol/libraries/helpers/Errors.sol:Errors": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/contracts/protocol/libraries/math/MathUtils.sol:MathUtils": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/contracts/protocol/libraries/math/WadRayMath.sol:WadRayMath": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-core/contracts/protocol/libraries/types/DataTypes.sol:DataTypes": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-periphery/contracts/misc/interfaces/IEACAggregatorProxy.sol:IEACAggregatorProxy": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-periphery/contracts/rewards/interfaces/IRewardsController.sol:IRewardsController": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-periphery/contracts/rewards/interfaces/IRewardsDistributor.sol:IRewardsDistributor": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-periphery/contracts/rewards/interfaces/ITransferStrategyBase.sol:ITransferStrategyBase": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/aave-address-book/lib/aave-v3-periphery/contracts/rewards/libraries/RewardsDataTypes.sol:RewardsDataTypes": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/solidity-utils/src/contracts/oz-common/Address.sol:Address": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/solidity-utils/src/contracts/oz-common/SafeCast.sol:SafeCast": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/solidity-utils/src/contracts/oz-common/SafeERC20.sol:SafeERC20": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/solidity-utils/src/contracts/oz-common/interfaces/IERC20.sol:IERC20": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/solidity-utils/src/contracts/oz-common/interfaces/IERC20Metadata.sol:IERC20Metadata": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/solidity-utils/src/contracts/oz-common/interfaces/IERC20Permit.sol:IERC20Permit": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/solidity-utils/src/contracts/oz-common/interfaces/IERC20WithPermit.sol:IERC20WithPermit": {
+   "storage": [],
+   "types": {}
+  },
+  "lib/aave-helpers/lib/solidity-utils/src/contracts/transparent-proxy/Initializable.sol:Initializable": {
+   "storage": [
+    {
+     "astId": 6626,
+     "contract": "lib/aave-helpers/lib/solidity-utils/src/contracts/transparent-proxy/Initializable.sol:Initializable",
+     "label": "_initialized",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_uint8"
+    },
+    {
+     "astId": 6629,
+     "contract": "lib/aave-helpers/lib/solidity-utils/src/contracts/transparent-proxy/Initializable.sol:Initializable",
+     "label": "_initializing",
+     "offset": 1,
+     "slot": "0",
+     "type": "t_bool"
+    }
+   ],
+   "types": {
+    "t_bool": {
+     "encoding": "inplace",
+     "label": "bool",
+     "numberOfBytes": "1"
+    },
+    "t_uint8": {
+     "encoding": "inplace",
+     "label": "uint8",
+     "numberOfBytes": "1"
+    }
+   }
+  },
+  "src/ECDSA.sol:ECDSA": {
+   "storage": [],
+   "types": {}
+  },
+  "src/ERC20.sol:ERC20": {
+   "storage": [
+    {
+     "astId": 6806,
+     "contract": "src/ERC20.sol:ERC20",
+     "label": "name",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 6808,
+     "contract": "src/ERC20.sol:ERC20",
+     "label": "symbol",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 6810,
+     "contract": "src/ERC20.sol:ERC20",
+     "label": "decimals",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_uint8"
+    },
+    {
+     "astId": 6812,
+     "contract": "src/ERC20.sol:ERC20",
+     "label": "totalSupply",
+     "offset": 0,
+     "slot": "3",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 6816,
+     "contract": "src/ERC20.sol:ERC20",
+     "label": "balanceOf",
+     "offset": 0,
+     "slot": "4",
+     "type": "t_mapping(t_address,t_uint256)"
+    },
+    {
+     "astId": 6822,
+     "contract": "src/ERC20.sol:ERC20",
+     "label": "allowance",
+     "offset": 0,
+     "slot": "5",
+     "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+    },
+    {
+     "astId": 6826,
+     "contract": "src/ERC20.sol:ERC20",
+     "label": "nonces",
+     "offset": 0,
+     "slot": "6",
+     "type": "t_mapping(t_address,t_uint256)"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => mapping(address => uint256))",
+     "numberOfBytes": "32",
+     "value": "t_mapping(t_address,t_uint256)"
+    },
+    "t_mapping(t_address,t_uint256)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => uint256)",
+     "numberOfBytes": "32",
+     "value": "t_uint256"
+    },
+    "t_string_storage": {
+     "encoding": "bytes",
+     "label": "string",
+     "numberOfBytes": "32"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    },
+    "t_uint8": {
+     "encoding": "inplace",
+     "label": "uint8",
+     "numberOfBytes": "1"
+    }
+   }
+  },
+  "src/RayMathExplicitRounding.sol:RayMathExplicitRounding": {
+   "storage": [],
+   "types": {}
+  },
+  "src/StaticATokenErrors.sol:StaticATokenErrors": {
+   "storage": [],
+   "types": {}
+  },
+  "src/StaticATokenLM.sol:StaticATokenLM": {
+   "storage": [
+    {
+     "astId": 6626,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "_initialized",
+     "offset": 0,
+     "slot": "0",
+     "type": "t_uint8"
+    },
+    {
+     "astId": 6629,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "_initializing",
+     "offset": 1,
+     "slot": "0",
+     "type": "t_bool"
+    },
+    {
+     "astId": 6806,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "name",
+     "offset": 0,
+     "slot": "1",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 6808,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "symbol",
+     "offset": 0,
+     "slot": "2",
+     "type": "t_string_storage"
+    },
+    {
+     "astId": 6810,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "decimals",
+     "offset": 0,
+     "slot": "3",
+     "type": "t_uint8"
+    },
+    {
+     "astId": 6812,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "totalSupply",
+     "offset": 0,
+     "slot": "4",
+     "type": "t_uint256"
+    },
+    {
+     "astId": 6816,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "balanceOf",
+     "offset": 0,
+     "slot": "5",
+     "type": "t_mapping(t_address,t_uint256)"
+    },
+    {
+     "astId": 6822,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "allowance",
+     "offset": 0,
+     "slot": "6",
+     "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+    },
+    {
+     "astId": 6826,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "nonces",
+     "offset": 0,
+     "slot": "7",
+     "type": "t_mapping(t_address,t_uint256)"
+    },
+    {
+     "astId": 88,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "_aToken",
+     "offset": 0,
+     "slot": "8",
+     "type": "t_contract(IERC20)6583"
+    },
+    {
+     "astId": 90,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "_aTokenUnderlying",
+     "offset": 0,
+     "slot": "9",
+     "type": "t_address"
+    },
+    {
+     "astId": 93,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "_rewardTokens",
+     "offset": 0,
+     "slot": "10",
+     "type": "t_array(t_address)dyn_storage"
+    },
+    {
+     "astId": 98,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "_startIndex",
+     "offset": 0,
+     "slot": "11",
+     "type": "t_mapping(t_address,t_struct(RewardIndexCache)7601_storage)"
+    },
+    {
+     "astId": 105,
+     "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+     "label": "_userRewardsData",
+     "offset": 0,
+     "slot": "12",
+     "type": "t_mapping(t_address,t_mapping(t_address,t_struct(UserRewardsData)7596_storage))"
+    }
+   ],
+   "types": {
+    "t_address": {
+     "encoding": "inplace",
+     "label": "address",
+     "numberOfBytes": "20"
+    },
+    "t_array(t_address)dyn_storage": {
+     "base": "t_address",
+     "encoding": "dynamic_array",
+     "label": "address[]",
+     "numberOfBytes": "32"
+    },
+    "t_bool": {
+     "encoding": "inplace",
+     "label": "bool",
+     "numberOfBytes": "1"
+    },
+    "t_contract(IERC20)6583": {
+     "encoding": "inplace",
+     "label": "contract IERC20",
+     "numberOfBytes": "20"
+    },
+    "t_mapping(t_address,t_mapping(t_address,t_struct(UserRewardsData)7596_storage))": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => mapping(address => struct IStaticATokenLM.UserRewardsData))",
+     "numberOfBytes": "32",
+     "value": "t_mapping(t_address,t_struct(UserRewardsData)7596_storage)"
+    },
+    "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => mapping(address => uint256))",
+     "numberOfBytes": "32",
+     "value": "t_mapping(t_address,t_uint256)"
+    },
+    "t_mapping(t_address,t_struct(RewardIndexCache)7601_storage)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => struct IStaticATokenLM.RewardIndexCache)",
+     "numberOfBytes": "32",
+     "value": "t_struct(RewardIndexCache)7601_storage"
+    },
+    "t_mapping(t_address,t_struct(UserRewardsData)7596_storage)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => struct IStaticATokenLM.UserRewardsData)",
+     "numberOfBytes": "32",
+     "value": "t_struct(UserRewardsData)7596_storage"
+    },
+    "t_mapping(t_address,t_uint256)": {
+     "encoding": "mapping",
+     "key": "t_address",
+     "label": "mapping(address => uint256)",
+     "numberOfBytes": "32",
+     "value": "t_uint256"
+    },
+    "t_string_storage": {
+     "encoding": "bytes",
+     "label": "string",
+     "numberOfBytes": "32"
+    },
+    "t_struct(RewardIndexCache)7601_storage": {
+     "encoding": "inplace",
+     "label": "struct IStaticATokenLM.RewardIndexCache",
+     "members": [
+      {
+       "astId": 7598,
+       "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+       "label": "isRegistered",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_bool"
+      },
+      {
+       "astId": 7600,
+       "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+       "label": "lastUpdatedIndex",
+       "offset": 1,
+       "slot": "0",
+       "type": "t_uint248"
+      }
+     ],
+     "numberOfBytes": "32"
+    },
+    "t_struct(UserRewardsData)7596_storage": {
+     "encoding": "inplace",
+     "label": "struct IStaticATokenLM.UserRewardsData",
+     "members": [
+      {
+       "astId": 7593,
+       "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+       "label": "rewardsIndexOnLastInteraction",
+       "offset": 0,
+       "slot": "0",
+       "type": "t_uint128"
+      },
+      {
+       "astId": 7595,
+       "contract": "src/StaticATokenLM.sol:StaticATokenLM",
+       "label": "unclaimedRewards",
+       "offset": 16,
+       "slot": "0",
+       "type": "t_uint128"
+      }
+     ],
+     "numberOfBytes": "32"
+    },
+    "t_uint128": {
+     "encoding": "inplace",
+     "label": "uint128",
+     "numberOfBytes": "16"
+    },
+    "t_uint248": {
+     "encoding": "inplace",
+     "label": "uint248",
+     "numberOfBytes": "31"
+    },
+    "t_uint256": {
+     "encoding": "inplace",
+     "label": "uint256",
+     "numberOfBytes": "32"
+    },
+    "t_uint8": {
+     "encoding": "inplace",
+     "label": "uint8",
+     "numberOfBytes": "1"
+    }
+   }
+  },
+  "src/interfaces/IAToken.sol:IAToken": {
+   "storage": [],
+   "types": {}
+  },
+  "src/interfaces/IERC4626.sol:IERC4626": {
+   "storage": [],
+   "types": {}
+  },
+  "src/interfaces/IInitializableStaticATokenLM.sol:IInitializableStaticATokenLM": {
+   "storage": [],
+   "types": {}
+  },
+  "src/interfaces/IStaticATokenLM.sol:IStaticATokenLM": {
+   "storage": [],
+   "types": {}
+  }
+ }
+}
