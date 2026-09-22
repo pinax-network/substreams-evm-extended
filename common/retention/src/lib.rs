@@ -51,10 +51,10 @@ pub struct Key {
 pub enum Origin {
     /// Independently verified value at `block` (the block before the first
     /// applied one), with the evidence reference the consumer was given.
-    Checkpoint { block: u64, evidence: String },
+    Checkpoint { block: u64, hash: Vec<u8>, evidence: String },
     /// EVM-initial zero storage of a token whose creation was observed at
     /// `block`; only valid for holders that cannot precede the creation.
-    DeploymentZero { block: u64 },
+    DeploymentZero { block: u64, hash: Vec<u8> },
     /// An emitted end-of-block row.
     Observed,
 }
@@ -152,9 +152,10 @@ fn valid_decimal(s: &str, signed: bool) -> bool {
     !digits.is_empty() && digits.bytes().all(|c| c.is_ascii_digit()) && (digits == "0" || !digits.starts_with('0')) && s != "-0"
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct Journal {
     clock: Clock,
+    previous_clock: Option<Clock>,
     previous: Vec<(Key, Option<Entry>)>,
     previous_suspensions: Vec<(Vec<u8>, Option<Suspension>)>,
     rows: u64,
@@ -195,9 +196,9 @@ impl Ledger {
         }
     }
 
-    /// Seed a verified value at `block`; every seed must sit at the block
-    /// before the first applied block, which `apply` enforces.
-    pub fn seed_checkpoint(&mut self, key: Key, value: &str, block: u64, evidence: &str) -> Result<()> {
+    /// Seed a verified value at `(block, hash)`; every seed must identify the
+    /// same parent of the first applied block, which `apply` enforces.
+    pub fn seed_checkpoint(&mut self, key: Key, value: &str, block: u64, hash: &[u8], evidence: &str) -> Result<()> {
         if self.last.is_some() {
             return err("checkpoints are seeded before the first block");
         }
@@ -207,8 +208,23 @@ impl Ledger {
         if evidence.is_empty() {
             return err("checkpoint evidence reference required");
         }
+        if hash.len() != 32 {
+            return err("checkpoint identity must have a 32-byte hash");
+        }
         if self.entries.contains_key(&key) {
             return err("holder already seeded");
+        }
+        for entry in self.entries.values() {
+            if let Origin::Checkpoint {
+                block: seeded_block,
+                hash: seeded_hash,
+                ..
+            } = &entry.origin
+            {
+                if *seeded_block != block || seeded_hash != hash {
+                    return err("all checkpoint seeds must identify the same block and hash");
+                }
+            }
         }
         self.entries.insert(
             key,
@@ -216,6 +232,7 @@ impl Ledger {
                 value: value.to_string(),
                 origin: Origin::Checkpoint {
                     block,
+                    hash: hash.to_vec(),
                     evidence: evidence.to_string(),
                 },
                 since: block,
@@ -225,31 +242,42 @@ impl Ledger {
         Ok(())
     }
 
-    /// Seed EVM-initial zeros for a token created at `creation_block`, for
-    /// holders that cannot hold it before creation. Never for an existing
-    /// token: that would infer zero from an absent write.
-    pub fn seed_deployment_zero(&mut self, contract: &[u8], holders: &BTreeSet<Vec<u8>>, creation_block: u64) -> Result<usize> {
+    /// Seed EVM-initial zeros immediately after applying the exact creation
+    /// block, for holders that cannot hold the token before creation. The
+    /// caller must qualify the creation; this ledger binds its identity and
+    /// adds the seeds to that block's undo journal. Never for an existing token.
+    pub fn seed_deployment_zero(&mut self, contract: &[u8], holders: &BTreeSet<Vec<u8>>, creation: &Clock) -> Result<usize> {
         if self.entries.keys().any(|k| k.contract.as_deref() == Some(contract)) {
             return err("deployment token already has holder state");
         }
-        if let Some(last) = &self.last {
-            if creation_block > last.number {
-                return err("deployment block is after the last applied block");
-            }
+        if self.last.as_ref() != Some(creation) {
+            return err("deployment identity must match the latest applied block");
         }
+        let Some(journal) = self.journal.back_mut().filter(|journal| journal.clock == *creation) else {
+            return err("deployment initialization requires the creation block's undo journal");
+        };
         for holder in holders {
+            let key = Key {
+                contract: Some(contract.to_vec()),
+                address: holder.clone(),
+            };
             self.entries.insert(
-                Key {
-                    contract: Some(contract.to_vec()),
-                    address: holder.clone(),
-                },
+                key.clone(),
                 Entry {
                     value: "0".into(),
-                    origin: Origin::DeploymentZero { block: creation_block },
-                    since: creation_block,
-                    updated: creation_block,
+                    origin: Origin::DeploymentZero {
+                        block: creation.number,
+                        hash: creation.hash.clone(),
+                    },
+                    since: creation.number,
+                    updated: creation.number,
                 },
             );
+            // Preserve an earlier change made by this block, such as a BOUND
+            // dropping retained state. Undo must restore the pre-block value.
+            if !journal.previous.iter().any(|(k, _)| *k == key) {
+                journal.previous.push((key, None));
+            }
         }
         Ok(holders.len())
     }
@@ -289,8 +317,11 @@ impl Ledger {
         }
         match &self.last {
             Some(last) => {
-                if clock.number != last.number + 1 {
-                    return err(format!("block gap: expected {}, got {}", last.number + 1, clock.number));
+                let Some(next) = last.number.checked_add(1) else {
+                    return err("block number has no representable successor");
+                };
+                if clock.number != next {
+                    return err(format!("block gap: expected {next}, got {}", clock.number));
                 }
                 if clock.parent_hash != last.hash {
                     return err(format!("fork at block {}: parent does not match retained hash; undo first", clock.number));
@@ -298,8 +329,8 @@ impl Ledger {
             }
             None => {
                 for (key, entry) in &self.entries {
-                    if let Origin::Checkpoint { block, .. } = entry.origin {
-                        if block + 1 != clock.number {
+                    if let Origin::Checkpoint { block, hash, .. } = &entry.origin {
+                        if block.checked_add(1) != Some(clock.number) || hash != &clock.parent_hash {
                             return err(format!(
                                 "checkpoint for 0x{} is at block {}, not the parent of the first block {}",
                                 hex_of(&key.address),
@@ -314,9 +345,10 @@ impl Ledger {
         Ok(())
     }
 
-    fn begin(&mut self, clock: &Clock) -> Journal {
+    fn begin(&self, clock: &Clock) -> Journal {
         Journal {
             clock: clock.clone(),
+            previous_clock: self.last.clone(),
             previous: Vec::new(),
             previous_suspensions: Vec::new(),
             rows: 0,
@@ -343,8 +375,7 @@ impl Ledger {
     /// contracts fail: the ledger must not carry values it cannot classify.
     pub fn apply(&mut self, clock: &Clock, rows: &[balances::Balance]) -> Result<Applied> {
         self.check_clock(clock)?;
-        let mut journal = self.begin(clock);
-        let mut applied = Applied::default();
+        // Validate the complete block before changing entries or journal state.
         let mut seen = BTreeSet::new();
         for row in rows {
             if let Some(contract) = &row.contract {
@@ -362,6 +393,14 @@ impl Ledger {
             if !seen.insert(key.clone()) {
                 return err("duplicate holder row within block");
             }
+        }
+        let mut journal = self.begin(clock);
+        let mut applied = Applied::default();
+        for row in rows {
+            let key = Key {
+                contract: row.contract.clone(),
+                address: row.address.clone(),
+            };
             applied.rows += 1;
             applied.zero_rows += usize::from(row.amount == "0");
             let since = self.entries.get(&key).map(|e| e.since).unwrap_or_else(|| {
@@ -390,17 +429,44 @@ impl Ledger {
     /// `basis_carryover == false` drops the market's retained basis.
     pub fn apply_state(&mut self, clock: &Clock, events: &state::Events) -> Result<Applied> {
         self.check_clock(clock)?;
-        if events.clocks.len() != 1 || events.clocks[0].number != clock.number || events.clocks[0].hash != clock.hash {
+        if events.clocks.len() != 1
+            || events.clocks[0].number != clock.number
+            || events.clocks[0].hash != clock.hash
+            || events.clocks[0].parent_hash != clock.parent_hash
+        {
             return err("balance-state events must carry exactly the applied block clock");
+        }
+        let mut epochs: Vec<&state::ModelEpoch> = events.epochs.iter().collect();
+        epochs.sort_by_key(|e| (e.ordinal, e.kind));
+        let epochs = epochs
+            .into_iter()
+            .map(|epoch| match state::EpochEventKind::try_from(epoch.kind) {
+                Ok(kind) if kind != state::EpochEventKind::Unspecified => Ok((epoch, kind)),
+                _ => err(format!("unknown epoch event kind {}", epoch.kind)),
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let mut seen = BTreeSet::new();
+        for row in &events.holder_basis {
+            if let Some(reason) = self.unsupported.get(&row.market) {
+                return err(format!("row for unsupported market 0x{}: {reason}", hex_of(&row.market)));
+            }
+            if !valid_decimal(&row.value, row.signed) {
+                return err(format!("invalid basis value `{}`", row.value));
+            }
+            let key = Key {
+                contract: Some(row.market.clone()),
+                address: row.holder.clone(),
+            };
+            if !seen.insert(key) {
+                return err("duplicate holder basis row within block");
+            }
         }
         let mut journal = self.begin(clock);
         let mut applied = Applied::default();
-        let mut epochs: Vec<&state::ModelEpoch> = events.epochs.iter().collect();
-        epochs.sort_by_key(|e| (e.ordinal, e.kind));
-        for epoch in epochs {
+        for (epoch, kind) in epochs {
             let previous = self.suspended.get(&epoch.market).cloned();
-            match state::EpochEventKind::try_from(epoch.kind) {
-                Ok(state::EpochEventKind::Invalidated) | Ok(state::EpochEventKind::Suspended) => {
+            match kind {
+                state::EpochEventKind::Invalidated | state::EpochEventKind::Suspended => {
                     self.suspended.insert(
                         epoch.market.clone(),
                         Suspension {
@@ -410,7 +476,7 @@ impl Ledger {
                         },
                     );
                 }
-                Ok(state::EpochEventKind::Bound) => {
+                state::EpochEventKind::Bound => {
                     if !epoch.basis_carryover {
                         let dropped: Vec<Key> = self
                             .entries
@@ -427,25 +493,18 @@ impl Ledger {
                     }
                     self.suspended.remove(&epoch.market);
                 }
-                Ok(state::EpochEventKind::Reaffirmed) => {}
-                _ => return err(format!("unknown epoch event kind {}", epoch.kind)),
+                state::EpochEventKind::Reaffirmed => {}
+                state::EpochEventKind::Unspecified => unreachable!("epoch kinds validated before mutation"),
             }
             if !journal.previous_suspensions.iter().any(|(m, _)| *m == epoch.market) {
                 journal.previous_suspensions.push((epoch.market.clone(), previous));
             }
         }
-        let mut seen = BTreeSet::new();
         for row in &events.holder_basis {
-            if !valid_decimal(&row.value, row.signed) {
-                return err(format!("invalid basis value `{}`", row.value));
-            }
             let key = Key {
                 contract: Some(row.market.clone()),
                 address: row.holder.clone(),
             };
-            if !seen.insert(key.clone()) {
-                return err("duplicate holder basis row within block");
-            }
             applied.rows += 1;
             applied.zero_rows += usize::from(row.value == "0");
             let since = self.entries.get(&key).map(|e| e.since).unwrap_or_else(|| {
@@ -498,7 +557,7 @@ impl Ledger {
             self.blocks_applied -= 1;
             self.undone_blocks += 1;
             undone += 1;
-            self.last = self.journal.back().map(|j| j.clock.clone()).or_else(|| {
+            self.last = journal.previous_clock.or_else(|| {
                 Some(Clock {
                     number: journal.clock.number - 1,
                     hash: journal.clock.parent_hash.clone(),

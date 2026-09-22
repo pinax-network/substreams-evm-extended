@@ -605,3 +605,66 @@ fn shared_hardening_rules_hold_for_ctokens() {
     reversed.transaction_traces.reverse();
     assert_eq!(forward.encode_to_vec(), project(&reversed, &cfg).unwrap().encode_to_vec());
 }
+
+#[test]
+fn validate_block_refusals_provenance_and_multi_market_attribution() {
+    let cfg = config();
+    let usdc = cusdc();
+    let eth = ceth();
+    type Mutation = Box<dyn Fn(&mut eth::Block)>;
+    let cases: Vec<(&str, Mutation)> = vec![
+        (
+            "Extended blocks required",
+            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32),
+        ),
+        ("producer version", Box::new(|b| b.ver = 3)),
+        ("missing header", Box::new(|b| b.header = None)),
+        ("invalid block identity", Box::new(|b| b.hash = vec![1; 31])),
+        ("invalid block identity", Box::new(|b| b.header.as_mut().unwrap().state_root = vec![])),
+        ("header number mismatch", Box::new(|b| b.header.as_mut().unwrap().number += 1)),
+        ("missing timestamp", Box::new(|b| b.header.as_mut().unwrap().timestamp = None)),
+        (
+            "negative timestamp",
+            Box::new(|b| b.header.as_mut().unwrap().timestamp.as_mut().unwrap().seconds = -1),
+        ),
+    ];
+    for (message, apply) in cases {
+        let mut b = block(10);
+        apply(&mut b);
+        let err = project(&b, &cfg).unwrap_err().to_string();
+        assert!(err.contains(message), "expected `{message}`, got `{err}`");
+    }
+    // Same-block repeated writes keep the first old value and the last write's provenance.
+    let holder = [9u8; 20];
+    let mut b = block(10);
+    let mut second = tx(shares_call(&usdc, &holder, 2, 7, 20));
+    second.index = 10;
+    second.hash = vec![8; 32];
+    b.transaction_traces = vec![tx(shares_call(&usdc, &holder, 1, 2, 10)), second];
+    let events = project(&b, &cfg).unwrap();
+    let h = &events.holder_basis[0];
+    assert_eq!(
+        (
+            &*h.previous_value,
+            &*h.value,
+            h.change_count,
+            h.first_ordinal,
+            h.ordinal,
+            h.transaction_index,
+            &h.transaction_hash
+        ),
+        ("1", "7", 2, 10, 20, 10, &vec![8; 32])
+    );
+    // Two markets written in one block are attributed by storage address.
+    let mut b = block(10);
+    let mut eth_tx = tx(shares_call(&eth, &holder, 5, 6, 12));
+    eth_tx.index = 10;
+    eth_tx.hash = vec![8; 32];
+    b.transaction_traces = vec![tx(shares_call(&usdc, &holder, 1, 2, 10)), eth_tx];
+    let events = project(&b, &cfg).unwrap();
+    let rows: Vec<(&Vec<u8>, &str)> = events.holder_basis.iter().map(|h| (&h.market, h.value.as_str())).collect();
+    let mut expected = vec![(&usdc.ctoken, "2"), (&eth.ctoken, "6")];
+    expected.sort();
+    assert_eq!(rows, expected);
+    assert_eq!(events.clocks[0].holder_basis_count, 2);
+}

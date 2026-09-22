@@ -13,6 +13,16 @@ const USDC: &str = "8ac76a51cc950d9822d68b83fe1ad97b32cd580d";
 fn config() -> Config {
     parse(POOL_PARAMS).unwrap()
 }
+
+#[test]
+fn only_reviewed_producer_versions_can_be_configured() {
+    for versions in ["[]", "[0]", "[-1]", "[3]", "[6]", "[999]", "[4,999]"] {
+        assert!(parse(&format!(r#"{{"chain_id":56,"producer_versions":{versions}}}"#)).is_err());
+    }
+    for versions in ["[4]", "[5]", "[4,5]"] {
+        assert!(parse(&format!(r#"{{"chain_id":56,"producer_versions":{versions}}}"#)).is_ok());
+    }
+}
 fn decode_block(bytes: &[u8]) -> eth::Block {
     let block = eth::Block::decode(bytes).unwrap();
     assert_eq!((block.ver, block.transaction_traces.len()), (5, 1));

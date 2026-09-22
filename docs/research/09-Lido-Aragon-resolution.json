@@ -1,0 +1,73 @@
+{
+  "topic": "Lido stETH Aragon implementation-resolution guards",
+  "read_at": "2026-09-21",
+  "facts": [
+    {
+      "key": "source_revision",
+      "value": "v4.4.0 resolves to f3ae59b00f73984e562df00129c925339cd069ff",
+      "source_url": "https://api.github.com/repos/aragon/aragonOS/git/refs/tags/v4.4.0",
+      "source_pin": "aragon/aragonOS@f3ae59b00f73984e562df00129c925339cd069ff",
+      "note": "Read the tag ref and pinned/tagged source files without chain or RPC access. This is the OS dependency listed by the existing Lido AST evidence."
+    },
+    {
+      "key": "app_storage",
+      "value": {
+        "kernel_slot": "0x4172f0f7d2289153072b0a6ca36959e0cbe2efc3afe50fc81636caa96338137b",
+        "app_id_slot": "0xd625496217aa6a3453eecb9c3489dc5a53e6c67b444329ea2b2cbc9ff547639b"
+      },
+      "source_url": "https://raw.githubusercontent.com/aragon/aragonOS/f3ae59b00f73984e562df00129c925339cd069ff/contracts/apps/AppStorage.sol",
+      "source_pin": "aragon/aragonOS@f3ae59b00f73984e562df00129c925339cd069ff",
+      "note": "The slots are keccak256(aragonOS.appStorage.kernel) and keccak256(aragonOS.appStorage.appId), read by kernel()/appId() and written by internal setters. Both select the implementation-resolution path and must be guarded rather than treated as unrelated Aragon state."
+    },
+    {
+      "key": "app_proxy_resolution",
+      "value": "AppProxyUpgradeable.implementation() resolves kernel().getApp(keccak256(base), appId()).",
+      "source_url": "https://raw.githubusercontent.com/aragon/aragonOS/f3ae59b00f73984e562df00129c925339cd069ff/contracts/apps/AppProxyUpgradeable.sol",
+      "source_pin": "aragon/aragonOS@f3ae59b00f73984e562df00129c925339cd069ff",
+      "note": "getAppBase is defined in contracts/apps/AppProxyBase.sol at the same pin. It reads the app's Kernel pointer and asks that Kernel for the implementation in the base namespace. Changing either the Kernel pointer or the app id changes the lookup."
+    },
+    {
+      "key": "kernel_mapping",
+      "value": "apps is mapping(bytes32 => mapping(bytes32 => address)) at regular slot 0; a selected member is keccak256(appId || keccak256(namespace || uint256(0))).",
+      "source_url": "https://raw.githubusercontent.com/aragon/aragonOS/f3ae59b00f73984e562df00129c925339cd069ff/contracts/kernel/KernelStorage.sol",
+      "source_pin": "aragon/aragonOS@f3ae59b00f73984e562df00129c925339cd069ff",
+      "note": "KernelStorage declares apps first, then recoveryVaultAppId. KernelProxy inherits KernelStorage before helper bases; its implementation resolves the core member. Kernel inherits IKernel (interface), KernelStorage, and helper bases; getApp reads apps and _setApp updates the selected member after contract validation, emitting SetApp. The map uses exact storage keys and does not rely on event presence or preimages for these known members."
+    },
+    {
+      "key": "kernel_proxy_resolution",
+      "value": "KernelProxy.implementation() resolves apps[KERNEL_CORE_NAMESPACE][KERNEL_CORE_APP_ID].",
+      "source_url": "https://raw.githubusercontent.com/aragon/aragonOS/f3ae59b00f73984e562df00129c925339cd069ff/contracts/kernel/KernelProxy.sol",
+      "source_pin": "aragon/aragonOS@f3ae59b00f73984e562df00129c925339cd069ff",
+      "note": "The same member is initialized by the KernelProxy constructor. Watching the stETH app-base entry without this member or the Kernel implementation's code would miss an implementation-resolution upgrade."
+    },
+    {
+      "key": "kernel_constants",
+      "value": {
+        "base_namespace": "0xf1f3eb40f5bc1ad1344716ced8b8a0431d840b5783aea1fd01786bc26f35ac0f",
+        "core_namespace": "0xc681a85306374a5ab27f0bbc385296a54bcd314a1948b6cf61c4ea1bc44bb9f8",
+        "kernel_core_app_id": "0x3b4bf6bf3ad5000ecf0f989d5befde585c6860fea3e574a4fab4c49d1c177d9c"
+      },
+      "source_url": "https://raw.githubusercontent.com/aragon/aragonOS/f3ae59b00f73984e562df00129c925339cd069ff/contracts/kernel/KernelConstants.sol",
+      "source_pin": "aragon/aragonOS@f3ae59b00f73984e562df00129c925339cd069ff",
+      "note": "base and core are hashed as raw UTF-8 labels. The kernel core app id is the source's literal apmNamehash(kernel), not keccak256(kernel). Tests check the exact named-slot and namespace hashes."
+    },
+    {
+      "key": "mainnet_fixture_identities",
+      "value": {
+        "kernel": "0xb8FFC3Cd6e7Cf5a098A1c92F48009765B24088Dc",
+        "kernel_implementation": "0x2b33CF282f867A7FF693A66e11B0FcC5552e4425",
+        "app_id": "0x3ca7c3e38968823ccb4c78ea688df41356f182ae1d159e4ee608d30d68cef320",
+        "steth_implementation": "0x028271E30a695c0527A0C50cA30603feD004cDb0"
+      },
+      "source_url": "https://raw.githubusercontent.com/lidofinance/core/2da0f48f1a2a103a394dcf8760810fe9165697fb/deployed-mainnet.json",
+      "source_pin": "lidofinance/core@2da0f48f1a2a103a394dcf8760810fe9165697fb (v4.0.1)",
+      "note": "Values come from aragon-kernel.proxy/implementation and app:lido.aragonApp/implementation. They are deployment-file declarations, not current chain observations or activation-block qualification."
+    }
+  ],
+  "open_questions": [
+    "The fixture activation block remains 1, an explicit placeholder. Runtime code hashes and all expected pointer/selector values require independent exact-block qualification before use.",
+    "A stateless map cannot verify unwritten initial state. Dependency rows and parameter hashes bind required identities; absence of writes is not evidence those identities were correct.",
+    "No captured Ethereum replay, RPC getter comparison or newly built package qualification was performed; all new behavior is covered by synthetic Extended-block Rust tests.",
+    "Accounting remains a declared writer dependency, not a recursively resolved Accounting proxy. Its code changes invalidate the model; its ordinary internal storage is not an input to the stETH balance getter."
+  ]
+}

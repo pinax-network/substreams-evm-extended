@@ -1,0 +1,161 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "erc20/balances/out/role-path-candidates-20260921/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "erc20/balances/out/role-path-candidates-20260921/candidate-combined-layouts.json",
+      "sha256": "4cd0ae8f977fd6ac8421d3f5d9400215ae537ffe238d0fadef536c8df47282cb"
+    },
+    {
+      "path": "erc20/balances/out/role-path-candidates-20260921/replay-role-candidates.rs",
+      "sha256": "0a0c9590c82f405d83c698262fc1faf1a82424d0936a861bfbbe5f76032e2354"
+    },
+    {
+      "path": "erc20/balances/out/role-path-candidates-20260921/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "erc20/balances/out/role-path-candidates-20260921/blocks.jsonl",
+      "sha256": "17e40a305f3487b2117974f7d014561b22997621fffec67af03b38aec3695a0f"
+    },
+    {
+      "path": "erc20/balances/out/role-path-candidates-20260921/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "erc20/balances/out/role-path-candidates-20260921/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "erc20/balances/out/role-path-candidates-20260921/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "candidate_matches_current_baseline_all_blocks": true,
+  "candidate_profiles": {
+    "0x0c69199c1562233640e0db5ce2c399a88eb507c7": {
+      "cold_nonzero_reference_observations": 45,
+      "cold_reference_observations": 103,
+      "emitted_rows": 114,
+      "initialized_observed_holders": 27,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 114
+    },
+    "0x255e746abb8d9acac00d6d023e5e63e3b8dfa7cd": {
+      "cold_nonzero_reference_observations": 68,
+      "cold_reference_observations": 71,
+      "emitted_rows": 156,
+      "initialized_observed_holders": 42,
+      "persisted_role_membership_writes": 0,
+      "retained_reference_matches": 17,
+      "same_block_reference_matches": 156
+    }
+  },
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 103.259786917,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/role-path-candidates/layouts.json",
+      "sha256": "35eee8ace3f0dc40d11bc91ebb2427929af7c01c6dd0cd70a04fdfd3c06fdacd"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/role-path-candidates/source-review.json",
+      "sha256": "b1733f463ebfe5e51518c544865f5739adb0e5a642308ee6c0e84b9c10d3d614"
+    },
+    {
+      "path": "erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 66265,
+    "deployment_seeded_holders": 0,
+    "emitted_rows": 110139,
+    "enumerated": null,
+    "first_block": 122288006,
+    "initialized_holders": 33591,
+    "known_zero_holders": 6197,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 33591,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0
+  },
+  "scope": "Two unqualified role-path candidates applied to an otherwise unchanged 431-profile baseline; native Rust replay, not a new WASM/package/live qualification. Historical output remains immutable. Canonical RPC capture is compared on overlap and on holders independently learned from native emissions; unknown cold holders are explicitly retained as unknown, with no hidden initial state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "ee323f45bda3722065a20a829558c78eec22677da186288dea020af1b222c9eb",
+  "source_rechecks": [
+    {
+      "all_source_hashes_match": true,
+      "contract": "0x255e746abb8d9acac00d6d023e5e63e3b8dfa7cd",
+      "immutable_transformations": 7,
+      "runtime_hash": "0x1a5493662f75deca3148455d711a9364d80668b6451aec1b128d21ace43770c9",
+      "runtime_reconstructed_from_compiled_bytes": true,
+      "setter_calls": 0,
+      "setter_references": 1,
+      "source_capture_sha256": "29f8b4e61d5581ce398255eb390492f5f6565859c1c67cdcfa1a6de93be3d868",
+      "source_files": 28
+    },
+    {
+      "all_source_hashes_match": true,
+      "contract": "0x0c69199c1562233640e0db5ce2c399a88eb507c7",
+      "immutable_transformations": 0,
+      "runtime_hash": "0x5e4b8a3cf0834753f7dd976797697e10c680c3fcb543467062982b740a7779a4",
+      "runtime_reconstructed_from_compiled_bytes": true,
+      "setter_calls": 0,
+      "setter_references": 1,
+      "source_capture_sha256": "b107abb85ccd85eee9f802e51cf4c26d947bcb34dd27541aff5452fb39a94af4",
+      "source_files": 18
+    }
+  ],
+  "start_inclusive": 122288006,
+  "status": "passed_offline_role_candidate_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0
+}

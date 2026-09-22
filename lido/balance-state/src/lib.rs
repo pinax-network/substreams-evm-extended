@@ -14,9 +14,10 @@
 //!
 //! Ownership comes from verified Keccak preimages of the `shares` mapping in
 //! the stETH proxy's storage (delegate-call context: the storage address is
-//! the proxy). Writes to the contract-version slot, code changes on the proxy
-//! or implementation, and unresolved stETH writes are handled fail-closed:
-//! the first two emit INVALIDATED epoch rows with evidence, the last fails
+//! the proxy). Writes to the contract-version slot, the Aragon implementation
+//! resolution path, code changes on the proxy or dependencies, and unresolved
+//! stETH writes are handled fail-closed: the first three emit INVALIDATED epoch
+//! rows with evidence, the last fails
 //! the block. Slots are caller-qualified; tests check each committed slot
 //! against `keccak256` of its pinned name.
 use evm_persist as persist;
@@ -33,6 +34,8 @@ pub const SPEC_REVISION: u32 = 1;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
+/// The only implementation-resolution layout currently implemented.
+pub const ARAGON_OS_SOURCE_PIN: &str = "aragon/aragonOS@f3ae59b00f73984e562df00129c925339cd069ff";
 /// `TokenRebased(uint256 indexed reportTimestamp, uint256 timeElapsed, uint256
 /// preTotalShares, uint256 preTotalEther, uint256 postTotalShares, uint256
 /// postTotalEther, uint256 sharesMintedAsFees)`.
@@ -116,6 +119,7 @@ pub struct EpochConfig {
     pub source_pin: String,
     pub activation_block: u64,
     pub implementation: String,
+    pub aragon: AragonConfig,
     pub shares_slot: String,
     #[serde(default)]
     pub other_mapping_slots: Vec<String>,
@@ -131,6 +135,59 @@ pub struct EpochConfig {
     #[serde(default)]
     pub accounting: Option<String>,
 }
+/// Aragon OS 4.4.0 AppProxyUpgradeable -> KernelProxy -> Kernel binding.
+/// Addresses and app id must be qualified independently at activation; this
+/// map can detect later persisted changes, but cannot read unwritten state.
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct AragonConfig {
+    pub kernel: String,
+    pub app_id: String,
+    pub kernel_implementation: String,
+    pub source_pin: String,
+}
+#[derive(Clone, Debug)]
+pub struct AragonBinding {
+    pub kernel: Vec<u8>,
+    pub app_id: [u8; 32],
+    pub kernel_implementation: Vec<u8>,
+    pub source_pin: String,
+    pub kernel_slot: [u8; 32],
+    pub app_id_slot: [u8; 32],
+    pub app_base_slot: [u8; 32],
+    pub kernel_implementation_slot: [u8; 32],
+}
+impl AragonBinding {
+    fn parse(raw: &AragonConfig) -> Result<Self, Error> {
+        require(
+            raw.source_pin.contains(ARAGON_OS_SOURCE_PIN),
+            "Aragon resolution requires the pinned OS 4.4.0 source",
+        )?;
+        let kernel = hex_bytes(&raw.kernel, 20, "aragon.kernel")?;
+        let kernel_implementation = hex_bytes(&raw.kernel_implementation, 20, "aragon.kernel_implementation")?;
+        let app_id = slot(&raw.app_id, "aragon.app_id")?;
+        require(
+            kernel.iter().any(|v| *v != 0) && kernel_implementation.iter().any(|v| *v != 0) && app_id != [0; 32],
+            "Aragon identities must be nonzero",
+        )?;
+        // KernelStorage.apps is mapping(bytes32 => mapping(bytes32 => address))
+        // in slot 0. KernelProxy itself resolves apps[keccak(core)][kernelId].
+        let kernel_id = slot("3b4bf6bf3ad5000ecf0f989d5befde585c6860fea3e574a4fab4c49d1c177d9c", "kernel app id")?;
+        Ok(Self {
+            kernel,
+            app_id,
+            kernel_implementation,
+            source_pin: raw.source_pin.clone(),
+            kernel_slot: keccak(b"aragonOS.appStorage.kernel"),
+            app_id_slot: keccak(b"aragonOS.appStorage.appId"),
+            app_base_slot: mapping_key(&app_id, &mapping_key(&keccak(b"base"), &[0; 32])),
+            kernel_implementation_slot: mapping_key(&kernel_id, &mapping_key(&keccak(b"core"), &[0; 32])),
+        })
+    }
+    fn watches_kernel_slot(&self, address: &[u8], key: &[u8; 32]) -> bool {
+        address == self.kernel && (*key == self.app_base_slot || *key == self.kernel_implementation_slot)
+    }
+}
 #[derive(Clone, Debug)]
 pub struct Epoch {
     pub steth: Vec<u8>,
@@ -140,6 +197,7 @@ pub struct Epoch {
     pub source_pin: String,
     pub activation_block: u64,
     pub implementation: Vec<u8>,
+    pub aragon: AragonBinding,
     pub shares_slot: [u8; 32],
     pub other_mapping_slots: Vec<[u8; 32]>,
     pub total_and_external_shares_slot: [u8; 32],
@@ -185,6 +243,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             source_pin: e.source_pin.clone(),
             activation_block: e.activation_block,
             implementation: hex_bytes(&e.implementation, 20, "implementation")?,
+            aragon: AragonBinding::parse(&e.aragon)?,
             shares_slot: slot(&e.shares_slot, "shares_slot")?,
             other_mapping_slots: e.other_mapping_slots.iter().map(|s| slot(s, "other_mapping_slots")).collect::<Result<_, _>>()?,
             total_and_external_shares_slot: slot(&e.total_and_external_shares_slot, "total_and_external_shares_slot")?,
@@ -206,6 +265,8 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             epoch.buffered_slot,
             epoch.cl_slot,
             epoch.contract_version_slot,
+            epoch.aragon.kernel_slot,
+            epoch.aragon.app_id_slot,
         ];
         all.extend(epoch.other_mapping_slots.iter().copied());
         all.extend(epoch.other_slots.iter().copied());
@@ -251,13 +312,14 @@ struct CodeChanged {
 #[derive(Default)]
 struct Collected {
     writes: Vec<Change>,
+    noops: Vec<Change>,
     codes: Vec<CodeChanged>,
     errors: usize,
 }
-impl persist::Sink for Collected {
-    fn storage(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+impl Collected {
+    fn storage_change(&mut self, c: &eth::StorageChange, ctx: persist::Ctx, noop: bool) {
         match (word(&c.key), word(&c.old_value), word(&c.new_value)) {
-            (Ok(key), Ok(old), Ok(new)) => self.writes.push(Change {
+            (Ok(key), Ok(old), Ok(new)) => (if noop { &mut self.noops } else { &mut self.writes }).push(Change {
                 address: c.address.clone(),
                 key,
                 old,
@@ -270,6 +332,14 @@ impl persist::Sink for Collected {
             }),
             _ => self.errors += 1,
         }
+    }
+}
+impl persist::Sink for Collected {
+    fn storage(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+        self.storage_change(c, ctx, false);
+    }
+    fn storage_noop(&mut self, c: &eth::StorageChange, ctx: persist::Ctx) {
+        self.storage_change(c, ctx, true);
     }
     fn balance(&mut self, _: &eth::BalanceChange, _: persist::Ctx) {}
     fn nonce(&mut self, _: &eth::NonceChange, _: persist::Ctx) {}
@@ -462,6 +532,50 @@ fn epoch_row(config: &Config, epoch: &Epoch, kind: pb::EpochEventKind) -> pb::Mo
     }
 }
 
+fn resolution_reason(epoch: &Epoch, address: &[u8], key: &[u8; 32]) -> Option<pb::InvalidationReason> {
+    if address == epoch.steth && (*key == epoch.aragon.kernel_slot || *key == epoch.aragon.app_id_slot) {
+        Some(pb::InvalidationReason::ImplementationPointerWrite)
+    } else if epoch.aragon.watches_kernel_slot(address, key) {
+        Some(pb::InvalidationReason::DependencyPointerWrite)
+    } else {
+        None
+    }
+}
+
+fn pointer_dependency(
+    config: &Config,
+    epoch: &Epoch,
+    kind: pb::EpochEventKind,
+    contract: &[u8],
+    pointer_contract: &[u8],
+    pointer_slot: &[u8; 32],
+    is_kernel: bool,
+) -> pb::Dependency {
+    let mut expected = vec![0; 32];
+    expected[12..].copy_from_slice(contract);
+    pb::Dependency {
+        chain_id: config.chain_id,
+        market: epoch.steth.clone(),
+        epoch: epoch.epoch,
+        kind: kind as i32,
+        role: if is_kernel {
+            pb::DependencyRole::Beacon
+        } else {
+            pb::DependencyRole::Implementation
+        } as i32,
+        contract: contract.to_vec(),
+        parent: if is_kernel { vec![] } else { epoch.aragon.kernel.clone() },
+        depth: if is_kernel { 1 } else { 2 },
+        binding: pb::BindingKind::StoragePointer as i32,
+        pointer_contract: pointer_contract.to_vec(),
+        pointer_slot: pointer_slot.to_vec(),
+        pointer_value: expected,
+        activation_block: epoch.activation_block,
+        source_pin: format!("{}; {}", epoch.source_pin, epoch.aragon.source_pin),
+        ..Default::default()
+    }
+}
+
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
     let header = block.header.as_ref().unwrap();
@@ -486,10 +600,48 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 preimages.insert(word(&key)?, value);
             }
         }
-        let relevant: Vec<Change> = collected.writes.into_iter().filter(|w| active.iter().any(|e| w.address == e.steth)).collect();
+        let relevant: Vec<Change> = collected
+            .writes
+            .into_iter()
+            .chain(
+                collected
+                    .noops
+                    .into_iter()
+                    .filter(|w| active.iter().any(|e| resolution_reason(e, &w.address, &w.key).is_some())),
+            )
+            .filter(|w| active.iter().any(|e| w.address == e.steth || e.aragon.watches_kernel_slot(&w.address, &w.key)))
+            .collect();
+        // Validate continuity before emitting per-transition evidence. Reducing
+        // pointers to only their final value would conceal temporary upgrades.
+        let reduced = reduce(relevant.clone())?;
+        for w in &relevant {
+            for epoch in &active {
+                let reason = resolution_reason(epoch, &w.address, &w.key).or_else(|| {
+                    (w.address == epoch.steth && w.key == epoch.contract_version_slot && unsigned(&w.new) != epoch.contract_version)
+                        .then_some(pb::InvalidationReason::ContractVersionSet)
+                });
+                if let Some(reason) = reason {
+                    events.epochs.push(pb::ModelEpoch {
+                        reason: reason as i32,
+                        scope: scope_of(w.scope) as i32,
+                        ordinal: w.ordinal,
+                        transaction_index: w.tx_index,
+                        transaction_hash: w.tx_hash.clone(),
+                        call_index: w.call_index,
+                        evidence_contract: w.address.clone(),
+                        evidence_slot: w.key.to_vec(),
+                        evidence_previous_word: w.old.to_vec(),
+                        evidence_word: w.new.to_vec(),
+                        ..epoch_row(config, epoch, pb::EpochEventKind::Invalidated)
+                    });
+                }
+            }
+        }
         let mut words: BTreeMap<(Vec<u8>, [u8; 32]), Reduced> = BTreeMap::new();
-        for r in reduce(relevant)? {
-            let epoch = active.iter().find(|e| e.steth == r.address).unwrap();
+        for r in reduced {
+            let Some(epoch) = active.iter().find(|e| e.steth == r.address) else {
+                continue; // Guarded Kernel writes were handled above.
+            };
             if r.key == epoch.total_and_external_shares_slot {
                 for (field, offset) in [(pb::StateField::LidoTotalShares, 0), (pb::StateField::LidoExternalShares, 128)] {
                     events.global_state.push(packed_row(config, epoch, &r, field, offset, 128));
@@ -509,21 +661,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 events
                     .global_state
                     .push(packed_row(config, epoch, &r, pb::StateField::LidoContractVersion, 0, 256));
-                if unsigned(&r.new) != epoch.contract_version {
-                    events.epochs.push(pb::ModelEpoch {
-                        reason: pb::InvalidationReason::ContractVersionSet as i32,
-                        scope: scope_of(r.scope) as i32,
-                        ordinal: r.ordinal,
-                        transaction_index: r.tx_index,
-                        transaction_hash: r.tx_hash.clone(),
-                        call_index: r.call_index,
-                        evidence_contract: r.address.clone(),
-                        evidence_slot: r.key.to_vec(),
-                        evidence_previous_word: r.old.to_vec(),
-                        evidence_word: r.new.to_vec(),
-                        ..epoch_row(config, epoch, pb::EpochEventKind::Invalidated)
-                    });
-                }
+            } else if resolution_reason(epoch, &r.address, &r.key).is_some() {
+                // Guarded resolution writes are never ordinary reviewed state.
             } else if let Some(holder) = preimages
                 .get(&r.key)
                 .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == epoch.shares_slot)
@@ -639,9 +778,18 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         }
         for c in &collected.codes {
             for epoch in &active {
-                if c.address == epoch.steth || c.address == epoch.implementation {
+                if c.address == epoch.steth
+                    || c.address == epoch.implementation
+                    || c.address == epoch.aragon.kernel
+                    || c.address == epoch.aragon.kernel_implementation
+                    || epoch.accounting.as_ref() == Some(&c.address)
+                {
                     events.epochs.push(pb::ModelEpoch {
-                        reason: pb::InvalidationReason::CodeChange as i32,
+                        reason: if c.address == epoch.steth {
+                            pb::InvalidationReason::CodeChange
+                        } else {
+                            pb::InvalidationReason::DependencyCodeChange
+                        } as i32,
                         scope: scope_of(c.scope) as i32,
                         ordinal: c.ordinal,
                         transaction_index: c.tx_index,
@@ -663,22 +811,20 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 continue;
             };
             events.epochs.push(epoch_row(config, epoch, kind));
-            events.dependencies.push(pb::Dependency {
-                chain_id: config.chain_id,
-                market: epoch.steth.clone(),
-                epoch: epoch.epoch,
-                kind: kind as i32,
-                role: pb::DependencyRole::Implementation as i32,
-                contract: epoch.implementation.clone(),
-                depth: 1,
-                // The Aragon app proxy resolves its base through the Kernel;
-                // the binding here is the declared implementation, checked by
-                // persisted code changes, not a proxy pointer slot.
-                binding: pb::BindingKind::Declared as i32,
-                activation_block: epoch.activation_block,
-                source_pin: epoch.source_pin.clone(),
-                ..Default::default()
-            });
+            for (contract, pointer_contract, pointer_slot, is_kernel) in [
+                (&epoch.aragon.kernel, &epoch.steth, &epoch.aragon.kernel_slot, true),
+                (&epoch.implementation, &epoch.aragon.kernel, &epoch.aragon.app_base_slot, false),
+                (
+                    &epoch.aragon.kernel_implementation,
+                    &epoch.aragon.kernel,
+                    &epoch.aragon.kernel_implementation_slot,
+                    false,
+                ),
+            ] {
+                events
+                    .dependencies
+                    .push(pointer_dependency(config, epoch, kind, contract, pointer_contract, pointer_slot, is_kernel));
+            }
             if let Some(accounting) = &epoch.accounting {
                 events.dependencies.push(pb::Dependency {
                     chain_id: config.chain_id,
@@ -711,9 +857,28 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     events
         .global_state
         .sort_by(|a, b| (&a.market, a.field, a.ordinal, a.log_index).cmp(&(&b.market, b.field, b.ordinal, b.log_index)));
-    events
-        .epochs
-        .sort_by(|a, b| (&a.market, a.epoch, a.ordinal, a.kind).cmp(&(&b.market, b.epoch, b.ordinal, b.kind)));
+    events.epochs.sort_by(|a, b| {
+        (
+            &a.market,
+            a.epoch,
+            a.ordinal,
+            a.kind,
+            a.reason,
+            &a.evidence_contract,
+            &a.evidence_slot,
+            &a.evidence_code_hash,
+        )
+            .cmp(&(
+                &b.market,
+                b.epoch,
+                b.ordinal,
+                b.kind,
+                b.reason,
+                &b.evidence_contract,
+                &b.evidence_slot,
+                &b.evidence_code_hash,
+            ))
+    });
     events
         .dependencies
         .sort_by(|a, b| (&a.market, a.epoch, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.role, &b.contract)));

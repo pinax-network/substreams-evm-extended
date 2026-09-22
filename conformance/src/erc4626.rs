@@ -20,6 +20,9 @@
 //!
 //! Share balances are the ERC-20 amount; these functions produce the
 //! underlying claim, a different metric. Missing input is an error, never 0.
+#[cfg(test)]
+mod oz_evm_oracle;
+
 use crate::aave;
 use crate::{Result, Unknown};
 use num_bigint::BigUint;
@@ -214,33 +217,56 @@ pub struct OzVirtualOffset {
     pub decimals_offset: u8,
 }
 impl OzVirtualOffset {
-    fn virtual_shares(&self) -> BigUint {
-        BigUint::from(10u8).pow(self.decimals_offset as u32)
+    /// The two additions and exponentiation in `_convertTo*` are checked
+    /// uint256 operations, even when the requested amount is zero.
+    fn virtual_totals(&self) -> Result<(BigUint, BigUint)> {
+        checked(self.total_assets.clone())?;
+        checked(self.total_supply.clone())?;
+        let virtual_shares = checked(BigUint::from(10u8).pow(self.decimals_offset as u32))?;
+        Ok((checked(&self.total_assets + BigUint::one())?, checked(&self.total_supply + virtual_shares)?))
     }
     /// `convertToAssets` / `previewRedeem` (floor).
     pub fn convert_to_assets(&self, shares: &BigUint) -> Result<BigUint> {
-        let num = checked(shares * (&self.total_assets + BigUint::one()))?;
-        Ok(num / (&self.total_supply + self.virtual_shares()))
+        let (assets, supply) = self.virtual_totals()?;
+        oz_mul_div(shares, &assets, &supply, false)
     }
     /// `previewMint` (ceil).
     pub fn preview_mint(&self, shares: &BigUint) -> Result<BigUint> {
-        let num = checked(shares * (&self.total_assets + BigUint::one()))?;
-        div_up(&num, &(&self.total_supply + self.virtual_shares()))
+        let (assets, supply) = self.virtual_totals()?;
+        oz_mul_div(shares, &assets, &supply, true)
     }
     /// `convertToShares` / `previewDeposit` (floor).
     pub fn convert_to_shares(&self, assets: &BigUint) -> Result<BigUint> {
-        let num = checked(assets * (&self.total_supply + self.virtual_shares()))?;
-        Ok(num / (&self.total_assets + BigUint::one()))
+        let (total_assets, supply) = self.virtual_totals()?;
+        oz_mul_div(assets, &supply, &total_assets, false)
     }
     /// `previewWithdraw` (ceil).
     pub fn preview_withdraw(&self, assets: &BigUint) -> Result<BigUint> {
-        let num = checked(assets * (&self.total_supply + self.virtual_shares()))?;
-        div_up(&num, &(&self.total_assets + BigUint::one()))
+        let (total_assets, supply) = self.virtual_totals()?;
+        oz_mul_div(assets, &supply, &total_assets, true)
     }
     /// Base `maxWithdraw(owner)` = `convertToAssets(balanceOf(owner))`;
     /// derived vaults override it with limits.
     pub fn max_withdraw(&self, shares: &BigUint) -> Result<BigUint> {
         self.convert_to_assets(shares)
+    }
+}
+
+/// Pinned OZ v5 `Math.mulDiv`: uint256 operands, a full 512-bit product,
+/// and a checked uint256 result. The ceil overload checks its final +1 too.
+fn oz_mul_div(x: &BigUint, y: &BigUint, denominator: &BigUint, round_up: bool) -> Result<BigUint> {
+    checked(x.clone())?;
+    checked(y.clone())?;
+    checked(denominator.clone())?;
+    if denominator.is_zero() {
+        return Err(Unknown::Invalid("division by zero"));
+    }
+    let product = x * y;
+    let quotient = checked(&product / denominator)?;
+    if round_up && !(&product % denominator).is_zero() {
+        checked(quotient + BigUint::one())
+    } else {
+        Ok(quotient)
     }
 }
 
@@ -404,5 +430,87 @@ mod tests {
             decimals_offset: 0,
         };
         assert_eq!(huge.convert_to_assets(&n(2)), Err(Unknown::Invalid("uint256 overflow")));
+    }
+
+    #[test]
+    fn oz_uses_full_precision_and_checks_every_uint256_boundary() {
+        let one = BigUint::one();
+        let max = max_uint256();
+        let overflow = Err(Unknown::Invalid("uint256 overflow"));
+        let symmetric = OzVirtualOffset {
+            total_assets: (&one << 100u32) - &one,
+            total_supply: (&one << 100u32) - &one,
+            decimals_offset: 0,
+        };
+        let large = &one << 200u32;
+        for result in [
+            symmetric.convert_to_assets(&large),
+            symmetric.preview_mint(&large),
+            symmetric.convert_to_shares(&large),
+            symmetric.preview_withdraw(&large),
+        ] {
+            assert_eq!(result.unwrap(), large);
+        }
+        // Checked additions happen before mulDiv, including amount == 0.
+        for v in [
+            OzVirtualOffset {
+                total_assets: max.clone(),
+                ..symmetric.clone()
+            },
+            OzVirtualOffset {
+                total_supply: max.clone(),
+                ..symmetric.clone()
+            },
+            OzVirtualOffset {
+                decimals_offset: 78,
+                ..symmetric.clone()
+            },
+            OzVirtualOffset {
+                decimals_offset: 255,
+                ..symmetric.clone()
+            },
+        ] {
+            for amount in [n(0), n(1)] {
+                assert_eq!(v.convert_to_assets(&amount), overflow);
+                assert_eq!(v.preview_mint(&amount), overflow);
+                assert_eq!(v.convert_to_shares(&amount), overflow);
+                assert_eq!(v.preview_withdraw(&amount), overflow);
+            }
+        }
+        let excess = &max + &one;
+        assert_eq!(symmetric.convert_to_assets(&excess), overflow);
+        assert_eq!(symmetric.convert_to_shares(&excess), overflow);
+        assert_eq!(symmetric.preview_mint(&excess), overflow);
+        assert_eq!(symmetric.preview_withdraw(&excess), overflow);
+        let offset_limit = OzVirtualOffset {
+            total_assets: n(0),
+            total_supply: n(0),
+            decimals_offset: 77,
+        };
+        assert_eq!(offset_limit.convert_to_shares(&one).unwrap(), n(10).pow(77));
+        assert_eq!(offset_limit.preview_mint(&one).unwrap(), one);
+        // A fullprecision quotient can still exceed the return type.
+        assert_eq!(oz_mul_div(&max, &max, &n(1), false), overflow);
+        assert_eq!(oz_mul_div(&max, &max, &max, true).unwrap(), max);
+        assert_eq!(oz_mul_div(&n(0), &n(0), &n(0), false), Err(Unknown::Invalid("division by zero")));
+        // x*y/d = MAX + 1/(MAX-2): floor succeeds, checked ceil fails.
+        let x = &max - &one;
+        let d = &max - n(2);
+        assert_eq!(oz_mul_div(&x, &x, &d, false).unwrap(), max);
+        assert_eq!(oz_mul_div(&x, &x, &d, true), overflow);
+        let ceil_limit = OzVirtualOffset {
+            total_assets: &max - n(2),
+            total_supply: &max - n(3),
+            decimals_offset: 0,
+        };
+        assert_eq!(ceil_limit.convert_to_assets(&x).unwrap(), max);
+        assert_eq!(ceil_limit.preview_mint(&x), overflow);
+        let ceil_limit_inverse = OzVirtualOffset {
+            total_assets: ceil_limit.total_supply.clone(),
+            total_supply: ceil_limit.total_assets.clone(),
+            decimals_offset: 0,
+        };
+        assert_eq!(ceil_limit_inverse.convert_to_shares(&x).unwrap(), max);
+        assert_eq!(ceil_limit_inverse.preview_withdraw(&x), overflow);
     }
 }

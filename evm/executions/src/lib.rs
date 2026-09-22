@@ -81,8 +81,8 @@ pub fn parse(params: &str) -> Result<Config, Error> {
     let parsed: Params = serde_json::from_str(params).map_err(|e| Error::msg(format!("invalid executions params: {e}")))?;
     require(parsed.chain_id > 0, "chain_id required")?;
     require(
-        !parsed.producer_versions.is_empty() && parsed.producer_versions.iter().all(|v| *v > 0),
-        "qualified producer versions required",
+        !parsed.producer_versions.is_empty() && parsed.producer_versions.iter().all(|v| matches!(v, 4 | 5)),
+        "producer_versions must be a nonempty subset of the reviewed Extended versions 4 and 5",
     )?;
     Ok(Config {
         params: parsed,
@@ -265,6 +265,35 @@ fn push_call(events: &mut pb::Events, config: &Config, frame: &Frame, call: &eth
     }
 }
 
+/// Receipts validate the persisted trace logs; they never supply extracted
+/// rows. Calls are a tree, so flattening their vectors is not execution order.
+/// Ordinals provide that order, including a parent's logs around child calls.
+fn validate_receipt_logs(tx: &eth::TransactionTrace) -> Result<usize, Error> {
+    let mut persisted: Vec<&eth::Log> = tx
+        .calls
+        .iter()
+        .filter(|call| tx.status == eth::TransactionTraceStatus::Succeeded as i32 && !call.state_reverted)
+        .flat_map(|call| &call.logs)
+        .collect();
+    persisted.sort_by_key(|log| log.ordinal);
+    require(
+        persisted.iter().all(|log| log.ordinal > 0) && persisted.windows(2).all(|pair| pair[0].ordinal < pair[1].ordinal),
+        &format!("invalid or ambiguous persisted log ordinals in transaction {}", tx.index),
+    )?;
+    let receipt = tx.receipt.as_ref().map(|receipt| receipt.logs.as_slice()).unwrap_or_default();
+    require(
+        persisted.len() == receipt.len(),
+        &format!("receipt logs disagree with persisted trace log count in transaction {}", tx.index),
+    )?;
+    for (position, (trace, receipt)) in persisted.iter().zip(receipt).enumerate() {
+        require(
+            *trace == receipt,
+            &format!("receipt logs disagree with persisted trace log at transaction {} position {position}", tx.index),
+        )?;
+    }
+    Ok(receipt.len())
+}
+
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
     let header = block.header.as_ref().unwrap();
@@ -273,6 +302,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     let mut events = pb::Events::default();
 
     for tx in &block.transaction_traces {
+        let receipt_logs = validate_receipt_logs(tx)? as u32;
         let succeeded = tx.status == eth::TransactionTraceStatus::Succeeded as i32;
         let frame = Frame {
             scope: pb::Scope::Transaction,
@@ -280,18 +310,9 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             tx_index: tx.index,
             persisted_tx: succeeded,
         };
-        let mut persisted_logs = 0u32;
         for call in &tx.calls {
-            if succeeded && !call.state_reverted {
-                persisted_logs += call.logs.len() as u32;
-            }
             push_call(&mut events, config, &frame, call, &persisted_codes);
         }
-        let receipt_logs = tx.receipt.as_ref().map(|r| r.logs.len() as u32).unwrap_or(0);
-        require(
-            persisted_logs == receipt_logs,
-            "receipt logs disagree with the logs of persisted frames; refusing inconsistent execution data",
-        )?;
         let root = &tx.calls[0];
         let created_contract = if succeeded
             && root.call_type == eth::CallType::Create as i32

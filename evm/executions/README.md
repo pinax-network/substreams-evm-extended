@@ -36,8 +36,11 @@ effects are (those are native balance and nonce facts, owned by
 `native/balances`). Reverted frames and their logs are emitted as attempts
 with `persisted = false`; they are never completed actions.
 
-Persisted logs equal the receipt logs exactly; the map fails the block when a
-producer disagrees, rather than choosing one side.
+Persisted trace logs are sorted by their unique, nonzero ordinals and compared
+with receipt logs in receipt order. Address, topics, data, transaction and
+block log indexes, and ordinal must all agree. The map fails on disagreement
+even when log output is disabled; receipts only validate trace data and never
+supply fallback rows.
 
 ## Lifecycle facts
 
@@ -66,8 +69,8 @@ producer disagrees, rather than choosing one side.
 
 Selectors and payload sizes are always carried; raw input and return data are
 opt-in because they dominate row size. `Call` and `Log` tables can be
-switched off for a transaction-only feed. Producer versions are explicit;
-ordinals are trustworthy on versions 4 and 5 only.
+switched off for a transaction-only feed. `producer_versions` must be a
+nonempty subset of 4 and 5; unreviewed versions are rejected at parse time.
 
 ## Evidence
 
@@ -78,7 +81,8 @@ attempted frames, one blob transaction, 22 EIP-7702 delegated frames, one
 nested factory creation), the captured first-CREATE deployment and
 clone-factory transactions, the two captured failed SetCode transactions
 (applied authorizations, no persisted frame), and synthetic cases for receipt
-disagreement, reverted children, system calls, block records, code-change
+same-count receipt tampering, receipt ordering, parent/child trace ordering,
+ambiguous log ordinals, reverted children, system calls, block records, code-change
 kinds and parameter guards. Producer semantics on other chains are
 qualified under [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
 

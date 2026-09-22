@@ -1,5 +1,12 @@
 # Session handoff (2026-09-21): roadmap state, evidence, and how to continue
 
+The subsequent [offline issue-audit remediation](audit-remediation-2026-09-21.md)
+tracks retention correctness, executed layout tests, ERC-4626 arithmetic and
+asset bindings, Aragon upgrade guards, execution receipt validation and a
+bounded legacy-profile candidate migration. Consult that record for the
+follow-up implementation and validation; the historical evidence below keeps
+its original scope.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and

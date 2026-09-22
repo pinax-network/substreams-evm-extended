@@ -318,7 +318,10 @@ fn version_and_code_changes_invalidate_and_unknown_writes_fail_closed() {
             &w(5).to_vec()
         )
     );
-    for address in [e.steth.clone(), e.implementation.clone()] {
+    for (address, reason) in [
+        (e.steth.clone(), pb::InvalidationReason::CodeChange),
+        (e.implementation.clone(), pb::InvalidationReason::DependencyCodeChange),
+    ] {
         b.transaction_traces = vec![tx(eth::Call {
             code_changes: vec![eth::CodeChange {
                 address,
@@ -330,7 +333,7 @@ fn version_and_code_changes_invalidate_and_unknown_writes_fail_closed() {
             ..Default::default()
         })];
         let events = project(&b, &cfg).unwrap();
-        assert_eq!((events.epochs.len(), events.epochs[0].reason), (1, pb::InvalidationReason::CodeChange as i32));
+        assert_eq!((events.epochs.len(), events.epochs[0].reason), (1, reason as i32));
     }
     // Pre-V3 total shares slot, or any unknown key, refuses the block.
     b.transaction_traces = vec![tx(eth::Call {
@@ -386,7 +389,15 @@ fn activation_binds_the_epoch_and_parameters_fail_closed() {
         (pb::ModelFamily::LidoSteth as i32, pb::BasisKind::Shares as i32, "4", 18, false)
     );
     let roles: Vec<i32> = events.dependencies.iter().map(|d| d.role).collect();
-    assert_eq!(roles, vec![pb::DependencyRole::Implementation as i32, pb::DependencyRole::Accounting as i32]);
+    assert_eq!(
+        roles,
+        vec![
+            pb::DependencyRole::Implementation as i32,
+            pb::DependencyRole::Implementation as i32,
+            pb::DependencyRole::Beacon as i32,
+            pb::DependencyRole::Accounting as i32
+        ]
+    );
     assert_eq!(fields(&events), vec![(pb::StateField::LidoContractVersion as i32, "".into(), "4".into(), 3)]);
     assert_eq!(events.global_state[0].storage_slot, e.contract_version_slot.to_vec());
     assert!(project(&block(2), &cfg).unwrap().epochs.is_empty());
@@ -492,4 +503,417 @@ fn shared_hardening_rules_hold_for_steth() {
     let mut reversed = b.clone();
     reversed.transaction_traces.reverse();
     assert_eq!(forward.encode_to_vec(), project(&reversed, &cfg).unwrap().encode_to_vec());
+}
+
+type ResolutionTarget = (Vec<u8>, [u8; 32], [u8; 32], pb::InvalidationReason);
+
+fn resolution_targets(e: &Epoch) -> Vec<ResolutionTarget> {
+    vec![
+        (
+            e.steth.clone(),
+            e.aragon.kernel_slot,
+            word(&e.aragon.kernel).unwrap(),
+            pb::InvalidationReason::ImplementationPointerWrite,
+        ),
+        (
+            e.steth.clone(),
+            e.aragon.app_id_slot,
+            e.aragon.app_id,
+            pb::InvalidationReason::ImplementationPointerWrite,
+        ),
+        (
+            e.aragon.kernel.clone(),
+            e.aragon.app_base_slot,
+            word(&e.implementation).unwrap(),
+            pb::InvalidationReason::DependencyPointerWrite,
+        ),
+        (
+            e.aragon.kernel.clone(),
+            e.aragon.kernel_implementation_slot,
+            word(&e.aragon.kernel_implementation).unwrap(),
+            pb::InvalidationReason::DependencyPointerWrite,
+        ),
+    ]
+}
+
+fn at(address: &[u8], key: [u8; 32], old: [u8; 32], new: [u8; 32], ordinal: u64) -> eth::StorageChange {
+    eth::StorageChange {
+        address: address.to_vec(),
+        ..write(key, old, new, ordinal)
+    }
+}
+
+#[test]
+fn aragon_resolution_is_explicitly_bound_and_cannot_be_ignored_in_parameters() {
+    let cfg = config();
+    let e = &cfg.epochs[0];
+    assert_eq!(
+        hex::encode(e.aragon.kernel_slot),
+        "4172f0f7d2289153072b0a6ca36959e0cbe2efc3afe50fc81636caa96338137b"
+    );
+    assert_eq!(
+        hex::encode(e.aragon.app_id_slot),
+        "d625496217aa6a3453eecb9c3489dc5a53e6c67b444329ea2b2cbc9ff547639b"
+    );
+    assert_eq!(hex::encode(keccak(b"base")), "f1f3eb40f5bc1ad1344716ced8b8a0431d840b5783aea1fd01786bc26f35ac0f");
+    assert_eq!(hex::encode(keccak(b"core")), "c681a85306374a5ab27f0bbc385296a54bcd314a1948b6cf61c4ea1bc44bb9f8");
+    for (number, kind) in [(1, pb::EpochEventKind::Bound), (1001, pb::EpochEventKind::Reaffirmed)] {
+        let events = project(&block(number), &cfg).unwrap();
+        for (address, key, expected, _) in resolution_targets(e).into_iter().filter(|(_, key, _, _)| *key != e.aragon.app_id_slot) {
+            let edge = events
+                .dependencies
+                .iter()
+                .find(|d| d.pointer_contract == address && d.pointer_slot == key)
+                .unwrap();
+            assert_eq!(edge.kind, kind as i32);
+            assert_eq!(edge.binding, pb::BindingKind::StoragePointer as i32);
+            assert_eq!(edge.pointer_value, expected);
+            assert_eq!(edge.contract, expected[12..]);
+            assert_eq!(edge.source_pin, format!("{}; {}", e.source_pin, e.aragon.source_pin));
+            assert!(edge.code_hash.is_empty()); // Source bindings are not runtime qualification.
+            if address == e.steth {
+                assert_eq!((edge.role, edge.depth), (pb::DependencyRole::Beacon as i32, 1));
+                assert!(edge.parent.is_empty());
+            } else {
+                assert_eq!((edge.role, edge.depth), (pb::DependencyRole::Implementation as i32, 2));
+                assert_eq!(edge.parent, e.aragon.kernel);
+            }
+        }
+        assert_eq!(events.clocks[0].dependency_count, 4);
+    }
+    // Kernel/apps are configured guard slots, never a caller's ignored slots.
+    for name in ["aragonOS.appStorage.kernel", "aragonOS.appStorage.appId"] {
+        let mut v: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+        v["epochs"][0]["other_slot_names"].as_array_mut().unwrap().push(name.into());
+        assert!(parse(&v.to_string()).unwrap_err().to_string().contains("overlap"));
+    }
+    let mut missing: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+    missing["epochs"][0].as_object_mut().unwrap().remove("aragon");
+    assert!(parse(&missing.to_string()).unwrap_err().to_string().contains("aragon"));
+    for (field, value, expected) in [
+        ("source_pin", "", "pinned OS 4.4.0"),
+        ("source_pin", "aragon/aragonOS@unreviewed", "pinned OS 4.4.0"),
+        ("kernel", "0x0000000000000000000000000000000000000000", "nonzero"),
+        ("kernel_implementation", "0x01", "20 bytes"),
+        ("app_id", "0x0000000000000000000000000000000000000000000000000000000000000000", "nonzero"),
+    ] {
+        let mut v: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+        v["epochs"][0]["aragon"][field] = value.into();
+        assert!(parse(&v.to_string()).unwrap_err().to_string().contains(expected));
+    }
+}
+
+#[test]
+fn every_resolution_write_invalidates_even_when_restored_or_rebound_to_expected() {
+    let cfg = config();
+    let e = &cfg.epochs[0];
+    for (address, key, expected, reason) in resolution_targets(e) {
+        let mut b = block(10);
+        // Restoration still invalidates, and each transition retains its own provenance.
+        let mut restore = tx(eth::Call {
+            index: 4,
+            address: e.aragon.kernel_implementation.clone(),
+            storage_changes: vec![at(&address, key, w(7), expected, 20)],
+            ..Default::default()
+        });
+        restore.hash = vec![8; 32];
+        restore.index = 10;
+        b.transaction_traces = vec![
+            tx(eth::Call {
+                index: 3,
+                address: e.implementation.clone(),
+                storage_changes: vec![at(&address, key, expected, w(7), 10)],
+                ..Default::default()
+            }),
+            restore.clone(),
+        ];
+        let events = project(&b, &cfg).unwrap();
+        assert_eq!(events.epochs.len(), 2);
+        assert!(events.holder_basis.is_empty() && events.global_state.is_empty());
+        for (i, row) in events.epochs.iter().enumerate() {
+            assert_eq!(row.kind, pb::EpochEventKind::Invalidated as i32);
+            assert_eq!(row.reason, reason as i32);
+            assert_eq!(row.evidence_contract, address);
+            assert_eq!(row.evidence_slot, key);
+            assert_eq!(row.ordinal, if i == 0 { 10 } else { 20 });
+            assert_eq!(row.evidence_previous_word, if i == 0 { expected } else { w(7) });
+            assert_eq!(row.evidence_word, if i == 0 { w(7) } else { expected });
+            assert_eq!(row.transaction_index, 9 + i as u32);
+            assert_eq!(row.call_index, 3 + i as u32);
+            assert_eq!(row.transaction_hash, vec![7 + i as u8; 32]);
+        }
+        // A write into the configured identity is not proof the preceding era was qualified.
+        b.transaction_traces = vec![restore];
+        assert_eq!(project(&b, &cfg).unwrap().epochs.len(), 1);
+        // STORAGE_POINTER binds every persisted write, including equal-value SSTOREs.
+        b.transaction_traces[0].calls[0].storage_changes[0].old_value = expected.to_vec();
+        let events = project(&b, &cfg).unwrap();
+        assert_eq!(events.epochs.len(), 1);
+        assert_eq!(events.epochs[0].evidence_previous_word, expected);
+        assert_eq!(events.epochs[0].evidence_word, expected);
+    }
+    // Contract-version excursions must not disappear in end-of-block reduction either.
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        storage_changes: vec![write(e.contract_version_slot, w(4), w(5), 10), write(e.contract_version_slot, w(5), w(4), 11)],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.global_state[0].value, "4");
+    assert_eq!(events.epochs.len(), 1);
+    assert_eq!(
+        (events.epochs[0].ordinal, events.epochs[0].reason),
+        (10, pb::InvalidationReason::ContractVersionSet as i32)
+    );
+    assert_eq!(events.epochs[0].evidence_word, w(5));
+}
+
+#[test]
+fn resolution_guards_follow_persistence_and_refuse_bad_ordering() {
+    let cfg = config();
+    let e = &cfg.epochs[0];
+    for (address, key, expected, _) in resolution_targets(e) {
+        let call = eth::Call {
+            address: e.aragon.kernel_implementation.clone(),
+            storage_changes: vec![at(&address, key, expected, w(7), 10)],
+            ..Default::default()
+        };
+        let mut b = block(10);
+        for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
+            let mut failed = tx(call.clone());
+            failed.status = status as i32;
+            b.transaction_traces = vec![failed];
+            assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+        }
+        let mut reverted = call.clone();
+        reverted.state_reverted = true;
+        b.transaction_traces = vec![tx(reverted)];
+        assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+        b.transaction_traces.clear();
+        b.system_calls = vec![call.clone()];
+        assert_eq!(project(&b, &cfg).unwrap().epochs[0].scope, pb::Scope::SystemCall as i32);
+        b.system_calls.clear();
+        for (second_old, ordinal, message) in [(w(7), 10, "ambiguous"), (w(8), 20, "discontinuous")] {
+            let mut bad = call.clone();
+            bad.storage_changes.push(at(&address, key, second_old, expected, ordinal));
+            b.transaction_traces = vec![tx(bad)];
+            let err = project(&b, &cfg).unwrap_err().to_string();
+            assert!(err.contains(message) && err.contains(&hex::encode(&address)) && err.contains(&hex::encode(key)));
+        }
+    }
+    // Other app bases and ordinary Kernel/implementation/accounting state are not conversion inputs.
+    let other_app_base = mapping_key(&w(99), &mapping_key(&keccak(b"base"), &[0; 32]));
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        storage_changes: vec![
+            at(&e.aragon.kernel, other_app_base, w(1), w(2), 10),
+            at(&e.aragon.kernel, w(1), w(1), w(2), 11),
+            at(&e.aragon.kernel_implementation, w(0), w(1), w(2), 12),
+            at(e.accounting.as_ref().unwrap(), w(0), w(1), w(2), 13),
+        ],
+        ..Default::default()
+    })];
+    assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+}
+
+#[test]
+fn dependency_code_changes_invalidate_with_deterministic_evidence() {
+    use prost::Message;
+    let cfg = config();
+    let e = &cfg.epochs[0];
+    let mut b = block(10);
+    let mut codes = vec![];
+    for address in [
+        &e.steth,
+        &e.implementation,
+        &e.aragon.kernel,
+        &e.aragon.kernel_implementation,
+        e.accounting.as_ref().unwrap(),
+    ] {
+        let call = eth::Call {
+            code_changes: vec![eth::CodeChange {
+                address: address.clone(),
+                old_hash: vec![1; 32],
+                new_hash: vec![2; 32],
+                ordinal: 10,
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+        b.transaction_traces = vec![tx(call.clone())];
+        let events = project(&b, &cfg).unwrap();
+        let reason = if *address == e.steth {
+            pb::InvalidationReason::CodeChange
+        } else {
+            pb::InvalidationReason::DependencyCodeChange
+        };
+        assert_eq!(events.epochs.len(), 1);
+        assert_eq!(events.epochs[0].reason, reason as i32);
+        assert_eq!(events.epochs[0].evidence_contract, *address);
+        assert_eq!(events.epochs[0].evidence_code_hash, vec![2; 32]);
+        for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
+            b.transaction_traces[0].status = status as i32;
+            assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+        }
+        b.transaction_traces = vec![tx(eth::Call {
+            state_reverted: true,
+            ..call.clone()
+        })];
+        assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+        b.transaction_traces.clear();
+        b.system_calls = vec![call.clone()];
+        assert_eq!(project(&b, &cfg).unwrap().epochs[0].scope, pb::Scope::SystemCall as i32);
+        b.system_calls.clear();
+        codes.extend(call.code_changes);
+    }
+    // Block-level dependency changes also persist, and equal cross-contract ordinals have stable ordering.
+    b.transaction_traces.clear();
+    b.code_changes = codes;
+    let original = project(&b, &cfg).unwrap();
+    assert_eq!(original.epochs.len(), 5);
+    assert!(original.epochs.iter().all(|e| e.scope == pb::Scope::Block as i32));
+    b.code_changes.reverse();
+    assert_eq!(original.encode_to_vec(), project(&b, &cfg).unwrap().encode_to_vec());
+}
+
+#[test]
+fn shared_kernel_guards_are_attributed_to_every_affected_market() {
+    use prost::Message;
+    let mut v: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+    let mut second = v["epochs"][0].clone();
+    second["steth"] = format!("0x{}", hex::encode([0x22; 20])).into();
+    second["aragon"]["app_id"] = format!("0x{}", hex::encode(w(99))).into();
+    v["epochs"].as_array_mut().unwrap().push(second);
+    let cfg = parse(&v.to_string()).unwrap();
+    let first = &cfg.epochs[0];
+    let second = &cfg.epochs[1];
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        storage_changes: vec![at(
+            &first.aragon.kernel,
+            first.aragon.app_base_slot,
+            word(&first.implementation).unwrap(),
+            w(9),
+            10,
+        )],
+        ..Default::default()
+    })];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), 1);
+    assert_eq!(events.epochs[0].market, first.steth);
+    b.transaction_traces.push(tx(eth::Call {
+        storage_changes: vec![
+            at(
+                &first.aragon.kernel,
+                first.aragon.kernel_implementation_slot,
+                word(&first.aragon.kernel_implementation).unwrap(),
+                w(8),
+                20,
+            ),
+            at(
+                &first.aragon.kernel,
+                first.aragon.kernel_implementation_slot,
+                w(8),
+                word(&first.aragon.kernel_implementation).unwrap(),
+                30,
+            ),
+            at(
+                &second.aragon.kernel,
+                second.aragon.app_base_slot,
+                word(&second.implementation).unwrap(),
+                w(7),
+                40,
+            ),
+        ],
+        ..Default::default()
+    }));
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.epochs.len(), 6);
+    assert_eq!(events.epochs.iter().filter(|e| e.market == first.steth).count(), 3);
+    assert_eq!(events.epochs.iter().filter(|e| e.market == second.steth).count(), 3);
+    b.transaction_traces.reverse();
+    for t in &mut b.transaction_traces {
+        t.calls[0].storage_changes.reverse();
+    }
+    assert_eq!(events.encode_to_vec(), project(&b, &cfg).unwrap().encode_to_vec());
+}
+
+#[test]
+fn validate_block_refusals_provenance_and_multi_epoch_attribution() {
+    let cfg = config();
+    let e = epoch();
+    type Mutation = Box<dyn Fn(&mut eth::Block)>;
+    let cases: Vec<(&str, Mutation)> = vec![
+        (
+            "Extended blocks required",
+            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32),
+        ),
+        ("producer version", Box::new(|b| b.ver = 3)),
+        ("missing header", Box::new(|b| b.header = None)),
+        ("invalid block identity", Box::new(|b| b.hash = vec![1; 31])),
+        ("invalid block identity", Box::new(|b| b.header.as_mut().unwrap().parent_hash = vec![])),
+        ("header number mismatch", Box::new(|b| b.header.as_mut().unwrap().number += 1)),
+        ("missing timestamp", Box::new(|b| b.header.as_mut().unwrap().timestamp = None)),
+        (
+            "negative timestamp",
+            Box::new(|b| b.header.as_mut().unwrap().timestamp.as_mut().unwrap().seconds = -1),
+        ),
+    ];
+    for (message, apply) in cases {
+        let mut b = block(10);
+        apply(&mut b);
+        let err = project(&b, &cfg).unwrap_err().to_string();
+        assert!(err.contains(message), "expected `{message}`, got `{err}`");
+    }
+    // Same-block repeated writes keep the first old value and the last write's provenance.
+    let holder = [9u8; 20];
+    let mut b = block(10);
+    let mut second = tx(shares_call(&holder, 2, 7, 20));
+    second.index = 10;
+    second.hash = vec![8; 32];
+    b.transaction_traces = vec![tx(shares_call(&holder, 1, 2, 10)), second];
+    let events = project(&b, &cfg).unwrap();
+    let h = &events.holder_basis[0];
+    assert_eq!(
+        (
+            &*h.previous_value,
+            &*h.value,
+            h.change_count,
+            h.first_ordinal,
+            h.ordinal,
+            h.transaction_index,
+            &h.transaction_hash
+        ),
+        ("1", "7", 2, 10, 20, 10, &vec![8; 32])
+    );
+    // Two stETH epochs (a second deployment address) written in one block are attributed by address.
+    let other: Vec<u8> = vec![0x22; 20];
+    let mut v: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+    let mut second_epoch = v["epochs"][0].clone();
+    second_epoch["steth"] = format!("0x{}", hex::encode(&other)).into();
+    second_epoch["implementation"] = "0x0000000000000000000000000000000000000002".into();
+    v["epochs"].as_array_mut().unwrap().push(second_epoch);
+    let two = parse(&v.to_string()).unwrap();
+    let key = mapping_key(&holder, &e.shares_slot);
+    let mut other_tx = tx(eth::Call {
+        index: 1,
+        address: other.clone(),
+        keccak_preimages: [preimage(&holder, &e.shares_slot)].into(),
+        storage_changes: vec![eth::StorageChange {
+            address: other.clone(),
+            key: key.to_vec(),
+            old_value: w(0).to_vec(),
+            new_value: w(9).to_vec(),
+            ordinal: 12,
+        }],
+        ..Default::default()
+    });
+    other_tx.index = 10;
+    other_tx.hash = vec![8; 32];
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(shares_call(&holder, 1, 2, 10)), other_tx];
+    let events = project(&b, &two).unwrap();
+    let rows: Vec<(&Vec<u8>, &str)> = events.holder_basis.iter().map(|h| (&h.market, h.value.as_str())).collect();
+    assert_eq!(rows, vec![(&other, "9"), (&e.steth, "2")]);
+    assert_eq!(events.clocks[0].holder_basis_count, 2);
 }

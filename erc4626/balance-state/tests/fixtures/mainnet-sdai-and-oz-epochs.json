@@ -43,6 +43,10 @@
       ],
       "oz": {
         "asset_balances_slot": "0x0000000000000000000000000000000000000000000000000000000000000009",
+        "asset_balance_model": "fiat-token-v2_2-low255",
+        "asset_source_pin": "circlefin/stablecoin-evm@405efc100c016ed1a437063b6274b4e24ea7b8b1 (v2.2.0) contracts/v1/FiatTokenV1.sol slot 9 balanceAndBlacklistStates; contracts/v2/FiatTokenV2_2.sol _balanceOf low255; contracts/upgradeability/UpgradeabilityProxy.sol org.zeppelinos.proxy.implementation; placeholder implementation, synthetic tests only",
+        "asset_implementation_slot": "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3",
+        "asset_implementation": "0x0000000000000000000000000000000000000022",
         "decimals_offset": 12
       }
     }
