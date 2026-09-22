@@ -2,13 +2,20 @@
 //! market epochs, emitting `evm.balance_state.v1.Events`.
 //!
 //! * `HolderBasis`: the signed int104 `UserBasic.principal` (low 104 bits of
-//!   `userBasic[account]`, two's complement) before and after the block's
-//!   persisted writes. Negative principal is borrow debt and keeps its sign.
-//! * `GlobalState`: `baseSupplyIndex` and `baseBorrowIndex` (first market
-//!   word), `totalSupplyBase`, `totalBorrowBase`, `lastAccrualTime` and
-//!   `pauseFlags` (second market word), and the implementation immutables
-//!   (kinks, per-second rate slopes and bases, scales) as qualified constants
-//!   at the activation block and on the heartbeat.
+//!   `userBasic[account]`, two's complement) before the first and after the
+//!   last persisted write of the block. A row is emitted for every written
+//!   holder word, also when only the tracking fields in that word moved; the
+//!   consumer compares `value` with `previous_value`. Negative principal is
+//!   borrow debt and keeps its sign.
+//! * `GlobalState`: every decoded field of a written market word,
+//!   `baseSupplyIndex` and `baseBorrowIndex` (first word), `totalSupplyBase`,
+//!   `totalBorrowBase`, `lastAccrualTime` and `pauseFlags` (second word), and
+//!   the implementation immutables (kinks, per-second rate slopes and bases,
+//!   scales) as qualified constants at the activation block and on the
+//!   heartbeat.
+//! * `ModelEpoch` `INVALIDATED` with evidence when the Comet's implementation
+//!   pointer is written to another address or the Comet or implementation
+//!   code changes; the block's other writes are still decoded.
 //!
 //! `balanceOf` is `principal > 0 ? principal * accruedSupplyIndex / 1e15 : 0`
 //! where the accrued index projects the stored index to the evaluation
@@ -16,24 +23,30 @@
 //! balance without any write. The map emits inputs only; the consumer or
 //! `conformance::comet` evaluates.
 //!
-//! Fail closed: unlisted producer versions, Comet or implementation code
-//! changes, implementation-pointer writes, unresolved Comet writes, tied or
-//! discontinuous writes fail the block. Storage slots are caller-qualified
-//! parameters; the committed configuration infers them from the pinned
-//! declaration order and marks them unverified against a compiler layout.
+//! Fail closed: producer versions other than 4 and 5, unresolved Comet writes,
+//! tied or discontinuous writes and inconsistent parameters fail the block or
+//! the parameters. Storage slots are caller-qualified; the committed
+//! configuration infers them from the pinned declaration order (see
+//! `docs/storage-layout-provenance.md`). Unstructured slots such as
+//! `keccak256("comet.reentrancy.guard")` are reviewed by name.
 use evm_persist as persist;
 use proto::pb::evm::balance_state::v1 as pb;
 use serde::Deserialize;
 use sha2::Digest;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use substreams::{errors::Error, scalar::BigInt};
 use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "compound_v3_balance_state";
-pub const SPEC_REVISION: u32 = 1;
-const BASE_INDEX_SCALE: &str = "1000000000000000";
-const FACTOR_SCALE: &str = "1000000000000000000";
+pub const SPEC_REVISION: u32 = 2;
+/// `CometCore.BASE_INDEX_SCALE`.
+pub const BASE_INDEX_SCALE: &str = "1000000000000000";
+/// `CometCore.FACTOR_SCALE`.
+pub const FACTOR_SCALE: &str = "1000000000000000000";
+/// Producer versions whose execution ordinals are qualified (version 3 has
+/// broken system-call ordinals and is refused by the contract).
+pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
 
 fn require(ok: bool, message: &str) -> Result<(), Error> {
     if ok {
@@ -65,7 +78,7 @@ fn slot(s: &str, what: &str) -> Result<[u8; 32], Error> {
 }
 fn decimal(s: &str, what: &str) -> Result<String, Error> {
     require(
-        !s.is_empty() && s.bytes().all(|c| c.is_ascii_digit()),
+        !s.is_empty() && s.bytes().all(|c| c.is_ascii_digit()) && (s == "0" || !s.starts_with('0')),
         &format!("{what} must be a decimal integer"),
     )?;
     Ok(s.to_string())
@@ -125,8 +138,11 @@ pub struct Immutables {
     pub borrow_rate_slope_low: String,
     pub borrow_rate_slope_high: String,
     pub borrow_rate_base: String,
+    /// Must equal `10^base_decimals` (`baseScale = 10 ** decimals` in the constructor).
     pub base_scale: String,
+    /// Must equal `BASE_INDEX_SCALE` (1e15).
     pub base_index_scale: String,
+    /// Must equal `FACTOR_SCALE` (1e18).
     pub factor_scale: String,
 }
 #[derive(Clone, Debug, Deserialize)]
@@ -149,6 +165,10 @@ pub struct MarketConfig {
     pub user_basic_slot: String,
     #[serde(default)]
     pub other_slots: Vec<String>,
+    /// Reviewed unstructured-storage labels; the map stores `keccak256(label)`
+    /// (for example `comet.reentrancy.guard`, written on every guarded call).
+    #[serde(default)]
+    pub other_slot_names: Vec<String>,
     #[serde(default)]
     pub other_mapping_slots: Vec<String>,
     pub immutables: Immutables,
@@ -181,18 +201,37 @@ pub struct Config {
     pub parameters_sha256: String,
 }
 
+fn pow10(decimals: u32) -> String {
+    let mut s = String::from("1");
+    s.extend(std::iter::repeat_n('0', decimals as usize));
+    s
+}
+
 pub fn parse(params: &str) -> Result<Config, Error> {
     let raw: Params = serde_json::from_str(params).map_err(|e| Error::msg(format!("invalid compound-v3 balance-state params: {e}")))?;
     require(raw.chain_id > 0, "chain_id required")?;
     require(
-        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| *v > 0),
-        "qualified producer versions required",
+        !raw.producer_versions.is_empty() && raw.producer_versions.iter().all(|v| QUALIFIED_PRODUCER_VERSIONS.contains(v)),
+        "producer_versions must be a non-empty subset of the qualified Extended versions 4 and 5",
     )?;
-    let mut markets = Vec::new();
+    let mut markets: Vec<Market> = Vec::new();
     for m in &raw.markets {
         require(m.epoch > 0 && m.activation_block > 0, "epoch and activation_block must be positive")?;
         require(!m.model_id.is_empty() && !m.source_pin.is_empty(), "model_id and source_pin required")?;
+        require(m.base_decimals <= 18, "base_decimals exceeds MAX_BASE_DECIMALS (18)")?;
         let i = &m.immutables;
+        require(
+            decimal(&i.base_index_scale, "base_index_scale")? == BASE_INDEX_SCALE,
+            "base_index_scale must equal the pinned BASE_INDEX_SCALE 1e15",
+        )?;
+        require(
+            decimal(&i.factor_scale, "factor_scale")? == FACTOR_SCALE,
+            "factor_scale must equal the pinned FACTOR_SCALE 1e18",
+        )?;
+        require(
+            decimal(&i.base_scale, "base_scale")? == pow10(m.base_decimals),
+            "base_scale must equal 10^base_decimals",
+        )?;
         let immutables = vec![
             (pb::StateField::CometSupplyKink, decimal(&i.supply_kink, "supply_kink")?, FACTOR_SCALE),
             (
@@ -226,10 +265,15 @@ pub fn parse(params: &str) -> Result<Config, Error> {
                 decimal(&i.borrow_rate_base, "borrow_rate_base")?,
                 FACTOR_SCALE,
             ),
-            (pb::StateField::CometBaseScale, decimal(&i.base_scale, "base_scale")?, "1"),
-            (pb::StateField::CometBaseIndexScale, decimal(&i.base_index_scale, "base_index_scale")?, "1"),
-            (pb::StateField::CometFactorScale, decimal(&i.factor_scale, "factor_scale")?, "1"),
+            (pb::StateField::CometBaseScale, i.base_scale.clone(), "1"),
+            (pb::StateField::CometBaseIndexScale, i.base_index_scale.clone(), "1"),
+            (pb::StateField::CometFactorScale, i.factor_scale.clone(), "1"),
         ];
+        let mut other_slots: Vec<[u8; 32]> = m.other_slots.iter().map(|s| slot(s, "other_slots")).collect::<Result<_, _>>()?;
+        for name in &m.other_slot_names {
+            require(!name.is_empty(), "empty slot name")?;
+            other_slots.push(keccak(name.as_bytes()));
+        }
         let market = Market {
             comet: hex_bytes(&m.comet, 20, "comet")?,
             base_token: hex_bytes(&m.base_token, 20, "base_token")?,
@@ -243,18 +287,15 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             indices_slot: slot(&m.indices_slot, "indices_slot")?,
             totals_slot: slot(&m.totals_slot, "totals_slot")?,
             user_basic_slot: slot(&m.user_basic_slot, "user_basic_slot")?,
-            other_slots: m.other_slots.iter().map(|s| slot(s, "other_slots")).collect::<Result<_, _>>()?,
+            other_slots,
             other_mapping_slots: m.other_mapping_slots.iter().map(|s| slot(s, "other_mapping_slots")).collect::<Result<_, _>>()?,
             immutables,
         };
-        let scalars = [market.indices_slot, market.totals_slot, market.implementation_slot, market.user_basic_slot];
-        require(
-            scalars.iter().enumerate().all(|(i, a)| scalars.iter().skip(i + 1).all(|b| a != b))
-                && !market.other_slots.iter().any(|s| scalars.contains(s))
-                && !market.other_mapping_slots.contains(&market.user_basic_slot),
-            "market slots overlap",
-        )?;
-        require(markets.iter().all(|other: &Market| other.comet != market.comet), "duplicate market")?;
+        let mut all = vec![market.indices_slot, market.totals_slot, market.implementation_slot, market.user_basic_slot];
+        all.extend(market.other_slots.iter().copied());
+        all.extend(market.other_mapping_slots.iter().copied());
+        require(all.iter().collect::<BTreeSet<_>>().len() == all.len(), "market slots overlap")?;
+        require(markets.iter().all(|other| other.comet != market.comet), "duplicate market")?;
         markets.push(market);
     }
     Ok(Config {
@@ -282,10 +323,20 @@ struct Write {
     tx_index: u32,
     call_index: u32,
 }
+#[derive(Clone, Debug)]
+struct CodeChanged {
+    address: Vec<u8>,
+    new_hash: Vec<u8>,
+    ordinal: u64,
+    scope: persist::Scope,
+    tx_hash: Vec<u8>,
+    tx_index: u32,
+    call_index: u32,
+}
 #[derive(Default)]
 struct Collected {
     writes: Vec<Write>,
-    codes: Vec<Vec<u8>>,
+    codes: Vec<CodeChanged>,
     errors: usize,
 }
 impl persist::Sink for Collected {
@@ -307,8 +358,16 @@ impl persist::Sink for Collected {
     }
     fn balance(&mut self, _: &eth::BalanceChange, _: persist::Ctx) {}
     fn nonce(&mut self, _: &eth::NonceChange, _: persist::Ctx) {}
-    fn code(&mut self, c: &eth::CodeChange, _: persist::Ctx) {
-        self.codes.push(c.address.clone());
+    fn code(&mut self, c: &eth::CodeChange, ctx: persist::Ctx) {
+        self.codes.push(CodeChanged {
+            address: c.address.clone(),
+            new_hash: c.new_hash.clone(),
+            ordinal: c.ordinal,
+            scope: ctx.scope,
+            tx_hash: ctx.tx_hash.to_vec(),
+            tx_index: ctx.tx_index,
+            call_index: ctx.call_index,
+        });
     }
 }
 #[derive(Clone, Debug)]
@@ -329,11 +388,30 @@ fn reduce(mut writes: Vec<Write>) -> Result<Vec<Reduced>, Error> {
     writes.sort_by_key(|w| w.ordinal);
     let mut rows: BTreeMap<(Vec<u8>, [u8; 32]), Reduced> = BTreeMap::new();
     for w in writes {
-        require(w.ordinal > 0, "persisted storage write has no execution ordinal")?;
+        let at = || format!("0x{} key 0x{}", hex::encode(&w.address), hex::encode(w.key));
+        require(w.ordinal > 0, &format!("persisted storage write at {} has no execution ordinal", at()))?;
         match rows.get_mut(&(w.address.clone(), w.key)) {
             Some(r) => {
-                require(w.ordinal > r.ordinal, "ambiguous storage execution order")?;
-                require(w.old == r.new, "discontinuous storage writes within block")?;
+                require(
+                    w.ordinal > r.ordinal,
+                    &format!(
+                        "ambiguous storage execution order at {}: ordinal {} repeats after {}",
+                        at(),
+                        w.ordinal,
+                        r.ordinal
+                    ),
+                )?;
+                require(
+                    w.old == r.new,
+                    &format!(
+                        "discontinuous storage writes at {}: ordinal {} starts from 0x{} but ordinal {} ended at 0x{}",
+                        at(),
+                        w.ordinal,
+                        hex::encode(w.old),
+                        r.ordinal,
+                        hex::encode(r.new)
+                    ),
+                )?;
                 r.new = w.new;
                 r.ordinal = w.ordinal;
                 r.count += 1;
@@ -372,7 +450,7 @@ fn scope_of(scope: persist::Scope) -> pb::Scope {
     }
 }
 fn mapping_has_base(mut key: [u8; 32], preimages: &BTreeMap<[u8; 32], Vec<u8>>, expected: &[u8; 32]) -> bool {
-    let mut visited = std::collections::BTreeSet::new();
+    let mut visited = BTreeSet::new();
     while visited.insert(key) {
         let Some(preimage) = preimages.get(&key).filter(|p| p.len() == 64) else {
             return false;
@@ -443,6 +521,52 @@ fn field_row(config: &Config, market: &Market, r: &Reduced, f: Field) -> pb::Glo
         ..Default::default()
     }
 }
+fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::ModelEpoch {
+    pb::ModelEpoch {
+        chain_id: config.chain_id,
+        market: market.comet.clone(),
+        epoch: market.epoch,
+        kind: kind as i32,
+        family: pb::ModelFamily::CompoundV3Comet as i32,
+        model_id: market.model_id.clone(),
+        source_pin: market.source_pin.clone(),
+        basis_kind: pb::BasisKind::SignedPrincipal as i32,
+        basis_scale: BASE_INDEX_SCALE.into(),
+        balance_rounding: pb::Rounding::Floor as i32,
+        basis_bit_offset: 0,
+        basis_bit_width: 104,
+        basis_signed: true,
+        implementation: market.implementation.clone(),
+        implementation_slot: market.implementation_slot.to_vec(),
+        activation_block: market.activation_block,
+        balance_asset: market.base_token.clone(),
+        balance_decimals: market.base_decimals,
+        // Storage (principals, indices, totals) persists across a Comet
+        // implementation upgrade, so retained holder basis stays evaluable.
+        basis_carryover: true,
+        // Every Comet epoch is a new implementation with new rate immutables
+        // (a rate-model replacement): retained GlobalState rows do not carry;
+        // the constants are re-declared on BOUND.
+        global_carryover: false,
+        scope: pb::Scope::Epoch as i32,
+        ..Default::default()
+    }
+}
+fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason, r: &Reduced) -> pb::ModelEpoch {
+    pb::ModelEpoch {
+        reason: reason as i32,
+        scope: scope_of(r.scope) as i32,
+        ordinal: r.ordinal,
+        transaction_index: r.tx_index,
+        transaction_hash: r.tx_hash.clone(),
+        call_index: r.call_index,
+        evidence_contract: r.address.clone(),
+        evidence_slot: r.key.to_vec(),
+        evidence_previous_word: r.old.to_vec(),
+        evidence_word: r.new.to_vec(),
+        ..epoch_row(config, market, pb::EpochEventKind::Invalidated)
+    }
+}
 
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
@@ -453,12 +577,10 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         let mut collected = Collected::default();
         persist::collect_block(block, &mut collected)?;
         require(collected.errors == 0, "malformed persisted storage change")?;
-        require(
-            !collected.codes.iter().any(|a| active.iter().any(|m| *a == m.comet || *a == m.implementation)),
-            "Comet or implementation code changed; requalify the epoch",
-        )?;
         let mut preimages = BTreeMap::new();
         for call in block.system_calls.iter().chain(block.transaction_traces.iter().flat_map(|tx| &tx.calls)) {
+            // Delegatecall frames carry `Call.address == implementation` while
+            // their storage changes are on the Comet proxy: match on either.
             if !active
                 .iter()
                 .any(|m| call.address == m.comet || call.storage_changes.iter().any(|c| c.address == m.comet))
@@ -475,8 +597,16 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         let relevant: Vec<Write> = collected.writes.into_iter().filter(|w| active.iter().any(|m| w.address == m.comet)).collect();
         for r in reduce(relevant)? {
             let market = active.iter().find(|m| m.comet == r.address).unwrap();
-            require(r.key != market.implementation_slot, "Comet implementation pointer changed; requalify the epoch")?;
-            if r.key == market.indices_slot {
+            if r.key == market.implementation_slot {
+                // A pointer write that lands on the bound implementation is
+                // the binding itself (the upgrade block of this epoch); any
+                // other target invalidates the epoch.
+                if r.new != word(&market.implementation)? {
+                    events
+                        .epochs
+                        .push(invalidation(config, market, pb::InvalidationReason::ImplementationPointerWrite, &r));
+                }
+            } else if r.key == market.indices_slot {
                 for (field, offset) in [(pb::StateField::CometBaseSupplyIndex, 0), (pb::StateField::CometBaseBorrowIndex, 64)] {
                     events.global_state.push(field_row(
                         config,
@@ -498,31 +628,21 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     (pb::StateField::CometLastAccrualTime, 208, 40, "1"),
                     (pb::StateField::CometPauseFlags, 248, 8, "1"),
                 ] {
-                    let row = field_row(config, market, &r, Field { field, offset, width, scale });
-                    if row.value != row.previous_value {
-                        events.global_state.push(row);
-                    }
+                    events.global_state.push(field_row(config, market, &r, Field { field, offset, width, scale }));
                 }
             } else if let Some(holder) = preimages
                 .get(&r.key)
                 .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == market.user_basic_slot)
                 .map(|p| p[12..32].to_vec())
             {
-                let value = signed_bits(&r.new, 0, 104);
-                let previous = signed_bits(&r.old, 0, 104);
-                // Tracking fields in the same word can change without the
-                // principal; an unchanged principal is not a holder update.
-                if value == previous {
-                    continue;
-                }
                 events.holder_basis.push(pb::HolderBasis {
                     chain_id: config.chain_id,
                     market: market.comet.clone(),
                     holder,
                     epoch: market.epoch,
                     basis_kind: pb::BasisKind::SignedPrincipal as i32,
-                    value: value.to_string(),
-                    previous_value: previous.to_string(),
+                    value: signed_bits(&r.new, 0, 104).to_string(),
+                    previous_value: signed_bits(&r.old, 0, 104).to_string(),
                     observation: pb::Observation::ObservedWrite as i32,
                     boundary: pb::Boundary::EndOfBlock as i32,
                     scope: scope_of(r.scope) as i32,
@@ -541,14 +661,30 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     signed: true,
                 });
             } else if market.other_slots.contains(&r.key) || market.other_mapping_slots.iter().any(|base| mapping_has_base(r.key, &preimages, base)) {
-                // Reviewed non-balance storage (collateral totals, allowances,
-                // nonces, collateral positions, liquidator points).
+                // Reviewed non-balance storage: reentrancy guard, collateral
+                // totals, allowances, nonces, collateral positions, liquidator
+                // points.
             } else {
                 return Err(Error::msg(format!(
                     "unresolved storage for Comet 0x{} at key 0x{}; refusing incomplete balance state",
                     hex::encode(&r.address),
                     hex::encode(r.key)
                 )));
+            }
+        }
+        for c in &collected.codes {
+            for market in active.iter().filter(|m| c.address == m.comet || c.address == m.implementation) {
+                events.epochs.push(pb::ModelEpoch {
+                    reason: pb::InvalidationReason::CodeChange as i32,
+                    scope: scope_of(c.scope) as i32,
+                    ordinal: c.ordinal,
+                    transaction_index: c.tx_index,
+                    transaction_hash: c.tx_hash.clone(),
+                    call_index: c.call_index,
+                    evidence_contract: c.address.clone(),
+                    evidence_code_hash: c.new_hash.clone(),
+                    ..epoch_row(config, market, pb::EpochEventKind::Invalidated)
+                });
             }
         }
         for market in &active {
@@ -559,30 +695,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             } else {
                 continue;
             };
-            events.epochs.push(pb::ModelEpoch {
-                chain_id: config.chain_id,
-                market: market.comet.clone(),
-                epoch: market.epoch,
-                kind: kind as i32,
-                family: pb::ModelFamily::CompoundV3Comet as i32,
-                model_id: market.model_id.clone(),
-                source_pin: market.source_pin.clone(),
-                basis_kind: pb::BasisKind::SignedPrincipal as i32,
-                basis_scale: BASE_INDEX_SCALE.into(),
-                balance_rounding: pb::Rounding::Floor as i32,
-                basis_bit_offset: 0,
-                basis_bit_width: 104,
-                basis_signed: true,
-                implementation: market.implementation.clone(),
-                implementation_slot: market.implementation_slot.to_vec(),
-                activation_block: market.activation_block,
-                balance_asset: market.base_token.clone(),
-                balance_decimals: market.base_decimals,
-                basis_carryover: true,
-                global_carryover: true,
-                scope: pb::Scope::Epoch as i32,
-                ..Default::default()
-            });
+            events.epochs.push(epoch_row(config, market, kind));
             events.dependencies.push(pb::Dependency {
                 chain_id: config.chain_id,
                 market: market.comet.clone(),
@@ -637,7 +750,9 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     events
         .global_state
         .sort_by(|a, b| (&a.market, a.field, &a.key, a.ordinal).cmp(&(&b.market, b.field, &b.key, b.ordinal)));
-    events.epochs.sort_by(|a, b| (&a.market, a.epoch).cmp(&(&b.market, b.epoch)));
+    events
+        .epochs
+        .sort_by(|a, b| (&a.market, a.epoch, a.ordinal, a.kind).cmp(&(&b.market, b.epoch, b.ordinal, b.kind)));
     events
         .dependencies
         .sort_by(|a, b| (&a.market, a.epoch, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.role, &b.contract)));

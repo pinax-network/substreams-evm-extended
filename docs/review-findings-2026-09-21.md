@@ -17,6 +17,12 @@ implementation writes `keccak256("comet.reentrancy.guard")` (`0xc98c7730ba190138
 `CometCore.sol:60`) on every `supply`/`withdraw`/`transfer`/`buyCollateral`, so any real block with Comet activity
 would fail closed as `unresolved storage`. The synthetic tests cannot see it because none writes a scalar reviewed slot.
 
+Update 2026-09-21 (later the same day): every `compound-v3` finding below was addressed in the
+"compound-v3 hardening" PR (guard slot reviewed by name, one row per decoded field, holder rows for
+every written word, INVALIDATED rows instead of failing the block, constant cross-checks, producer
+versions 4/5 only, contextual reduce() messages, the int104-min negation refusal in `conformance::comet`,
+and the listed tests). The sibling notes remain open work.
+
 Legend: severity is the reviewer's; "applies to siblings" is the maintainer's note on where the same pattern exists.
 
 
