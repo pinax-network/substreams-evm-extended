@@ -10,9 +10,13 @@ use std::collections::BTreeSet;
 
 const LAYOUT: &str = include_str!("../../../docs/evidence/storage-layouts/compound-v2@a3214f67.json");
 const FIXTURE: &str = include_str!("fixtures/mainnet-ctoken-epochs.json");
+const FIAT_TOKEN: &str = include_str!("../../../docs/evidence/storage-layouts/fiat-token@v2.2.0.json");
 
 fn slots(contract: &str) -> Vec<(String, u64)> {
-    let doc: Value = serde_json::from_str(LAYOUT).unwrap();
+    slots_in(LAYOUT, contract)
+}
+fn slots_in(layout: &str, contract: &str) -> Vec<(String, u64)> {
+    let doc: Value = serde_json::from_str(layout).unwrap();
     let (_, l) = doc["contracts"]
         .as_object()
         .unwrap()
@@ -105,4 +109,21 @@ fn jump_rate_model_slots_match_the_compiled_layout() {
         vars.iter().map(|(l, _)| l.as_str()).collect::<Vec<_>>(),
         vec!["owner", "multiplierPerBlock", "baseRatePerBlock", "jumpMultiplierPerBlock", "kink"]
     );
+}
+
+#[test]
+fn usdc_cash_reads_the_low_255_bits_of_fiat_token_slot_9() {
+    use compound_v2_balance_state::Cash;
+    let cfg = parse(FIXTURE).unwrap();
+    let vars = slots_in(FIAT_TOKEN, "FiatTokenV2_2");
+    let Cash::Erc20Mapping { balances_slot, value_bits, .. } = cfg.markets[0].cash.clone() else {
+        panic!()
+    };
+    // FiatTokenV1 declares `balanceAndBlacklistStates` at slot 9; V2.2 packs the
+    // blacklist flag into bit 255 and `_balanceOf` masks it.
+    assert_eq!(balances_slot, slot_of(&vars, "balanceAndBlacklistStates"));
+    assert_eq!(balances_slot, word(9));
+    assert_eq!(value_bits, 255);
+    assert_eq!(slot_of(&vars, "allowed"), word(10));
+    assert_eq!(slot_of(&vars, "totalSupply_"), word(11));
 }

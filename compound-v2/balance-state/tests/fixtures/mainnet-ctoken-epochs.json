@@ -1,6 +1,8 @@
 {
   "chain_id": 1,
-  "producer_versions": [5],
+  "producer_versions": [
+    5
+  ],
   "heartbeat_blocks": 1000,
   "markets": [
     {
@@ -40,9 +42,10 @@
         "decimals": 6,
         "cash": "erc20_mapping",
         "balances_slot": "0x0000000000000000000000000000000000000000000000000000000000000009",
+        "value_bits": 255,
         "implementation_slot": "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3",
-        "model_id": "erc20/fiat-token-v2/balances-mapping",
-        "source_pin": "circlefin/stablecoin-evm FiatTokenV1.sol `balances` after Ownable/Pausable/Blacklistable storage; slot inferred from declaration order, unverified"
+        "model_id": "erc20/fiat-token-v2_2/balanceAndBlacklistStates-low255",
+        "source_pin": "circlefin/stablecoin-evm@v2.2.0 (405efc100c016ed1a437063b6274b4e24ea7b8b1) contracts/v1/FiatTokenV1.sol slot 9 `balanceAndBlacklistStates`, contracts/v2/FiatTokenV2_2.sol `_balanceOf` masks bit 255 (blacklist flag); compiled layout docs/evidence/storage-layouts/fiat-token@v2.2.0.json"
       },
       "rate_model": {
         "address": "0xD8EC56013EA119E7181d231E5048f90fBbe753c0",
