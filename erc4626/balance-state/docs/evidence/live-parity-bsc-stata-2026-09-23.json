@@ -1,0 +1,119 @@
+{
+  "blocks": {
+    "delivered": 2064,
+    "first": 101087794,
+    "last": 123056795
+  },
+  "checks": {
+    "clock": {
+      "checked": 4128,
+      "matched": 4128,
+      "mismatch_examples": [],
+      "mismatches": 0
+    },
+    "convert_to_assets": {
+      "checked": 162,
+      "matched": 162,
+      "mismatch_examples": [],
+      "mismatches": 0
+    },
+    "rate": {
+      "checked": 162,
+      "matched": 162,
+      "mismatch_examples": [],
+      "mismatches": 0
+    },
+    "reserve_words": {
+      "checked": 297,
+      "matched": 297,
+      "mismatch_examples": [],
+      "mismatches": 0
+    },
+    "shares": {
+      "checked": 162,
+      "matched": 162,
+      "mismatch_examples": [],
+      "mismatches": 0
+    },
+    "total_supply": {
+      "checked": 63,
+      "matched": 63,
+      "mismatch_examples": [],
+      "mismatches": 0
+    }
+  },
+  "distinct_holders": 11,
+  "endpoints": {
+    "rpc": "RPC_URL (credential-bearing; not recorded)",
+    "substreams": "bsc.substreams.pinax.network:443"
+  },
+  "epochs": [
+    {
+      "block": 101087794,
+      "kind": "EPOCH_EVENT_KIND_BOUND",
+      "reason": null
+    },
+    {
+      "block": 114858794,
+      "kind": "EPOCH_EVENT_KIND_REAFFIRMED",
+      "reason": null
+    },
+    {
+      "block": 114859794,
+      "kind": "EPOCH_EVENT_KIND_REAFFIRMED",
+      "reason": null
+    }
+  ],
+  "events_sha256": "e83c09fc572e4f13e443d87ea348d13863697ea151fd6eb5bc6acb5c85dc949e",
+  "identities": [
+    {
+      "block_hash": "0xbc942bbab0bda1fde5f36d956f966f4b59130042a550a21a0a0722a81515da69",
+      "contract": "pool",
+      "implementation_code_hash": "0x7266d9c5bf4d60b3c0dbccb254e6e9c06880db859bc3a5cd82b38e42212dd2cb",
+      "implementation_expected": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+      "implementation_found": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+      "proxy": "0x6807dc923806fe8fd134338eabca509979a7e0cb"
+    },
+    {
+      "block_hash": "0xb9136418652f1cdaba489d84e1f38918ac7f163611a05fa7b454f175d77a14e0",
+      "contract": "pool",
+      "implementation_code_hash": "0x7266d9c5bf4d60b3c0dbccb254e6e9c06880db859bc3a5cd82b38e42212dd2cb",
+      "implementation_expected": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+      "implementation_found": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+      "proxy": "0x6807dc923806fe8fd134338eabca509979a7e0cb"
+    },
+    {
+      "block_hash": "0xbc942bbab0bda1fde5f36d956f966f4b59130042a550a21a0a0722a81515da69",
+      "contract": "vault",
+      "implementation_code_hash": "0x2355767aad7b8bc842769419bb6f1e76a31011deb1afc26cb38833103e378e67",
+      "implementation_expected": "0x1d69c48a35ddd241e72a31db0e637676d89fc553",
+      "implementation_found": "0x1d69c48a35ddd241e72a31db0e637676d89fc553",
+      "proxy": "0x0471d185cc7be61e154277cab2396cd397663da6"
+    },
+    {
+      "block_hash": "0xb9136418652f1cdaba489d84e1f38918ac7f163611a05fa7b454f175d77a14e0",
+      "contract": "vault",
+      "implementation_code_hash": "0x2355767aad7b8bc842769419bb6f1e76a31011deb1afc26cb38833103e378e67",
+      "implementation_expected": "0x1d69c48a35ddd241e72a31db0e637676d89fc553",
+      "implementation_found": "0x1d69c48a35ddd241e72a31db0e637676d89fc553",
+      "proxy": "0x0471d185cc7be61e154277cab2396cd397663da6"
+    }
+  ],
+  "limits": "Same-block parity for the delivered blocks and the holders written in them only; `maxWithdraw`/`maxRedeem` limits and reward accounting are not checked.",
+  "package": {
+    "params_file_sha256": "14ec4c246d032d1f7dd2284eaab7fb496d0247f24e7c48fe2a3663f4f3f19e6f",
+    "spkg_sha256": "cb9dc6b2e15b6a434fcda72b63f63f707805af3069d539c0d5ea4b8552c5bafd"
+  },
+  "revision": {
+    "declared": "2",
+    "rpc": "2"
+  },
+  "rows": {
+    "dependencies": 15,
+    "epochs": 3,
+    "global_state": 360,
+    "holder_basis": 162
+  },
+  "status": "passed",
+  "tool": "erc4626-balance-state-tools live-parity"
+}

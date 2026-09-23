@@ -126,6 +126,30 @@ excursion that restores the pointer within the block, as the
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
 
+## Live qualification (BSC static aToken, 2026-09-23)
+
+[`epochs/bsc-stata-usdt.json`](epochs/bsc-stata-usdt.json) binds the legacy
+static aToken for BNB USDT `0x0471…3da6` to its real implementation
+`0x1d69…c553` (`STATIC__ATOKEN_LM_REVISION` 2, constant since block
+37,302,378 over 33 samples), and starts the epoch at the Pool implementation
+install that `rate()` depends on, **block 101,087,794, ordinal 3347**
+([binding](docs/evidence/epoch-binding-bsc-stata-2026-09-23.json)). The
+packed map (`spkg` sha256 `cb9dc6b2…`, wasm `b7d1055e…`) was streamed from
+`bsc.substreams.pinax.network` over 2,064 blocks (the activation block, the
+2,000 contiguous blocks 114,858,030–114,860,029 and every block with a vault
+log between 114,857,790 and 123,557,790; the vault had none in the last
+400,000 blocks) and checked with `erc4626-balance-state-tools` at each
+row's block hash ([report](docs/evidence/live-parity-bsc-stata-2026-09-23.json)):
+162 share rows for 11 holders equal `balanceOf`, and the conversion evaluated
+by `conformance::erc4626::StataTokenLm` from the same-block reserve words
+equals the vault's own `convertToAssets` (162/162) and `rate()` (162/162);
+297 reserve words equal `getReserveData`, 63 total supplies equal
+`totalSupply`, 4,128 clock fields equal the headers; BOUND at ordinal 3347,
+two heartbeats, no invalidation; vault and Pool pointers and the revision
+equal at the first and last block. `maxWithdraw`/`maxRedeem` limits and
+reward accounting were not checked. The sDAI and OpenZeppelin epochs remain
+placeholder Ethereum fixtures (#8).
+
 ## Fail-closed rules
 
 | Condition | Result |

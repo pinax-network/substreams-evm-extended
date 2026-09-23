@@ -48,7 +48,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `compound-v2/balance-state` | `evm.balance_state.v1` | #14 open | synthetic tests only | **compiler-verified**: deployed cUSDC/cETH against the 2019 tree (`solc 0.5.17`, `_guardCounter` at slot 0), cUSDC IRM `LegacyJumpRateModelV2`, delegators against `solc 0.8.10`; USDC FiatToken 0.6.12; `tests/storage_layout.rs` |
 | `compound-v3/balance-state` | `evm.balance_state.v1` | #15 open | synthetic tests only; review findings fixed (§4) | **compiler-verified** (`solc 0.8.15`, `tests/storage_layout.rs`) |
 | `lido/balance-state` | `evm.balance_state.v1` | #23 open | synthetic tests; named slots asserted `== keccak256(name)` | **ast-derived** (`solc 0.4.24` AST; all 16 position constants configured or reviewed) |
-| `erc4626/balance-state` | `evm.balance_state.v1` | #24 open | synthetic tests; no static-aToken activity in saved blocks ([scan](evidence/scans/stata-scan.json)) | **compiler-verified** (StaticATokenLM 0.8.20, SavingsDai 0.8.17, Pot 0.6.12, OZ constants) |
+| `erc4626/balance-state` | `evm.balance_state.v1` | #24 | **live 2026-09-23 (BSC static aToken)**: 162/162 shares, `convertToAssets` and `rate()` via conformance, 297 reserve words, 63 supplies over 2,064 blocks ([evidence](../erc4626/balance-state/docs/evidence/live-parity-bsc-stata-2026-09-23.json)); sDAI and OZ epochs are Ethereum placeholders (#8) | **compiler-verified** (StaticATokenLM 0.8.20, SavingsDai 0.8.17, Pot 0.6.12, OZ constants) |
 | `common/persist` | library | – | shared copy of `erc20/balances` persistence rules; fixtures reused | – |
 | `common/retention` | host library | #7 open | seven scenario tests ([spec](initialization-and-completeness.md)) | – |
 | `conformance` | host library | #16 open | Aave has a captured-block index oracle; Comet, Compound v2, Lido, ERC-4626 are source-line models with synthetic tests | – |
@@ -242,6 +242,7 @@ changed the `common/retention` host API: `seed_checkpoint` and
    (`aave-balance-state-tools live-parity` is the template): **done for
    `native/balances`** (#17, `native-balances-tools live-parity`, batched
    `eth_getBalance`) and **`aave/actions`** (#20, `aave-actions-tools`,
-   receipt-log parity from the compiled ABI); next `evm/executions` producer
+   receipt-log parity from the compiled ABI) and the **BSC static aToken**
+   (#24, `erc4626-balance-state-tools`); next `evm/executions` producer
    checks, then the RPC-gated ERC-20 issues #2–#6. Ethereum and the
    other networks (#8) wait for endpoints.
