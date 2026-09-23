@@ -42,6 +42,8 @@ pub enum Commands {
     InspectPackage(crate::package::InspectPackage),
     /// Replay captured Extended blocks natively and name each refused profile.
     RefusalScan(crate::refusal_scan::RefusalScan),
+    /// Classify the storage writes of captured AccessControl role operations.
+    RoleOperations(crate::role_operations::RoleOperations),
     /// Keep the profiles whose runtime bindings still hold for a later range.
     RuntimeStatus(crate::runtime_status::RuntimeStatus),
 }
@@ -329,6 +331,7 @@ pub fn run() -> Result<bool> {
         Commands::ProbeErc20(args) => run_probe(args),
         Commands::InspectPackage(args) => crate::package::run(args),
         Commands::RefusalScan(args) => crate::refusal_scan::run(args),
+        Commands::RoleOperations(args) => crate::role_operations::run(args),
         Commands::RuntimeStatus(args) => crate::runtime_status::run(args),
     }
 }

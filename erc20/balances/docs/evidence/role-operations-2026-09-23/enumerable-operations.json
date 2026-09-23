@@ -1,0 +1,3255 @@
+{
+ "selection": "operations with enumerable-set writes, plus the one custom-counter revoke; all 236 are in the full operations.json whose digest the report records",
+ "operations": [
+  {
+   "account": "0x6df28f91f29149694ea5a446f0b65efdcb7a0f6a",
+   "block": 123371022,
+   "call_index": 1,
+   "contract": "0x18293d4f11a6af2cd9c0b7f7723c71b98b68d2ef",
+   "kind": "revoke",
+   "log_ordinal": 2091,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x71840dc4906352362b0cdaf79870196c8e42acafade72d5d5a6d59291253ceb1",
+   "shape": [
+    "member_of_root",
+    "element",
+    "index_at_root+1",
+    "element",
+    "root",
+    "index_at_root+1"
+   ],
+   "transaction": "0xb75f3884dab83892b1796a2d3dfd5c05acefefb4dca19fdd5c1d8385b6e9246b",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x37ee5be56dbae9ec17f07f472bb0fa20c315c8a9d88e4057ff0142dd267edf1f",
+     "member": "0x6df28f91f29149694ea5a446f0b65efdcb7a0f6a",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 2090,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x5f37a05cb740b5cb789e691b67673d9cc743b8cad4102b254b5dbb653bdca104",
+     "new": "0x000000000000000000000000ce070ebb71608e127778bb19774ca86291d661c2",
+     "old": "0x0000000000000000000000006df28f91f29149694ea5a446f0b65efdcb7a0f6a",
+     "ordinal": 2092,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0xdc24fe529f436b42ca908eff0871ecde93998cbca04e22d5d2a70d07d38c4ad7",
+     "member": "0xce070ebb71608e127778bb19774ca86291d661c2",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 2093,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x5f37a05cb740b5cb789e691b67673d9cc743b8cad4102b254b5dbb653bdca105",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x000000000000000000000000ce070ebb71608e127778bb19774ca86291d661c2",
+     "ordinal": 2094,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "position": 1,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xaf2b352d373f61cd7c00141c5d498de35abbffd9743307be56c20cef1cd5da4c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 2095,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0xb1259748683f215c922e8c6e0a026e269b19be68c71f549daf9c28d43a2ba14c",
+     "member": "0x6df28f91f29149694ea5a446f0b65efdcb7a0f6a",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 2096,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x6df28f91f29149694ea5a446f0b65efdcb7a0f6a",
+   "block": 123371025,
+   "call_index": 1,
+   "contract": "0x18293d4f11a6af2cd9c0b7f7723c71b98b68d2ef",
+   "kind": "revoke",
+   "log_ordinal": 2064,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "element",
+    "index_at_root+1",
+    "element",
+    "root",
+    "index_at_root+1"
+   ],
+   "transaction": "0xcc5259a7246d98b1062d1a912bbbb66e2023ddae57af9655db238315ec7e2673",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x13e3707a9b5362bd189280d2fd1440f636ab0de6f368b9e971311f738575a277",
+     "member": "0x6df28f91f29149694ea5a446f0b65efdcb7a0f6a",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 2063,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x0eb5be412f275a18f6e4d622aee4ff40b21467c926224771b782d4c095d1444b",
+     "new": "0x000000000000000000000000ce070ebb71608e127778bb19774ca86291d661c2",
+     "old": "0x0000000000000000000000006df28f91f29149694ea5a446f0b65efdcb7a0f6a",
+     "ordinal": 2065,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x5888b0e539daa14aa1522d65ea246c22a151f6abe90e53ce9a422ddf8d0147eb",
+     "member": "0xce070ebb71608e127778bb19774ca86291d661c2",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 2066,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x0eb5be412f275a18f6e4d622aee4ff40b21467c926224771b782d4c095d1444c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x000000000000000000000000ce070ebb71608e127778bb19774ca86291d661c2",
+     "ordinal": 2067,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "position": 1,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 2068,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x6b1ef00fd3bdd47673268e5a1c32627906b5f082914587c4d8873763e4c5a948",
+     "member": "0x6df28f91f29149694ea5a446f0b65efdcb7a0f6a",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 2069,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0xb306604f6f4bf13c160c706005ecc232ed8b1833",
+   "block": 123482885,
+   "call_index": 1,
+   "contract": "0x8e05542e59f7aa0ac163fe7d94f7153c3da7d43b",
+   "kind": "revoke",
+   "log_ordinal": 3232,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5",
+   "shape": [
+    "root",
+    "member_of_root"
+   ],
+   "transaction": "0x1d44e555665b29beb69daa69386d2b3db458298b8cffa33eea57a34c30eefb33",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "root",
+     "key": "0x6a466778153956efc1cdef4878dd9d89f0de1c26f4ba0486775913ed08949bae",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 3230,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000004",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "member_of_root",
+     "key": "0x14d974fabd3682c73844c49df5d0772ac2caddc52cd006da440d0824e6e90e68",
+     "member": "0xb306604f6f4bf13c160c706005ecc232ed8b1833",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 3231,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+   "block": 123561398,
+   "call_index": 53,
+   "contract": "0xcd60b36458a10ce4c6e7ab08ffe7dba497a96325",
+   "kind": "grant",
+   "log_ordinal": 8316,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xed82f21ffc7b84c993e3c2fdd355e5ea8925ba0aeae274c153dccff7ffc81bbf",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "unclassified",
+     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8311,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000101",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 8312,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x00000000000000000000000000000000000000000000000000000000000000c9",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8313,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xece131a77f67ea9215fcec08eb2adca5672b17a236443a19a4cbf52eb1f837bd",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8314,
+     "unchanged": false
+    },
+    {
+     "field": "member_of_root",
+     "key": "0x0addf0d395f11bd51253f5077062ed901e02febfabe118daed6cc17c32ba0feb",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8315,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x683723e34a772b6e4f2c919bba7fa32ed8ea11a8325f54da7db716e9d9dd98c7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8317,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8212",
+     "new": "0x0000000000000000000000007d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8318,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x60a3621c394c5ed6f8c85944e23dc6ef2d8cbd401cf85c52f8d7b565a2fcde54",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8319,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000101",
+     "ordinal": 8320,
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123561398,
+   "call_index": 57,
+   "contract": "0xcd60b36458a10ce4c6e7ab08ffe7dba497a96325",
+   "kind": "grant",
+   "log_ordinal": 8336,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0xdc72ed553f2544c34465af23b847953efeb813428162d767f9ba5f4013be6760",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xed82f21ffc7b84c993e3c2fdd355e5ea8925ba0aeae274c153dccff7ffc81bbf",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x65796ff551f5a3d9a88b19fe27b0a9288e660e175e650ff11d9df30be71dda3b",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8335,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xe664bb9191f7b828ade8c6877f1337f784ea39881ae38ae13168214777f17219",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8337,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x49d5cfa4a5c4857459f920bedd9028d7db27a1b8e15fc441a4f960856c6c519c",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8338,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0xd2c22c1390354bdafb4f10a6cd43929d4e704bdfca2b1f78f55324be69b229f5",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8339,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123561398,
+   "call_index": 59,
+   "contract": "0xcd60b36458a10ce4c6e7ab08ffe7dba497a96325",
+   "kind": "grant",
+   "log_ordinal": 8345,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0xd5e1148dfdfb05f89c6044c78afbb931560cdf140d44d60c93b85623d19a22da",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xed82f21ffc7b84c993e3c2fdd355e5ea8925ba0aeae274c153dccff7ffc81bbf",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x5412cb0df413f7231bedfc8824fbf7c9b73d38ad41798dd0e0de1d338bd6a848",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8344,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xb67d7694a471e493ea36fd81abc36ccaa648d1a268a9464f9234151b6247510e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8346,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x7171e66363ce12353401c2889faf46c16a1739f9b8838fdbf862fb18acbba66e",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8347,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x6e4fd8682be4370b111ad20a6e38254905185b9782acfec8d423ed87723ca3d7",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8348,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123561398,
+   "call_index": 61,
+   "contract": "0xcd60b36458a10ce4c6e7ab08ffe7dba497a96325",
+   "kind": "grant",
+   "log_ordinal": 8354,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0cc8ea863d4c4142bd8ad1912d47df3d5d40e7133122f52f88a9465f20e3d696",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xed82f21ffc7b84c993e3c2fdd355e5ea8925ba0aeae274c153dccff7ffc81bbf",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0xc19d765d5ac83c0f2947cd69ede146c4502e6d50ac17c4b08da9e6897eb3f214",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8353,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x31749033db81abbbea6d43c3071ba4e11b8bf2f8f9a6591e02e1049ee91c0de8",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8355,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0xac47f4f6ab0f045cf871f778515162874c4ac3cac8256e98603fe5dcab4d0ecb",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8356,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x795add52bb11a9723eeaf54d62658194c3062e0a64997f33bfbfef059a101320",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8357,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123561398,
+   "call_index": 63,
+   "contract": "0xcd60b36458a10ce4c6e7ab08ffe7dba497a96325",
+   "kind": "grant",
+   "log_ordinal": 8363,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xed82f21ffc7b84c993e3c2fdd355e5ea8925ba0aeae274c153dccff7ffc81bbf",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x27a203e23ded4e166362d8fe920288555def4ba859f13be8a6aa46d4709b086f",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8362,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x683723e34a772b6e4f2c919bba7fa32ed8ea11a8325f54da7db716e9d9dd98c7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 8364,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8213",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8365,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 1,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x4b21bca852d7bead1b187a6b1481282912b88a06bfe44276e47ad4d6eee20834",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 8366,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+   "block": 123561398,
+   "call_index": 65,
+   "contract": "0xcd60b36458a10ce4c6e7ab08ffe7dba497a96325",
+   "kind": "revoke",
+   "log_ordinal": 8372,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "element",
+    "index_at_root+1",
+    "element",
+    "root",
+    "index_at_root+1"
+   ],
+   "transaction": "0xed82f21ffc7b84c993e3c2fdd355e5ea8925ba0aeae274c153dccff7ffc81bbf",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x0addf0d395f11bd51253f5077062ed901e02febfabe118daed6cc17c32ba0feb",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 8371,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8212",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000007d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "ordinal": 8373,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x4b21bca852d7bead1b187a6b1481282912b88a06bfe44276e47ad4d6eee20834",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 8374,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8213",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "ordinal": 8375,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 1,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x683723e34a772b6e4f2c919bba7fa32ed8ea11a8325f54da7db716e9d9dd98c7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 8376,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x60a3621c394c5ed6f8c85944e23dc6ef2d8cbd401cf85c52f8d7b565a2fcde54",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 8377,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x57de2fb43998a160f540513993a07c9a48342156",
+   "block": 123562128,
+   "call_index": 2,
+   "contract": "0xd328b5ac10b1aa330c44ebffe429102486f24bcf",
+   "kind": "grant",
+   "log_ordinal": 1432,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0xa615a8afb6fffcb8c6809ac0997b5c9c12b8cc97651150f14c8f6203168cff4c",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0x135e0d90aa0799bd24c9bb74113a63b1baa8eaf8713b21c7cea5361d29ef57e9",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1424,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000010000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 1425,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9016d09d72d40fdae2fd8ceac6b6234c7706214fd39c1cd1e609a0528c199300",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1428,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1430,
+     "unchanged": false
+    },
+    {
+     "field": "member_of_root",
+     "key": "0xd6f1faa318b827114fa450de4b702388fedb27487a50fd3de52c5bbba9f39cc0",
+     "member": "0x57de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1431,
+     "parent_slot": "0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x4ad0956a74257eb382c5bf53ca0436fb60c8ca3c8a926db398688d6fa5e579dd",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1433,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0xcb72945860166a0cd269cba0542102ab7ea6b77aad9192c59e99143d6b52e786",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1434,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x31790fd85ce9d4453517501dfa530af146d1a86f9d8ccfb6d1c769df55e906a1",
+     "member": "0x57de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1435,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "base": "0x2b8cad0cb51835990e3607c829041c9871ef9bf1b9cfb0eef41f2702dcbc1943",
+     "field": "unclassified",
+     "key": "0xcf1d5bbba1c6198ec89b994538e42e5a3a24759f7e4074c04f19482c6fe4ffd3",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1436,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0xf27c1326c4a06c604b177c5bbb7a6a46afbdf6f9edebe1696e393996a36dae62",
+     "mapping_key": "0x539440820030c4994db4e31b6b800deafd503688728f932addfe7a410515c14c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1438,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xca39d05911cf98022f26b640ac34fecba049bc35ae18a90deec4f5ba7ac64f2a",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1439,
+     "unchanged": false
+    },
+    {
+     "base": "0xf27c1326c4a06c604b177c5bbb7a6a46afbdf6f9edebe1696e393996a36dae63",
+     "field": "unclassified",
+     "key": "0xc954e1b73ba2de41c55409b8445fb1a20c44cd9a3e35da55fa0fac5078e336b6",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1440,
+     "unchanged": false
+    },
+    {
+     "base": "0x5dfc6369ede8c1331430c00b581919993675ec010140508e8a499d5c8bfbd937",
+     "field": "unclassified",
+     "key": "0xa750b75d3a2e5cd786b809c0325d92331715cd30cb29292a744029ddce36d158",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1441,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0x019d3d0c2386ec3a05bb7001d2bbf079e6fe7bfbe6e95c923cb544f16e2385d9",
+     "mapping_key": "0x523a704056dcd17bcf83bed8b68c59416dac1119be77755efe3bde0a64e46e0c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1443,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x4d49d3f1622cef4a4245a42dc22c778f6b2708ebc8f710caa71f99728be94f24",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1444,
+     "unchanged": false
+    },
+    {
+     "base": "0x019d3d0c2386ec3a05bb7001d2bbf079e6fe7bfbe6e95c923cb544f16e2385da",
+     "field": "unclassified",
+     "key": "0xd3f784ef2b03f488efd644bf7b3a91169912aaa619db2832c5f29377bb84dcc9",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1445,
+     "unchanged": false
+    },
+    {
+     "base": "0xba55fc4d23c237e9f0038824bceca6f83f01d26b139392977fce60fbe206b2ed",
+     "field": "unclassified",
+     "key": "0x47f7a89da214f65716dff22650d34ace55b92751bd5d3d03cc941d8461235f28",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1446,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0xc20bc2d136db0d4c8c9271a26d4ed1157dd5e35ca27bb303baecf217396a1690",
+     "mapping_key": "0x06aa03964db1f7257357ef09714a5f0ca3633723df419e97015e0c7a3e83edb7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1448,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x35339bcc3359c16fdd021584d2bf2f5cf421f67c5660e8c0f5300d344ca53437",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1449,
+     "unchanged": false
+    },
+    {
+     "base": "0xc20bc2d136db0d4c8c9271a26d4ed1157dd5e35ca27bb303baecf217396a1691",
+     "field": "unclassified",
+     "key": "0xcf9f1053e5244d885e4cea01030d165eb1bca96dc6b998a6ab90a29b2006de00",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1450,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a00",
+     "new": "0x00000000000000000000001255d398326f99059ff775485246999027b3197955",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1451,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a01",
+     "new": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1452,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a02",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1453,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a03",
+     "new": "0x000000000000000000000000d1d32f44a49feac3ae7d0dac8dbaed38ac63e843",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1454,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a1e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000015180",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1455,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a1f",
+     "new": "0x0000000000000000000000000000000000000000000000008ac7230489e80000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1456,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a20",
+     "new": "0x00000000000000000000000000000000000000000000000000000000000001f4",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1457,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a06",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1458,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a07",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1459,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a08",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1460,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x63c4ecc75c34f33c5be58d08254ae983c72b5eedcd0c24c04a7b84fc8b5adea9",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1461,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a09",
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76c",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1462,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76e",
+     "new": "0x000000000000000000000000000000000000000000000000000000006ab3c0bc",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1463,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a07",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 1464,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76f",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000100",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1465,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf770",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1466,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf771",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1467,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a0a",
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c3",
+     "mapping_key": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1468,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c4",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1469,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c5",
+     "new": "0x000000000000000000000000000000000000000000000000000000006ab3c0bc",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1470,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a0c",
+     "field": "unclassified",
+     "key": "0x5eb878a112a1f23a6a4a3a7cf7e59d82428a63701db3e5a06a2f32b556184c14",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1471,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9007dab80fe2d84ecd21d5a7c05090f549fc4cab284d2916b25eb11c94724094",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1472,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a29",
+     "field": "unclassified",
+     "key": "0x5f56cdfb63c51c76f6c12b4fd84f51203626f527f7de7575cf565e5933d51bb0",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1474,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000010000000000000001",
+     "ordinal": 1477,
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x57de2fb43998a160f540513993a07c9a48342156",
+   "block": 123562128,
+   "call_index": 2,
+   "contract": "0xd328b5ac10b1aa330c44ebffe429102486f24bcf",
+   "kind": "grant",
+   "log_ordinal": 1437,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x539440820030c4994db4e31b6b800deafd503688728f932addfe7a410515c14c",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0x135e0d90aa0799bd24c9bb74113a63b1baa8eaf8713b21c7cea5361d29ef57e9",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1424,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000010000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 1425,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9016d09d72d40fdae2fd8ceac6b6234c7706214fd39c1cd1e609a0528c199300",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1428,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1430,
+     "unchanged": false
+    },
+    {
+     "base": "0x9469a29198efc966024e165efb801c8f2366b78a1c73841aee561d08e7eaddce",
+     "field": "unclassified",
+     "key": "0xd6f1faa318b827114fa450de4b702388fedb27487a50fd3de52c5bbba9f39cc0",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1431,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0x4ad0956a74257eb382c5bf53ca0436fb60c8ca3c8a926db398688d6fa5e579dd",
+     "mapping_key": "0xa615a8afb6fffcb8c6809ac0997b5c9c12b8cc97651150f14c8f6203168cff4c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1433,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcb72945860166a0cd269cba0542102ab7ea6b77aad9192c59e99143d6b52e786",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1434,
+     "unchanged": false
+    },
+    {
+     "base": "0x4ad0956a74257eb382c5bf53ca0436fb60c8ca3c8a926db398688d6fa5e579de",
+     "field": "unclassified",
+     "key": "0x31790fd85ce9d4453517501dfa530af146d1a86f9d8ccfb6d1c769df55e906a1",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1435,
+     "unchanged": false
+    },
+    {
+     "field": "member_of_root",
+     "key": "0xcf1d5bbba1c6198ec89b994538e42e5a3a24759f7e4074c04f19482c6fe4ffd3",
+     "member": "0x57de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1436,
+     "parent_slot": "0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xf27c1326c4a06c604b177c5bbb7a6a46afbdf6f9edebe1696e393996a36dae62",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1438,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0xca39d05911cf98022f26b640ac34fecba049bc35ae18a90deec4f5ba7ac64f2a",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1439,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0xc954e1b73ba2de41c55409b8445fb1a20c44cd9a3e35da55fa0fac5078e336b6",
+     "member": "0x57de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1440,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "base": "0x5dfc6369ede8c1331430c00b581919993675ec010140508e8a499d5c8bfbd937",
+     "field": "unclassified",
+     "key": "0xa750b75d3a2e5cd786b809c0325d92331715cd30cb29292a744029ddce36d158",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1441,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0x019d3d0c2386ec3a05bb7001d2bbf079e6fe7bfbe6e95c923cb544f16e2385d9",
+     "mapping_key": "0x523a704056dcd17bcf83bed8b68c59416dac1119be77755efe3bde0a64e46e0c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1443,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x4d49d3f1622cef4a4245a42dc22c778f6b2708ebc8f710caa71f99728be94f24",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1444,
+     "unchanged": false
+    },
+    {
+     "base": "0x019d3d0c2386ec3a05bb7001d2bbf079e6fe7bfbe6e95c923cb544f16e2385da",
+     "field": "unclassified",
+     "key": "0xd3f784ef2b03f488efd644bf7b3a91169912aaa619db2832c5f29377bb84dcc9",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1445,
+     "unchanged": false
+    },
+    {
+     "base": "0xba55fc4d23c237e9f0038824bceca6f83f01d26b139392977fce60fbe206b2ed",
+     "field": "unclassified",
+     "key": "0x47f7a89da214f65716dff22650d34ace55b92751bd5d3d03cc941d8461235f28",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1446,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0xc20bc2d136db0d4c8c9271a26d4ed1157dd5e35ca27bb303baecf217396a1690",
+     "mapping_key": "0x06aa03964db1f7257357ef09714a5f0ca3633723df419e97015e0c7a3e83edb7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1448,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x35339bcc3359c16fdd021584d2bf2f5cf421f67c5660e8c0f5300d344ca53437",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1449,
+     "unchanged": false
+    },
+    {
+     "base": "0xc20bc2d136db0d4c8c9271a26d4ed1157dd5e35ca27bb303baecf217396a1691",
+     "field": "unclassified",
+     "key": "0xcf9f1053e5244d885e4cea01030d165eb1bca96dc6b998a6ab90a29b2006de00",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1450,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a00",
+     "new": "0x00000000000000000000001255d398326f99059ff775485246999027b3197955",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1451,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a01",
+     "new": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1452,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a02",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1453,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a03",
+     "new": "0x000000000000000000000000d1d32f44a49feac3ae7d0dac8dbaed38ac63e843",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1454,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a1e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000015180",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1455,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a1f",
+     "new": "0x0000000000000000000000000000000000000000000000008ac7230489e80000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1456,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a20",
+     "new": "0x00000000000000000000000000000000000000000000000000000000000001f4",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1457,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a06",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1458,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a07",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1459,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a08",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1460,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x63c4ecc75c34f33c5be58d08254ae983c72b5eedcd0c24c04a7b84fc8b5adea9",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1461,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a09",
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76c",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1462,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76e",
+     "new": "0x000000000000000000000000000000000000000000000000000000006ab3c0bc",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1463,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a07",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 1464,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76f",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000100",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1465,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf770",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1466,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf771",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1467,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a0a",
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c3",
+     "mapping_key": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1468,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c4",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1469,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c5",
+     "new": "0x000000000000000000000000000000000000000000000000000000006ab3c0bc",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1470,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a0c",
+     "field": "unclassified",
+     "key": "0x5eb878a112a1f23a6a4a3a7cf7e59d82428a63701db3e5a06a2f32b556184c14",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1471,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9007dab80fe2d84ecd21d5a7c05090f549fc4cab284d2916b25eb11c94724094",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1472,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a29",
+     "field": "unclassified",
+     "key": "0x5f56cdfb63c51c76f6c12b4fd84f51203626f527f7de7575cf565e5933d51bb0",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1474,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000010000000000000001",
+     "ordinal": 1477,
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x57de2fb43998a160f540513993a07c9a48342156",
+   "block": 123562128,
+   "call_index": 2,
+   "contract": "0xd328b5ac10b1aa330c44ebffe429102486f24bcf",
+   "kind": "grant",
+   "log_ordinal": 1442,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x523a704056dcd17bcf83bed8b68c59416dac1119be77755efe3bde0a64e46e0c",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0x135e0d90aa0799bd24c9bb74113a63b1baa8eaf8713b21c7cea5361d29ef57e9",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1424,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000010000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 1425,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9016d09d72d40fdae2fd8ceac6b6234c7706214fd39c1cd1e609a0528c199300",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1428,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1430,
+     "unchanged": false
+    },
+    {
+     "base": "0x9469a29198efc966024e165efb801c8f2366b78a1c73841aee561d08e7eaddce",
+     "field": "unclassified",
+     "key": "0xd6f1faa318b827114fa450de4b702388fedb27487a50fd3de52c5bbba9f39cc0",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1431,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0x4ad0956a74257eb382c5bf53ca0436fb60c8ca3c8a926db398688d6fa5e579dd",
+     "mapping_key": "0xa615a8afb6fffcb8c6809ac0997b5c9c12b8cc97651150f14c8f6203168cff4c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1433,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcb72945860166a0cd269cba0542102ab7ea6b77aad9192c59e99143d6b52e786",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1434,
+     "unchanged": false
+    },
+    {
+     "base": "0x4ad0956a74257eb382c5bf53ca0436fb60c8ca3c8a926db398688d6fa5e579de",
+     "field": "unclassified",
+     "key": "0x31790fd85ce9d4453517501dfa530af146d1a86f9d8ccfb6d1c769df55e906a1",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1435,
+     "unchanged": false
+    },
+    {
+     "base": "0x2b8cad0cb51835990e3607c829041c9871ef9bf1b9cfb0eef41f2702dcbc1943",
+     "field": "unclassified",
+     "key": "0xcf1d5bbba1c6198ec89b994538e42e5a3a24759f7e4074c04f19482c6fe4ffd3",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1436,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0xf27c1326c4a06c604b177c5bbb7a6a46afbdf6f9edebe1696e393996a36dae62",
+     "mapping_key": "0x539440820030c4994db4e31b6b800deafd503688728f932addfe7a410515c14c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1438,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xca39d05911cf98022f26b640ac34fecba049bc35ae18a90deec4f5ba7ac64f2a",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1439,
+     "unchanged": false
+    },
+    {
+     "base": "0xf27c1326c4a06c604b177c5bbb7a6a46afbdf6f9edebe1696e393996a36dae63",
+     "field": "unclassified",
+     "key": "0xc954e1b73ba2de41c55409b8445fb1a20c44cd9a3e35da55fa0fac5078e336b6",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1440,
+     "unchanged": false
+    },
+    {
+     "field": "member_of_root",
+     "key": "0xa750b75d3a2e5cd786b809c0325d92331715cd30cb29292a744029ddce36d158",
+     "member": "0x57de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1441,
+     "parent_slot": "0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x019d3d0c2386ec3a05bb7001d2bbf079e6fe7bfbe6e95c923cb544f16e2385d9",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1443,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x4d49d3f1622cef4a4245a42dc22c778f6b2708ebc8f710caa71f99728be94f24",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1444,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0xd3f784ef2b03f488efd644bf7b3a91169912aaa619db2832c5f29377bb84dcc9",
+     "member": "0x57de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1445,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "base": "0xba55fc4d23c237e9f0038824bceca6f83f01d26b139392977fce60fbe206b2ed",
+     "field": "unclassified",
+     "key": "0x47f7a89da214f65716dff22650d34ace55b92751bd5d3d03cc941d8461235f28",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1446,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0xc20bc2d136db0d4c8c9271a26d4ed1157dd5e35ca27bb303baecf217396a1690",
+     "mapping_key": "0x06aa03964db1f7257357ef09714a5f0ca3633723df419e97015e0c7a3e83edb7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1448,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x35339bcc3359c16fdd021584d2bf2f5cf421f67c5660e8c0f5300d344ca53437",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1449,
+     "unchanged": false
+    },
+    {
+     "base": "0xc20bc2d136db0d4c8c9271a26d4ed1157dd5e35ca27bb303baecf217396a1691",
+     "field": "unclassified",
+     "key": "0xcf9f1053e5244d885e4cea01030d165eb1bca96dc6b998a6ab90a29b2006de00",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1450,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a00",
+     "new": "0x00000000000000000000001255d398326f99059ff775485246999027b3197955",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1451,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a01",
+     "new": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1452,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a02",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1453,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a03",
+     "new": "0x000000000000000000000000d1d32f44a49feac3ae7d0dac8dbaed38ac63e843",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1454,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a1e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000015180",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1455,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a1f",
+     "new": "0x0000000000000000000000000000000000000000000000008ac7230489e80000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1456,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a20",
+     "new": "0x00000000000000000000000000000000000000000000000000000000000001f4",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1457,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a06",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1458,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a07",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1459,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a08",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1460,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x63c4ecc75c34f33c5be58d08254ae983c72b5eedcd0c24c04a7b84fc8b5adea9",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1461,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a09",
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76c",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1462,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76e",
+     "new": "0x000000000000000000000000000000000000000000000000000000006ab3c0bc",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1463,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a07",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 1464,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76f",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000100",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1465,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf770",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1466,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf771",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1467,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a0a",
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c3",
+     "mapping_key": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1468,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c4",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1469,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c5",
+     "new": "0x000000000000000000000000000000000000000000000000000000006ab3c0bc",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1470,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a0c",
+     "field": "unclassified",
+     "key": "0x5eb878a112a1f23a6a4a3a7cf7e59d82428a63701db3e5a06a2f32b556184c14",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1471,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9007dab80fe2d84ecd21d5a7c05090f549fc4cab284d2916b25eb11c94724094",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1472,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a29",
+     "field": "unclassified",
+     "key": "0x5f56cdfb63c51c76f6c12b4fd84f51203626f527f7de7575cf565e5933d51bb0",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1474,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000010000000000000001",
+     "ordinal": 1477,
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x57de2fb43998a160f540513993a07c9a48342156",
+   "block": 123562128,
+   "call_index": 2,
+   "contract": "0xd328b5ac10b1aa330c44ebffe429102486f24bcf",
+   "kind": "grant",
+   "log_ordinal": 1447,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x06aa03964db1f7257357ef09714a5f0ca3633723df419e97015e0c7a3e83edb7",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0x135e0d90aa0799bd24c9bb74113a63b1baa8eaf8713b21c7cea5361d29ef57e9",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1424,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000010000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 1425,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9016d09d72d40fdae2fd8ceac6b6234c7706214fd39c1cd1e609a0528c199300",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1428,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1430,
+     "unchanged": false
+    },
+    {
+     "base": "0x9469a29198efc966024e165efb801c8f2366b78a1c73841aee561d08e7eaddce",
+     "field": "unclassified",
+     "key": "0xd6f1faa318b827114fa450de4b702388fedb27487a50fd3de52c5bbba9f39cc0",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1431,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0x4ad0956a74257eb382c5bf53ca0436fb60c8ca3c8a926db398688d6fa5e579dd",
+     "mapping_key": "0xa615a8afb6fffcb8c6809ac0997b5c9c12b8cc97651150f14c8f6203168cff4c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1433,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcb72945860166a0cd269cba0542102ab7ea6b77aad9192c59e99143d6b52e786",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1434,
+     "unchanged": false
+    },
+    {
+     "base": "0x4ad0956a74257eb382c5bf53ca0436fb60c8ca3c8a926db398688d6fa5e579de",
+     "field": "unclassified",
+     "key": "0x31790fd85ce9d4453517501dfa530af146d1a86f9d8ccfb6d1c769df55e906a1",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1435,
+     "unchanged": false
+    },
+    {
+     "base": "0x2b8cad0cb51835990e3607c829041c9871ef9bf1b9cfb0eef41f2702dcbc1943",
+     "field": "unclassified",
+     "key": "0xcf1d5bbba1c6198ec89b994538e42e5a3a24759f7e4074c04f19482c6fe4ffd3",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1436,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0xf27c1326c4a06c604b177c5bbb7a6a46afbdf6f9edebe1696e393996a36dae62",
+     "mapping_key": "0x539440820030c4994db4e31b6b800deafd503688728f932addfe7a410515c14c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1438,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xca39d05911cf98022f26b640ac34fecba049bc35ae18a90deec4f5ba7ac64f2a",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1439,
+     "unchanged": false
+    },
+    {
+     "base": "0xf27c1326c4a06c604b177c5bbb7a6a46afbdf6f9edebe1696e393996a36dae63",
+     "field": "unclassified",
+     "key": "0xc954e1b73ba2de41c55409b8445fb1a20c44cd9a3e35da55fa0fac5078e336b6",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1440,
+     "unchanged": false
+    },
+    {
+     "base": "0x5dfc6369ede8c1331430c00b581919993675ec010140508e8a499d5c8bfbd937",
+     "field": "unclassified",
+     "key": "0xa750b75d3a2e5cd786b809c0325d92331715cd30cb29292a744029ddce36d158",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1441,
+     "unchanged": false
+    },
+    {
+     "base": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "field": "unclassified",
+     "key": "0x019d3d0c2386ec3a05bb7001d2bbf079e6fe7bfbe6e95c923cb544f16e2385d9",
+     "mapping_key": "0x523a704056dcd17bcf83bed8b68c59416dac1119be77755efe3bde0a64e46e0c",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1443,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x4d49d3f1622cef4a4245a42dc22c778f6b2708ebc8f710caa71f99728be94f24",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1444,
+     "unchanged": false
+    },
+    {
+     "base": "0x019d3d0c2386ec3a05bb7001d2bbf079e6fe7bfbe6e95c923cb544f16e2385da",
+     "field": "unclassified",
+     "key": "0xd3f784ef2b03f488efd644bf7b3a91169912aaa619db2832c5f29377bb84dcc9",
+     "mapping_key": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1445,
+     "unchanged": false
+    },
+    {
+     "field": "member_of_root",
+     "key": "0x47f7a89da214f65716dff22650d34ace55b92751bd5d3d03cc941d8461235f28",
+     "member": "0x57de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1446,
+     "parent_slot": "0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xc20bc2d136db0d4c8c9271a26d4ed1157dd5e35ca27bb303baecf217396a1690",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1448,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x35339bcc3359c16fdd021584d2bf2f5cf421f67c5660e8c0f5300d344ca53437",
+     "new": "0x00000000000000000000000057de2fb43998a160f540513993a07c9a48342156",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1449,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0xcf9f1053e5244d885e4cea01030d165eb1bca96dc6b998a6ab90a29b2006de00",
+     "member": "0x57de2fb43998a160f540513993a07c9a48342156",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1450,
+     "parent_slot": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a00",
+     "new": "0x00000000000000000000001255d398326f99059ff775485246999027b3197955",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1451,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a01",
+     "new": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1452,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a02",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1453,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a03",
+     "new": "0x000000000000000000000000d1d32f44a49feac3ae7d0dac8dbaed38ac63e843",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1454,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a1e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000015180",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1455,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a1f",
+     "new": "0x0000000000000000000000000000000000000000000000008ac7230489e80000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1456,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a20",
+     "new": "0x00000000000000000000000000000000000000000000000000000000000001f4",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1457,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a06",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1458,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a07",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1459,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a08",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1460,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x63c4ecc75c34f33c5be58d08254ae983c72b5eedcd0c24c04a7b84fc8b5adea9",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1461,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a09",
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76c",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1462,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76e",
+     "new": "0x000000000000000000000000000000000000000000000000000000006ab3c0bc",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1463,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a07",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 1464,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf76f",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000100",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1465,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf770",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1466,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xcefb78ef09dee123a86bede207a79fa509a24f1158a4b54624db1ac31e0cf771",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1467,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a0a",
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c3",
+     "mapping_key": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "new": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1468,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c4",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1469,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x56d1ff4da5fee9e23c12895a9eac0911d367034af345973ec576115e21f442c5",
+     "new": "0x000000000000000000000000000000000000000000000000000000006ab3c0bc",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1470,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a0c",
+     "field": "unclassified",
+     "key": "0x5eb878a112a1f23a6a4a3a7cf7e59d82428a63701db3e5a06a2f32b556184c14",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1471,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x9007dab80fe2d84ecd21d5a7c05090f549fc4cab284d2916b25eb11c94724094",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1472,
+     "unchanged": false
+    },
+    {
+     "base": "0xf1eda3dc36a650e37fa4f9f6af289e2fea6685c5d0625405e83d110ec7306a29",
+     "field": "unclassified",
+     "key": "0x5f56cdfb63c51c76f6c12b4fd84f51203626f527f7de7575cf565e5933d51bb0",
+     "mapping_key": "0x000000000000000000000000cbfd7c3c509a184d3fff92184f8051877a385917",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 1474,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000010000000000000001",
+     "ordinal": 1477,
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+   "block": 123566113,
+   "call_index": 53,
+   "contract": "0x20914e06d0c4e60e6b52378b4c319476102cf767",
+   "kind": "grant",
+   "log_ordinal": 4953,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0x83a85ef699f28200dab9635fa94689de26bef9d1de70fdc51010f8371171d8d0",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "unclassified",
+     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4948,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000101",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 4949,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x00000000000000000000000000000000000000000000000000000000000000c9",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4950,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xece131a77f67ea9215fcec08eb2adca5672b17a236443a19a4cbf52eb1f837bd",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4951,
+     "unchanged": false
+    },
+    {
+     "field": "member_of_root",
+     "key": "0x0addf0d395f11bd51253f5077062ed901e02febfabe118daed6cc17c32ba0feb",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4952,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x683723e34a772b6e4f2c919bba7fa32ed8ea11a8325f54da7db716e9d9dd98c7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4954,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8212",
+     "new": "0x0000000000000000000000007d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4955,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x60a3621c394c5ed6f8c85944e23dc6ef2d8cbd401cf85c52f8d7b565a2fcde54",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4956,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000101",
+     "ordinal": 4957,
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123566113,
+   "call_index": 57,
+   "contract": "0x20914e06d0c4e60e6b52378b4c319476102cf767",
+   "kind": "grant",
+   "log_ordinal": 4973,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0xdc72ed553f2544c34465af23b847953efeb813428162d767f9ba5f4013be6760",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0x83a85ef699f28200dab9635fa94689de26bef9d1de70fdc51010f8371171d8d0",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x65796ff551f5a3d9a88b19fe27b0a9288e660e175e650ff11d9df30be71dda3b",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4972,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xe664bb9191f7b828ade8c6877f1337f784ea39881ae38ae13168214777f17219",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4974,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x49d5cfa4a5c4857459f920bedd9028d7db27a1b8e15fc441a4f960856c6c519c",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4975,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0xd2c22c1390354bdafb4f10a6cd43929d4e704bdfca2b1f78f55324be69b229f5",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4976,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123566113,
+   "call_index": 59,
+   "contract": "0x20914e06d0c4e60e6b52378b4c319476102cf767",
+   "kind": "grant",
+   "log_ordinal": 4982,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0xd5e1148dfdfb05f89c6044c78afbb931560cdf140d44d60c93b85623d19a22da",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0x83a85ef699f28200dab9635fa94689de26bef9d1de70fdc51010f8371171d8d0",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x5412cb0df413f7231bedfc8824fbf7c9b73d38ad41798dd0e0de1d338bd6a848",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4981,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xb67d7694a471e493ea36fd81abc36ccaa648d1a268a9464f9234151b6247510e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4983,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x7171e66363ce12353401c2889faf46c16a1739f9b8838fdbf862fb18acbba66e",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4984,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x6e4fd8682be4370b111ad20a6e38254905185b9782acfec8d423ed87723ca3d7",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4985,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123566113,
+   "call_index": 61,
+   "contract": "0x20914e06d0c4e60e6b52378b4c319476102cf767",
+   "kind": "grant",
+   "log_ordinal": 4991,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0cc8ea863d4c4142bd8ad1912d47df3d5d40e7133122f52f88a9465f20e3d696",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0x83a85ef699f28200dab9635fa94689de26bef9d1de70fdc51010f8371171d8d0",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0xc19d765d5ac83c0f2947cd69ede146c4502e6d50ac17c4b08da9e6897eb3f214",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4990,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x31749033db81abbbea6d43c3071ba4e11b8bf2f8f9a6591e02e1049ee91c0de8",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4992,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0xac47f4f6ab0f045cf871f778515162874c4ac3cac8256e98603fe5dcab4d0ecb",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4993,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x795add52bb11a9723eeaf54d62658194c3062e0a64997f33bfbfef059a101320",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4994,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123566113,
+   "call_index": 63,
+   "contract": "0x20914e06d0c4e60e6b52378b4c319476102cf767",
+   "kind": "grant",
+   "log_ordinal": 5000,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0x83a85ef699f28200dab9635fa94689de26bef9d1de70fdc51010f8371171d8d0",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x27a203e23ded4e166362d8fe920288555def4ba859f13be8a6aa46d4709b086f",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 4999,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x683723e34a772b6e4f2c919bba7fa32ed8ea11a8325f54da7db716e9d9dd98c7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 5001,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8213",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 5002,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 1,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x4b21bca852d7bead1b187a6b1481282912b88a06bfe44276e47ad4d6eee20834",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 5003,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+   "block": 123566113,
+   "call_index": 65,
+   "contract": "0x20914e06d0c4e60e6b52378b4c319476102cf767",
+   "kind": "revoke",
+   "log_ordinal": 5009,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "element",
+    "index_at_root+1",
+    "element",
+    "root",
+    "index_at_root+1"
+   ],
+   "transaction": "0x83a85ef699f28200dab9635fa94689de26bef9d1de70fdc51010f8371171d8d0",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x0addf0d395f11bd51253f5077062ed901e02febfabe118daed6cc17c32ba0feb",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 5008,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8212",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000007d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "ordinal": 5010,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x4b21bca852d7bead1b187a6b1481282912b88a06bfe44276e47ad4d6eee20834",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 5011,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8213",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "ordinal": 5012,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 1,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x683723e34a772b6e4f2c919bba7fa32ed8ea11a8325f54da7db716e9d9dd98c7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 5013,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x60a3621c394c5ed6f8c85944e23dc6ef2d8cbd401cf85c52f8d7b565a2fcde54",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 5014,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+   "block": 123566214,
+   "call_index": 53,
+   "contract": "0x10693253374ef951bc735c450cc13e6568cc22b0",
+   "kind": "grant",
+   "log_ordinal": 9294,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xf1f323dc98398a1c7f0cb7145e926712bf6f3e16e0c3d7afda35ac9e9a35007e",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "unclassified",
+     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9289,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000101",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 9290,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x00000000000000000000000000000000000000000000000000000000000000c9",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9291,
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0xece131a77f67ea9215fcec08eb2adca5672b17a236443a19a4cbf52eb1f837bd",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9292,
+     "unchanged": false
+    },
+    {
+     "field": "member_of_root",
+     "key": "0x0addf0d395f11bd51253f5077062ed901e02febfabe118daed6cc17c32ba0feb",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9293,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x683723e34a772b6e4f2c919bba7fa32ed8ea11a8325f54da7db716e9d9dd98c7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9295,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8212",
+     "new": "0x0000000000000000000000007d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9296,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x60a3621c394c5ed6f8c85944e23dc6ef2d8cbd401cf85c52f8d7b565a2fcde54",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9297,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "unclassified",
+     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000101",
+     "ordinal": 9298,
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123566214,
+   "call_index": 57,
+   "contract": "0x10693253374ef951bc735c450cc13e6568cc22b0",
+   "kind": "grant",
+   "log_ordinal": 9314,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0xdc72ed553f2544c34465af23b847953efeb813428162d767f9ba5f4013be6760",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xf1f323dc98398a1c7f0cb7145e926712bf6f3e16e0c3d7afda35ac9e9a35007e",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x65796ff551f5a3d9a88b19fe27b0a9288e660e175e650ff11d9df30be71dda3b",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9313,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xe664bb9191f7b828ade8c6877f1337f784ea39881ae38ae13168214777f17219",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9315,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x49d5cfa4a5c4857459f920bedd9028d7db27a1b8e15fc441a4f960856c6c519c",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9316,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0xd2c22c1390354bdafb4f10a6cd43929d4e704bdfca2b1f78f55324be69b229f5",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9317,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123566214,
+   "call_index": 59,
+   "contract": "0x10693253374ef951bc735c450cc13e6568cc22b0",
+   "kind": "grant",
+   "log_ordinal": 9323,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0xd5e1148dfdfb05f89c6044c78afbb931560cdf140d44d60c93b85623d19a22da",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xf1f323dc98398a1c7f0cb7145e926712bf6f3e16e0c3d7afda35ac9e9a35007e",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x5412cb0df413f7231bedfc8824fbf7c9b73d38ad41798dd0e0de1d338bd6a848",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9322,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0xb67d7694a471e493ea36fd81abc36ccaa648d1a268a9464f9234151b6247510e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9324,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x7171e66363ce12353401c2889faf46c16a1739f9b8838fdbf862fb18acbba66e",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9325,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x6e4fd8682be4370b111ad20a6e38254905185b9782acfec8d423ed87723ca3d7",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9326,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123566214,
+   "call_index": 61,
+   "contract": "0x10693253374ef951bc735c450cc13e6568cc22b0",
+   "kind": "grant",
+   "log_ordinal": 9332,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0cc8ea863d4c4142bd8ad1912d47df3d5d40e7133122f52f88a9465f20e3d696",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xf1f323dc98398a1c7f0cb7145e926712bf6f3e16e0c3d7afda35ac9e9a35007e",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0xc19d765d5ac83c0f2947cd69ede146c4502e6d50ac17c4b08da9e6897eb3f214",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9331,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x31749033db81abbbea6d43c3071ba4e11b8bf2f8f9a6591e02e1049ee91c0de8",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9333,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0xac47f4f6ab0f045cf871f778515162874c4ac3cac8256e98603fe5dcab4d0ecb",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9334,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x795add52bb11a9723eeaf54d62658194c3062e0a64997f33bfbfef059a101320",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9335,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+   "block": 123566214,
+   "call_index": 63,
+   "contract": "0x10693253374ef951bc735c450cc13e6568cc22b0",
+   "kind": "grant",
+   "log_ordinal": 9341,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "root",
+    "element",
+    "index_at_root+1"
+   ],
+   "transaction": "0xf1f323dc98398a1c7f0cb7145e926712bf6f3e16e0c3d7afda35ac9e9a35007e",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x27a203e23ded4e166362d8fe920288555def4ba859f13be8a6aa46d4709b086f",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9340,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x683723e34a772b6e4f2c919bba7fa32ed8ea11a8325f54da7db716e9d9dd98c7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 9342,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8213",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9343,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 1,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x4b21bca852d7bead1b187a6b1481282912b88a06bfe44276e47ad4d6eee20834",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "ordinal": 9344,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  },
+  {
+   "account": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+   "block": 123566214,
+   "call_index": 65,
+   "contract": "0x10693253374ef951bc735c450cc13e6568cc22b0",
+   "kind": "revoke",
+   "log_ordinal": 9350,
+   "operations_on_role_in_frame": 1,
+   "ordinals_strictly_increasing": true,
+   "persisted": true,
+   "role": "0x0000000000000000000000000000000000000000000000000000000000000000",
+   "shape": [
+    "member_of_root",
+    "element",
+    "index_at_root+1",
+    "element",
+    "root",
+    "index_at_root+1"
+   ],
+   "transaction": "0xf1f323dc98398a1c7f0cb7145e926712bf6f3e16e0c3d7afda35ac9e9a35007e",
+   "transaction_status": 1,
+   "unchanged_writes": 0,
+   "writes": [
+    {
+     "field": "member_of_root",
+     "key": "0x0addf0d395f11bd51253f5077062ed901e02febfabe118daed6cc17c32ba0feb",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 9349,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8212",
+     "new": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "old": "0x0000000000000000000000007d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "ordinal": 9351,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 0,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x4b21bca852d7bead1b187a6b1481282912b88a06bfe44276e47ad4d6eee20834",
+     "member": "0x8e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 9352,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "element",
+     "key": "0x2dd8db9e26b2996e42648eaa4a235e69f68c16392431007c6e963fa26c4b8213",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000008e670b4d6651c4051e65b21aa4a575f3f99b8b83",
+     "ordinal": 9353,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "position": 1,
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "root",
+     "key": "0x683723e34a772b6e4f2c919bba7fa32ed8ea11a8325f54da7db716e9d9dd98c7",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "ordinal": 9354,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    },
+    {
+     "field": "index_at_root+1",
+     "key": "0x60a3621c394c5ed6f8c85944e23dc6ef2d8cbd401cf85c52f8d7b565a2fcde54",
+     "member": "0x7d848b017b8cf346de19a523b1cf5c27cabbcd3e",
+     "new": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "ordinal": 9355,
+     "parent_slot": "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "root_source": "block_preimage",
+     "unchanged": false
+    }
+   ]
+  }
+ ]
+}

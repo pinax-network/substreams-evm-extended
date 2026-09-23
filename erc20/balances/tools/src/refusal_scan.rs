@@ -23,6 +23,11 @@ pub struct RefusalScan {
     /// Complete consecutive Extended blocks, one `<number>.pb` file each.
     #[arg(long)]
     pub block_dir: PathBuf,
+    /// Accept a sparse, increasing sample; parents are checked only between
+    /// consecutive heights. A sparse scan does not show that the package can
+    /// stream the interval between samples.
+    #[arg(long)]
+    pub allow_gaps: bool,
     #[arg(long)]
     pub output: PathBuf,
 }
@@ -37,7 +42,7 @@ pub struct Scan {
 
 /// Replays `blocks` in order. A refusal that remains with no profile
 /// configured belongs to the block, not a token, and stops the scan.
-pub fn scan(blocks: impl IntoIterator<Item = Result<eth::Block>>, text: &str) -> Result<Scan> {
+pub fn scan(blocks: impl IntoIterator<Item = Result<eth::Block>>, text: &str, allow_gaps: bool) -> Result<Scan> {
     let mut entries: Vec<Value> = serde_json::from_str(text)?;
     let mut layouts: Vec<VerifiedLayout> = layout::parse(text)?;
     ensure!(entries.len() == layouts.len(), "layout entries differ from parsed profiles");
@@ -51,7 +56,7 @@ pub fn scan(blocks: impl IntoIterator<Item = Result<eth::Block>>, text: &str) ->
     for block in blocks {
         let block = block?;
         let parent = &block.header.as_ref().context("missing header")?.parent_hash;
-        if let Some((number, hash)) = &previous {
+        if let Some((number, hash)) = previous.as_ref().filter(|(n, _)| !allow_gaps || block.number == n + 1) {
             ensure!(
                 block.number == number + 1 && parent == hash,
                 "captured blocks have a gap or fork at {}",
@@ -93,6 +98,11 @@ pub fn scan(blocks: impl IntoIterator<Item = Result<eth::Block>>, text: &str) ->
                     .map_err(|error| anyhow!("block {} is still refused without its refused profiles: {error}", block.number))?
             }
         };
+        ensure!(
+            previous.as_ref().is_none_or(|(n, _)| block.number > *n),
+            "captured blocks are out of order at {}",
+            block.number
+        );
         result.emitted_rows += events.balances.len() as u64;
         result.blocks += 1;
         previous = Some((block.number, block.hash.clone()));
@@ -177,7 +187,8 @@ pub fn run(args: RefusalScan) -> Result<bool> {
                 hashes.1 = hash;
                 Ok(block)
             });
-            let scan = scan(blocks, &text)?;
+            let scan = scan(blocks, &text, args.allow_gaps)?;
+            report["sparse_sample"] = json!(args.allow_gaps);
             let kept = args.output.join("layouts.json");
             fs::write(&kept, serde_json::to_string(&scan.kept)?)?;
             report["start"] = json!(first);

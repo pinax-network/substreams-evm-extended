@@ -1,0 +1,17 @@
+{
+  "blocks": 960523,
+  "checked_blocks": [
+    68813978,
+    69774501
+  ],
+  "configured_tokens": 1,
+  "elapsed_seconds": 0.425743042,
+  "excluded": [],
+  "kept_layouts_sha256": "1534b99bb059923e750dd02402215cf65c1348d622a72fdd71685a2d0245a121",
+  "kept_tokens": 1,
+  "layouts_sha256": "2a587df9cb09c90ab47df7748bccdba6bdd584d775fcbf7062fe86e2cbb5fa88",
+  "scope": "Runtime and dependency bindings before the range and at its last block; profiles are neither loosened nor promoted",
+  "start": 68813979,
+  "status": "partitioned",
+  "tool_language": "Rust"
+}
