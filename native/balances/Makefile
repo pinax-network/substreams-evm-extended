@@ -18,6 +18,6 @@ replay:
 	cargo run --locked -p native-balances-tools -- replay --blocks $(BLOCKS) --output $(OUTPUT) \
 	  --oracle ../../erc20/balances/tests/fixtures/bsc-122260950.json \
 	  --prototype-rows tests/fixtures/bsc-122260950-prototype-native-rows.json
-# Live streaming stays paused until explicitly resumed.
+# Live streaming reads SUBSTREAMS_API_KEY from the environment.
 run: pack
 	substreams run $(SPKG) map_events -p 'map_events=$(PARAMS)' -e $(ENDPOINT) -s $(START_BLOCK) -t $(STOP_BLOCK) --final-blocks-only -o jsonl

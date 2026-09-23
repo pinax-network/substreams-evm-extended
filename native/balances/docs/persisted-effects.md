@@ -40,7 +40,7 @@ saved-data replay of 1,439 BSC producer-version-5 blocks.
 | `GAS_BUY` | 7 | persists | persists | 95,532 (Tx), 3,344 (failed) |
 | `REWARD_TRANSACTION_FEE` | 8 | persists | persists | 95,532 (Tx), 3,344 (failed), 2,878 (block) |
 | `GAS_REFUND` | 9 | persists | persists | 85,350 (Tx), 3,311 (failed) |
-| `REWARD_BLOB_FEE` | 17 | persists (BNB chain blob processing reward, credited to the system fee account in successful blob transactions) | **fails the block** – no fixture | 218 (Tx) |
+| `REWARD_BLOB_FEE` | 17 | persists (BNB chain blob processing reward, credited to the system fee account in successful blob transactions) | **fails the block** – no fixture | 218 (Tx); live 2026-09-23: 37 (Tx) in 250 parity-checked blocks |
 | `TOUCH_ACCOUNT` | 10 | persists (no-op records are dropped) | reverts | none observed |
 | `SUICIDE_REFUND`, `SUICIDE_WITHDRAW` | 11, 13 | persist | revert | none observed |
 | `CALL_BALANCE_OVERRIDE` | 12 | persists | reverts | none observed |
@@ -59,11 +59,29 @@ reducer applies its old/new values; it does not mean the chain semantics were
 reviewed. Producer fixtures are required before any of these networks or
 reasons are claimed.
 
+### Live reason matrix (BSC, 2026-09-23)
+
+250 contiguous final blocks 123,552,820–123,553,069 fetched from
+`bsc.firehose.pinax.network` and replayed offline
+([report](evidence/live-reasons-bsc-2026-09-23.json)); the packaged output of
+the same blocks equals the replay, and every emitted row of these blocks was
+checked against `eth_getBalance` at the block hash:
+
+| Scope | Reasons (records) |
+| --- | --- |
+| Succeeded transaction | `TRANSFER` 67,428, `GAS_BUY` 32,923, `REWARD_TRANSACTION_FEE` 32,923, `GAS_REFUND` 30,266, `REWARD_BLOB_FEE` 37 |
+| Failed transaction root call (persisted) | `GAS_BUY` 2,264, `GAS_REFUND` 2,259, `REWARD_TRANSACTION_FEE` 2,264 |
+| Block level (fee reset) | `REWARD_TRANSACTION_FEE` 500 |
+
+No system-call balance record, no `BURN`, `SUICIDE_*` or `TOUCH_ACCOUNT`
+record, and no failed-transaction reason outside the pinned three occurred;
+over the 5,000-block live window the reason guard refused no block.
+
 ## Chain / producer / fork matrix
 
 | Network | Producer versions in saved data | Status |
 | --- | --- | --- |
-| BSC (chain id 56) | 5 | Replayed: 1,439 blocks, 0 projection errors, 0 clock or continuity mismatches, 82/82 same-block RPC rows at 122260950. Fee-reset and blob-fee-reward semantics observed. Not a new package qualification. |
+| BSC (chain id 56) | 5 | Replayed: 1,439 blocks, 0 projection errors, 0 clock or continuity mismatches, 82/82 same-block RPC rows at 122260950. Fee-reset and blob-fee-reward semantics observed. **Live-qualified on 2026-09-23** (package `fbb46fc7…`): 1,024 saved control blocks equal to the offline replay and to `eth_getBalance` (76,139/76,139), and 5,000 contiguous recent blocks without a refused block, 200,344/200,344 same-block `eth_getBalance` checks (see the README). |
 | BSC | 4 | 71 saved blocks at heights 51,995,162–104,975,334 reduce with 0 projection errors and 0 continuity mismatches when version 4 is enabled (4,461 additional continuity checks); no native RPC oracle. Not enabled by default. |
 | BSC | 3 | Accepted by the historical prototype; no saved block. Unsupported by design: the version-3 tracer recorded system-call ordinals on a different scale from transaction ordinals and set every root call's `begin_ordinal` to 0 ([geth Firehose tracer](https://github.com/streamingfast/go-ethereum/blob/70f5118d6443624792f49501627a1cd80f51e8e9/eth/tracers/firehose.go), [firehose-ethereum CHANGELOG v2.10.0](https://github.com/streamingfast/firehose-ethereum/blob/9485efe2e6290e525fd4978b50462516ec752672/CHANGELOG.md)). Global ordinal reduction across scopes is not trustworthy on version 3. |
 | Ethereum (1) | none | Genesis, uncle/block rewards, DAO redistribution, execution-layer withdrawals, blob fee debits, pre/post-[EIP-6780](https://eips.ethereum.org/EIPS/eip-6780) SELFDESTRUCT and the consensus-layer boundary need fixtures under #8. |
