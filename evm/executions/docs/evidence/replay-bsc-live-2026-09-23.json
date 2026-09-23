@@ -1,0 +1,108 @@
+{
+  "blocks": {
+    "projected": 250,
+    "projection_error_examples": [],
+    "projection_errors": 0,
+    "ranges": [
+      [
+        123552820,
+        123553070
+      ]
+    ],
+    "refused_unqualified_producer_version": {}
+  },
+  "capabilities_by_producer_version": {
+    "5": {
+      "blob_transactions": 37,
+      "block_level_balance_changes": 500,
+      "block_level_code_changes": 0,
+      "blocks": 250,
+      "delegated_frames_eip7702": 7582,
+      "equal_value_storage_changes": 0,
+      "frames": 923897,
+      "frames_by_call_type": {
+        "CALL": 291033,
+        "CREATE": 512,
+        "DELEGATE": 229071,
+        "STATIC": 403281
+      },
+      "frames_with_keccak_preimages": 486452,
+      "logs_in_reverted_frames": 12525,
+      "set_code_authorizations": 857,
+      "storage_changes": 523805,
+      "system_calls": 250,
+      "transaction_types_raw": {
+        "0": 25914,
+        "1": 590,
+        "2": 10247,
+        "3": 37,
+        "4": 426
+      },
+      "transactions": 37214,
+      "transactions_with_blob_gas": 37,
+      "zero_begin_ordinal_frames": 0
+    }
+  },
+  "clocks": {
+    "checked": 250,
+    "mismatches": 0
+  },
+  "determinism": {
+    "checked": 250,
+    "mismatches": 0
+  },
+  "inputs": {
+    "block_files": 250,
+    "directories": [
+      "native/balances/out/live-2026-09-23/firehose-blocks"
+    ],
+    "duplicate_identical_captures": 0
+  },
+  "mode": "offline_saved_data_only",
+  "network": "bsc",
+  "parameters": {
+    "chain_id": 56,
+    "producer_versions": [
+      4,
+      5
+    ]
+  },
+  "parameters_sha256": "7131fbb93a16682c988fb13e705f84bb0dd66e369454ef0c3b7cf72234cf2d16",
+  "rows": {
+    "calls": 923897,
+    "calls_persisted": 838011,
+    "code_changes_by_scope_kind_persistence": {
+      "SCOPE_TRANSACTION/CODE_CHANGE_KIND_CLEARED/persisted": 1,
+      "SCOPE_TRANSACTION/CODE_CHANGE_KIND_CREATED/attempted": 10,
+      "SCOPE_TRANSACTION/CODE_CHANGE_KIND_CREATED/persisted": 493,
+      "SCOPE_TRANSACTION/CODE_CHANGE_KIND_DELEGATION_SET/persisted": 493
+    },
+    "logs": 288453,
+    "logs_attempted_in_reverted_frames": 12525,
+    "logs_persisted": 275928,
+    "receipt_logs": 275928,
+    "root_created_contracts": 7,
+    "set_code_authorizations_applied": 854,
+    "set_code_authorizations_discarded": 3,
+    "transactions": 37214
+  },
+  "rpc_in_replay": 0,
+  "sources": {
+    "common/persist/src/lib.rs": "c33c2f5aab193316cbe0b84c91d3260f5499a2bb655c8760fbcad648d2987c96",
+    "evm/executions/src/lib.rs": "374a76034b0bf869c2b4667e71ecf564bfbd2129a16a5e1d7f153e75f68e90e6"
+  },
+  "status": "passed",
+  "storage_context": {
+    "frames_with_writes": 185463,
+    "rule": "DELEGATE and CALLCODE frames write the storage of Call.caller; every other frame writes the storage of Call.address",
+    "violation_examples": [],
+    "violations": 0,
+    "writes_by_call_type": {
+      "CALL": 345291,
+      "CREATE": 536,
+      "DELEGATE": 177978
+    },
+    "writes_checked": 523805
+  },
+  "tool": "evm-executions-tools replay"
+}

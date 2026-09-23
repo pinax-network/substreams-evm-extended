@@ -42,7 +42,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `erc20/balances` | `evm.balances.v1` | pre-existing production module; #2–#6, #22 | RPC-qualified historical evidence under `erc20/balances/docs`; typed-path baseline replay (1,024 blocks, 110,139 rows, 4,012 retained matches, 66,265 cold unknowns) | RPC-qualified layouts |
 | `native/balances` | `evm.balances.v1` (`contract` absent) | #17 open (BSC live-qualified; other networks #8) | **live 2026-09-23**: 1,024 saved control blocks equal to the offline replay and `eth_getBalance` (76,139/76,139); 5,000 live blocks, 200,344/200,344 same-block `eth_getBalance` ([evidence](../native/balances/docs/evidence)); saved replay 1,439 blocks | n/a |
 | `erc20/events` | `erc20.events.v1` | #19 closed | BSC single-tx fixtures | n/a |
-| `evm/executions` | `evm.executions.v1` | #18 closed; producer semantics under #8 | saved-block replay: 1,509 BSC v4/v5 blocks, 116,951 txs, 1,075,108 receipt logs matched, 2,093,149 writes in storage context, 0 errors, determinism checked ([evidence](../evm/executions/docs/evidence/replay-bsc-v4-v5.json)) | n/a |
+| `evm/executions` | `evm.executions.v1` | #18 closed; producer semantics under #8 | saved-block replay: 1,509 BSC v4/v5 blocks, 116,951 txs, 1,075,108 receipt logs matched, 2,093,149 writes in storage context, 0 errors, determinism checked ([evidence](../evm/executions/docs/evidence/replay-bsc-v4-v5.json)); live: 250 final v5 blocks, 0 errors ([evidence](../evm/executions/docs/evidence/replay-bsc-live-2026-09-23.json)) | n/a |
 | `aave/actions` | `aave.actions.v1` | #20 | **live 2026-09-23**: 459/459 Pool receipt logs equal persisted rows field by field over 2,397 blocks, all six kinds ([evidence](../aave/actions/docs/evidence/live-parity-bsc-2026-09-23.json)); compiled v3.7.0 event ABI with V3.0/V2 comparison | n/a |
 | `aave/balance-state` | `evm.balance_state.v1` | #13 | **live-qualified on BSC** for epoch 101,087,794/3347 over 2,060 blocks: packaged output, same-block `scaledBalanceOf`/`balanceOf`/reserve parity, 0 mismatches ([evidence](../aave/balance-state/docs/evidence/live-parity-bsc-2026-09-22-rev3.json)); saved-block replay 1,433 blocks | **compiler-verified** (aave-v3-origin `8305565a`, solc 0.8.27): aToken 52/53/54/58, Pool `_reserves` 52 |
 | `compound-v2/balance-state` | `evm.balance_state.v1` | #14 open | synthetic tests only | **compiler-verified**: deployed cUSDC/cETH against the 2019 tree (`solc 0.5.17`, `_guardCounter` at slot 0), cUSDC IRM `LegacyJumpRateModelV2`, delegators against `solc 0.8.10`; USDC FiatToken 0.6.12; `tests/storage_layout.rs` |
@@ -243,6 +243,7 @@ changed the `common/retention` host API: `seed_checkpoint` and
    `native/balances`** (#17, `native-balances-tools live-parity`, batched
    `eth_getBalance`) and **`aave/actions`** (#20, `aave-actions-tools`,
    receipt-log parity from the compiled ABI) and the **BSC static aToken**
-   (#24, `erc4626-balance-state-tools`); next `evm/executions` producer
-   checks, then the RPC-gated ERC-20 issues #2–#6. Ethereum and the
+   (#24, `erc4626-balance-state-tools`) and the **`evm/executions` producer
+   checks** (250 live final blocks, `evm-executions-tools replay`, 0 errors);
+   next the RPC-gated ERC-20 issues #2–#6. Ethereum and the
    other networks (#8) wait for endpoints.
