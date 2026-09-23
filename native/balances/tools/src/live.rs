@@ -92,7 +92,7 @@ impl Chain for Rpc {
     }
 }
 
-fn quantity(v: &Value) -> Result<String> {
+pub fn quantity(v: &Value) -> Result<String> {
     let hex = v.as_str().context("quantity")?.trim_start_matches("0x");
     ensure!(
         !hex.is_empty() && hex.len() <= 64 && hex.bytes().all(|b| b.is_ascii_hexdigit()),
@@ -140,13 +140,17 @@ impl Tally {
     }
 }
 
-pub fn run(args: LiveParity) -> Result<bool> {
-    let rpc = Rpc {
+/// The live RPC source from `RPC_URL` (never printed).
+pub fn rpc_from_env() -> Result<impl Chain> {
+    Ok(Rpc {
         agent: ureq::AgentBuilder::new().timeout(Duration::from_secs(120)).redirects(0).build(),
         url: std::env::var("RPC_URL").context("RPC_URL is required (it is never printed)")?,
         key: std::env::var("RPC_API_KEY").or_else(|_| std::env::var("SUBSTREAMS_API_KEY")).ok(),
-    };
-    check(&args, &rpc)
+    })
+}
+
+pub fn run(args: LiveParity) -> Result<bool> {
+    check(&args, &rpc_from_env()?)
 }
 
 /// The parity check over any chain source; writes `report.json` and returns

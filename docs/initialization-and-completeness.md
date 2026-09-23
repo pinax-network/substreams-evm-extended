@@ -142,12 +142,26 @@ and leaves 66,265 cold observations unknown. Those unknowns are reported, not
 initialized, and not zero. Matching samples do not establish universal token
 or global-holder support.
 
-## 6. What remains live-gated
+## 6. Live evidence and what remains
 
-- Producing a verified checkpoint for a chosen token set and block (host RPC
-  at an exact block hash) and loading it through `seed_checkpoint`.
-- Sink-side clock-chain verification against a published state.
-- Reorg handling against a live stream with `BlockUndoSignal`.
+**Verified checkpoint, done on BSC (2026-09-23).**
+`native-balances-tools retention-check`
+([report](../native/balances/docs/evidence/live-retention-checkpoint-bsc-2026-09-23.json))
+took `eth_getBalance` for 14,172 accounts at the hash of block 123,548,069
+and loaded it through `seed_checkpoint`. The accounts are the 12,920 that the
+next 300 blocks emit, plus 1,252 from an earlier window that those blocks
+never emit. The tool applied the packaged `native_balances` output of blocks
+123,548,070–123,548,369 (41,679 rows) and compared every retained value with
+`eth_getBalance` at four block hashes. All 56,688 comparisons were equal, with
+no unknown lookup. Accounts without a row kept their checkpoint value, and
+the block clock chain extended the checkpoint identity. This covers the
+tracked accounts over one window; accounts outside the checkpoint stay
+unknown.
 
-Live Substreams, Firehose, RPC and native sink usage remains paused until
-explicitly resumed.
+Still open:
+
+- Sink-side clock-chain verification against a published state (needs a
+  native sink run).
+- Reorg handling against a live stream with `BlockUndoSignal`. The BSC
+  qualification runs stream final blocks only; `undo` is covered by the
+  offline ledger tests.

@@ -16,10 +16,15 @@ pub enum Commands {
     /// `eth_getBalance` at each block's canonical hash. Reads `RPC_URL`
     /// (never printed).
     LiveParity(crate::live::LiveParity),
+    /// Seed a verified `eth_getBalance` checkpoint into the retention ledger,
+    /// apply the packaged window and compare retained values with RPC at
+    /// the chosen blocks. Reads `RPC_URL` (never printed).
+    RetentionCheck(crate::retention::RetentionCheck),
 }
 pub fn run() -> Result<bool> {
     match Cli::parse().command {
         Commands::Replay(args) => crate::replay::run(args),
         Commands::LiveParity(args) => crate::live::run(args),
+        Commands::RetentionCheck(args) => crate::retention::run(args),
     }
 }

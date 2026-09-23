@@ -3,6 +3,7 @@
 pub mod cli;
 pub mod live;
 pub mod replay;
+pub mod retention;
 
 #[cfg(test)]
 mod tests;

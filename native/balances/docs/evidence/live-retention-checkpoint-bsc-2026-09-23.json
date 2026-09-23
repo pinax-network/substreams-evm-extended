@@ -1,0 +1,75 @@
+{
+  "accounts": {
+    "emitted_in_window": 12920,
+    "extra_never_emitted": 1252
+  },
+  "checkpoint": {
+    "accounts": 14172,
+    "block": 123548069,
+    "evidence": "eth_getBalance at the checkpoint block hash",
+    "hash": "0x8872282be9ffb83897648bb191607456a6859a217d3b73abfb2c286b23b6b41c"
+  },
+  "comparisons": {
+    "blocks": [
+      {
+        "accounts": 14172,
+        "block": 123548144,
+        "matched": 14172,
+        "mismatched": 0
+      },
+      {
+        "accounts": 14172,
+        "block": 123548219,
+        "matched": 14172,
+        "mismatched": 0
+      },
+      {
+        "accounts": 14172,
+        "block": 123548294,
+        "matched": 14172,
+        "mismatched": 0
+      },
+      {
+        "accounts": 14172,
+        "block": 123548369,
+        "matched": 14172,
+        "mismatched": 0
+      }
+    ],
+    "compared": 56688,
+    "examples": [],
+    "matched": 56688,
+    "mismatches": 0,
+    "unknown": 0
+  },
+  "ledger": {
+    "blocks_applied": 300,
+    "checkpoint_seeded_holders": 1252,
+    "cold_unknown_lookups": 0,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 41679,
+    "enumerated": [],
+    "first_block": 123548070,
+    "initialized_holders": 14172,
+    "known_zero_holders": 589,
+    "last_block": 123548369,
+    "last_hash": "0x5b80c09d35cc46ec140c81b3baf691bc05036630ce7cb5612ae2c88551bbe663",
+    "observed_holders": 12920,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "limits": "Retention is shown for the tracked accounts from a checkpoint at one block hash over one contiguous final window; it says nothing about accounts outside the checkpoint, which stay unknown.",
+  "status": "passed",
+  "tool": "native-balances-tools retention-check",
+  "window": {
+    "applied_rows": 41679,
+    "blocks": 300,
+    "blocks_without_output": 0,
+    "from": 123548070,
+    "to": 123548369
+  }
+}
