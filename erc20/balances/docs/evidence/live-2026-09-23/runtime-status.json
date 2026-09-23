@@ -1,0 +1,30 @@
+{
+  "blocks": 1024,
+  "checked_blocks": [
+    123560999,
+    123562023
+  ],
+  "configured_tokens": 431,
+  "elapsed_seconds": 68.152534209,
+  "excluded": [
+    {
+      "contract": "0x7c8d5502b544ddaf8852fc46d1174e34876d545c",
+      "reason": "unqualified beacon implementation slot"
+    },
+    {
+      "contract": "0xdfe1308fb3ef1dc2f87b4ffaef5ebdf80be1e4ea",
+      "reason": "unqualified balance divisor dependency value"
+    },
+    {
+      "contract": "0x009b797edf9acc666a36020c4509c6095de51408",
+      "reason": "unqualified balance divisor dependency value"
+    }
+  ],
+  "kept_layouts_sha256": "3ec9e2426e9c7f4a978053eb262e3a2ac9e8dfdee2cf72e0cbcc10303224ac76",
+  "kept_tokens": 428,
+  "layouts_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+  "scope": "Runtime and dependency bindings before the range and at its last block; profiles are neither loosened nor promoted",
+  "start": 123561000,
+  "status": "partitioned",
+  "tool_language": "Rust"
+}

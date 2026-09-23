@@ -95,8 +95,12 @@ and `erc20-balances-tools`, Substreams package name `erc20_balances`, and WASM
 filename `erc20_balances.wasm`. The schema stays in repository-root `proto/`;
 its wire types, field numbers, generated Rust types and namespace are unchanged.
 
-New builds target `spkg/erc20-balances-v0.1.0.spkg`. That renamed artifact has
-not been packaged or qualified. Existing storage-named SPKGs and the canonical
+New builds target `spkg/erc20-balances-v0.1.0.spkg`. Its first build
+(`532b571f03f66931b4f1dd222ec8ff4da64d0054c81f1b4ce7213a41abc9f0cd`, WASM
+`005a2d3d22d10c5c61fa36b00adea1c0b5e9c55536a553c14b9f423d09546099`) is
+committed and was checked on live BSC under #6; see
+[current package on live BSC](../erc20/balances/docs/live-package-bsc-2026-09-23.md).
+Existing storage-named SPKGs and the canonical
 RPC reference `spkg/erc20-balances-v0.3.4.spkg` remain unchanged. Earlier
 byte-identical WASM and package qualification claims apply only to their
 recorded migration revisions, not the renamed build.

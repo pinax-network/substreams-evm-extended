@@ -1,0 +1,101 @@
+{
+ "blocks": 1024,
+ "capture": {
+  "blocks_per_second_including_startup": 2.3476445666155215,
+  "empty_output_delivery": {
+   "clock_capture_sha256": "241cd9fd6ba1b7ff8e0ca0dd823b7775d10879951e8ae6624583896f51d5cf54",
+   "empty_blocks": 0,
+   "method": "Complete finalized BlockScopedData clock capture, all IDs matched to consecutive canonical RPC headers",
+   "normalized_events_sha256": "0b9c49491f7ed4e698045aabc368bc668ff64cb3ff47618cef56897ecc5c7d30",
+   "sparse_events_sha256": "1c6e91d6dce46dec09b4c9f8cead4da85a01b252c1d1aefa7ec96d9020fda76b"
+  },
+  "package_sha256": "8aaa03b551b9d67ce1ea9aa0dae4310eda1807f2bc161bd53b17f82de9d92543",
+  "seconds_including_startup": 436.181871209
+ },
+ "chain_id": 56,
+ "elapsed_seconds": 437.554207,
+ "first_hash": "0x1299bef924dbb051986d1ed65cc05962cd08bab2428475bd4916400721e14fb2",
+ "last_hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+ "ranking": "emitted RPC balance rows descending; contract ascending breaks ties",
+ "reference_rows": 538758,
+ "reference_sha256": "0b9c49491f7ed4e698045aabc368bc668ff64cb3ff47618cef56897ecc5c7d30",
+ "selected_tokens": [
+  {
+   "active_blocks": 1024,
+   "contract": "0x55d398326f99059ff775485246999027b3197955",
+   "rank": 1,
+   "reference_rows": 164197,
+   "unique_holders": 45165
+  },
+  {
+   "active_blocks": 1022,
+   "contract": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+   "rank": 2,
+   "reference_rows": 66280,
+   "unique_holders": 11860
+  },
+  {
+   "active_blocks": 1017,
+   "contract": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+   "rank": 3,
+   "reference_rows": 30138,
+   "unique_holders": 7277
+  },
+  {
+   "active_blocks": 987,
+   "contract": "0xe747e54783ba3f77a8e5251a3cba19ebe9c0e197",
+   "rank": 4,
+   "reference_rows": 15052,
+   "unique_holders": 835
+  },
+  {
+   "active_blocks": 925,
+   "contract": "0x4ef9d3062c7f6eba4aae4990c5036598c6eff4ec",
+   "rank": 5,
+   "reference_rows": 10419,
+   "unique_holders": 1505
+  },
+  {
+   "active_blocks": 18,
+   "contract": "0xbaeda00563b2eac867504f13c8bfefc0aac9b2f6",
+   "rank": 6,
+   "reference_rows": 6052,
+   "unique_holders": 6015
+  },
+  {
+   "active_blocks": 8,
+   "contract": "0x603dcf7e7ca18ab24bbe6367fb03c2574e2de997",
+   "rank": 7,
+   "reference_rows": 6022,
+   "unique_holders": 6008
+  },
+  {
+   "active_blocks": 654,
+   "contract": "0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c",
+   "rank": 8,
+   "reference_rows": 6014,
+   "unique_holders": 1239
+  },
+  {
+   "active_blocks": 24,
+   "contract": "0xbfe3d3a27c0abef74ead6a6d5bfad54407d9c789",
+   "rank": 9,
+   "reference_rows": 5477,
+   "unique_holders": 5420
+  },
+  {
+   "active_blocks": 919,
+   "contract": "0x13b0f3918b15711e26ea6dac19ca18b4c6b07777",
+   "rank": 10,
+   "reference_rows": 5151,
+   "unique_holders": 1512
+  }
+ ],
+ "start": 123561000,
+ "status": "ranked",
+ "stop_exclusive": 123562024,
+ "token_count": 3428,
+ "tool_language": "Rust",
+ "full_report_sha256": "8472e8f6e3db694b74c479d6b66169b2a5e32c7bb092df74fc4fa7509e4b80b9",
+ "trimmed": "per-token list and active heights omitted; full report retained under erc20/balances/out/live-2026-09-23/ranking"
+}

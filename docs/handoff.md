@@ -39,7 +39,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 
 | Package (crate) | Output | Issue | Evidence | Slot provenance |
 | --- | --- | --- | --- | --- |
-| `erc20/balances` | `evm.balances.v1` | pre-existing production module; #2–#6, #22 | RPC-qualified historical evidence under `erc20/balances/docs`; typed-path baseline replay (1,024 blocks, 110,139 rows, 4,012 retained matches, 66,265 cold unknowns) | RPC-qualified layouts |
+| `erc20/balances` | `evm.balances.v1` | pre-existing production module; #2–#6, #22 | RPC-qualified historical evidence under `erc20/balances/docs`; typed-path baseline replay (1,024 blocks, 110,139 rows, 4,012 retained matches, 66,265 cold unknowns); live current package (#6): 425 of 431 profiles, 1,024 BSC blocks, 253,503 rows with 0 differences from the RPC reference, 88,534 holders checkpointed and final-state equal ([report](../erc20/balances/docs/live-package-bsc-2026-09-23.md)) | RPC-qualified layouts |
 | `native/balances` | `evm.balances.v1` (`contract` absent) | #17 open (BSC live-qualified; other networks #8) | **live 2026-09-23**: 1,024 saved control blocks equal to the offline replay and `eth_getBalance` (76,139/76,139); 5,000 live blocks, 200,344/200,344 same-block `eth_getBalance` ([evidence](../native/balances/docs/evidence)); saved replay 1,439 blocks | n/a |
 | `erc20/events` | `erc20.events.v1` | #19 closed | BSC single-tx fixtures | n/a |
 | `evm/executions` | `evm.executions.v1` | #18 closed; producer semantics under #8 | saved-block replay: 1,509 BSC v4/v5 blocks, 116,951 txs, 1,075,108 receipt logs matched, 2,093,149 writes in storage context, 0 errors, determinism checked ([evidence](../evm/executions/docs/evidence/replay-bsc-v4-v5.json)); live: 250 final v5 blocks, 0 errors ([evidence](../evm/executions/docs/evidence/replay-bsc-live-2026-09-23.json)) | n/a |
@@ -244,6 +244,11 @@ changed the `common/retention` host API: `seed_checkpoint` and
    `eth_getBalance`) and **`aave/actions`** (#20, `aave-actions-tools`,
    receipt-log parity from the compiled ABI) and the **BSC static aToken**
    (#24, `erc4626-balance-state-tools`) and the **`evm/executions` producer
-   checks** (250 live final blocks, `evm-executions-tools replay`, 0 errors);
-   next the RPC-gated ERC-20 issues #2–#6. Ethereum and the
+   checks** (250 live final blocks, `evm-executions-tools replay`, 0 errors)
+   and the **current `erc20/balances` package** (#6: `runtime-status`,
+   `refusal-scan`, `compare`, `audit-rpc`, `holder-coverage` and the native
+   ClickHouse smoke; three profiles refuse unreviewed writes on live blocks
+   and three no longer match their runtime bindings). Next: review those six
+   profiles, then #2's role-operation producer checks, which need blocks with
+   actual role changes. Ethereum and the
    other networks (#8) wait for endpoints.

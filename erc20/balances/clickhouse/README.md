@@ -23,10 +23,9 @@ make setup
 make run
 ```
 
-The renamed package is a future build target. The captured smoke results below
-used the preserved migration package, not a newly built renamed artifact.
-Packaging and live sink testing remain paused; these commands are for later
-authorized validation.
+The captured smoke results below first used the preserved migration package.
+The same smoke check passed again on 2026-09-23 with the first build of the
+renamed package (`532b571f…`); see [that run](#current-package-2026-09-23).
 
 These defaults select the two reviewed bridge450 tokens and finalized blocks
 122288006–122288149. `LAYOUTS`, `START`, `STOP`, `ENDPOINT`, `STATE`, and
@@ -99,6 +98,19 @@ physical rows and seven deduplicated rows. The [schema](evidence/schema.json),
 [replayed rows](evidence/replayed-rows.json), and [block markers](evidence/blocks.json)
 are retained as a bounded integration result. This does not claim behavior for
 unobserved tokens or production interruption/recovery scenarios.
+
+## Current package (2026-09-23)
+
+`make smoke` with `spkg/erc20-balances-v0.1.0.spkg` (`532b571f…`), CLI build
+`be35ad3` and the same local ClickHouse 25.8.1.3064 returned
+`native_clickhouse_parity` ([report](evidence/live-2026-09-23/report.json)).
+The same seven balances matched, resume preserved the earlier row versions and
+the identical replay again produced 14 physical and seven deduplicated rows.
+Against the migration run, the [schema](evidence/live-2026-09-23/schema.json),
+[rows](evidence/live-2026-09-23/replayed-rows.json) and
+[block markers](evidence/live-2026-09-23/blocks.json) differ only in the fresh
+database name and the ingestion-time `_version_` values. The scope is the same
+bounded 144-block sample; the smoke database was retained, not dropped.
 
 Upstream references:
 

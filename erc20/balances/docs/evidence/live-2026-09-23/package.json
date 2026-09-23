@@ -1,0 +1,45 @@
+{
+  "binaries": [
+    {
+      "imports": [
+        "logger.println",
+        "env.output",
+        "env.register_panic",
+        "env.skip_empty_output"
+      ],
+      "sha256": "005a2d3d22d10c5c61fa36b00adea1c0b5e9c55536a553c14b9f423d09546099",
+      "type": "wasm/rust-v1"
+    }
+  ],
+  "elapsed_seconds": 0.021211458,
+  "modules": [
+    {
+      "binary_index": 0,
+      "initial_block": 0,
+      "inputs": [
+        {
+          "params": "[]"
+        },
+        {
+          "source": "sf.ethereum.type.v2.Block"
+        }
+      ],
+      "kind": "map",
+      "name": "map_events",
+      "output": "proto:evm.balances.v1.Events"
+    }
+  ],
+  "package_sha256": "532b571f03f66931b4f1dd222ec8ff4da64d0054c81f1b4ce7213a41abc9f0cd",
+  "reference_rpc_imports": [
+    "rpc.eth_call",
+    "rpc.eth_call"
+  ],
+  "reference_sha256": "8aaa03b551b9d67ce1ea9aa0dae4310eda1807f2bc161bd53b17f82de9d92543",
+  "schema": {
+    "byte_identical_to_reference": true,
+    "descriptor_sha256": "1b5d5f374489f084a21374a896a83d5907a415e973635b8f609a20dd9b8e1fda",
+    "package": "evm.balances.v1"
+  },
+  "status": "inspected",
+  "tool_language": "Rust"
+}

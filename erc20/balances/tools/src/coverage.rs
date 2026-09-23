@@ -124,6 +124,34 @@ impl HolderState {
     }
 }
 
+/// Every holder the replay knows, checkpointed or emitted, against `balanceOf`
+/// at the last replayed block. Validation only: processing made no balance call.
+pub fn final_state(rpc: &dyn Rpc, state: &Balances, hash: &str, output: &std::path::Path) -> Result<Value> {
+    let mut report = json!({"block_hash":hash,"holders":0,"matches":0,"mismatches":0,"zero_holders":0});
+    let mut file = File::create(output.join("final-state.jsonl"))?;
+    let holders = state.iter().collect::<Vec<_>>();
+    for chunk in holders.chunks(100) {
+        let calls = chunk
+            .iter()
+            .map(|(key, _)| balance_request(&key.0, &key.1, block_ref(hash)))
+            .collect::<Vec<_>>();
+        for (((contract, address), value), response) in chunk.iter().zip(rpc.batch(&calls)?) {
+            let actual = balance_result(&response, true)?;
+            inc(&mut report, "holders", 1);
+            inc(&mut report, if actual == **value { "matches" } else { "mismatches" }, 1);
+            inc(&mut report, "zero_holders", u64::from(value.is_zero()));
+            writeln!(
+                file,
+                "{}",
+                json!({"contract":contract,"address":address,"hash":hash,"state":value.to_string(),"rpc":actual.to_string()})
+            )?;
+        }
+    }
+    file.flush()?;
+    report["final_state_sha256"] = json!(sha256(&output.join("final-state.jsonl"))?);
+    Ok(report)
+}
+
 pub fn run(args: Coverage) -> Result<bool> {
     record_run(
         &args.output,
@@ -283,8 +311,11 @@ pub fn run(args: Coverage) -> Result<bool> {
             );
             report["captured"] = json!(captured);
             report["tokens"] = json!(state.tokens.values().collect::<Vec<_>>());
+            let final_state = final_state(&rpc, &state.seeded, &format!("0x{}", hex::encode(&blocks[&(stop - 1)].hash)), &args.output)?;
+            let final_mismatch = final_state["mismatches"] != 0;
+            report["final_state"] = final_state;
             let (status, missing) = outcome(&state.tokens, &configured.keys().cloned().collect());
-            report["status"] = json!(status);
+            report["status"] = json!(if final_mismatch { "mismatch" } else { status });
             report["unobserved_tokens"] = json!(missing);
             report["holder_checks_sha256"] = json!(sha256(&args.output.join("holder-checks.jsonl"))?);
             report["event_row_parity_claimed"] = json!(false);
