@@ -503,6 +503,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "erc4626-balance-state-tools"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "conformance",
+ "erc4626-balance-state",
+ "hex",
+ "num-bigint",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "ureq",
+]
+
+[[package]]
 name = "errno"
 version = "0.3.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"

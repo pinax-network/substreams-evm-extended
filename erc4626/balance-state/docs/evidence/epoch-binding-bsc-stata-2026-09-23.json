@@ -1,0 +1,22 @@
+{
+ "captured": "2026-09-23",
+ "vault": "0x0471D185cc7Be61E154277cAB2396cD397663da6",
+ "implementation": "0x1d69c48a35ddd241e72a31db0e637676d89fc553",
+ "implementation_since_block": 37302378,
+ "previous_implementation": "0xfe76366a986b72c3f2923e05e6ba07b7de5401e4",
+ "pointer_samples": 33,
+ "sampled_to_block": 123557608,
+ "revision_rpc": "STATIC__ATOKEN_LM_REVISION() = 2",
+ "pool": "0x6807dc923806fe8fd134338eabca509979a7e0cb (POOL())",
+ "epoch": {
+  "activation_block": 101087794,
+  "activation_ordinal": 3347,
+  "reason": "the Pool implementation 0x5e2B\u20263B6d that rate() reads through getReserveNormalizedIncome was installed at 101087794 (write ordinal 3346, see aave/balance-state/docs/evidence/epoch-binding-bsc-2026-09-22.json); the vault implementation has been constant since 37302378"
+ },
+ "activity_selection": {
+  "method": "eth_getLogs on the vault address, 400,000 blocks back from 123557790 (none) then down to 114857790",
+  "active_blocks": 72,
+  "first": 114858030,
+  "last": 123056795
+ }
+}

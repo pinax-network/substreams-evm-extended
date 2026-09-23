@@ -19,6 +19,7 @@ members = [
   "compound-v3/balance-state",
   "lido/balance-state",
   "erc4626/balance-state",
+  "erc4626/balance-state/tools",
   "conformance",
 ]
 resolver = "2"
