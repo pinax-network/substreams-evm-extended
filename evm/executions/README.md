@@ -107,6 +107,15 @@ Two consequences for consumers:
   `SetCodeAuthorization` row shows the authorization `applied`, so it is
   distinguishable from an attempt in a reverted frame.
 
+The same facts hold on current live data: 250 contiguous final blocks
+123,552,820–123,553,069 fetched from `bsc.firehose.pinax.network` on
+2026-09-23 replay with 0 errors ([report](docs/evidence/replay-bsc-live-2026-09-23.json)):
+37,214 transactions, 275,928 receipt logs matched, 523,805 storage writes
+with 0 storage-context violations, 0 equal-value storage changes, no
+CALLCODE frame and no block-level code change, 857 SetCode authorizations,
+37 blob transactions, one system call per block, 12,525 logs in reverted
+frames.
+
 Producer semantics on other chains and versions are qualified under
 [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
 
