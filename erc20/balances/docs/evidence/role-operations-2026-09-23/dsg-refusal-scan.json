@@ -1,0 +1,18 @@
+{
+  "blocks": 7,
+  "configured_tokens": 1,
+  "elapsed_seconds": 0.073376667,
+  "first_hash": "0x8aae25eb1b3042b10fa9c4446df2d61dce08a686dbf657fcc7258a67499ca47e",
+  "kept_layouts_sha256": "1534b99bb059923e750dd02402215cf65c1348d622a72fdd71685a2d0245a121",
+  "kept_tokens": 1,
+  "last_hash": "0x79bee9f2c1e1066b5893846353c592b98eeb378f9770fb692919351ae97dc0ac",
+  "layouts_sha256": "2a587df9cb09c90ab47df7748bccdba6bdd584d775fcbf7062fe86e2cbb5fa88",
+  "native_emitted_rows": 0,
+  "refused": [],
+  "scope": "Native mapper replay of captured Extended blocks; a refused profile is excluded from the rest of the replay, never loosened",
+  "sparse_sample": true,
+  "start": 68813979,
+  "status": "scanned",
+  "stop_exclusive": 69774502,
+  "tool_language": "Rust"
+}

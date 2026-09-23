@@ -16,6 +16,7 @@ pub mod ranking;
 pub mod recheck;
 pub mod reflection;
 pub mod refusal_scan;
+pub mod role_operations;
 pub mod rpc;
 pub mod runtime_status;
 pub mod survey;

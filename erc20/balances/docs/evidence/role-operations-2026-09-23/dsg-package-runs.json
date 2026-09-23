@@ -1,0 +1,63 @@
+{
+ "package_sha256": "532b571f03f66931b4f1dd222ec8ff4da64d0054c81f1b4ce7213a41abc9f0cd",
+ "command": "substreams run spkg/erc20-balances-v0.1.0.spkg map_events -e bsc.substreams.pinax.network:443 -s N -t +1 --final-blocks-only -p map_events=<layout> -o jsonl",
+ "layout_with_rule_sha256": "2a587df9cb09c90ab47df7748bccdba6bdd584d775fcbf7062fe86e2cbb5fa88",
+ "layout_without_rule_sha256": "cc52c5e7519381cf24853cd3f3968a1ace0b18f482d39f3f2c43e776f961b015",
+ "with_rule": [
+  {
+   "block": 68813979,
+   "received_blocks": 1,
+   "output_lines": 0,
+   "exit": 0,
+   "stderr_sha256": "037b7691daeb5e6958b9056b41e1a9ff9f1a3401535ce18f5b3c3d4665c6a87d"
+  },
+  {
+   "block": 68813986,
+   "received_blocks": 1,
+   "output_lines": 0,
+   "exit": 0,
+   "stderr_sha256": "fdd0f860253670096843151dbcfe5a80096996dd1de5ee2aecdffac0ea136883"
+  },
+  {
+   "block": 68814305,
+   "received_blocks": 1,
+   "output_lines": 0,
+   "exit": 0,
+   "stderr_sha256": "4ef74b807ad45cb579e77f44b997e05fb059939dafb3793af790632b1f127bda"
+  },
+  {
+   "block": 68814344,
+   "received_blocks": 1,
+   "output_lines": 0,
+   "exit": 0,
+   "stderr_sha256": "7ca924748a32d1fe17d803968c62d1a70ae1f77aafc38bb3d4d7b65ebec3cac0"
+  },
+  {
+   "block": 68815716,
+   "received_blocks": 1,
+   "output_lines": 0,
+   "exit": 0,
+   "stderr_sha256": "6c8fc0bb9daf752d53402ce58a4b542a0b621a14971c15155d10791e0f086628"
+  },
+  {
+   "block": 69774272,
+   "received_blocks": 1,
+   "output_lines": 0,
+   "exit": 0,
+   "stderr_sha256": "ec0b7ac99326cd203510d082d1790f23303254b9dcfe022171026ef69d88c233"
+  },
+  {
+   "block": 69774501,
+   "received_blocks": 1,
+   "output_lines": 0,
+   "exit": 0,
+   "stderr_sha256": "74ee2a32e8da7ca14874e0db87ff59664d31b5341a5c58349a071547918eb139"
+  }
+ ],
+ "without_rule": {
+  "block": 68813979,
+  "exit": 1,
+  "panic": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5eff886ea0ce6ca488a3d6e336d6c0f75f46d19b42c06ce5ee98e42c96d256c7; refusing incomplete events",
+  "stderr_sha256": "fe7c35a0b32e21041db9734abcc8a23575aff74f3e48016285cdde80034598ee"
+ }
+}

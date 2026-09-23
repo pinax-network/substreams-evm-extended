@@ -122,6 +122,13 @@ packaged WASM/RPC parity and initialized-holder state before promoting any
 profile. DSG and the legacy enumerable profiles remain unqualified for this
 new rule. Historical SPKGs predate it, and live testing remains paused.
 
+The [live producer check](role-operations-bsc-2026-09-23.md) observes DSG's
+own 411 role operations (producer v4), including two tail removals: the
+producer records every changing stage in source order with increasing
+ordinals and omits the two unchanged self-swap stores. With this rule, the
+native mapper and the packaged WASM accept those blocks; without it they
+refuse. That sample has no zero-address member and no DSG balance rows.
+
 Follow [issue #2](https://github.com/pinax-network/substreams-evm-extended/issues/2)
 for implementation and producer validation and
 [issue #3](https://github.com/pinax-network/substreams-evm-extended/issues/3)

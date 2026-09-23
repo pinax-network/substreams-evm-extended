@@ -248,7 +248,9 @@ changed the `common/retention` host API: `seed_checkpoint` and
    and the **current `erc20/balances` package** (#6: `runtime-status`,
    `refusal-scan`, `compare`, `audit-rpc`, `holder-coverage` and the native
    ClickHouse smoke; three profiles refuse unreviewed writes on live blocks
-   and three no longer match their runtime bindings). Next: review those six
-   profiles, then #2's role-operation producer checks, which need blocks with
-   actual role changes. Ethereum and the
+   and three no longer match their runtime bindings). Six profiles are under
+   #61. #2's producer check on actual role operations is done
+   (`role-operations`, DSG's 411 operations including two tail removals, plus
+   236 OpenZeppelin 4.x/5.x operations); only a zero-address member remains
+   unobserved. Next: #61, then #2/#3's packaged DSG parity and holder checks. Ethereum and the
    other networks (#8) wait for endpoints.

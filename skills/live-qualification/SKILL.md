@@ -76,6 +76,11 @@ select the profile set before streaming, never by loosening a profile:
    and keep it.
 
 See `erc20/balances/docs/live-package-bsc-2026-09-23.md` for a worked run.
+For producer behavior on rare operations, select blocks with `eth_getLogs`
+(address-filtered spans of 50,000 blocks work), fetch each block with
+`firecore tools firehose-client <ep> N:N`, and inspect them offline, e.g.
+`role-operations` or `refusal-scan --allow-gaps`
+(`erc20/balances/docs/role-operations-bsc-2026-09-23.md`).
 
 ## Claims
 

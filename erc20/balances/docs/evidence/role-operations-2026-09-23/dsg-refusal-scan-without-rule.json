@@ -1,0 +1,42 @@
+{
+  "blocks": 7,
+  "configured_tokens": 1,
+  "elapsed_seconds": 0.029685208,
+  "first_hash": "0x8aae25eb1b3042b10fa9c4446df2d61dce08a686dbf657fcc7258a67499ca47e",
+  "kept_layouts_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "kept_tokens": 0,
+  "last_hash": "0x79bee9f2c1e1066b5893846353c592b98eeb378f9770fb692919351ae97dc0ac",
+  "layouts_sha256": "cc52c5e7519381cf24853cd3f3968a1ace0b18f482d39f3f2c43e776f961b015",
+  "native_emitted_rows": 0,
+  "refused": [
+    {
+      "block": 68813979,
+      "contract": "0x3a090ac70c4f453838c34490e3b1cf925c03fc71",
+      "reason": "unresolved storage for configured token 0x3a090ac70c4f453838c34490e3b1cf925c03fc71 at key 0x5eff886ea0ce6ca488a3d6e336d6c0f75f46d19b42c06ce5ee98e42c96d256c7; refusing incomplete events",
+      "slot": {
+        "key": "0x5eff886ea0ce6ca488a3d6e336d6c0f75f46d19b42c06ce5ee98e42c96d256c7",
+        "mapping_chain": [
+          {
+            "base": "0x0000000000000000000000000000000000000000000000000000000000000008",
+            "mapping_key": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        ],
+        "root": "0x0000000000000000000000000000000000000000000000000000000000000008",
+        "writes": [
+          {
+            "call_index": 1,
+            "new": "0x0000000000000000000000000000000000000000000000000000000000000002",
+            "old": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "transaction": "0x7af278783771452e1349c20f9789dfe41922bba9ccd7592d18d13fd90701d3b0"
+          }
+        ]
+      }
+    }
+  ],
+  "scope": "Native mapper replay of captured Extended blocks; a refused profile is excluded from the rest of the replay, never loosened",
+  "sparse_sample": true,
+  "start": 68813979,
+  "status": "scanned",
+  "stop_exclusive": 69774502,
+  "tool_language": "Rust"
+}

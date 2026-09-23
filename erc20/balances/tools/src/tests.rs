@@ -1431,21 +1431,22 @@ fn refusal_scan_names_the_refused_profile_and_keeps_the_rest() {
     let block = || Ok(substreams_ethereum::pb::eth::v2::Block::decode(include_bytes!("../../tests/fixtures/bsc-122260950.pb").as_slice()).unwrap());
     let wbnb: Value = serde_json::from_str(include_str!("../../tests/fixtures/verified-layouts.json")).unwrap();
     let quiet = json!({"contract":TOKEN,"balance_slot":hash(5),"code_hash":hash(1)});
-    let clean = scan([block()], &json!([wbnb[0], quiet]).to_string()).unwrap();
+    let clean = scan([block()], &json!([wbnb[0], quiet]).to_string(), false).unwrap();
     assert_eq!((clean.kept.len(), clean.refused.len(), clean.blocks), (2, 0, 1));
     assert!(clean.emitted_rows > 0);
     // With a wrong balance base, WBNB's real balance writes are unreviewed.
     let mut unreviewed = wbnb[0].clone();
     unreviewed["balance_slot"] = json!(hash(9));
-    let result = scan([block()], &json!([unreviewed, quiet]).to_string()).unwrap();
+    let result = scan([block()], &json!([unreviewed, quiet]).to_string(), false).unwrap();
     assert_eq!(result.kept, vec![quiet.clone()]);
     assert_eq!(result.refused[0]["contract"], wbnb[0]["contract"]);
     assert_eq!(result.refused[0]["block"], 122260950);
     // The refused key resolves through the block's preimages to balance slot 3.
     assert_eq!(result.refused[0]["slot"]["root"], hash(3));
     assert!(!result.refused[0]["slot"]["writes"].as_array().unwrap().is_empty());
-    // The same block twice is a gap, not a replay.
-    assert!(scan([block(), block()], &json!([quiet]).to_string()).is_err());
+    // The same block twice is a gap, not a replay, and is out of order when gaps are allowed.
+    assert!(scan([block(), block()], &json!([quiet]).to_string(), false).is_err());
+    assert!(scan([block(), block()], &json!([quiet]).to_string(), true).is_err());
 }
 
 #[test]
@@ -1488,4 +1489,90 @@ fn http_rpc_retries_transient_gateway_statuses_and_then_succeeds() {
     let url = format!("http://{}/", closed.local_addr().unwrap());
     drop(closed);
     assert_eq!(HttpRpc::new(url, None).request(json!({})).unwrap_err().to_string(), "RPC transport failed");
+}
+
+#[test]
+fn role_operations_classify_an_enumerable_grant_with_and_without_block_preimages() {
+    use substreams_ethereum::pb::eth::v2 as eth;
+    let h = |bytes: &[u8]| erc20_balances::hash(bytes).to_vec();
+    let word = |n: u64| {
+        let mut w = vec![0u8; 32];
+        w[24..].copy_from_slice(&n.to_be_bytes());
+        w
+    };
+    let contract = vec![0xaa; 20];
+    let account = [vec![0; 12], vec![0xbb; 20]].concat();
+    let role = vec![0x11; 32];
+    // OpenZeppelin 4.x: `_roles` at slot 0, `_roleMembers` at slot 1.
+    let roles_root = h(&[role.clone(), word(0)].concat());
+    let set_root = h(&[role.clone(), word(1)].concat());
+    let member = h(&[account.clone(), roles_root.clone()].concat());
+    let mut set_index_base = set_root.clone();
+    *set_index_base.last_mut().unwrap() += 1;
+    let index = h(&[account.clone(), set_index_base].concat());
+    let element = h(&set_root);
+    let change = |key: &Vec<u8>, old: u64, new: Vec<u8>, ordinal| eth::StorageChange {
+        address: contract.clone(),
+        key: key.clone(),
+        old_value: word(old),
+        new_value: new,
+        ordinal,
+    };
+    let block = |with_root_preimages: bool| {
+        let mut preimages = std::collections::HashMap::from([
+            (hex::encode(&member), hex::encode([account.clone(), roles_root.clone()].concat())),
+            (
+                hex::encode(&index),
+                hex::encode(
+                    [account.clone(), {
+                        let mut b = set_root.clone();
+                        *b.last_mut().unwrap() += 1;
+                        b
+                    }]
+                    .concat(),
+                ),
+            ),
+        ]);
+        if with_root_preimages {
+            preimages.insert(hex::encode(&roles_root), hex::encode([role.clone(), word(0)].concat()));
+            preimages.insert(hex::encode(&set_root), hex::encode([role.clone(), word(1)].concat()));
+        }
+        eth::Block {
+            number: 7,
+            transaction_traces: vec![eth::TransactionTrace {
+                hash: vec![0xcc; 32],
+                status: 1,
+                calls: vec![eth::Call {
+                    index: 1,
+                    keccak_preimages: preimages,
+                    logs: vec![eth::Log {
+                        address: contract.clone(),
+                        topics: vec![h(b"RoleGranted(bytes32,address,address)"), role.clone(), account.clone(), account.clone()],
+                        ordinal: 3,
+                        ..Default::default()
+                    }],
+                    storage_changes: vec![
+                        change(&member, 0, word(1), 2),
+                        change(&set_root, 0, word(1), 4),
+                        change(&element, 0, account.clone(), 5),
+                        change(&index, 0, word(1), 6),
+                    ],
+                    ..Default::default()
+                }],
+                ..Default::default()
+            }],
+            ..Default::default()
+        }
+    };
+    for (with_root_preimages, source) in [(true, "block_preimage"), (false, "computed")] {
+        let operations = crate::role_operations::classify(&block(with_root_preimages)).unwrap();
+        assert_eq!(operations.len(), 1);
+        let o = &operations[0];
+        assert_eq!(o["kind"], "grant");
+        assert_eq!(o["shape"], json!(["member_of_root", "root", "element", "index_at_root+1"]));
+        assert_eq!((&o["unchanged_writes"], &o["ordinals_strictly_increasing"]), (&json!(0), &json!(true)));
+        assert!(o["writes"].as_array().unwrap().iter().all(|w| w["root_source"] == source));
+        assert_eq!(o["writes"][2]["position"], 0);
+        assert_eq!(o["writes"][3]["member"], format!("0x{}", "bb".repeat(20)));
+    }
 }

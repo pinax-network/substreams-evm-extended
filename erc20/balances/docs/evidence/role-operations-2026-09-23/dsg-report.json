@@ -1,0 +1,59 @@
+{
+  "blocks": [
+    {
+      "block": 68813972,
+      "hash": "0xe93801ed5b7f09f8153b8b79f91182e3511b32bdb7ce9247806c0e98bfb499a9",
+      "producer_version": 4
+    },
+    {
+      "block": 68813979,
+      "hash": "0x8aae25eb1b3042b10fa9c4446df2d61dce08a686dbf657fcc7258a67499ca47e",
+      "producer_version": 4
+    },
+    {
+      "block": 68813986,
+      "hash": "0xb194c7bd79f750b5e245df45e3a79f5e5397ac79976098d0ace00096bd7133ad",
+      "producer_version": 4
+    },
+    {
+      "block": 68814305,
+      "hash": "0x4c30a738e1f97f82bb02cdd39807c19d3cdc9b240146c8c8114bcefbb0af228e",
+      "producer_version": 4
+    },
+    {
+      "block": 68814344,
+      "hash": "0x70e8c5bbcf77950247a21413fc0f014fd349ef341e1cd0960614d8678e7d9ded",
+      "producer_version": 4
+    },
+    {
+      "block": 68815716,
+      "hash": "0x7aa4dc31079764723beeb3f530e543c101c4512b8dda4533848c00a69463f034",
+      "producer_version": 4
+    },
+    {
+      "block": 69774272,
+      "hash": "0x2d7fcc074cfc5d09554a4e5125cfeef75ed6e2682ef1a6e8f462303d03c20292",
+      "producer_version": 4
+    },
+    {
+      "block": 69774501,
+      "hash": "0x79bee9f2c1e1066b5893846353c592b98eeb378f9770fb692919351ae97dc0ac",
+      "producer_version": 4
+    }
+  ],
+  "elapsed_seconds": 0.15569575,
+  "frames_with_non_increasing_ordinals": 0,
+  "grants": 409,
+  "operations": 411,
+  "operations_sha256": "a09ff4c5f0f98b35bbc3b8e5ec4273a727fb90f86a082bf952b9913528b89591",
+  "persisted": 411,
+  "revokes": 2,
+  "scope": "Storage writes in frames that emit RoleGranted/RoleRevoked; diagnostic, no rule is configured",
+  "single_operation_shapes": {
+    "grant [root,element,index_at_root+1]": 407,
+    "revoke [element,root,index_at_root+1]": 2
+  },
+  "status": "inspected",
+  "tool_language": "Rust",
+  "unchanged_writes": 0
+}
