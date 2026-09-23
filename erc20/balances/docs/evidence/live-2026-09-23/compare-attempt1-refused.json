@@ -1,0 +1,14 @@
+{
+ "report": {
+  "blocks": 1024,
+  "configured_tokens": 428,
+  "elapsed_seconds": 64.456673084,
+  "failure": "map_events failed; see capture log",
+  "layouts_sha256": "3ec9e2426e9c7f4a978053eb262e3a2ac9e8dfdee2cf72e0cbcc10303224ac76",
+  "start": 123561000,
+  "status": "incomplete",
+  "tool_language": "Rust"
+ },
+ "capture_log_error": "Error: stream invalid: rpc error: code = InvalidArgument desc = execute modules: applying executor results \"map_events\" on block 123561001 (4f3fb40e9b9b560aada331b923d038976da2aa4825e990c32caff7a89a9496af): execute: maps wasm call: block 123561001: module \"map_events\": general wasm execution panicked: wasm execution failed deterministically: panic in the wasm: \"unresolved storage for configured token 0xe747e54783ba3f77a8e5251a3cba19ebe9c0e197 at key 0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00; refusing incomplete events\" at erc20/balances/src/lib.rs:380:5 (new deterministic error)",
+ "events_log_sha256": "0c83b7e13c4c6e7a97ca486e152fc12c6fa1aac02fd587082b559b5d64ba8933"
+}

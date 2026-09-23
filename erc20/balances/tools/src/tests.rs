@@ -1349,3 +1349,143 @@ fn captured_pending_rewards_make_a_correct_checkpoint_stale_without_balance_writ
     assert_eq!(state.tokens[&contract]["seeded_unknown_rows"], 0);
     assert_eq!(outcome(&state.tokens, &BTreeSet::from([contract])).0, "mismatch");
 }
+
+#[test]
+fn runtime_status_keeps_matching_profiles_and_names_each_excluded_one() {
+    use crate::runtime_status::partition;
+    let code_hash = |code: &[u8]| format!("0x{}", hex::encode(erc20_balances::hash(code)));
+    let entry = |contract: &str| json!({"contract":contract,"balance_slot":hash(5),"code_hash":code_hash(&[0xaa])});
+    let upgraded = "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    let text = json!([entry(TOKEN), entry(upgraded)]).to_string();
+    struct CodeRpc {
+        upgraded: &'static str,
+        transport: bool,
+    }
+    impl Rpc for CodeRpc {
+        fn request(&self, p: Value) -> Result<Value> {
+            if p["method"] != "eth_getCode" {
+                return FakeRpc::default().request(p);
+            }
+            if self.transport {
+                bail!("RPC transport failed");
+            }
+            // The second token's runtime changed before the later range.
+            let code = if p["params"][0] == self.upgraded { "0xbb" } else { "0xaa" };
+            Ok(json!({"id":1,"result":code}))
+        }
+    }
+    let result = partition(&CodeRpc { upgraded, transport: false }, &text, 10, 20).unwrap();
+    assert_eq!(result.kept, vec![entry(TOKEN)]);
+    assert_eq!(result.excluded.len(), 1);
+    assert_eq!(result.excluded[0]["contract"], upgraded);
+    assert!(result.excluded[0]["reason"].as_str().unwrap().contains("unqualified runtime"));
+    // A transport failure is not a mismatch: the run stops instead.
+    assert!(partition(&CodeRpc { upgraded, transport: true }, &text, 10, 20).is_err());
+    // The shared check names the token that failed.
+    let layouts = erc20_balances::layout::parse(&text).unwrap();
+    let error = qualify_runtime(&CodeRpc { upgraded, transport: false }, 10, 20, &layouts).unwrap_err();
+    assert!(error.to_string().contains(upgraded), "{error}");
+}
+
+#[test]
+fn package_inspection_accepts_the_rpc_free_map_and_refuses_the_rpc_reference() {
+    use crate::package::*;
+    let spkg = |name: &str| package_dir().parent().unwrap().parent().unwrap().join("spkg").join(name);
+    // The preserved storage package has the same single-map shape and schema.
+    let report = inspect(&spkg("erc20-balances-storage-v0.1.0.spkg"), &spkg("erc20-balances-v0.3.4.spkg"), None).unwrap();
+    assert_eq!(report["schema"]["byte_identical_to_reference"], true);
+    assert!(report["reference_rpc_imports"].as_array().unwrap().iter().all(|i| i == "rpc.eth_call"));
+    // The reference itself reaches RPC and has more than one module.
+    assert!(inspect(&spkg("erc20-balances-v0.3.4.spkg"), &spkg("erc20-balances-v0.3.4.spkg"), None).is_err());
+    // A module "rpc" function import is detected; other host imports are not.
+    let mut wasm = b"\0asm\x01\0\0\0".to_vec();
+    let section = [&[2u8][..], b"\x03rpc\x08eth_call\x00\x00", b"\x03env\x06output\x00\x00"].concat();
+    wasm.extend([2, section.len() as u8]);
+    wasm.extend(&section);
+    let imports = wasm_imports(&wasm).unwrap();
+    assert_eq!(imports, ["rpc.eth_call", "env.output"]);
+    assert_eq!(external_state_imports(&imports), ["rpc.eth_call"]);
+    assert!(wasm_imports(&wasm[..wasm.len() - 1]).is_err());
+}
+
+#[test]
+fn holder_final_state_counts_each_holder_against_balance_of_at_the_last_block() {
+    let tmp = tempfile::tempdir().unwrap();
+    let key = |holder: &str| (TOKEN.to_string(), format!("0x{holder:0>40}"));
+    // The fake returns 5 for every balanceOf pinned to hash(0).
+    let state = Balances::from([(key("1"), U256::from(5)), (key("2"), U256::from(6)), (key("3"), U256::zero())]);
+    let report = crate::coverage::final_state(&FakeRpc::default(), &state, &hash(0), tmp.path()).unwrap();
+    assert_eq!(
+        (&report["holders"], &report["matches"], &report["mismatches"], &report["zero_holders"]),
+        (&json!(3), &json!(1), &json!(2), &json!(1))
+    );
+    let rows = fs::read_to_string(tmp.path().join("final-state.jsonl")).unwrap();
+    assert_eq!(rows.lines().count(), 3);
+    assert!(rows.lines().all(|row| serde_json::from_str::<Value>(row).unwrap()["hash"] == hash(0)));
+}
+
+#[test]
+fn refusal_scan_names_the_refused_profile_and_keeps_the_rest() {
+    use crate::refusal_scan::scan;
+    use prost::Message;
+    let block = || Ok(substreams_ethereum::pb::eth::v2::Block::decode(include_bytes!("../../tests/fixtures/bsc-122260950.pb").as_slice()).unwrap());
+    let wbnb: Value = serde_json::from_str(include_str!("../../tests/fixtures/verified-layouts.json")).unwrap();
+    let quiet = json!({"contract":TOKEN,"balance_slot":hash(5),"code_hash":hash(1)});
+    let clean = scan([block()], &json!([wbnb[0], quiet]).to_string()).unwrap();
+    assert_eq!((clean.kept.len(), clean.refused.len(), clean.blocks), (2, 0, 1));
+    assert!(clean.emitted_rows > 0);
+    // With a wrong balance base, WBNB's real balance writes are unreviewed.
+    let mut unreviewed = wbnb[0].clone();
+    unreviewed["balance_slot"] = json!(hash(9));
+    let result = scan([block()], &json!([unreviewed, quiet]).to_string()).unwrap();
+    assert_eq!(result.kept, vec![quiet.clone()]);
+    assert_eq!(result.refused[0]["contract"], wbnb[0]["contract"]);
+    assert_eq!(result.refused[0]["block"], 122260950);
+    // The refused key resolves through the block's preimages to balance slot 3.
+    assert_eq!(result.refused[0]["slot"]["root"], hash(3));
+    assert!(!result.refused[0]["slot"]["writes"].as_array().unwrap().is_empty());
+    // The same block twice is a gap, not a replay.
+    assert!(scan([block(), block()], &json!([quiet]).to_string()).is_err());
+}
+
+#[test]
+fn http_rpc_retries_transient_gateway_statuses_and_then_succeeds() {
+    use std::{
+        io::{BufRead, BufReader, Read, Write},
+        net::TcpListener,
+        thread,
+    };
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let endpoint = format!("http://{}/", listener.local_addr().unwrap());
+    let handle = thread::spawn(move || {
+        for response in [
+            &b"HTTP/1.1 503 Service Unavailable\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"[..],
+            b"HTTP/1.1 429 Too Many Requests\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+            b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 28\r\nConnection: close\r\n\r\n{\"jsonrpc\":\"2.0\",\"result\":7}",
+        ] {
+            let (mut socket, _) = listener.accept().unwrap();
+            let mut request = BufReader::new(&mut socket);
+            let mut length = 0;
+            loop {
+                let mut line = String::new();
+                request.read_line(&mut line).unwrap();
+                if line == "\r\n" {
+                    break;
+                }
+                if let Some(value) = line.to_ascii_lowercase().strip_prefix("content-length:") {
+                    length = value.trim().parse().unwrap();
+                }
+            }
+            request.read_exact(&mut vec![0; length]).unwrap();
+            socket.write_all(response).unwrap();
+        }
+    });
+    let rpc = HttpRpc::new(endpoint, None);
+    assert_eq!(rpc.request(json!({})).unwrap()["result"], 7);
+    handle.join().unwrap();
+    // A closed port is a transport failure after the same bounded retries.
+    let closed = TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("http://{}/", closed.local_addr().unwrap());
+    drop(closed);
+    assert_eq!(HttpRpc::new(url, None).request(json!({})).unwrap_err().to_string(), "RPC transport failed");
+}

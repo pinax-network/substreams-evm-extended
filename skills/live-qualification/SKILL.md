@@ -56,6 +56,27 @@ the `conformance` model against `balanceOf`. Check the clock against the
 header. Write one `report.json` with the package hashes, the events digest,
 the block list, per-check counts and mismatch examples.
 
+## Many-profile packages (`erc20/balances`)
+
+One unreviewed write in any configured token halts the whole stream, so
+select the profile set before streaming, never by loosening a profile:
+
+1. `erc20-balances-tools runtime-status --layouts <file> --start S --blocks N`
+   keeps the profiles whose runtime and dependency bindings still hold at
+   `S-1` and `S+N-1`; each exclusion is named.
+2. Fetch the range once with `firecore tools firehose-client <ep> S:E`
+   (inclusive end; one hex block per line, save as `<number>.pb`), then
+   `refusal-scan --block-dir …` replays the native mapper and names every
+   profile that refuses, with the refused slot's writes and preimage chain.
+3. With the kept file: `compare` (package vs `erc20-balances-v0.3.4.spkg`),
+   `audit-rpc` (every emitted balance), `rank-tokens` then `holder-coverage`
+   (checkpoint of observed holders, seeded replay and final state), and
+   `make -C erc20/balances/clickhouse smoke`. Use `target/release` binaries;
+   each run needs a fresh output directory, so move a failed attempt aside
+   and keep it.
+
+See `erc20/balances/docs/live-package-bsc-2026-09-23.md` for a worked run.
+
 ## Claims
 
 State the epoch, the blocks and the holders written in them. Same-block

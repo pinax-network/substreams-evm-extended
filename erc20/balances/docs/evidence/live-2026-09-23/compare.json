@@ -1,0 +1,241 @@
+{
+  "blocks": 1024,
+  "candidate_only_keys": 0,
+  "candidate_only_updates": 0,
+  "chain_id": 56,
+  "configured_tokens": 425,
+  "differences": 0,
+  "distinct_storage_keys": 58230,
+  "elapsed_seconds": 1206.922566208,
+  "final_hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+  "finality_trust": "RPC provider finalized headers; Events contains no source hash",
+  "independent_rpc_checks": [
+    {
+      "address": "0x1125124106fdeb8bbe751c1fbe73424ac060298e",
+      "block": 123562023,
+      "contract": "0x000008d2175f9aeaddb2430c26f8a6f73c5a0000",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "0",
+      "storage": "0"
+    },
+    {
+      "address": "0xa1c44dc278e0200e370ce95a261fb05d032c5e44",
+      "block": 123562023,
+      "contract": "0x2ab198e0078a8a233b8e7685356cb76482b9e681",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "67681621663367996000",
+      "storage": "67681621663367996000"
+    },
+    {
+      "address": "0x02387bf0c90d8167e3131b4b2d440704ea7b7097",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "493394494184643628",
+      "storage": "493394494184643628"
+    },
+    {
+      "address": "0x169a2774b7d755fbc586b1ca697f50fc1c1b9472",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "21190000000000",
+      "storage": "21190000000000"
+    },
+    {
+      "address": "0x2a6363a06329dc0a5ba94aacb67f20fc4118362b",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "0",
+      "storage": "0"
+    },
+    {
+      "address": "0x3e62db3adbefb9cce145d9cb7599fb1b19fe8243",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "57600000000000000000",
+      "storage": "57600000000000000000"
+    },
+    {
+      "address": "0x51dbd97fa14f4d78f8afc2e92a692a9e087efb5c",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "3989197727694794103800",
+      "storage": "3989197727694794103800"
+    },
+    {
+      "address": "0x656155aec3c0aadbdfe1056471960f162c2d60f1",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "0",
+      "storage": "0"
+    },
+    {
+      "address": "0x79127b53bc4c8ed9921e39cc37e8841f013080fb",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "193120000000000",
+      "storage": "193120000000000"
+    },
+    {
+      "address": "0x8ce7492c346e82298154ede446b4f38a3114a8d6",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "154230000000000",
+      "storage": "154230000000000"
+    },
+    {
+      "address": "0xa0fcbb6e69b17664d480570dd5534d45672bdde6",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "107950000000000",
+      "storage": "107950000000000"
+    },
+    {
+      "address": "0xb5af585acaa18416d38031737a2ae4137ab04356",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "2173913000000000000000",
+      "storage": "2173913000000000000000"
+    },
+    {
+      "address": "0xc9c7118da0ced3e1f27ee53224c92276486059a8",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "557780451417451631972",
+      "storage": "557780451417451631972"
+    },
+    {
+      "address": "0xde316381bdedbc265e1af1e96efb28e4d91c7b82",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "300000000000000",
+      "storage": "300000000000000"
+    },
+    {
+      "address": "0xf229bda6bcc1d7f568d735dd5a3a24f13f94aea1",
+      "block": 123562023,
+      "contract": "0x55d398326f99059ff775485246999027b3197955",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "21600000000000000000",
+      "storage": "21600000000000000000"
+    },
+    {
+      "address": "0x22362c972f68ba9b236887fb0c13eeb4e5951574",
+      "block": 123562023,
+      "contract": "0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "1000000000000000",
+      "storage": "1000000000000000"
+    },
+    {
+      "address": "0x4a76af408e3c8cb782954f2f7bea6e613961bb58",
+      "block": 123562023,
+      "contract": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "55202290000000000",
+      "storage": "55202290000000000"
+    },
+    {
+      "address": "0xcf98df9238c0b10fe72261ae1866938d9013dd69",
+      "block": 123562023,
+      "contract": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "186208001168162",
+      "storage": "186208001168162"
+    },
+    {
+      "address": "0x09cb618bf5ef305fadfd2c8fc0c26eecf8c6d5fd",
+      "block": 123562023,
+      "contract": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "42945343510548349092",
+      "storage": "42945343510548349092"
+    },
+    {
+      "address": "0xe5ae318389b8d6d09370a675479c64862152d126",
+      "block": 123562023,
+      "contract": "0xbeea1d618e533a387d941f58a7d4c9b7bd377777",
+      "hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "match": true,
+      "rpc": "6053908637614986315473896",
+      "storage": "6053908637614986315473896"
+    }
+  ],
+  "layouts_sha256": "f8f0fa8fb0135667f50279a9a09d435dbb34fc09b1c017dc89d0ac18370da997",
+  "mismatch_rpc_audit": {
+    "agrees_with_neither": 0,
+    "agrees_with_reference": 0,
+    "agrees_with_storage": 0,
+    "checks": [],
+    "unchecked": 0
+  },
+  "reference": "erc20/balances map_events v0.3.4",
+  "reference_contracts_without_candidate_updates": 3108,
+  "reference_only_updates": 285255,
+  "reference_updates": 538758,
+  "rpc_in_ingestion": false,
+  "scope": "Configured direct-mapping ERC-20 changed holders; reference-only rows are coverage gaps, never candidate seeds",
+  "shared_updates": 253503,
+  "snapshot_comparisons": 33928529,
+  "start": 123561000,
+  "status": "coverage_gap",
+  "stop_exclusive": 123562024,
+  "storage_updates": 253503,
+  "timing": {
+    "events": {
+      "blocks_per_second_including_startup": 1.5985958922389154,
+      "empty_output_delivery": {
+        "clock_capture_sha256": "a32869c4f249ae6dbe9b72f39f89a5b84d392583e5fd8ca99ff975365b1ecc42",
+        "empty_blocks": 0,
+        "method": "Complete finalized BlockScopedData clock capture, all IDs matched to consecutive canonical RPC headers",
+        "normalized_events_sha256": "79ccea19692c8e9af98b830b7863dda30846d227ba6703e80cfbdbd10486cfb5",
+        "sparse_events_sha256": "e3be4805f4197bc0d9474fce67a8f040ac3da0b9a3f18d2f9c4b3dfbba922fb8"
+      },
+      "package_sha256": "532b571f03f66931b4f1dd222ec8ff4da64d0054c81f1b4ce7213a41abc9f0cd",
+      "seconds_including_startup": 640.562136417
+    },
+    "reference": {
+      "blocks_per_second_including_startup": 2.6249544104871294,
+      "empty_output_delivery": {
+        "clock_capture_sha256": "68eed97cce8ba8935b800815ac4c57647083bd2c1817fa6562574871dadb94e4",
+        "empty_blocks": 0,
+        "method": "Complete finalized BlockScopedData clock capture, all IDs matched to consecutive canonical RPC headers",
+        "normalized_events_sha256": "0b9c49491f7ed4e698045aabc368bc668ff64cb3ff47618cef56897ecc5c7d30",
+        "sparse_events_sha256": "1c6e91d6dce46dec09b4c9f8cead4da85a01b252c1d1aefa7ec96d9020fda76b"
+      },
+      "package_sha256": "8aaa03b551b9d67ce1ea9aa0dae4310eda1807f2bc161bd53b17f82de9d92543",
+      "seconds_including_startup": 390.102013166
+    }
+  },
+  "tool_language": "Rust"
+}

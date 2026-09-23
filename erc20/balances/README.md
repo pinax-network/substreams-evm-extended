@@ -259,12 +259,14 @@ make -C erc20/balances pack
 Output: `spkg/erc20-balances-v0.1.0.spkg`. No Buf generation is needed here;
 the public schema is already maintained by the shared `proto` crate.
 
-This is the renamed package's future build target; it is not included among the
-preserved SPKGs yet. The build, audit and native sink defaults all use this path
-and never substitute an older artifact. The storage-named SPKGs remain historical
-evidence, while `spkg/erc20-balances-v0.3.4.spkg` is the immutable RPC reference.
-Packaging and live qualification remain pending while Substreams, Firehose,
-RPC and sink testing is paused. See [rename provenance](../../docs/migration.md#module-rename).
+The first build of this renamed package is committed (SPKG `532b571f…`, WASM
+`005a2d3d…`, module hash `4a64d86d…`) and was run on 1,024 live BSC blocks on
+2026-09-23: see [current package on live BSC](docs/live-package-bsc-2026-09-23.md).
+A later rebuild is a new artifact and does not inherit those checks. The build,
+audit and native sink defaults all use this path and never substitute an older
+artifact. The storage-named SPKGs remain historical evidence, while
+`spkg/erc20-balances-v0.3.4.spkg` is the immutable RPC reference. See
+[rename provenance](../../docs/migration.md#module-rename).
 
 Tests call extraction functions directly in Rust. They cover two arbitrary token
 addresses with different mapping bases (including a full-width 256-bit base),

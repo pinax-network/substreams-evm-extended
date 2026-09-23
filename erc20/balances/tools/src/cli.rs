@@ -38,6 +38,12 @@ pub enum Commands {
     AuditRpc(Audit),
     /// Native discovery over captured Extended Block .pb files; no map/cache.
     ProbeErc20(Probe),
+    /// Record a built package's modules, WASM imports and schema identity.
+    InspectPackage(crate::package::InspectPackage),
+    /// Replay captured Extended blocks natively and name each refused profile.
+    RefusalScan(crate::refusal_scan::RefusalScan),
+    /// Keep the profiles whose runtime bindings still hold for a later range.
+    RuntimeStatus(crate::runtime_status::RuntimeStatus),
 }
 #[derive(Args)]
 pub struct CaptureBlocks {
@@ -146,9 +152,18 @@ pub fn record_run(output: &Path, mut report: Value, work: impl FnOnce(&mut Value
     report["elapsed_seconds"] = json!(started.elapsed().as_secs_f64());
     report["tool_language"] = json!("Rust");
     write_report(output, &report)?;
-    let good = ["bounded_parity", "rpc_parity", "discovery_only", "ranked", "captured", "inspected"]
-        .iter()
-        .any(|s| report["status"] == *s);
+    let good = [
+        "bounded_parity",
+        "rpc_parity",
+        "discovery_only",
+        "ranked",
+        "captured",
+        "inspected",
+        "partitioned",
+        "scanned",
+    ]
+    .iter()
+    .any(|s| report["status"] == *s);
     let mut summary = report;
     for key in ["layouts", "tokens", "independent_rpc_checks"] {
         summary.as_object_mut().unwrap().remove(key);
@@ -312,5 +327,8 @@ pub fn run() -> Result<bool> {
         Commands::Compare(args) => run_compare(args),
         Commands::AuditRpc(args) => run_audit(args),
         Commands::ProbeErc20(args) => run_probe(args),
+        Commands::InspectPackage(args) => crate::package::run(args),
+        Commands::RefusalScan(args) => crate::refusal_scan::run(args),
+        Commands::RuntimeStatus(args) => crate::runtime_status::run(args),
     }
 }
