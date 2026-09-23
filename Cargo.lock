@@ -20,6 +20,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "aave-actions-tools"
+version = "0.1.0"
+dependencies = [
+ "aave-actions",
+ "anyhow",
+ "clap",
+ "hex",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "ureq",
+]
+
+[[package]]
 name = "aave-balance-state"
 version = "0.1.0"
 dependencies = [

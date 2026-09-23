@@ -1,0 +1,63 @@
+{
+  "blocks": {
+    "delivered": 2397,
+    "first": 123083221,
+    "last": 123555458
+  },
+  "checks": {
+    "clock": {
+      "checked": 2397,
+      "examples": [],
+      "mismatches": 0
+    },
+    "receipt_logs": {
+      "examples": [],
+      "field_mismatches": 0,
+      "matched": 459,
+      "row_without_rpc_log": 0,
+      "rpc_log_without_row": 0,
+      "rpc_logs": 459
+    }
+  },
+  "endpoints": {
+    "rpc": "RPC_URL (credential-bearing; not recorded)",
+    "substreams": "bsc.substreams.pinax.network:443"
+  },
+  "events_sha256": "f3bd3954925729457af581d4ddeb7c9179548cb1941bf086c996a7499af171aa",
+  "limits": "Persisted rows only; attempted rows of reverted frames are not in receipts and are counted, not checked. Qualifies the delivered blocks and the bound Pool only.",
+  "package": {
+    "abi": "tests/fixtures/pool-event-abi.json v3_7_0",
+    "params_file_sha256": "d96531f7282b2d6f7a660c6de673835dfe79b9fa9f643510fc9c344e17ebe3d0",
+    "spkg_sha256": "ca6c9cb04e085b2bdc97466af6d2affb88776924e877412e6af2eae8eac6ac43"
+  },
+  "pool_identity": [
+    {
+      "block": 123083221,
+      "block_hash": "0x4f411d273f60a797b76f886a4ad7b02fc693773e979108d5fe9ced6ab15e29a0",
+      "implementation_code_hash": "0x7266d9c5bf4d60b3c0dbccb254e6e9c06880db859bc3a5cd82b38e42212dd2cb",
+      "implementation_expected": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+      "implementation_found": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d"
+    },
+    {
+      "block": 123555458,
+      "block_hash": "0xcb853160ebeeb2e41f2352b28ae41be6dfe9893eceb283a06a652b0ab6983bcb",
+      "implementation_code_hash": "0x7266d9c5bf4d60b3c0dbccb254e6e9c06880db859bc3a5cd82b38e42212dd2cb",
+      "implementation_expected": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d",
+      "implementation_found": "0x5e2b0fcc5b9734c7ec0a03401ee9e6805f783b6d"
+    }
+  ],
+  "rows": {
+    "attempted_in_reverted_frames": 0,
+    "persisted": 459,
+    "persisted_by_kind": {
+      "ACTION_KIND_BORROW": 7,
+      "ACTION_KIND_FLASH_LOAN": 2,
+      "ACTION_KIND_LIQUIDATION_CALL": 5,
+      "ACTION_KIND_REPAY": 7,
+      "ACTION_KIND_SUPPLY": 148,
+      "ACTION_KIND_WITHDRAW": 290
+    }
+  },
+  "status": "passed",
+  "tool": "aave-actions-tools live-parity"
+}
