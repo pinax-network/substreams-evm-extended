@@ -104,12 +104,49 @@ make -C native/balances build      # release WASM only; no network
 make -C native/balances replay     # offline replay over captured blocks
 ```
 
-`make pack`, `make run` and any native sink command are live-usage steps and
-remain paused until explicitly resumed. No SPKG of this package is committed;
-building and qualifying one is tracked with
-[#17](https://github.com/pinax-network/substreams-evm-extended/issues/17) and
-the package gates in
-[#6](https://github.com/pinax-network/substreams-evm-extended/issues/6).
+`make pack` and `make run` read `SUBSTREAMS_API_KEY` from the environment;
+live parity reads `RPC_URL`. No SPKG of this package is committed; the
+qualified build is identified by its hash below.
+
+## Live qualification (BSC, 2026-09-23)
+
+The packed map (`spkg` sha256 `fbb46fc7…`, wasm `48d89d28…`, default
+parameters `{"producer_versions":[5]}`) was streamed with
+`--final-blocks-only` from `bsc.substreams.pinax.network` and checked with
+`native-balances-tools live-parity`, which binds each block number to its
+canonical hash and batches `eth_getBalance(address, {blockHash})`:
+
+- **Saved controls** ([report](docs/evidence/live-parity-bsc-2026-09-23-saved-controls.json)):
+  the 1,024 contiguous saved blocks 122,288,006–122,289,029. The packaged
+  rows equal the offline Rust replay of the saved `.pb` files row for row
+  (76,139 rows, 17,670 accounts, 6,366 known zeros), and every row equals
+  `eth_getBalance` at the block hash (76,139/76,139).
+- **Live window** ([report](docs/evidence/live-parity-bsc-2026-09-23-live.json)):
+  the 5,000 contiguous final blocks 123,548,070–123,553,069, streamed without
+  a refused block: 670,873 rows for 102,913 accounts (45,162 known zeros).
+  Every row of the last 1,000 blocks and every tenth row of the others was
+  checked: 200,344/200,344 equal. Block 123,550,024 has no transaction and
+  no output; the miner, fee and system accounts are unchanged across it.
+- **Reasons** ([report](docs/evidence/live-reasons-bsc-2026-09-23.json),
+  [matrix](docs/persisted-effects.md)): the last 250 blocks fetched from
+  Firehose and replayed offline equal the packaged output and carry
+  transfers, gas, fee rewards, 37 blob-fee rewards and 500 block-level fee
+  resets.
+
+```sh
+make -C native/balances pack   # or substreams pack into a fresh out/ dir
+substreams run -e bsc.substreams.pinax.network:443 <spkg> map_events -s <start> -t <stop> \
+  --final-blocks-only -o jsonl --bytes-encoding hex > events.jsonl
+cargo run --locked -p native-balances-tools -- live-parity --events events.jsonl --spkg <spkg> \
+  --endpoint bsc.substreams.pinax.network:443 --full-from <a> --full-to <b> --sample-every 10 --output <fresh dir>
+```
+
+Parity covers the emitted accounts only: an account without a persisted
+change is not emitted and not checked, and an RPC candidate list (such as the
+current RPC module's) would also contain unchanged accounts, which are not
+state-derived updates. Other networks, producer versions and the Ethereum,
+OP and Arc rows of the matrix stay under
+[#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
 
 ## Offline evidence
 
@@ -146,7 +183,7 @@ contract are not distinguishable in SQL. Consume native and ERC-20 packages
 into separate databases or tables, or bind rows by package identity, before
 treating `contract = ''` as native. The sink's `_blocks_` markers list blocks
 with nonempty output only; completeness requires the stream's clock or cursor.
-This has not been exercised for this package; it remains paused live work.
+This has not been exercised for this package.
 
 ## Boundaries
 

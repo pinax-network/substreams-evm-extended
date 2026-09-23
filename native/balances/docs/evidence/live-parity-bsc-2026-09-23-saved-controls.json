@@ -1,0 +1,54 @@
+{
+  "blocks": {
+    "delivered": 1024,
+    "first": 122288006,
+    "last": 122289029,
+    "ranges": [
+      [
+        122288006,
+        122289029
+      ]
+    ]
+  },
+  "checks": {
+    "eth_get_balance": {
+      "checked": 76139,
+      "matched": 76139,
+      "mismatch_examples": [],
+      "mismatches": 0
+    },
+    "saved_controls": {
+      "blocks": 1024,
+      "result": {
+        "checked": 76139,
+        "matched": 76139,
+        "mismatch_examples": [],
+        "mismatches": 0
+      }
+    }
+  },
+  "endpoints": {
+    "block_binding": "streamed with --final-blocks-only; each number bound to its canonical hash by eth_getBlockByNumber",
+    "rpc": "RPC_URL (credential-bearing; not recorded)",
+    "substreams": "bsc.substreams.pinax.network:443"
+  },
+  "events_sha256": "7f5a38ceffbad10da02ff68d9386a4e68eb34c737f69ee72be395b35dd9a1007",
+  "limits": "Checks the emitted accounts only: accounts without a persisted change in a block are not emitted and not checked (absence is no observation). Parity outside the full range is sampled.",
+  "package": {
+    "spkg_sha256": "fbb46fc7a14677f82d0e3df12c1cef40cb071e0121030aab6e085d2c60843a11"
+  },
+  "rows": {
+    "distinct_accounts": 17670,
+    "emitted": 76139,
+    "known_zero": 6366
+  },
+  "selection": {
+    "full_from": 122288006,
+    "full_rows": 76139,
+    "full_to": 122289029,
+    "sample_every": 0,
+    "sampled_rows": 0
+  },
+  "status": "passed",
+  "tool": "native-balances-tools live-parity"
+}

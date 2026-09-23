@@ -1,0 +1,78 @@
+{
+  "blocks": 250,
+  "clock_links": {
+    "checked": 249,
+    "mismatches": []
+  },
+  "continuity": {
+    "checks": 32307,
+    "mismatches": [],
+    "scope": "old_amount of an account equals its last emitted amount when every intervening block was replayed",
+    "skipped_across_gaps": 0
+  },
+  "directories": [
+    {
+      "path": "native/balances/out/live-2026-09-23/firehose-blocks",
+      "pb_files": 250
+    }
+  ],
+  "distinct_accounts": 12317,
+  "elapsed_seconds": 71.601966917,
+  "empty_output_blocks": 0,
+  "max_records_per_row": 273,
+  "network_label": "bsc",
+  "oracle": [],
+  "outputs": {
+    "blocks.jsonl": "6d0aa6f98746ff6c3896966f7ed2f9764f16fa731ee2e9e480d6125d32c8d758",
+    "rows.jsonl": "4d9f0bb4e4b63e29d3dc54d8281690f88df8360b618868a38a8aab6ff5701a75"
+  },
+  "producer_versions": [
+    5
+  ],
+  "producer_versions_observed": {
+    "5": 250
+  },
+  "projection_errors": [],
+  "prototype": [],
+  "ranges": [
+    [
+      123552820,
+      123553070
+    ]
+  ],
+  "reason_matrix": {
+    "Block": {
+      "REASON_REWARD_TRANSACTION_FEE": 500
+    },
+    "Tx": {
+      "REASON_GAS_BUY": 32923,
+      "REASON_GAS_REFUND": 30266,
+      "REASON_REWARD_BLOB_FEE": 37,
+      "REASON_REWARD_TRANSACTION_FEE": 32923,
+      "REASON_TRANSFER": 67428
+    },
+    "TxFailedPersistent": {
+      "REASON_GAS_BUY": 2264,
+      "REASON_GAS_REFUND": 2259,
+      "REASON_REWARD_TRANSACTION_FEE": 2264
+    }
+  },
+  "records": 170864,
+  "replayed_blocks": 250,
+  "rows": 44624,
+  "rpc_in_replay": false,
+  "scope": "Offline Rust reduction of captured Extended blocks; not packaged WASM execution, not network qualification",
+  "source_sha256": {
+    "common/persist/src/lib.rs": "c33c2f5aab193316cbe0b84c91d3260f5499a2bb655c8760fbcad648d2987c96",
+    "native/balances/src/lib.rs": "fba90e4ef8a3c5da16f3dd492f505c2961047533c988f81ce97a8357ecb1e98e"
+  },
+  "status": "replayed",
+  "tool_language": "Rust",
+  "unqualified_version_blocks": {
+    "blocks": [],
+    "count": 0,
+    "scope": "blocks the map refuses because Block.ver is not in producer_versions; not reduced, not an error of the reducer"
+  },
+  "zero_address_rows": 0,
+  "zero_final_rows": 3891
+}

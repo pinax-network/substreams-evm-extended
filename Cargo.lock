@@ -1059,6 +1059,7 @@ dependencies = [
  "substreams",
  "substreams-ethereum",
  "tempfile",
+ "ureq",
 ]
 
 [[package]]
