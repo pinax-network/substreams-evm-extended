@@ -141,6 +141,13 @@ cargo run --locked -p native-balances-tools -- live-parity --events events.jsonl
   --endpoint bsc.substreams.pinax.network:443 --full-from <a> --full-to <b> --sample-every 10 --output <fresh dir>
 ```
 
+**Retention from a checkpoint** ([report](docs/evidence/live-retention-checkpoint-bsc-2026-09-23.json)):
+`native-balances-tools retention-check` seeds `eth_getBalance` for 14,172
+accounts at block 123,548,069 into the `common/retention` ledger, applies the
+next 300 packaged blocks and compares every retained value with RPC at four
+block hashes: 56,688/56,688 equal, including 1,252 accounts that were never
+emitted in the window and kept their checkpoint value.
+
 Parity covers the emitted accounts only: an account without a persisted
 change is not emitted and not checked, and an RPC candidate list (such as the
 current RPC module's) would also contain unchanged accounts, which are not

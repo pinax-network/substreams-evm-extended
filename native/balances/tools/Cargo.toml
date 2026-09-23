@@ -16,6 +16,8 @@ serde_json = "1"
 sha2 = "0.10"
 native-balances = { path = ".." }
 evm-persist = { path = "../../../common/persist" }
+evm-retention = { path = "../../../common/retention" }
+proto = { path = "../../../proto" }
 prost = { workspace = true }
 substreams-ethereum = { workspace = true }
 ureq = { version = "2.12", default-features = false, features = ["tls", "json"] }
