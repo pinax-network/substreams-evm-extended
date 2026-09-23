@@ -59,14 +59,44 @@ variable-rate USDT `Borrow` with its ray borrow rate, a BTCB `Supply`, a USDT
 `Withdraw`, and a router transaction where `Supply`, `Withdraw` and `Borrow`
 are attempted in reverted frames and then persisted (seven rows, three
 persisted). `Repay`, `LiquidationCall` and `FlashLoan` do not occur in the
-saved window and are covered by synthetic logs built from the pinned shapes;
-topic constants are asserted against the canonical signatures. Live
-qualification of emitted facts and packaged output waits for explicit
-resumption.
+saved window and are covered by synthetic logs built from the pinned shapes.
+
+**ABI provenance** ([fixture](tests/fixtures/pool-event-abi.json)): the six
+bound events are taken from the solc 0.8.27 ABI of `IPool.sol` at
+aave-v3-origin v3.7.0 (`cff15de6`); the tests derive every topic from that
+ABI, decode a log of each exact ABI shape and fail one with a topic missing.
+The original V3 (`aave-v3-core`) declarations have identical types and
+indexing. Aave V2 `Deposit`, `Borrow`, `Repay` and `FlashLoan` have other
+signatures and yield no row even from the bound Pool, while V2 `Withdraw` and
+`LiquidationCall` have **exactly the V3 signatures**: a log's shape cannot
+tell the version, only the bound Pool address and its implementation pointer
+can, and an unbound V2 pool yields no row.
+
+**Live qualification (BSC, 2026-09-23)** ([report](docs/evidence/live-parity-bsc-2026-09-23.json)):
+the packed map (`spkg` sha256 `ca6c9cb0…`, wasm `acd5a4e0…`, parameters
+[`bsc-aave-v3-pool.json`](tests/fixtures/bsc-aave-v3-pool.json)) was streamed
+from `bsc.substreams.pinax.network` over 2,397 blocks: the 2,000 contiguous
+blocks 123,553,459–123,555,458, every other block of the preceding 20,000
+with a bound Pool event, and the five blocks with a `LiquidationCall` in
+the preceding 600,000 blocks. `aave-actions-tools live-parity` decodes the Pool's
+receipt logs from `eth_getLogs` with the compiled ABI (not the map's
+decoder) and matches them by transaction hash and block log index in both
+directions: **459/459** receipt logs equal a persisted row field by field
+(148 `Supply`, 290 `Withdraw`, 7 `Borrow`, 7 `Repay`, 5 `LiquidationCall`,
+2 `FlashLoan`), no row without a log, no log without a row; 2,397 clocks
+equal the headers; the Pool implementation pointer equals `0x5e2B…3B6d` at
+the first and last block. No attempted row occurred in these blocks; attempts
+of reverted frames are not in receipts and are covered by the captured router
+fixture only.
 
 ```sh
-cargo test --locked -p aave-actions
+cargo test --locked -p aave-actions -p aave-actions-tools
 make -C aave/actions build
+# live, credentials in the environment only (SUBSTREAMS_API_KEY, RPC_URL)
+substreams run -e bsc.substreams.pinax.network:443 <spkg> map_events -s <N> -t +1 \
+  -p "map_events=$(jq -c . aave/actions/tests/fixtures/bsc-aave-v3-pool.json)" -o jsonl --bytes-encoding hex > events.jsonl
+cargo run --locked -p aave-actions-tools -- --events events.jsonl --params aave/actions/tests/fixtures/bsc-aave-v3-pool.json \
+  --spkg <spkg> --endpoint bsc.substreams.pinax.network:443 --output <fresh dir>
 ```
 
 ## Boundaries

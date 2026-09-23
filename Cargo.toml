@@ -9,6 +9,7 @@ members = [
   "native/balances",
   "native/balances/tools",
   "aave/actions",
+  "aave/actions/tools",
   "aave/balance-state",
   "aave/balance-state/tools",
   "evm/executions",

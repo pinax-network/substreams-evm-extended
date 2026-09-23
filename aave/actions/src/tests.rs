@@ -327,3 +327,119 @@ fn topic_constants_match_the_pinned_signatures() {
         assert_eq!(hex::encode(keccak(sig.as_bytes())), expected, "{sig}");
     }
 }
+
+const EVENT_ABI: &str = include_str!("../tests/fixtures/pool-event-abi.json");
+
+fn abi_events(version: &str) -> Vec<serde_json::Value> {
+    let doc: serde_json::Value = serde_json::from_str(EVENT_ABI).unwrap();
+    doc[version]["events"].as_array().unwrap().clone()
+}
+fn signature(event: &serde_json::Value) -> String {
+    let types: Vec<&str> = event["inputs"].as_array().unwrap().iter().map(|i| i["type"].as_str().unwrap()).collect();
+    format!("{}({})", event["name"].as_str().unwrap(), types.join(","))
+}
+fn shape(event: &serde_json::Value) -> Vec<(String, bool)> {
+    event["inputs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|i| (i["type"].as_str().unwrap().to_string(), i["indexed"].as_bool().unwrap()))
+        .collect()
+}
+/// A log with the event's exact ABI shape: indexed inputs as topics, the
+/// others as 32-byte data words (addresses padded, small values in range).
+fn abi_log(event: &serde_json::Value, topic0: &str, drop_topic: bool) -> eth::Log {
+    let mut topics = Vec::new();
+    let mut data = Vec::new();
+    for (i, (ty, indexed)) in shape(event).into_iter().enumerate() {
+        let value = if ty == "address" {
+            padded(0x10 + i as u8)
+        } else {
+            word(if ty == "bool" { 1 } else { 2 })
+        };
+        if indexed {
+            topics.push(value);
+        } else {
+            data.push(value);
+        }
+    }
+    if drop_topic {
+        topics.pop();
+    }
+    pool_log(topic0, topics, data, 10)
+}
+
+#[test]
+fn the_decoder_follows_the_compiled_v3_7_0_abi_and_v3_0_shares_it() {
+    let topics = [
+        SUPPLY_TOPIC,
+        WITHDRAW_TOPIC,
+        BORROW_TOPIC,
+        REPAY_TOPIC,
+        LIQUIDATION_CALL_TOPIC,
+        FLASH_LOAN_TOPIC,
+    ];
+    let v370 = abi_events("v3_7_0");
+    let v30 = abi_events("v3_0");
+    assert_eq!(v370.len(), 6);
+    for (i, event) in v370.iter().enumerate() {
+        // The crate's topic is the compiled ABI's signature, not a hand-copied one.
+        assert_eq!(hex::encode(keccak(signature(event).as_bytes())), topics[i], "{}", signature(event));
+        // The original V3 declarations have the same types and indexing.
+        assert_eq!(shape(event), shape(&v30[i]), "{} differs between v3.0 and v3.7.0", event["name"]);
+        // A log in the ABI shape decodes; one topic short fails the block.
+        let mut b = block();
+        b.transaction_traces = vec![tx(vec![eth::Call {
+            logs: vec![abi_log(event, topics[i], false)],
+            ..Default::default()
+        }])];
+        let events = project(&b, &config()).unwrap();
+        assert_eq!(events.actions.len(), 1, "{}", event["name"]);
+        assert_eq!(events.actions[0].kind, i as i32 + 1);
+        b.transaction_traces[0].calls[0].logs = vec![abi_log(event, topics[i], true)];
+        assert!(project(&b, &config()).is_err(), "{} with a missing topic must fail", event["name"]);
+    }
+}
+
+#[test]
+fn v2_shapes_are_never_taken_for_v3_facts_and_two_v2_signatures_collide() {
+    let v3: std::collections::BTreeSet<String> = [
+        SUPPLY_TOPIC,
+        WITHDRAW_TOPIC,
+        BORROW_TOPIC,
+        REPAY_TOPIC,
+        LIQUIDATION_CALL_TOPIC,
+        FLASH_LOAN_TOPIC,
+    ]
+    .iter()
+    .map(|t| t.to_string())
+    .collect();
+    let mut colliding = Vec::new();
+    for event in abi_events("v2") {
+        let topic = hex::encode(keccak(signature(&event).as_bytes()));
+        if v3.contains(&topic) {
+            colliding.push(event["name"].as_str().unwrap().to_string());
+            continue;
+        }
+        // A V2-only topic, even from the bound Pool, is not a bound event: no row.
+        let mut b = block();
+        b.transaction_traces = vec![tx(vec![eth::Call {
+            logs: vec![abi_log(&event, &topic, false)],
+            ..Default::default()
+        }])];
+        assert!(project(&b, &config()).unwrap().actions.is_empty(), "{}", event["name"]);
+    }
+    // V2 `Withdraw` and `LiquidationCall` have the V3 signatures: shape alone
+    // cannot tell the version, only the bound Pool address and its
+    // implementation pointer can. A V2 LendingPool is not bound: no row.
+    assert_eq!(colliding, vec!["Withdraw", "LiquidationCall"]);
+    let v2_withdraw = abi_events("v2").into_iter().find(|e| e["name"] == "Withdraw").unwrap();
+    let mut log = abi_log(&v2_withdraw, WITHDRAW_TOPIC, false);
+    log.address = hex::decode("6807dc923806fe8fd134338eabca509979a7e0cc").unwrap();
+    let mut b = block();
+    b.transaction_traces = vec![tx(vec![eth::Call {
+        logs: vec![log],
+        ..Default::default()
+    }])];
+    assert!(project(&b, &config()).unwrap().actions.is_empty());
+}

@@ -1,0 +1,671 @@
+{
+ "captured": "2026-09-23",
+ "v3_7_0": {
+  "source": "aave-dao/aave-v3-origin@cff15de6d1271b0c800fc001f4aea4c263e8a597 (v3.7.0) src/contracts/interfaces/IPool.sol",
+  "method": "solc 0.8.27+commit.40a35a09 --evm-version shanghai --abi (binary sha256 8c406fa5cab9bd0a175da02c652072f814c3d06205a2fd6d92bc152599a6aabb); the six bound events of the compiler ABI, verbatim",
+  "events": [
+   {
+    "anonymous": false,
+    "inputs": [
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "reserve",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "address",
+      "name": "user",
+      "type": "address"
+     },
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "onBehalfOf",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "amount",
+      "type": "uint256"
+     },
+     {
+      "indexed": true,
+      "internalType": "uint16",
+      "name": "referralCode",
+      "type": "uint16"
+     }
+    ],
+    "name": "Supply",
+    "type": "event"
+   },
+   {
+    "anonymous": false,
+    "inputs": [
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "reserve",
+      "type": "address"
+     },
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "user",
+      "type": "address"
+     },
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "to",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "amount",
+      "type": "uint256"
+     }
+    ],
+    "name": "Withdraw",
+    "type": "event"
+   },
+   {
+    "anonymous": false,
+    "inputs": [
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "reserve",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "address",
+      "name": "user",
+      "type": "address"
+     },
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "onBehalfOf",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "amount",
+      "type": "uint256"
+     },
+     {
+      "indexed": false,
+      "internalType": "enum DataTypes.InterestRateMode",
+      "name": "interestRateMode",
+      "type": "uint8"
+     },
+     {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "borrowRate",
+      "type": "uint256"
+     },
+     {
+      "indexed": true,
+      "internalType": "uint16",
+      "name": "referralCode",
+      "type": "uint16"
+     }
+    ],
+    "name": "Borrow",
+    "type": "event"
+   },
+   {
+    "anonymous": false,
+    "inputs": [
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "reserve",
+      "type": "address"
+     },
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "user",
+      "type": "address"
+     },
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "repayer",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "amount",
+      "type": "uint256"
+     },
+     {
+      "indexed": false,
+      "internalType": "bool",
+      "name": "useATokens",
+      "type": "bool"
+     }
+    ],
+    "name": "Repay",
+    "type": "event"
+   },
+   {
+    "anonymous": false,
+    "inputs": [
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "collateralAsset",
+      "type": "address"
+     },
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "debtAsset",
+      "type": "address"
+     },
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "user",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "debtToCover",
+      "type": "uint256"
+     },
+     {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "liquidatedCollateralAmount",
+      "type": "uint256"
+     },
+     {
+      "indexed": false,
+      "internalType": "address",
+      "name": "liquidator",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "bool",
+      "name": "receiveAToken",
+      "type": "bool"
+     }
+    ],
+    "name": "LiquidationCall",
+    "type": "event"
+   },
+   {
+    "anonymous": false,
+    "inputs": [
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "target",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "address",
+      "name": "initiator",
+      "type": "address"
+     },
+     {
+      "indexed": true,
+      "internalType": "address",
+      "name": "asset",
+      "type": "address"
+     },
+     {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "amount",
+      "type": "uint256"
+     },
+     {
+      "indexed": false,
+      "internalType": "enum DataTypes.InterestRateMode",
+      "name": "interestRateMode",
+      "type": "uint8"
+     },
+     {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "premium",
+      "type": "uint256"
+     },
+     {
+      "indexed": true,
+      "internalType": "uint16",
+      "name": "referralCode",
+      "type": "uint16"
+     }
+    ],
+    "name": "FlashLoan",
+    "type": "event"
+   }
+  ]
+ },
+ "v3_0": {
+  "source": "aave/aave-v3-core master contracts/interfaces/IPool.sol (fetched 2026-09-23); event declarations parsed from source, the InterestRateMode enum as its ABI type uint8",
+  "events": [
+   {
+    "name": "Supply",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "reserve"
+     },
+     {
+      "type": "address",
+      "indexed": false,
+      "name": "user"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "onBehalfOf"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     },
+     {
+      "type": "uint16",
+      "indexed": true,
+      "name": "referralCode"
+     }
+    ]
+   },
+   {
+    "name": "Withdraw",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "reserve"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "user"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "to"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     }
+    ]
+   },
+   {
+    "name": "Borrow",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "reserve"
+     },
+     {
+      "type": "address",
+      "indexed": false,
+      "name": "user"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "onBehalfOf"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     },
+     {
+      "type": "uint8",
+      "indexed": false,
+      "name": "interestRateMode"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "borrowRate"
+     },
+     {
+      "type": "uint16",
+      "indexed": true,
+      "name": "referralCode"
+     }
+    ]
+   },
+   {
+    "name": "Repay",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "reserve"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "user"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "repayer"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     },
+     {
+      "type": "bool",
+      "indexed": false,
+      "name": "useATokens"
+     }
+    ]
+   },
+   {
+    "name": "LiquidationCall",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "collateralAsset"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "debtAsset"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "user"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "debtToCover"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "liquidatedCollateralAmount"
+     },
+     {
+      "type": "address",
+      "indexed": false,
+      "name": "liquidator"
+     },
+     {
+      "type": "bool",
+      "indexed": false,
+      "name": "receiveAToken"
+     }
+    ]
+   },
+   {
+    "name": "FlashLoan",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "target"
+     },
+     {
+      "type": "address",
+      "indexed": false,
+      "name": "initiator"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "asset"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     },
+     {
+      "type": "uint8",
+      "indexed": false,
+      "name": "interestRateMode"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "premium"
+     },
+     {
+      "type": "uint16",
+      "indexed": true,
+      "name": "referralCode"
+     }
+    ]
+   }
+  ]
+ },
+ "v2": {
+  "source": "aave/protocol-v2 master contracts/interfaces/ILendingPool.sol (fetched 2026-09-23); event declarations parsed from source",
+  "events": [
+   {
+    "name": "Deposit",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "reserve"
+     },
+     {
+      "type": "address",
+      "indexed": false,
+      "name": "user"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "onBehalfOf"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     },
+     {
+      "type": "uint16",
+      "indexed": true,
+      "name": "referral"
+     }
+    ]
+   },
+   {
+    "name": "Withdraw",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "reserve"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "user"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "to"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     }
+    ]
+   },
+   {
+    "name": "Borrow",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "reserve"
+     },
+     {
+      "type": "address",
+      "indexed": false,
+      "name": "user"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "onBehalfOf"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "borrowRateMode"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "borrowRate"
+     },
+     {
+      "type": "uint16",
+      "indexed": true,
+      "name": "referral"
+     }
+    ]
+   },
+   {
+    "name": "Repay",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "reserve"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "user"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "repayer"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     }
+    ]
+   },
+   {
+    "name": "LiquidationCall",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "collateralAsset"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "debtAsset"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "user"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "debtToCover"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "liquidatedCollateralAmount"
+     },
+     {
+      "type": "address",
+      "indexed": false,
+      "name": "liquidator"
+     },
+     {
+      "type": "bool",
+      "indexed": false,
+      "name": "receiveAToken"
+     }
+    ]
+   },
+   {
+    "name": "FlashLoan",
+    "inputs": [
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "target"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "initiator"
+     },
+     {
+      "type": "address",
+      "indexed": true,
+      "name": "asset"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "amount"
+     },
+     {
+      "type": "uint256",
+      "indexed": false,
+      "name": "premium"
+     },
+     {
+      "type": "uint16",
+      "indexed": false,
+      "name": "referralCode"
+     }
+    ]
+   }
+  ]
+ }
+}
