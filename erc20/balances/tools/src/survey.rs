@@ -16,6 +16,8 @@ use substreams_ethereum::pb::eth::v2 as eth;
 
 #[derive(Args)]
 pub struct Survey {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     #[arg(long)]
     pub ranking: PathBuf,
     #[arg(long, required = true)]
@@ -158,7 +160,7 @@ pub fn run(args: Survey) -> Result<bool> {
         "scope":"Exploratory native tests on sampled active blocks; hypotheses are not verified layouts; no cross-gap carry-forward"}),
         |report| {
             let ranking: Value = serde_json::from_slice(&fs::read(&args.ranking)?)?;
-            ensure!(ranking["status"] == "ranked" && ranking["chain_id"] == 56, "completed BSC ranking required");
+            args.verification.selected()?.check_ranking(&ranking)?;
             let selected = select_tokens(items(&ranking, "selected_tokens")?, &args.contracts)?;
             report["selected_contracts"] = json!(selected.iter().map(|t| &t["contract"]).collect::<Vec<_>>());
             let start = number(&ranking["start"])?;
@@ -185,7 +187,7 @@ pub fn run(args: Survey) -> Result<bool> {
                 }
             }
             ensure!(!blocks.is_empty(), "no Extended blocks");
-            let rpc = HttpRpc::from_env();
+            let rpc = args.verification.connect(report)?;
             let reviewed = if let Some(path) = &args.layouts {
                 report["reviewed_layouts_sha256"] = json!(sha256(path)?);
                 let layouts = erc20_balances::layout::parse(&fs::read_to_string(path)?)?;

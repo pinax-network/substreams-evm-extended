@@ -17,6 +17,8 @@ use substreams_ethereum::pb::eth::v2 as eth;
 
 #[derive(Args)]
 pub struct RefusalScan {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     /// JSON array of caller-qualified token layouts; no built-in token list.
     #[arg(long)]
     pub layouts: PathBuf,
@@ -172,6 +174,8 @@ pub fn run(args: RefusalScan) -> Result<bool> {
         &args.output,
         json!({"status":"incomplete","scope":"Native mapper replay of captured Extended blocks; a refused profile is excluded from the rest of the replay, never loosened"}),
         |report| {
+            args.verification.selected()?.record_configuration(report);
+            report["network_binding"] = json!("caller_configured_offline_blocks_have_no_chain_id");
             let text = fs::read_to_string(&args.layouts)?;
             report["layouts_sha256"] = json!(sha256(&args.layouts)?);
             let files = block_files(&args.block_dir)?;

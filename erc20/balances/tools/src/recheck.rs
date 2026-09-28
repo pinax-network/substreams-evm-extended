@@ -12,6 +12,8 @@ use std::{
 
 #[derive(Args)]
 pub struct Recheck {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     /// rpc-checks.jsonl from a completed survey; only unresolved rows are retried.
     #[arg(long)]
     pub checks: PathBuf,
@@ -24,12 +26,19 @@ pub fn run(args: Recheck) -> Result<bool> {
         &args.output,
         json!({"status":"incomplete","checks":0,"resolved_matches":0,"value_mismatches":0,"before_deployment":0,"unresolved":0}),
         |report| {
+            // Older check rows carry hashes but no chain ID; honor any identity
+            // recorded by their adjacent report before binding every hash below.
+            let provenance = args.checks.parent().map(|p| p.join("report.json"));
+            if let Some(path) = provenance.filter(|p| p.exists()) {
+                let original: Value = serde_json::from_slice(&fs::read(path)?)?;
+                args.verification.selected()?.check_report(&original)?;
+            }
             let input = fs::read_to_string(&args.checks)?;
             report["original_checks_sha256"] = json!(sha256(&args.checks)?);
             let rows: Vec<Value> = input.lines().map(serde_json::from_str).collect::<std::result::Result<_, _>>()?;
             let rows: Vec<_> = rows.into_iter().filter(|r| r["rpc"].is_null() && r["match"] == false).collect();
             ensure!(!rows.is_empty(), "no unresolved checks");
-            let rpc = HttpRpc::from_env();
+            let rpc = args.verification.connect(report)?;
             let stop = rows
                 .iter()
                 .map(|r| number(&r["block"]))

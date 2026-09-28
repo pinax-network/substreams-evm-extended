@@ -6,6 +6,15 @@ is merged through #62, and 13 issues remain open for explicit acceptance gaps.
 The dated checkpoints below preserve historical counts and artifact locations;
 they are not the current issue-status list.
 
+The ERC-20 host verifier now takes explicit network/expected-chain options,
+checks the RPC identity before data requests, and keeps caller-labeled offline
+blocks distinct from chain-verified reports. Non-BSC capture requires explicit
+RPC and stream endpoints. The loopback CLI regression covers every RPC command;
+it does not resume or qualify any network under #8. Authentication fallback is
+restricted to the canonical HTTPS BSC Pinax RPC origin; custom providers need an
+explicit RPC key if they require authentication. See the
+[host verification instructions](../erc20/balances/README.md).
+
 The subsequent [offline issue-audit remediation](audit-remediation-2026-09-21.md)
 tracks retention correctness, executed layout tests, ERC-4626 arithmetic and
 asset bindings, Aragon upgrade guards, execution receipt validation and a

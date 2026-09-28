@@ -17,6 +17,8 @@ use substreams_ethereum::pb::eth::v2 as eth;
 
 #[derive(Args)]
 pub struct Coverage {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     #[arg(long)]
     pub ranking: PathBuf,
     /// Complete consecutive Extended blocks, not sparse active-block samples.
@@ -164,7 +166,7 @@ pub fn run(args: Coverage) -> Result<bool> {
                 .map(|l| (format!("0x{}", hex::encode(&l.contract)), l))
                 .collect::<BTreeMap<_, _>>();
             let ranking: Value = serde_json::from_slice(&fs::read(&args.ranking)?)?;
-            ensure!(ranking["status"] == "ranked", "completed ranking required");
+            args.verification.selected()?.check_ranking(&ranking)?;
             let path = args.ranking.parent().context("ranking parent")?.join("reference.jsonl");
             ensure!(sha256(&path)? == text(&ranking["reference_sha256"])?, "reference digest changed");
             let reference = read_stream(&path, number(&ranking["start"])?, number(&ranking["stop_exclusive"])?, "map_events")?;
@@ -199,7 +201,7 @@ pub fn run(args: Coverage) -> Result<bool> {
                 refs.insert(height, rows);
             }
             ensure!(!holders.is_empty(), "no configured reference holders");
-            let rpc = HttpRpc::from_env();
+            let rpc = args.verification.connect(report)?;
             ensure_finalized(&rpc, stop)?;
             qualify_runtime(&rpc, start, stop, &layouts)?;
             let initial = rpc.header(start - 1)?;

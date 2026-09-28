@@ -49,6 +49,8 @@ pub enum Commands {
 }
 #[derive(Args)]
 pub struct CaptureBlocks {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     #[arg(long, required_unless_present = "ranking", conflicts_with = "ranking")]
     pub start: Option<u64>,
     /// Ranking report whose selected tokens determine active block samples.
@@ -60,13 +62,16 @@ pub struct CaptureBlocks {
     pub blocks: u64,
     #[arg(long)]
     pub output: PathBuf,
-    #[arg(long, default_value = "bsc.firehose.pinax.network:443")]
-    pub endpoint: String,
+    /// Firehose host:port; defaults to BSC only for the BSC configuration.
+    #[arg(long)]
+    pub endpoint: Option<String>,
     #[arg(long, default_value_t = 60)]
     pub timeout: u64,
 }
 #[derive(Args)]
 pub struct Rank {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     /// Omit to sample immediately before the current finalized head.
     #[arg(long)]
     pub start: Option<u64>,
@@ -78,13 +83,16 @@ pub struct Rank {
     pub output: PathBuf,
     #[arg(long, default_value_os_t=default_reference())]
     pub reference: PathBuf,
-    #[arg(long, default_value = "bsc.substreams.pinax.network:443")]
-    pub endpoint: String,
+    /// Substreams host:port; defaults to BSC only for the BSC configuration.
+    #[arg(long)]
+    pub endpoint: Option<String>,
     #[arg(long, default_value_t = 600)]
     pub timeout: u64,
 }
 #[derive(Args)]
 pub struct Range {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     #[arg(long)]
     pub start: u64,
     #[arg(long, default_value_t = 64)]
@@ -96,8 +104,9 @@ pub struct Range {
     pub layouts: PathBuf,
     #[arg(long,default_value_os_t=default_package())]
     pub package: PathBuf,
-    #[arg(long, default_value = "bsc.substreams.pinax.network:443")]
-    pub endpoint: String,
+    /// Substreams host:port; defaults to BSC only for the BSC configuration.
+    #[arg(long)]
+    pub endpoint: Option<String>,
     #[arg(long, default_value_t = 300)]
     pub timeout: u64,
 }
@@ -106,6 +115,7 @@ impl Range {
         self.start.checked_add(self.blocks).context("range overflow")
     }
     pub fn validate(&self, max: u64) -> Result<()> {
+        self.verification.selected()?.endpoint(self.endpoint.as_deref(), false)?;
         ensure!(
             self.start > 0 && (1..=max).contains(&self.blocks),
             "choose a positive start and 1..{max} blocks"
@@ -137,6 +147,8 @@ pub struct Audit {
 }
 #[derive(Args)]
 pub struct Probe {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     /// Captured sf.ethereum.type.v2.Block protobuf files, in consecutive order.
     #[arg(long = "block-file", required = true)]
     pub block_files: Vec<PathBuf>,
@@ -200,15 +212,15 @@ fn run_compare(args: Compare) -> Result<bool> {
     r.validate(10000)?;
     ensure!(args.rpc_samples >= 2, "at least two independent RPC samples required");
     record_run(&r.output, json!({"status":"incomplete","start":r.start,"blocks":r.blocks}), |report| {
-        let rpc = HttpRpc::from_env();
+        let rpc = r.verification.connect(report)?;
         let stop = r.stop()?;
         let layouts = load_layouts(r, report)?;
         ensure_finalized(&rpc, stop)?;
         qualify_runtime(&rpc, r.start, stop, &layouts)?;
         let first = rpc.header(r.start)?;
         let last = rpc.header(stop - 1)?;
-        let candidate_timing = capture::stream(r, &r.package, "map_events", &r.output.join("events.jsonl"))?;
-        let reference_timing = capture::stream(r, &args.reference, "map_events", &r.output.join("reference.jsonl"))?;
+        let candidate_timing = capture::stream(r, &r.package, "map_events", &r.output.join("events.jsonl"), &rpc)?;
+        let reference_timing = capture::stream(r, &args.reference, "map_events", &r.output.join("reference.jsonl"), &rpc)?;
         let events = read_stream(&r.output.join("events.jsonl"), r.start, stop, "map_events")?;
         let reference = read_stream(&r.output.join("reference.jsonl"), r.start, stop, "map_events")?;
         validate_events_layouts(&events, &layouts)?;
@@ -241,7 +253,6 @@ fn run_compare(args: Compare) -> Result<bool> {
         report["scope"] = json!("Configured direct-mapping ERC-20 changed holders; reference-only rows are coverage gaps, never candidate seeds");
         report["reference"] = json!("erc20/balances map_events v0.3.4");
         report["rpc_in_ingestion"] = json!(false);
-        report["chain_id"] = json!(56);
         report["finality_trust"] = json!("RPC provider finalized headers; Events contains no source hash");
         Ok(())
     })
@@ -259,14 +270,14 @@ fn run_audit(args: Audit) -> Result<bool> {
         "zero_checks":0,"mismatches":0,"checked_blocks":0,"rpc_block_binding":"EIP-1898 blockHash, requireCanonical=true",
         "scope":"Every emitted end-of-block ERC-20 balance; Events has no old value or source hash"}),
         |report| {
-            let rpc = HttpRpc::from_env();
+            let rpc = r.verification.connect(report)?;
             let stop = r.stop()?;
             let layouts = load_layouts(r, report)?;
             ensure_finalized(&rpc, stop)?;
             qualify_runtime(&rpc, r.start, stop, &layouts)?;
             let first = rpc.header(r.start)?;
             let last = rpc.header(stop - 1)?;
-            report["capture"] = capture::stream(r, &r.package, "map_events", &r.output.join("events.jsonl"))?;
+            report["capture"] = capture::stream(r, &r.package, "map_events", &r.output.join("events.jsonl"), &rpc)?;
             let events = read_stream(&r.output.join("events.jsonl"), r.start, stop, "map_events")?;
             validate_events_layouts(&events, &layouts)?;
             let blocks = bind_headers(&rpc, &events)?;
@@ -305,7 +316,7 @@ fn run_probe(args: Probe) -> Result<bool> {
                 start > 0 && blocks.keys().copied().eq(start..stop),
                 "captured blocks must form a contiguous positive range"
             );
-            let rpc = HttpRpc::from_env();
+            let rpc = args.verification.connect(report)?;
             ensure_finalized(&rpc, stop)?;
             report["start"] = json!(start);
             report["blocks"] = json!(blocks.len());
