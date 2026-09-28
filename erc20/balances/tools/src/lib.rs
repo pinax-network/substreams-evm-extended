@@ -7,6 +7,7 @@ pub mod cli;
 pub mod comparison;
 pub mod coverage;
 pub mod data;
+pub mod fhe_b2_roles;
 pub mod inspect;
 pub mod inspect_ranked;
 pub mod lbp_rewards;

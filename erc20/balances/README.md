@@ -78,6 +78,8 @@ and historical qualification reports predate it. See the
 [supported shapes and validation limits](docs/typed-mapping-paths.md).
 The separate [Point/Bedrock candidates](docs/point-bedrock-role-candidates.md)
 preserve the published baseline and record their bounded source/replay evidence.
+The separate [FHE/B2 candidates](docs/fhe-b2-role-candidates.md) add exact
+immutable reconstruction and remove FHE's duplicate broad role rule.
 
 `enumerable_address_sets` separately validates complete correlated role-member
 array/index operations, with event-level permissions and no persistent set

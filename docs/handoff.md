@@ -210,6 +210,23 @@ neither has a persisted role-membership write in this window. No candidate is
 promoted or independently qualified by these source-shape and historical
 replay controls.
 
+The separate [FHE/B2 role candidates](../erc20/balances/docs/fhe-b2-role-candidates.md)
+bind all 51 source files to exact public commits. Their dedicated verifier
+reconstructs only the seven FHE and eight B2 immutable words, independently
+computing EIP-712/ShortString values and B2's cap while preserving original
+metadata and full runtime hashes. Point/Bedrock's no-transformation policy
+remains intact. FHE's role root appears in both legacy mapping lists; both
+permissions are removed before adding its exact membership path. B2's single
+width-two rule is narrowed separately. CCIP administration, pause state,
+nonces, allowances and balance handling remain unchanged. The complete saved
+BSC interval [122288006, 122289030) matches all 110,139 baseline rows. FHE has
+18 same-block reference matches and 6 initialized observed holders; B2 has
+40 and 12. Their 18 and 41 cold observations remain unknown, and neither has
+a captured membership write in this window. New outputs and preserved attempts
+remain under
+`out/fhe-b2-role-20260928/` in `network-verification-config`; neither candidate
+is promoted by source-shape tests or saved compiler reconstruction.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and
