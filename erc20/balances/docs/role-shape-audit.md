@@ -57,3 +57,34 @@ A subsequent [bounded candidate migration](role-path-candidates.md) replaces
 the legacy role widths for Token and CYS in a separate two-profile fixture,
 with source bindings, refusal tests and a full saved-window replay. The
 published baseline and the other reviewed profiles remain unchanged.
+
+## Candidate progress
+
+The original inventory and its evidence above remain historical. Separate
+**NOT-QUALIFIED** fixtures now cover eight of its 33 boolean-role profiles;
+they do not replace the original 431-profile baseline or qualified 425 cohort.
+Each linked report records its complete saved interval, initialized observed
+holders, cold gaps, source bindings and regression controls. Synthetic write
+shapes do not establish executed authorization or real producer visibility.
+
+| Profiles | Implemented candidate scope | Source limits |
+| --- | --- | --- |
+| [Token / CYS](role-path-candidates.md) | Exact nested membership paths; unrelated metadata retained. | Recorded source/runtime bindings; replacement qualification remains open. |
+| [BurnMintERC20](burnmint-role-candidate.md) | Exact root-5 membership. | Fourteen primary files with one explicitly checked import relocation; saved immutable reconstruction. |
+| [Point / Bedrock](point-bedrock-role-candidates.md) | Exact membership at roots 0 / 5; Bedrock freeze fields retained. | Twenty-three captured files; Point's independent token repository remains unresolved. |
+| [FHE / B2Token](fhe-b2-role-candidates.md) | Exact membership at roots 5 / 9; both broad FHE permissions removed. | All 51 files match exact primary pins; 15 immutable words are independently recomputed. |
+| [BAS](bas-role-candidate.md) | Exact root-6 membership plus only the fixed PAUSER admin word. | Thirteen exact dependencies; six public token revisions do not match the captured token. Constructor binding does not admit creation or attest current admin state. |
+
+The remaining 25 boolean-role profiles are SecuritiesToken (17), BTRToken,
+DeepTokenOFT, TaggerToken, ArtxToken, KgenOFT, PTokenV2 and GMToken (2).
+Each needs its own reachability, initialization and dependency review before
+candidate migration. This classification concerns the configured role field;
+some contracts also contain separate enumerable or dynamic metadata that must
+retain its existing handling. The eight enumerable-role profiles, four
+terminal-record profiles and six source-unavailable profiles retain the
+original audit's separate findings; they are not plain membership migrations.
+
+Fresh runtime/dependency controls, actual replacement-package/getter output,
+initialized-holder/final-state checks and relevant role-operation observations
+remain promotion gates. No row in this table claims live replacement
+qualification or closes issue #4.

@@ -180,6 +180,7 @@ mod offline {
         Burnmint,
         PointBedrock,
         FheB2,
+        Bas,
     }
     fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
@@ -196,7 +197,11 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::FheB2 {
+        if mode == Mode::Bas {
+            for name in ["layouts.json", "source-review.json", "source-capture.json", "primary-sources.json"] {
+                paths.push(root.join(erc20_balances_tools::bas_role::FIXTURE).join(name));
+            }
+        } else if mode == Mode::FheB2 {
             for name in ["layouts.json", "source-review.json", "FHE.json", "B2Token.json", "primary-sources.json"] {
                 paths.push(root.join(erc20_balances_tools::fhe_b2_roles::FIXTURE).join(name));
             }
@@ -408,6 +413,27 @@ mod offline {
         Ok(counts)
     }
 
+    fn bas_admin_writes(block: &eth::Block) -> u64 {
+        use erc20_balances_tools::bas_role as bound;
+        let address = hex::decode(&bound::CONTRACT[2..]).unwrap();
+        let key = hex::decode(&bound::ADMIN_WORD[2..]).unwrap();
+        block
+            .system_calls
+            .iter()
+            .chain(
+                block
+                    .transaction_traces
+                    .iter()
+                    .filter(|tx| tx.status() == eth::TransactionTraceStatus::Succeeded)
+                    .flat_map(|tx| &tx.calls),
+            )
+            .filter(|call| !call.state_reverted)
+            .flat_map(|call| &call.storage_changes)
+            .filter(|w| w.address == address && w.key == key)
+            .filter(|w| !w.old_value.iter().skip_while(|b| **b == 0).eq(w.new_value.iter().skip_while(|b| **b == 0)))
+            .count() as u64
+    }
+
     fn run(root: &Path, cache: &Path, output: &Path, mode: Mode, report: &mut Value) -> Result<()> {
         let started = Instant::now();
         fs::copy(root.join("tools/src/bin/replay_role_candidates.rs"), output.join("replay-role-candidates.rs"))?;
@@ -429,7 +455,9 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if mode == Mode::FheB2 {
+        let candidate_path = root.join(if mode == Mode::Bas {
+            "tests/fixtures/bas-role-candidate/layouts.json"
+        } else if mode == Mode::FheB2 {
             "tests/fixtures/fhe-b2-role-candidates/layouts.json"
         } else if mode == Mode::PointBedrock {
             "tests/fixtures/point-bedrock-role-candidates/layouts.json"
@@ -438,7 +466,9 @@ mod offline {
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if mode == Mode::FheB2 {
+        let review_path = root.join(if mode == Mode::Bas {
+            "tests/fixtures/bas-role-candidate/source-review.json"
+        } else if mode == Mode::FheB2 {
             "tests/fixtures/fhe-b2-role-candidates/source-review.json"
         } else if mode == Mode::PointBedrock {
             "tests/fixtures/point-bedrock-role-candidates/source-review.json"
@@ -451,10 +481,22 @@ mod offline {
         let review = read(&review_path)?;
         let mut migrated: Value = serde_json::from_str(&baseline_text)?;
         ensure!(
-            candidates.as_array().context("candidate array")?.len() == if mode == Mode::Burnmint { 1 } else { 2 },
+            candidates.as_array().context("candidate array")?.len() == if matches!(mode, Mode::Burnmint | Mode::Bas) { 1 } else { 2 },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if mode == Mode::FheB2 {
+        report["source_rechecks"] = if mode == Mode::Bas {
+            use erc20_balances_tools::bas_role as bound;
+            let raw = fs::read(root.join(bound::FIXTURE).join("source-capture.json"))?;
+            ensure!(
+                raw == fs::read(cache.join(format!("out/ranks101-150-source-review/{}.json", bound::CONTRACT)))?,
+                "committed BAS capture differs from original cache"
+            );
+            let capture = bound::verify_capture(&raw)?;
+            ensure!(review == bound::review(&capture)?, "BAS source review differs from complete capture");
+            bound::verify_primary(&capture, &read(&root.join(bound::FIXTURE).join("primary-sources.json"))?)?;
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([review])
+        } else if mode == Mode::FheB2 {
             use erc20_balances_tools::fhe_b2_roles as bound;
             let mut captures = Vec::new();
             for p in &bound::PROFILES {
@@ -508,6 +550,13 @@ mod offline {
             let root = path[0]["root"].as_str().context("candidate root")?;
             let mut restored = candidate.clone();
             restored.as_object_mut().unwrap().remove("other_mapping_paths");
+            if mode == Mode::Bas {
+                let slots = restored["other_slots"].as_array_mut().context("BAS scalar slots")?;
+                ensure!(
+                    slots.pop() == Some(json!(erc20_balances_tools::bas_role::ADMIN_WORD)),
+                    "only the appended fixed BAS admin word may be removed"
+                );
+            }
             ensure!(
                 restored["other_mapping_words"]
                     .as_object_mut()
@@ -591,6 +640,13 @@ mod offline {
                     .unwrap()
                     .entry("persisted_role_membership_writes")
                     .or_default() += count;
+            }
+            if mode == Mode::Bas {
+                *selected_counts
+                    .get_mut(erc20_balances_tools::bas_role::CONTRACT)
+                    .unwrap()
+                    .entry("persisted_fixed_pauser_admin_writes")
+                    .or_default() += bas_admin_writes(&block);
             }
             let mut actual = erc20_balances::project(&block, &layouts).map_err(|e| anyhow::anyhow!("native map failed at {height}: {e}"))?;
             normalize(&mut actual)?;
@@ -796,7 +852,8 @@ mod offline {
             Some("--burnmint") => Mode::Burnmint,
             Some("--point-bedrock") => Mode::PointBedrock,
             Some("--fhe-b2") => Mode::FheB2,
-            _ => bail!("expected --burnmint, --point-bedrock or --fhe-b2, followed by <original package root>"),
+            Some("--bas") => Mode::Bas,
+            _ => bail!("expected --burnmint, --point-bedrock, --fhe-b2 or --bas, followed by <original package root>"),
         };
         let cache = if mode != Mode::TokenCys {
             PathBuf::from(args.next().context("original package root required")?)
@@ -815,6 +872,9 @@ mod offline {
         if mode == Mode::FheB2 {
             report["scope"]=json!("Two NOT-QUALIFIED FHE/B2Token exact membership paths applied to unchanged 431; exact saved immutable reconstruction and native parity are not replacement package/runtime/live qualification. Canonical values never seed retained state.");
         }
+        if mode == Mode::Bas {
+            report["scope"] = json!("One NOT-QUALIFIED BAS exact membership path plus one fixed PAUSER admin word applied to historical431; exact saved source/runtime/constructor reconstruction and native parity do not qualify deployment, current admin or replacement package. Public token source gap remains unresolved. Canonical values never seed retained state.");
+        }
         if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");
             report["error"] = json!(format!("{error:#}"));
@@ -829,6 +889,45 @@ mod offline {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn bas_fixed_admin_count_requires_exact_contract_slot_and_persisted_change() {
+            use erc20_balances_tools::bas_role as bound;
+            let call = eth::Call {
+                storage_changes: vec![eth::StorageChange {
+                    address: hex::decode(&bound::CONTRACT[2..]).unwrap(),
+                    key: hex::decode(&bound::ADMIN_WORD[2..]).unwrap(),
+                    old_value: vec![0],
+                    new_value: vec![1],
+                    ordinal: 1,
+                }],
+                ..Default::default()
+            };
+            let mut block = eth::Block {
+                system_calls: vec![call.clone()],
+                transaction_traces: vec![eth::TransactionTrace {
+                    status: eth::TransactionTraceStatus::Succeeded as i32,
+                    calls: vec![call],
+                    ..Default::default()
+                }],
+                ..Default::default()
+            };
+            assert_eq!(bas_admin_writes(&block), 2);
+            block.system_calls[0].state_reverted = true;
+            assert_eq!(bas_admin_writes(&block), 1);
+            for field in ["key", "address", "noop", "failed", "reverted"] {
+                let mut b = block.clone();
+                let tx = &mut b.transaction_traces[0];
+                match field {
+                    "key" => tx.calls[0].storage_changes[0].key[0] ^= 1,
+                    "address" => tx.calls[0].storage_changes[0].address[0] ^= 1,
+                    "noop" => tx.calls[0].storage_changes[0].old_value = vec![0, 1],
+                    "failed" => tx.status = eth::TransactionTraceStatus::Failed as i32,
+                    _ => tx.calls[0].state_reverted = true,
+                }
+                assert_eq!(bas_admin_writes(&b), 0, "{field}");
+            }
+        }
 
         #[test]
         fn canonical_reference_requires_original_network_interval_fork_and_baseline_binding() {

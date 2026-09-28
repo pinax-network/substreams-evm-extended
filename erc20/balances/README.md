@@ -80,6 +80,8 @@ The separate [Point/Bedrock candidates](docs/point-bedrock-role-candidates.md)
 preserve the published baseline and record their bounded source/replay evidence.
 The separate [FHE/B2 candidates](docs/fhe-b2-role-candidates.md) add exact
 immutable reconstruction and remove FHE's duplicate broad role rule.
+The separate [BAS candidate](docs/bas-role-candidate.md) adds exact membership
+and one fixed PAUSER admin word; its public token-source gap remains explicit.
 
 `enumerable_address_sets` separately validates complete correlated role-member
 array/index operations, with event-level permissions and no persistent set

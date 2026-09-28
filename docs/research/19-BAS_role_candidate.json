@@ -1,0 +1,31 @@
+{
+  "topic": "BAS exact membership and fixed PAUSER admin candidate, 2026-09-28; offline only and NOT-QUALIFIED",
+  "facts": [
+    {
+      "key": "complete_saved_source_runtime_constructor_binding",
+      "value": "The exact complete 14-source capture binds chain56/address, standard compiler input/output/metadata/ABI/layout, solc0.8.26 viaIR Paris optimizer1000000, sole cap immutable1169 at3249/4710, complete9652-byte runtime and complete11653-byte creation with independently encoded288-byte constructor append. Original match labels remain match. This reconstructs saved compiler output, not fresh compilation or current deployment qualification.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/tree/main/erc20/balances/tests/fixtures/bas-role-candidate",
+      "source_pin": "Capture SHA256 8fe36b7af10f037925e8a777e45ac5647d82779c606d99790f467c52e0d8cdd0; runtime Keccak 0x957bf9d2d5b267f6e4f01ddcbda34c4b3cf9d89f3af6c07c98056ca60fb9733e",
+      "note": "Constructor name BNB Attestation, symbol BAS, cap10^28, admin and pauser0x9d8796b0ac1064ede1378d785df96970eaf5a2b9; recorded block53994920 is captured evidence only. No deployment declaration or runtime guard change is introduced."
+    },
+    {
+      "key": "public_token_gap_and_exact_dependencies",
+      "value": "All13 captured OpenZeppelin files match v4.9.6 byte-for-byte. None of six preserved public BAS.sol revisions matches the captured token. Public head lacks the captured ERC20Recovered declaration and emit; no normalization is permitted and no exact primary token pin is claimed.",
+      "source_url": "https://github.com/bnb-attestation-service/bas-erc20/blob/2a988ca00a4b8301cb2d5d90f773d2fa402054cf/BAS.sol",
+      "source_pin": "OZ dc44c9f1a4c3b10af99492eed84f83ed244203f6; public token revisions 2a988ca00a4b8301cb2d5d90f773d2fa402054cf,7d47f1724ae4e723b48be0608f1f4f4ff9d76dbf,6d139517aec4295aa6312893c3e7ff1b97a896e4,870c62f27382b4f0914cf13a1a0607d3e23cbb3a,3c2ca4c3b44a4834ddadd14c657263a0fa440115,fb2fa857106fe6e630af97e88d5a2b4bb2d5599c",
+      "note": "Captured token SHA25608beba1cb6911308c84bb235219eead860f1246e8913a7652f232ea73495c8c1. Exact bytes, URLs, hashes and false exact_match flags remain in primary-sources.json. All original MIT notices retained."
+    },
+    {
+      "key": "fixed_admin_and_getter_invariance",
+      "value": "BASToken inherits direct ERC20 balanceOf at balances root1. RoleData root6 has members at0 and adminRole at1. Constructor is the sole token _setRoleAdmin callsite, specifically PAUSER_ROLE to itself. Candidate changes legacy width2 to exact[bytes32,address] membership and adds only keccak(PAUSER_ROLE||6)+1 as a fixed scalar; arbitrary role admin paths remain unsupported.",
+      "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/dc44c9f1a4c3b10af99492eed84f83ed244203f6/contracts/access/AccessControl.sol",
+      "source_pin": "Exact captured contracts/bas/BAS.sol; OZ AccessControl/ERC20 at dc44c9f1a4c3b10af99492eed84f83ed244203f6",
+      "note": "Fixed word0xe09f975e15f8f53f24cbbc282b13c40b84df485fcdb8d3997fa103dc5a4ef842. Paused0, allowance2, supply/name/symbol3/4/5, whitelist7 remain unchanged. Typed paths constrain key/depth, not boolean values or transaction authorization."
+    }
+  ],
+  "open_questions": [
+    "An exact independently pinned public BAS token source remains unresolved after the bounded six-revision search.",
+    "Fresh authorized runtime/deployment controls, actual replacement-package/RPC parity, initialized-holder/final-state checks and actual role-operation visibility remain promotion gates.",
+    "Other issue4 legacy cohorts, enumerable structures and parser extensions remain outside this candidate."
+  ]
+}

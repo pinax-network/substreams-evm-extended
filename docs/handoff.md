@@ -227,6 +227,21 @@ remain under
 `out/fhe-b2-role-20260928/` in `network-verification-config`; neither candidate
 is promoted by source-shape tests or saved compiler reconstruction.
 
+The separate [BAS role candidate](../erc20/balances/docs/bas-role-candidate.md)
+replaces only root 6's legacy width with exact membership and the single
+source-derived PAUSER admin word. Its constructor sets that word; other role
+admins remain guarded. Fixed-slot permission does not enforce authorization,
+the stored role value or constructor context, and the existing runtime guard
+still refuses unqualified creation. All 14 captured source files, saved
+compiler/runtime bytes, two cap substitutions and the independently encoded
+288-byte constructor append are bound. Thirteen dependencies match pinned
+OpenZeppelin source, but none of six checked public token revisions matches
+the captured token; the missing event declaration/emit is not normalized away.
+The original capture's `match` labels remain unchanged. As-run preparation,
+validation and replay artifacts are under `out/bas-role-20260928/` in
+`bsc-exclusion-review`; `source-03/` preserves the final preparation source.
+The candidate remains NOT-QUALIFIED, and both published cohorts are unchanged.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and
