@@ -31,6 +31,9 @@ use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::fmt;
 
+mod positions;
+use positions::Input;
+
 /// Full protocol inputs for bounded host-side reference evaluation.
 #[cfg(not(target_arch = "wasm32"))]
 pub mod protocol;
@@ -596,6 +599,12 @@ impl Ledger {
     /// so they are carried over or dropped with the rest of the basis.
     /// `GlobalState` rows are validated and touch no holder entry.
     pub fn apply_state(&mut self, clock: &Clock, events: &state::Events) -> Result<Applied> {
+        self.apply_state_input(clock, events, Input::Emitted)
+    }
+
+    // Only ProtocolLedger's explicit checkpoint constructor selects snapshot
+    // descriptors. Every ordinary public apply validates emitted positions.
+    fn apply_state_input(&mut self, clock: &Clock, events: &state::Events, input: Input) -> Result<Applied> {
         self.require_domain(Domain::BalanceState)?;
         self.check_clock(clock)?;
         let [block_clock] = events.clocks.as_slice() else {
@@ -774,6 +783,7 @@ impl Ledger {
             member(&row.market, row.epoch)?;
         }
 
+        positions::validate(clock, events, input)?;
         let mut journal = self.begin(clock);
         self.stream = Some(stream);
         let mut applied = Applied::default();

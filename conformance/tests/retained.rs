@@ -599,7 +599,11 @@ fn oz_donation_uses_explicit_code_bound_constant_and_never_infers_zero_offset() 
     offset.observation = pb::Observation::QualifiedConstant as i32;
     offset.boundary = pb::Boundary::Declaration as i32;
     offset.scope = pb::Scope::Epoch as i32;
+    offset.ordinal = 0;
+    offset.first_ordinal = 0;
+    offset.change_count = 0;
     offset.storage_slot.clear();
+    offset.raw_word.clear();
     offset.bit_width = 0;
     let initial = events(
         10,
@@ -815,10 +819,13 @@ fn intermediate_writes_require_a_final_row_and_continuity_is_checked() {
     let (initial, qualified) = aave_initial("7");
     let mut state = seed(initial);
     let before = state.report();
-    let final_row = global(&qualified.epoch, pb::StateField::AaveLiquidityIndex, RAY, RAY);
+    let mut final_row = global(&qualified.epoch, pb::StateField::AaveLiquidityIndex, RAY, RAY);
+    final_row.first_ordinal = 10;
+    final_row.change_count = 2;
     let mut intermediate = final_row.clone();
     intermediate.boundary = pb::Boundary::Change as i32;
     intermediate.ordinal = 10;
+    intermediate.change_count = 1;
     assert!(state.apply(&events(11, 101, vec![], vec![], vec![intermediate.clone()])).is_err());
     assert_eq!(state.report(), before);
     let mut discontinuous = final_row.clone();
@@ -1318,6 +1325,7 @@ fn actual_lido_projector_logs_are_separate_from_stored_getter_inputs() {
         .unwrap()
         .clone();
     one_field.ordinal = 40;
+    one_field.first_ordinal = 40;
     one_field.value = "6".into();
     partial.global_state = vec![one_field.clone()];
     counts(&mut partial);
@@ -1326,6 +1334,7 @@ fn actual_lido_projector_logs_are_separate_from_stored_getter_inputs() {
     state.undo(10).unwrap();
     let mut older = one_field.clone();
     older.ordinal = 35;
+    older.first_ordinal = 35;
     older.value = "4".into();
     partial.global_state = vec![one_field.clone(), older];
     counts(&mut partial);
@@ -1338,4 +1347,217 @@ fn actual_lido_projector_logs_are_separate_from_stored_getter_inputs() {
     let before = state.report();
     assert!(state.apply(&partial).is_err());
     assert_eq!(state.report(), before);
+}
+
+#[test]
+fn ordinal_ownership_protocol_validates_discarded_changes_and_logs() {
+    let (initial, first) = aave_initial("7");
+    let mut state = seed(initial);
+    let before = format!("{state:#?}");
+    let mut next = first.epoch.clone();
+    next.epoch = 3;
+    next.activation_block = 11;
+    next.activation_ordinal = 30;
+    next.ordinal = 30;
+    for log in [false, true] {
+        let mut early = global(&next, pb::StateField::AaveLiquidityIndex, RAY, RAY);
+        early.boundary = pb::Boundary::Change as i32;
+        early.first_ordinal = 20;
+        early.ordinal = 20;
+        if log {
+            early.observation = pb::Observation::ObservedLog as i32;
+        }
+        let mut last = early.clone();
+        last.first_ordinal = 40;
+        last.ordinal = 40;
+        if !log {
+            last.boundary = pb::Boundary::EndOfBlock as i32;
+        }
+        let malformed = events(11, 100, vec![next.clone()], vec![], vec![last, early]);
+        assert!(state.apply(&malformed).is_err());
+        assert_eq!(format!("{state:#?}"), before);
+    }
+}
+
+#[test]
+fn ordinal_ownership_final_global_contains_its_intermediate_effects() {
+    let (initial, first) = aave_initial("7");
+    let mut state = seed(initial);
+    let before = format!("{state:#?}");
+    let mut intermediate = global(&first.epoch, pb::StateField::AaveLiquidityIndex, RAY, RAY);
+    intermediate.boundary = pb::Boundary::Change as i32;
+    intermediate.first_ordinal = 10;
+    intermediate.ordinal = 10;
+    let mut last = intermediate.clone();
+    last.boundary = pb::Boundary::EndOfBlock as i32;
+    last.first_ordinal = 20;
+    last.ordinal = 30;
+    last.change_count = 2;
+    let mut update = events(11, 100, vec![], vec![], vec![last, intermediate]);
+    assert!(state.apply(&update).is_err());
+    assert_eq!(format!("{state:#?}"), before);
+    update.global_state[0].first_ordinal = 10;
+    state.apply(&update).unwrap();
+    state.undo(10).unwrap();
+    assert_eq!(amount(&first, &state, Metric::AaveBalanceOf), "7");
+}
+
+#[test]
+fn ordinal_ownership_checkpoint_descriptors_keep_historical_or_neutral_positions() {
+    for neutral in [false, true] {
+        let (mut snapshot, first) = aave_initial("7");
+        // A checkpoint at 12 carries explicitly initialized values, not a
+        // claim that the original writes or BOUND occurred in block 12.
+        snapshot.clocks = events(12, 100, vec![], vec![], vec![]).clocks;
+        snapshot.epochs[0].activation_ordinal = 100;
+        snapshot.epochs[0].ordinal = 100;
+        if neutral {
+            for row in &mut snapshot.holder_basis {
+                row.first_ordinal = 0;
+                row.ordinal = 0;
+                row.change_count = 0;
+            }
+            for row in &mut snapshot.global_state {
+                row.first_ordinal = 0;
+                row.ordinal = 0;
+                row.change_count = 0;
+            }
+        }
+        counts(&mut snapshot);
+        let mut state = seed(snapshot);
+        assert!(matches!(state.holder(&MARKET, &HOLDER).unwrap().origin, Origin::Checkpoint { block: 12, .. }));
+        let before = format!("{state:#?}");
+        let mut next = first.epoch.clone();
+        next.epoch = 3;
+        next.activation_block = 13;
+        next.activation_ordinal = 30;
+        next.ordinal = 30;
+        let mut update = events(13, 100, vec![next.clone()], vec![holder(&next, "9")], vec![]);
+        assert!(state.apply(&update).is_err());
+        assert_eq!(format!("{state:#?}"), before);
+        update.holder_basis[0].first_ordinal = 30;
+        update.holder_basis[0].ordinal = 30;
+        state.apply(&update).unwrap();
+        assert_eq!(state.holder(&MARKET, &HOLDER).unwrap().row.value, "9");
+    }
+}
+
+#[test]
+fn ordinal_ownership_checkpoint_refuses_intrinsically_reversed_observation_ranges() {
+    for global_only in [false, true] {
+        let (mut snapshot, _) = aave_initial("7");
+        if global_only {
+            snapshot.global_state[0].first_ordinal = 22;
+        } else {
+            snapshot.holder_basis[0].first_ordinal = 21;
+        }
+        assert!(ProtocolLedger::from_checkpoint(
+            4,
+            Checkpoint {
+                events: snapshot,
+                evidence: "synthetic malformed provenance".into()
+            }
+        )
+        .is_err());
+    }
+}
+
+#[test]
+fn ordinal_ownership_heartbeat_is_not_a_checkpoint_validation_bypass() {
+    let (mut update, _) = aave_initial("7");
+    update.epochs[0].kind = pb::EpochEventKind::Reaffirmed as i32;
+    update.epochs[0].activation_ordinal = 30;
+    let mut state = ProtocolLedger::new(4);
+    let before = format!("{state:#?}");
+    assert!(state.apply(&update).is_err());
+    assert_eq!(format!("{state:#?}"), before);
+    update.holder_basis[0].first_ordinal = 30;
+    update.holder_basis[0].ordinal = 30;
+    for row in &mut update.global_state {
+        row.first_ordinal = 31;
+        row.ordinal = 31;
+    }
+    state.apply(&update).unwrap();
+    assert_eq!(state.report().active_model_basis_holders, 0);
+    assert_eq!(state.model(&MARKET), Err(Unavailable::Unbound));
+}
+
+#[test]
+fn ordinal_ownership_valid_prefix_globals_are_quarantined_and_cannot_cross_rebinding() {
+    for observation in [pb::Observation::ObservedWrite, pb::Observation::ObservedLog, pb::Observation::Derived] {
+        let (initial, first) = aave_initial("7");
+        let mut state = seed(initial);
+        let before = format!("{state:#?}");
+        let invalidation = pb::ModelEpoch {
+            kind: pb::EpochEventKind::Invalidated as i32,
+            reason: pb::InvalidationReason::CodeChange as i32,
+            ordinal: 25,
+            ..first.epoch.clone()
+        };
+        let mut next = first.epoch.clone();
+        next.epoch = 3;
+        next.activation_block = 11;
+        next.activation_ordinal = 30;
+        next.ordinal = 30;
+        let mut prefix = global(&first.epoch, pb::StateField::AaveLiquidityIndex, "", RAY);
+        prefix.first_ordinal = 20;
+        prefix.ordinal = 20;
+        prefix.observation = observation as i32;
+        if observation != pb::Observation::ObservedWrite {
+            prefix.value = "9".into();
+        }
+        if observation == pb::Observation::ObservedLog {
+            prefix.boundary = pb::Boundary::Change as i32;
+        }
+        let mut transition = events(11, 100, vec![invalidation, next], vec![], vec![prefix]);
+        transition.global_state[0].ordinal = 25;
+        transition.global_state[0].first_ordinal = 25;
+        assert!(state.apply(&transition).is_err());
+        assert_eq!(format!("{state:#?}"), before);
+        transition.global_state[0].ordinal = 20;
+        transition.global_state[0].first_ordinal = 20;
+        state.apply(&transition).unwrap();
+        let key = GlobalKey::new(&MARKET, pb::StateField::AaveLiquidityIndex, &[], observation);
+        assert_eq!(state.global(&key), Err(Unavailable::Missing));
+        assert_eq!(state.holder(&MARKET, &HOLDER), Err(Unavailable::Missing));
+        state.undo(10).unwrap();
+        assert_eq!(amount(&first, &state, Metric::AaveBalanceOf), "7");
+        // The same valid legacy prefix without a successor stays suspended,
+        // rather than becoming evaluable end-of-block state.
+        transition.epochs.pop();
+        counts(&mut transition);
+        state.apply(&transition).unwrap();
+        assert!(matches!(state.global(&key), Err(Unavailable::Suspended { .. })));
+        state.undo(10).unwrap();
+        assert_eq!(amount(&first, &state, Metric::AaveBalanceOf), "7");
+    }
+}
+
+#[test]
+fn ordinal_ownership_checkpoint_constant_keeps_its_historical_declaration_position() {
+    let epoch = model(ReferenceModel::OzVirtualOffset);
+    let mut constant = global(&epoch, pb::StateField::Erc4626DecimalsOffset, "0", "1");
+    constant.observation = pb::Observation::QualifiedConstant as i32;
+    constant.boundary = pb::Boundary::Declaration as i32;
+    constant.scope = pb::Scope::Epoch as i32;
+    constant.first_ordinal = 0;
+    constant.ordinal = 100;
+    constant.change_count = 0;
+    // Snapshot BOUND identifies the active model; it need not replay the
+    // original constant declaration's execution position.
+    let snapshot = events(12, 100, vec![epoch.clone()], vec![holder(&epoch, "7")], vec![constant.clone()]);
+    let mut state = seed(snapshot);
+    let key = GlobalKey::new(&MARKET, pb::StateField::Erc4626DecimalsOffset, &[], pb::Observation::QualifiedConstant);
+    assert_eq!(state.global(&key).unwrap().row.ordinal, 100);
+    let before = format!("{state:#?}");
+    let heartbeat = pb::ModelEpoch {
+        kind: pb::EpochEventKind::Reaffirmed as i32,
+        ..epoch
+    };
+    let mut update = events(13, 101, vec![heartbeat], vec![], vec![constant]);
+    assert!(state.apply(&update).is_err());
+    assert_eq!(format!("{state:#?}"), before);
+    update.global_state[0].ordinal = 0;
+    state.apply(&update).unwrap();
+    assert_eq!(state.global(&key).unwrap().row.ordinal, 0);
 }

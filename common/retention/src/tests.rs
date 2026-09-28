@@ -78,6 +78,9 @@ fn basis_in(epoch: u32, contract: u8, holder: u8, value: &str) -> state::HolderB
         observation: state::Observation::ObservedWrite as i32,
         boundary: state::Boundary::EndOfBlock as i32,
         scope: state::Scope::Transaction as i32,
+        first_ordinal: 1,
+        ordinal: 1,
+        change_count: 1,
         ..Default::default()
     }
 }
@@ -98,6 +101,9 @@ fn global(contract: u8, value: &str) -> state::GlobalState {
         observation: state::Observation::ObservedWrite as i32,
         boundary: state::Boundary::EndOfBlock as i32,
         scope: state::Scope::Transaction as i32,
+        first_ordinal: 1,
+        ordinal: 1,
+        change_count: 1,
         ..Default::default()
     }
 }
@@ -321,7 +327,7 @@ fn deployment_seed_journaling_preserves_a_row_dropped_earlier_in_the_creation_bl
     // An epoch-1 row before the epoch-2 activation ordinal is applied and
     // then dropped by the BOUND; the seed must journal the pre-block state.
     let mut l = state_ledger(2);
-    let events = state_events(10, vec![bound(1, 2, 50, false)], vec![basis_in(1, 1, 1, "42")]);
+    let events = state_events(10, vec![bound(1, 2, 50, false)], vec![basis_position(basis_in(1, 1, 1, "42"), 20, 20, 1)]);
     l.apply_state(&clock(10), &events).unwrap();
     assert_eq!(l.lookup(&key(1, 1)), Lookup::Unknown);
     assert_eq!(l.seed_deployment_zero(&[1; 20], &[vec![1; 20], vec![2; 20]].into(), &clock(10)).unwrap(), 2);
@@ -423,7 +429,9 @@ fn uninterrupted_compatible_binding_carries_basis_but_suspension_requires_fresh_
         if suspended {
             epochs.push(epoch_row(2, 1, state::EpochEventKind::Suspended, 50, true));
         }
-        ledger.apply_state(&clock(11), &state_events(11, epochs, vec![basis_in(2, 2, 2, "9")])).unwrap();
+        ledger
+            .apply_state(&clock(11), &state_events(11, epochs, vec![basis_position(basis_in(2, 2, 2, "9"), 110, 110, 1)]))
+            .unwrap();
         assert_eq!(known(&ledger, &key(2, 1)).as_deref(), if suspended { None } else { Some("5") });
         assert_eq!(known(&ledger, &key(2, 2)).as_deref(), Some("9"));
         ledger.undo(10).unwrap();
@@ -444,8 +452,11 @@ fn migrations_suspend_and_rebinding_decides_carryover() {
     // An unsigned basis cannot be negative.
     assert!(l.apply_state(&clock(11), &state_events(11, vec![], vec![basis(2, 3, "-1")])).is_err());
     assert_eq!(known(&l, &k).as_deref(), Some("-5"));
-    l.apply_state(&clock(11), &state_events(11, vec![invalidated(2, 1, 5)], vec![basis(2, 2, "10")]))
-        .unwrap();
+    l.apply_state(
+        &clock(11),
+        &state_events(11, vec![invalidated(2, 1, 5)], vec![basis_position(basis(2, 2, "10"), 2, 2, 1)]),
+    )
+    .unwrap();
     let suspended = Lookup::Suspended {
         epoch: 1,
         reason: state::InvalidationReason::RateModelChange as i32,
@@ -532,7 +543,7 @@ fn epoch_membership_rejects_phantom_holder_between_known_epochs() {
         .apply_state(&clock(10), &state_events(10, vec![bound(2, 1, 0, false)], vec![basis(2, 1, "7")]))
         .unwrap();
     let before = ledger.clone();
-    let mut phantom = basis_in(2, 2, 1, "9");
+    let mut phantom = basis_position(basis_in(2, 2, 1, "9"), 25, 25, 1);
     phantom.previous_value = "42".into();
     let malformed = state_events(11, vec![bound(2, 3, 30, true)], vec![phantom]);
     assert!(ledger.apply_state(&clock(11), &malformed).is_err());
@@ -546,7 +557,7 @@ fn epoch_membership_rejects_phantom_global_between_known_epochs() {
         .apply_state(&clock(10), &state_events(10, vec![bound(2, 1, 0, false)], vec![basis(2, 1, "7")]))
         .unwrap();
     let before = ledger.clone();
-    let mut phantom = global(2, "9");
+    let mut phantom = global_position(global(2, "9"), 25, 25, 1);
     phantom.epoch = 2;
     phantom.previous_value = "42".into();
     let malformed = with_globals(state_events(11, vec![bound(2, 3, 30, true)], vec![]), vec![phantom]);
@@ -566,11 +577,11 @@ fn epoch_membership_rejects_phantoms_after_a_cold_epoch_is_declared() {
             let before = ledger.clone();
             let mut malformed = state_events(10, vec![first.clone(), bound(2, 3, 30, true)], vec![]);
             if global_only {
-                let mut phantom = global(2, "9");
+                let mut phantom = global_position(global(2, "9"), 25, 25, 1);
                 phantom.epoch = 2;
                 malformed = with_globals(malformed, vec![phantom]);
             } else {
-                malformed.holder_basis.push(basis_in(2, 2, 1, "9"));
+                malformed.holder_basis.push(basis_position(basis_in(2, 2, 1, "9"), 25, 25, 1));
                 malformed.clocks[0].holder_basis_count = 1;
             }
             assert!(ledger.apply_state(&clock(10), &malformed).is_err(), "{malformed:?}");
@@ -589,9 +600,9 @@ fn epoch_membership_requires_one_inferred_cold_predecessor_across_tables() {
             let mut malformed = state_events(10, vec![bound(2, 3, 30, false)], vec![]);
             for (i, epoch) in ids.into_iter().enumerate() {
                 if tables == 0 || (tables == 2 && i == 0) {
-                    malformed.holder_basis.push(basis_in(epoch, 2, i as u8 + 1, "9"));
+                    malformed.holder_basis.push(basis_position(basis_in(epoch, 2, i as u8 + 1, "9"), 20, 20, 1));
                 } else {
-                    let mut row = global(2, "9");
+                    let mut row = global_position(global(2, "9"), 20, 20, 1);
                     row.epoch = epoch;
                     malformed.global_state.push(row);
                 }
@@ -619,8 +630,14 @@ fn epoch_membership_preserves_real_nonconsecutive_epochs_and_undo() {
             if !already_known {
                 epochs.push(bound(2, 1, 10, false));
             }
-            let mut holders = vec![basis_in(1, 2, 1, "7"), basis_in(3, 2, 2, "9")];
-            let mut globals = vec![global(2, "7"), state::GlobalState { epoch: 3, ..global(2, "9") }];
+            let mut holders = vec![
+                basis_position(basis_in(1, 2, 1, "7"), 20, 20, 1),
+                basis_position(basis_in(3, 2, 2, "9"), 40, 40, 1),
+            ];
+            let mut globals = vec![
+                global_position(global(2, "7"), 20, 20, 1),
+                global_position(state::GlobalState { epoch: 3, ..global(2, "9") }, 40, 40, 1),
+            ];
             if reversed {
                 epochs.reverse();
                 holders.reverse();
@@ -644,8 +661,14 @@ fn epoch_membership_preserves_real_nonconsecutive_epochs_and_undo() {
 fn epoch_membership_cold_predecessor_does_not_replace_the_final_bound() {
     for reversed in [false, true] {
         let mut ledger = state_ledger(4);
-        let mut holders = vec![basis_in(1, 2, 1, "7"), basis_in(3, 2, 2, "9")];
-        let mut globals = vec![global(2, "7"), state::GlobalState { epoch: 3, ..global(2, "9") }];
+        let mut holders = vec![
+            basis_position(basis_in(1, 2, 1, "7"), 20, 20, 1),
+            basis_position(basis_in(3, 2, 2, "9"), 40, 40, 1),
+        ];
+        let mut globals = vec![
+            global_position(global(2, "7"), 20, 20, 1),
+            global_position(state::GlobalState { epoch: 3, ..global(2, "9") }, 40, 40, 1),
+        ];
         if reversed {
             holders.reverse();
             globals.reverse();
@@ -684,7 +707,11 @@ fn an_activation_block_applies_the_previous_epochs_rows_before_the_new_binding_i
             // holder 1 was written before 500 (epoch 1) and holder 2 on both
             // sides, so it has one row per epoch.
             let mut epochs = vec![invalidated(2, 1, 100), bound(2, 2, 500, carryover)];
-            let mut rows = vec![basis_in(1, 2, 1, "77"), basis_in(1, 2, 2, "60"), basis_in(2, 2, 2, "61")];
+            let mut rows = vec![
+                basis_position(basis_in(1, 2, 1, "77"), 20, 20, 1),
+                basis_position(basis_in(1, 2, 2, "60"), 30, 30, 1),
+                basis_position(basis_in(2, 2, 2, "61"), 510, 510, 1),
+            ];
             if reversed {
                 epochs.reverse();
                 rows.reverse();
@@ -1033,4 +1060,213 @@ fn genesis_undo_never_invents_a_pre_genesis_clock() {
     l.undo(0).unwrap();
     assert_eq!(l.last(), Some(&genesis));
     assert_eq!(l.entries(), before.entries());
+}
+
+fn basis_position(mut row: state::HolderBasis, first: u64, last: u64, count: u32) -> state::HolderBasis {
+    row.first_ordinal = first;
+    row.ordinal = last;
+    row.change_count = count;
+    row
+}
+
+fn global_position(mut row: state::GlobalState, first: u64, last: u64, count: u32) -> state::GlobalState {
+    row.first_ordinal = first;
+    row.ordinal = last;
+    row.change_count = count;
+    row
+}
+
+#[test]
+fn ordinal_ownership_rejects_holder_spans_outside_identity_intervals() {
+    let mut ledger = state_ledger(4);
+    ledger
+        .apply_state(
+            &clock(10),
+            &state_events(10, vec![bound(2, 1, 0, false)], vec![basis_position(basis(2, 1, "7"), 1, 1, 1)]),
+        )
+        .unwrap();
+    let before = ledger.clone();
+    for (epoch, first, last, count) in [
+        (3, 20, 20, 1), // Before inclusive successor start 30.
+        (1, 30, 30, 1), // At exclusive predecessor end 30.
+        (1, 20, 40, 2), // Crosses the boundary.
+        (3, 20, 40, 2),
+        (1, 21, 20, 1), // Reversed range.
+        (1, 0, 20, 1),
+        (1, 0, 0, 0),
+        (1, 20, 20, 0),
+    ] {
+        let malformed = state_events(
+            11,
+            vec![bound(2, 3, 30, true)],
+            vec![basis_position(basis_in(epoch, 2, 1, "9"), first, last, count)],
+        );
+        assert!(
+            ledger.apply_state(&clock(11), &malformed).is_err(),
+            "epoch={epoch} range={first}..={last} count={count}"
+        );
+        assert_unchanged(&ledger, &before);
+    }
+}
+
+#[test]
+fn ordinal_ownership_rejects_global_ranges_and_single_effect_shapes() {
+    let mut ledger = state_ledger(4);
+    ledger.apply_state(&clock(10), &state_events(10, vec![bound(2, 1, 0, false)], vec![])).unwrap();
+    let before = ledger.clone();
+    for observation in [state::Observation::ObservedWrite, state::Observation::Derived, state::Observation::ObservedLog] {
+        for (epoch, first, last, count) in [(3, 20, 20, 1), (1, 30, 30, 1), (1, 21, 20, 1), (1, 0, 0, 0), (1, 20, 20, 0)] {
+            let mut row = global_position(global(2, "9"), first, last, count);
+            row.epoch = epoch;
+            row.observation = observation as i32;
+            if observation == state::Observation::ObservedLog {
+                row.boundary = state::Boundary::Change as i32;
+            }
+            let malformed = with_globals(state_events(11, vec![bound(2, 3, 30, true)], vec![]), vec![row]);
+            assert!(ledger.apply_state(&clock(11), &malformed).is_err());
+            assert_unchanged(&ledger, &before);
+        }
+    }
+    for observation in [state::Observation::ObservedWrite, state::Observation::ObservedLog] {
+        for (first, last, count) in [(10, 20, 1), (20, 20, 2)] {
+            let mut row = global_position(global(2, "9"), first, last, count);
+            row.observation = observation as i32;
+            row.boundary = state::Boundary::Change as i32;
+            let malformed = with_globals(state_events(11, vec![], vec![]), vec![row]);
+            assert!(ledger.apply_state(&clock(11), &malformed).is_err());
+            assert_unchanged(&ledger, &before);
+        }
+    }
+}
+
+#[test]
+fn ordinal_ownership_rejects_observations_at_current_block_cutoff() {
+    for global_only in [false, true] {
+        let mut ledger = state_ledger(4);
+        ledger.apply_state(&clock(10), &state_events(10, vec![bound(2, 1, 0, false)], vec![])).unwrap();
+        let before = ledger.clone();
+        let mut malformed = state_events(11, vec![invalidated(2, 1, 25), bound(2, 3, 30, true)], vec![]);
+        if global_only {
+            malformed = with_globals(malformed, vec![global_position(global(2, ""), 20, 25, 2)]);
+        } else {
+            malformed.holder_basis.push(basis_position(basis(2, 1, "9"), 20, 25, 2));
+            malformed.clocks[0].holder_basis_count = 1;
+        }
+        assert!(ledger.apply_state(&clock(11), &malformed).is_err());
+        assert_unchanged(&ledger, &before);
+    }
+}
+
+#[test]
+fn ordinal_ownership_declarations_match_boundaries_without_claiming_writes() {
+    for (first, last, count) in [(0, 29, 0), (20, 30, 0), (0, 30, 1)] {
+        let mut ledger = state_ledger(4);
+        let before = ledger.clone();
+        let mut row = global_position(global(2, "9"), first, last, count);
+        row.observation = state::Observation::QualifiedConstant as i32;
+        row.boundary = state::Boundary::Declaration as i32;
+        row.scope = state::Scope::Epoch as i32;
+        let malformed = with_globals(state_events(10, vec![bound(2, 1, 30, false)], vec![]), vec![row]);
+        assert!(ledger.apply_state(&clock(10), &malformed).is_err());
+        assert_unchanged(&ledger, &before);
+    }
+    for first in [0, 30] {
+        let mut ledger = state_ledger(4);
+        let mut row = global_position(global(2, "9"), first, 30, 0);
+        row.observation = state::Observation::QualifiedConstant as i32;
+        row.boundary = state::Boundary::Declaration as i32;
+        row.scope = state::Scope::Epoch as i32;
+        ledger
+            .apply_state(
+                &clock(10),
+                &with_globals(state_events(10, vec![bound(2, 1, 30, false), invalidated(2, 1, 30)], vec![]), vec![row]),
+            )
+            .unwrap();
+        assert_eq!(ledger.report().suspended_markets, 1);
+    }
+}
+
+#[test]
+fn ordinal_ownership_keeps_valid_prefix_cleanup_and_later_suspended_raw_rows() {
+    let mut ledger = state_ledger(4);
+    ledger
+        .apply_state(
+            &clock(10),
+            &state_events(10, vec![bound(2, 1, 0, false)], vec![basis_position(basis(2, 1, "7"), 1, 1, 1)]),
+        )
+        .unwrap();
+    let transition = state_events(
+        11,
+        vec![invalidated(2, 1, 25), bound(2, 3, 30, true)],
+        vec![basis_position(basis(2, 1, "9"), 20, 20, 1), basis_position(basis_in(3, 2, 2, "0"), 30, 30, 1)],
+    );
+    ledger.apply_state(&clock(11), &transition).unwrap();
+    assert_eq!(known(&ledger, &key(2, 1)), None);
+    assert_eq!(known(&ledger, &key(2, 2)).as_deref(), Some("0"));
+    ledger
+        .apply_state(
+            &clock(12),
+            &state_events(12, vec![invalidated(2, 3, 25)], vec![basis_position(basis_in(3, 2, 2, "9"), 20, 20, 1)]),
+        )
+        .unwrap();
+    // Ordinal 40 in a later block is not compared to the prior block's 25.
+    ledger
+        .apply_state(&clock(13), &state_events(13, vec![], vec![basis_position(basis_in(3, 2, 2, "42"), 40, 40, 1)]))
+        .unwrap();
+    assert!(matches!(ledger.lookup(&key(2, 2)), Lookup::Suspended { .. }));
+    ledger.apply_state(&clock(14), &state_events(14, vec![bound(2, 4, 0, true)], vec![])).unwrap();
+    assert_eq!(known(&ledger, &key(2, 2)), None);
+    ledger.undo(10).unwrap();
+    assert_eq!(known(&ledger, &key(2, 1)).as_deref(), Some("7"));
+    ledger.apply_state(&clock(11), &transition).unwrap();
+    assert_eq!(known(&ledger, &key(2, 2)).as_deref(), Some("0"));
+}
+
+#[test]
+fn ordinal_ownership_is_scoped_to_the_market_and_input_order() {
+    for reversed in [false, true] {
+        let mut ledger = state_ledger(4);
+        ledger
+            .apply_state(&clock(10), &state_events(10, vec![bound(2, 1, 0, false), bound(3, 1, 0, false)], vec![]))
+            .unwrap();
+        let mut declarations = vec![invalidated(2, 1, 25), bound(2, 3, 30, true)];
+        let mut rows = vec![basis_position(basis_in(3, 2, 1, "9"), 30, 30, 1), basis_position(basis(3, 1, "7"), 40, 40, 1)];
+        if reversed {
+            declarations.reverse();
+            rows.reverse();
+        }
+        ledger.apply_state(&clock(11), &state_events(11, declarations, rows)).unwrap();
+        assert_eq!(known(&ledger, &key(2, 1)).as_deref(), Some("9"));
+        assert_eq!(known(&ledger, &key(3, 1)).as_deref(), Some("7"));
+    }
+}
+
+#[test]
+fn ordinal_ownership_first_binding_of_suspended_unbound_id_starts_a_new_interval() {
+    let mut ledger = state_ledger(4);
+    let declarations = vec![epoch_row(2, 1, state::EpochEventKind::Suspended, 0, false), bound(2, 1, 30, false)];
+    let before = ledger.clone();
+    assert!(ledger
+        .apply_state(
+            &clock(10),
+            &state_events(10, declarations.clone(), vec![basis_position(basis(2, 1, "9"), 20, 20, 1)])
+        )
+        .is_err());
+    assert_unchanged(&ledger, &before);
+    ledger
+        .apply_state(&clock(10), &state_events(10, declarations, vec![basis_position(basis(2, 1, "9"), 30, 30, 1)]))
+        .unwrap();
+    assert_eq!(known(&ledger, &key(2, 1)).as_deref(), Some("9"));
+    let mut cutoff = state_events(
+        11,
+        vec![bound(2, 3, 30, false), invalidated(2, 3, 30)],
+        vec![basis_position(basis_in(3, 2, 1, "10"), 30, 30, 1)],
+    );
+    let before = ledger.clone();
+    assert!(ledger.apply_state(&clock(11), &cutoff).is_err());
+    assert_unchanged(&ledger, &before);
+    cutoff.holder_basis.clear();
+    cutoff.clocks[0].holder_basis_count = 0;
+    ledger.apply_state(&clock(11), &cutoff).unwrap();
+    assert!(matches!(ledger.lookup(&key(2, 1)), Lookup::Suspended { .. }));
 }

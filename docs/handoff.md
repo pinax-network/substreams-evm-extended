@@ -369,9 +369,22 @@ the final bound epoch. The protocol consumer inherits this validation before
 staging holder, global, model or dependency changes. Red regressions and atomic
 rejection/undo controls are retained under
 `out/retained-epoch-membership-20260928/` in `protocol-invalidation-boundary`.
-This correction does not validate row execution ordinals or enable multiple
-extractor epochs. Those remain separate #7/#16 work; runtime/package/checkpoint
-and live clock/holder qualification remain outstanding.
+The membership correction is separate from execution-position validation.
+
+The subsequent host position check requires every emitted observation span to
+stay inside its epoch's activation, successor and current-block invalidation
+boundaries. It checks discarded intermediate/log rows before selection and
+requires intermediate effects to lie within the final global row's range.
+Constants use their declaration positions without claiming writes. Explicit
+checkpoint imports keep historical or neutral descriptors; later normal
+blocks always resume strict emitted-position validation. Valid legacy prefixes
+and later stateless output from suspended markets remain quarantined or are
+dropped at rebinding, without restoring evaluable state. Eight pre-fix failures,
+boundary/checkpoint regressions and full validation logs are preserved under
+`out/retained-epoch-ordinals-20260928/` in `protocol-invalidation-boundary`.
+Multiple extractor epochs, source-qualified carryover, actual initialized
+checkpoints and runtime/package/live clock/holder qualification remain open
+under #7/#16 and the individual package issues.
 
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
