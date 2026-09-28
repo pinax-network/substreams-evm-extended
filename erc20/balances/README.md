@@ -675,3 +675,10 @@ baseline change. The separately opted-in [Phase B coupled candidate](docs/ptoken
 requires the complete selected root-5/root-6 operation template with Extended 4/5
 frame evidence. It remains NOT-QUALIFIED, with real producer role-write visibility,
 initial coherence and runtime/package/holder gates separate from offline checks.
+
+The [BTR Phase A operation proof](docs/btr-operation-proof.md) separately binds
+the captured implementation and proxy using official solc 0.8.24, with 39 source
+files and 38 exact dependency pins. It targets the selected OZ 4 coupled role
+operations and independent whitelist set in synthetic accounts. The custom
+token's primary source gap, proxy-dispatch boundary and missing deployed-state
+qualification remain explicit; no BTR ingestion rule or candidate is added.

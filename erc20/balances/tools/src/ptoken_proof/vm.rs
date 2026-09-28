@@ -79,6 +79,7 @@ struct Machine<'a> {
     data: &'a [u8],
     caller: U256,
     address: U256,
+    self_code_size: Option<usize>,
     stack: Vec<U256>,
     memory: Vec<u8>,
     state: State,
@@ -281,6 +282,16 @@ impl Machine<'_> {
                 }
                 0x36 => self.push(self.data.len().into())?,
                 0x38 => self.push(self.code.len().into())?,
+                0x3b => {
+                    // The executing implementation bytes need not be the code
+                    // installed at ADDRESS (e.g. a synthetic proxy context).
+                    // No external account facts are inferred by this local VM.
+                    let mask = (U256::one() << 160) - U256::one();
+                    let queried = self.pop()? & mask;
+                    ensure!(queried == self.address & mask, "EXTCODESIZE unknown external account");
+                    let size = self.self_code_size.context("EXTCODESIZE self context not provided")?;
+                    self.push(size.into())?;
+                }
                 0x37 | 0x39 => {
                     let dst = self.pop()?;
                     let src = self.pop()?;
@@ -398,9 +409,22 @@ impl Machine<'_> {
     }
 }
 pub fn execute(code: &[u8], data: &[u8], caller: U256, address: U256, prestate: &State) -> Execution {
-    execute_with_limit(code, data, caller, address, prestate, WITNESS_LIMIT)
+    execute_with_limit(code, data, caller, address, prestate, WITNESS_LIMIT, None)
 }
-fn execute_with_limit(code: &[u8], data: &[u8], caller: U256, address: U256, prestate: &State, witness_limit: usize) -> Execution {
+/// Explicit local self-account fact, independent of the supplied execution code.
+/// None preserves the original fail-closed behavior for any EXTCODESIZE query.
+pub fn execute_with_self_code_size(code: &[u8], data: &[u8], caller: U256, address: U256, prestate: &State, self_code_size: Option<usize>) -> Execution {
+    execute_with_limit(code, data, caller, address, prestate, WITNESS_LIMIT, self_code_size)
+}
+fn execute_with_limit(
+    code: &[u8],
+    data: &[u8],
+    caller: U256,
+    address: U256,
+    prestate: &State,
+    witness_limit: usize,
+    self_code_size: Option<usize>,
+) -> Execution {
     let mut destinations = BTreeSet::new();
     let mut pc = 0;
     while pc < code.len() {
@@ -415,6 +439,7 @@ fn execute_with_limit(code: &[u8], data: &[u8], caller: U256, address: U256, pre
         data,
         caller,
         address,
+        self_code_size,
         stack: vec![],
         memory: vec![],
         state: prestate.clone(),
@@ -444,5 +469,5 @@ fn execute_with_limit(code: &[u8], data: &[u8], caller: U256, address: U256, pre
 
 #[cfg(test)]
 pub(super) fn small_witness_execution(code: &[u8], prestate: &State) -> Execution {
-    execute_with_limit(code, &[], 0.into(), 0.into(), prestate, 64)
+    execute_with_limit(code, &[], 0.into(), 0.into(), prestate, 64, None)
 }

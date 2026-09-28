@@ -88,6 +88,12 @@ template is not a universal OpenZeppelin enumerable-set rule.
 
 The remaining 20 boolean-role profiles are SecuritiesToken (17), BTRToken
 and GMToken (2).
+The [BTR host operation proof](btr-operation-proof.md) is a prerequisite for
+its future migration. It binds the selected OZ 4.9.3 implementation and OZ 5.2
+proxy sources and distinguishes coupled role transitions from the separate
+whitelist set. No BTR ingestion rule or candidate is added, so the candidate
+count remains thirteen. The custom token's independent primary source and
+actual initialization remain unresolved.
 Each needs its own reachability, initialization and dependency review before
 candidate migration. This classification concerns the configured role field;
 some contracts also contain separate enumerable or dynamic metadata that must
