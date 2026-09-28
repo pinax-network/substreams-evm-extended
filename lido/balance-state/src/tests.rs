@@ -226,6 +226,65 @@ fn a_report_derives_total_pooled_ether_only_when_every_input_word_was_written() 
     assert_eq!(events.global_state.len(), 6);
 }
 
+fn extreme_globals(total: u128, external: u128) -> pb::Events {
+    let e = epoch();
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        address: e.steth.clone(),
+        storage_changes: vec![
+            write(e.total_and_external_shares_slot, packed(1, 0), packed(total, external), 10),
+            write(e.buffered_slot, packed(1, 0), packed(u128::MAX, u128::MAX), 11),
+            write(e.cl_slot, packed(1, 1), packed(0, 0), 12),
+        ],
+        ..Default::default()
+    })];
+    project(&b, &config()).unwrap()
+}
+
+#[test]
+fn derived_total_wraps_external_product_before_division() {
+    let events = extreme_globals(u128::MAX, u128::MAX - 2);
+    // N=2^128: ((2N-2)*(N-3) mod 2^256)/2 + (2N-2)
+    // = 2^255 - 2N + 1. The unbounded final result also fits uint256.
+    let expected: BigInt = (BigInt::from(1) << 255u32) - (BigInt::from(1) << 129u32) + BigInt::from(1);
+    let derived: Vec<_> = events
+        .global_state
+        .iter()
+        .filter(|g| g.observation == pb::Observation::Derived as i32)
+        .collect();
+    assert_eq!(derived.len(), 1);
+    assert_eq!(derived[0].value, expected.to_string());
+    assert_eq!(
+        events
+            .global_state
+            .iter()
+            .filter(|g| g.observation == pb::Observation::ObservedWrite as i32)
+            .count(),
+        6
+    );
+}
+
+#[test]
+fn derived_total_omits_checked_addition_failure_and_preserves_six_raw_facts() {
+    let half = 1u128 << 127;
+    let events = extreme_globals(half + 1, half);
+    assert!(events.global_state.iter().all(|g| g.observation != pb::Observation::Derived as i32));
+    assert_eq!(events.global_state.len(), 6);
+    for (field, expected) in [
+        (pb::StateField::LidoTotalShares, half + 1),
+        (pb::StateField::LidoExternalShares, half),
+        (pb::StateField::LidoBufferedEther, u128::MAX),
+        (pb::StateField::LidoDepositedPostReport, u128::MAX),
+        (pb::StateField::LidoClValidatorsBalance, 0),
+        (pb::StateField::LidoClPendingBalance, 0),
+    ] {
+        let row = events.global_state.iter().find(|g| g.field == field as i32).unwrap();
+        assert_eq!(row.value, expected.to_string());
+        assert_eq!(row.observation, pb::Observation::ObservedWrite as i32);
+        assert_eq!(row.raw_word.len(), 32);
+    }
+}
+
 #[test]
 fn token_rebased_logs_are_report_evidence_from_succeeded_transactions_only() {
     let e = epoch();

@@ -1,0 +1,30 @@
+{
+  "topic": "Lido v4 source-execution oracle and uint256 arithmetic correction, 2026-09-28",
+  "facts": [
+    {
+      "key": "forward_conversion_wraps_before_division",
+      "value": "getPooledEthByShares requires sharesAmount < UINT128_MAX then uses a plain uint256 product under Solidity 0.4.24. The product wraps before division; balanceOf delegates to that function.",
+      "source_url": "https://raw.githubusercontent.com/lidofinance/core/2da0f48f1a2a103a394dcf8760810fe9165697fb/contracts/0.4.24/StETH.sol",
+      "source_pin": "lidofinance/core@2da0f48f1a2a103a394dcf8760810fe9165697fb contracts/0.4.24/StETH.sol",
+      "note": "Compiled unchanged function bodies independently reproduce the accepted-input counterexample: N=2^128, M=N-1, total M, external 0, buffered/deposited M each, holder M-1. Source returns N-6 while previous unbounded Rust returned 2N-4. No deployed reachability claim."
+    },
+    {
+      "key": "external_product_wraps_total_addition_is_checked",
+      "value": "Internal ether sums four packed uint128 fields using SafeMath.add. External ether multiplies externalShares by internalEther unchecked, then divides; total pooled ether adds with SafeMath. The individual packed-width bounds do not imply an aggregate uint128 bound.",
+      "source_url": "https://raw.githubusercontent.com/lidofinance/core/2da0f48f1a2a103a394dcf8760810fe9165697fb/contracts/0.4.24/Lido.sol",
+      "source_pin": "lidofinance/core@2da0f48f1a2a103a394dcf8760810fe9165697fb contracts/0.4.24/Lido.sol:1271-1306; aragon/aragonOS@f3ae59b00f73984e562df00129c925339cd069ff contracts/lib/math/SafeMath.sol:58-62",
+      "note": "Two further compiled-source counterexamples prove wrapping even when the mathematical final quotient fits uint256, and MATH_ADD_OVERFLOW after a valid external product. Mapper spec 4 matches those outcomes, omitting only the failed derived total and preserving all six stored inputs. Host references remain outside production WASM."
+    },
+    {
+      "key": "official_compiler_and_bounded_harness",
+      "value": "The local solc 0.4.24+commit.e67f0147 macOS amd64 binary matches official SHA256 7034c4048bc713d5c14cdd6681953c736e2adbdb9174f8bfbfb6a097109ffaaa.",
+      "source_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json",
+      "source_pin": "ethereum/solc-bin@16a99b8c26ed33a91796e209ff6797ee7baf2b0d macosx-amd64/solc-macosx-amd64-v0.4.24+commit.e67f0147",
+      "note": "Rust generator records primary sources, licenses, its own as-run source hash, compiler arguments and runtime/selectors. Twelve getter/accessor bodies and packed read function are extracted unchanged; three constant locations and holder lookup are explicitly controlled. This is source arithmetic execution, not full deployed contract execution."
+    }
+  ],
+  "open_questions": [
+    "Current deployment code hashes, dependency/epoch activation, actual reachability of extreme packed states, initialized checkpoints and actual package/getter controls remain unverified.",
+    "The conservative unsupported externalShares > totalShares domain and missing-holder Unknown remain explicit host guards, not claims of Solidity revert equivalence."
+  ]
+}

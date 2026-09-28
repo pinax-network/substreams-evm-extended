@@ -22,7 +22,8 @@ unaffected markets keep their rows. The host consumer discards basis when
 rebinding after suspension, including when storage is compatible, because
 missing observations break continuity. Synthetic projector-to-consumer tests
 cover suspension, rebound, undo and replacement blocks. Aave's specification
-revision is now 2; Compound v2/v3, Lido and ERC-4626 are revision 3. Historical
+revision became 2; Compound v2/v3, Lido and ERC-4626 became revision 3.
+The later Lido arithmetic correction described below advances Lido to revision 4. Historical
 live evidence keeps its original package digests and does not qualify these
 newly built packages. See the [balance-state contract](balance-state-contract.md).
 
@@ -92,6 +93,20 @@ the existing oracles. Logs/builds live under `out/comet-oracle-20260928/` in
 `network-verification-config`; `source-03/` is the final capture and earlier
 attempts remain preserved. No deployed runtime, Ethereum interval, initialized
 holder or package qualification is inferred from this arithmetic evidence.
+
+The [Lido source oracle](../conformance/fixtures/lido-oracle/README.md)
+reproduces three accepted-input mismatches against the pinned Solidity 0.4.24
+getter bodies: the holder and external-share products wrap to uint256 before
+division, while the final pooled-ether addition uses checked `SafeMath.add`.
+The host model now follows that order. The production extractor's derived
+total uses the same wrapping and omits only that derived row on addition
+overflow, preserving the six raw observed fields. Lido's specification
+revision is 4; its contract/model version remains 4, with no wire or dependency
+change. The bounded harness relocates three packed storage positions and
+substitutes one holder read; it does not qualify a deployed runtime or package.
+The edge cases are synthetic storage-domain controls, not a claim that these
+states occurred on Ethereum. Reproduced failures and fresh validation remain
+under `out/lido-oracle-20260928/` in `bsc-exclusion-review`.
 
 The [known-zero reference review](research/11-Known_zero_reference_inputs.json)
 removes numeric missing-state sentinels from Aave index and SavingsDai `chi`
@@ -202,15 +217,17 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `lido/balance-state` | `evm.balance_state.v1` | #23 open | synthetic tests; named slots asserted `== keccak256(name)` | **ast-derived** (`solc 0.4.24` AST; all 16 position constants configured or reviewed) |
 | `erc4626/balance-state` | `evm.balance_state.v1` | #24 | **live 2026-09-23 (BSC static aToken)**: 162/162 shares, `convertToAssets` and `rate()` via conformance, 297 reserve words, 63 supplies over 2,064 blocks ([evidence](../erc4626/balance-state/docs/evidence/live-parity-bsc-stata-2026-09-23.json)); sDAI and OZ epochs are Ethereum placeholders (#8) | **compiler-verified** (StaticATokenLM 0.8.20, SavingsDai 0.8.17, Pot 0.6.12, OZ constants) |
 | `common/persist` | library | – | shared copy of `erc20/balances` persistence rules; fixtures reused | – |
-| `common/retention` | host library | #7 open | seven scenario tests ([spec](initialization-and-completeness.md)) | – |
-| `conformance` | host library | #16 open | Aave has a captured-block index oracle; Comet, Compound v2, Lido, ERC-4626 are source-line models with synthetic tests | – |
+| `common/retention` | host library | #7 open | atomic application, exact checkpoint/stream identity, undo and retained protocol-input evaluation; synthetic lifecycle controls and separately bounded BSC evidence ([spec](initialization-and-completeness.md)) | – |
+| `conformance` | host library | #16 open | Aave has a captured-block index oracle; Compound v2, Comet, Lido, OZ and SavingsDai have compiled pinned-source controls with explicit harness limits ([details](../conformance/README.md)); deployment/package qualification remains separate | – |
 | `dex/pool-state` | `dex` protos | (other agent, PR #40) | see its README | – |
 
-Merged this pass: PRs #25–#39 (this agent) and #40 (other agent); later
-#46 (audit remediation), #47 (pointer contract) and the `evm/executions`
-regression PR. Closed issues: #11, #12, #18, #19, #22. Open with offline
-progress recorded in a comment: #7, #13, #14, #15, #16, #17, #20, #23, #24. Not started because they need
-RPC or SPKG qualification: #2, #3, #4, #5, #6, #8.
+The initial implementation pass merged PRs #25–#39 and #40, followed by
+#46's audit remediation, #47's pointer contract and execution regressions.
+Later qualification and offline fixes are recorded above and in the
+[current issue tracker](follow-up.md). Issues #6, #11, #12, #13, #18, #19,
+#20, #22 and #24 are closed with their bounded evidence preserved. Thirteen
+issues remain open; their implementation progress and outstanding gates are
+listed separately in that tracker.
 
 ## 3. Where the artifacts live
 
@@ -352,7 +369,8 @@ changed the `common/retention` host API: `seed_checkpoint` and
   is `REWARD_BLOB_FEE` (from the upstream proto), 18/19 are OP-stack, 20 Monad.
 - Lido v4 computes the share rate as `internalEther / internalShares`
   (`totalShares - externalShares`), not `totalPooledEther / totalShares`; the
-  two differ in integer truncation.
+  two differ in integer truncation. Forward and external-share products wrap
+  to uint256 before division; the total getter's final addition is checked.
 - Aave V3 BSC: Pool `_reserves` mapping is slot 52; `ReserveData` word +1 is
   `liquidityIndex` (low 128) | `currentLiquidityRate` (high 128) and word +3
   holds `lastUpdateTimestamp` at bits 128..168; aToken `_userState` is slot

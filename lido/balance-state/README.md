@@ -8,7 +8,7 @@ emit `evm.balances.v1`. Three metrics stay distinct:
 | Metric | What it is | Rows |
 | --- | --- | --- |
 | shares | `shares[holder]`, the retained basis | `HolderBasis` SHARES |
-| stETH `balanceOf` | `shares × internalEther / internalShares` (version 4 getter) | `GlobalState` packed words |
+| stETH `balanceOf` | `((shares × internalEther) mod 2^256) / internalShares` (version 4 getter, rounded down) | `GlobalState` packed words |
 | redemption / wstETH | separate models (withdrawal-queue NFTs, wstETH units) | not emitted here |
 
 The consumer evaluates with [`conformance::lido`](../../conformance/src/lido.rs)
@@ -25,7 +25,7 @@ unknown, not zero.
 | `GlobalState` `LIDO_TOTAL_SHARES` / `LIDO_EXTERNAL_SHARES` | low / high 128 bits of `keccak256("lido.StETH.totalAndExternalShares")`, one row per half of every written word | stETH storage |
 | `GlobalState` `LIDO_BUFFERED_ETHER` / `LIDO_DEPOSITED_POST_REPORT` | low / high 128 bits of `keccak256("lido.Lido.bufferedEtherAndDepositedPostReport")`, one row per half of every written word | stETH storage |
 | `GlobalState` `LIDO_CL_VALIDATORS_BALANCE` / `LIDO_CL_PENDING_BALANCE` | low / high 128 bits of `keccak256("lido.Lido.clValidatorsBalanceAndClPendingBalance")`, written by `processClStateUpdate` on each oracle report | stETH storage |
-| `GlobalState` `LIDO_TOTAL_POOLED_ETHER` (`DERIVED`) | `internalEther + externalShares × internalEther / internalShares`, only when all three words were written in the block and `internalShares > 0` | pure function of the rows above |
+| `GlobalState` `LIDO_TOTAL_POOLED_ETHER` (`DERIVED`) | `internalEther + ((externalShares × internalEther) mod 2^256) / internalShares`, only when all three words were written, `internalShares > 0` and the final checked addition fits uint256 | pure function of the rows above |
 | `GlobalState` `LIDO_CONTRACT_VERSION` | observed write of `keccak256("lido.Versioned.contractVersion")`, and the qualified value as a constant at BOUND / REAFFIRMED | stETH storage, parameters |
 | `GlobalState` `LIDO_REPORT_*` (`OBSERVED_LOG`) | `TokenRebased` `reportTimestamp`, `postTotalShares`, `postTotalEther`, `sharesMintedAsFees` from receipts of succeeded transactions | stETH logs |
 | `ModelEpoch` INVALIDATED | each persisted contract-version write inside the epoch (`CONTRACT_VERSION_SET`), including changes into the configured version; each Aragon resolution-pointer write (`IMPLEMENTATION_POINTER_WRITE` / `DEPENDENCY_POINTER_WRITE`), including equal-value writes; proxy or dependency code changes (`CODE_CHANGE` / `DEPENDENCY_CODE_CHANGE`), with evidence | persisted writes and code changes |
@@ -33,10 +33,22 @@ unknown, not zero.
 | `BlockClock` | exactly one per block | header |
 
 Since contract version 3 the getter is
-`floor(shares × internalEther / internalShares)`, where
+`floor(((shares × internalEther) mod 2^256) / internalShares)`, where
 `internalShares = totalShares − externalShares`. The separate
 `totalPooledEther` getter already truncates its external-share contribution;
 using `totalPooledEther / totalShares` can therefore change the holder balance.
+Solidity 0.4.24 wraps the plain multiplication before division, while the
+total-pooled getter's final `SafeMath.add` rejects overflow. The four ether
+fields each fit uint128, but their sum need not. Spec revision **4** matches
+both source behaviors; a failing total omits only the `DERIVED` row and keeps
+all six stored input fields. This changes neither contract version 4 nor its
+model ID. A retained holder balance can still be evaluated from those inputs
+because `balanceOf` uses the internal rate directly.
+
+The [compiled source oracle](../../conformance/fixtures/lido-oracle/README.md)
+checks these boundaries against pinned functions and actual projector rows.
+Its inputs and relocated storage are synthetic; it does not establish that
+the extreme packed states are reachable in a deployed Lido instance.
 The pre-V3 slot `keccak256("lido.StETH.totalShares")` is zeroed at migration and
 is **not** a reviewed slot of this epoch: a write to it fails the block, which
 is the intended behaviour for an epoch that does not cover that version.
@@ -113,7 +125,7 @@ excursion that restores the pointer within the block, as the
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
 
-Spec revision 3 decodes only the half-open interval from activation
+Since spec revision 3, extraction decodes only the half-open interval from activation
 (inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
 before that cutoff still fail; writes at or after it are not decoded under
 the old model. Raw ordering and continuity checks still cover all owned
@@ -170,7 +182,8 @@ make -C lido/balance-state build
 
 Tests are synthetic: slot names, the literal Kernel mapping members, share
 writes, packed halves at the full uint128 width, derived pooled ether with
-truncation and the zero-internal-shares refusal, report logs from succeeded
+truncation, wrapping multiplication, checked-addition refusal and the
+zero-internal-shares refusal, report logs from succeeded
 transactions only (two topics, receipt required), version and code
 invalidations, the v3 → v4 migration inside an epoch, the pre-V3 slot
 refusal, reviewed names and nested allowance mappings, a routine block with

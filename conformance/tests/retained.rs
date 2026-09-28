@@ -1023,6 +1023,75 @@ fn packed(low: u128, high: u128) -> Vec<u8> {
 }
 
 #[test]
+fn actual_lido_wrapping_and_failed_total_keep_evaluable_retained_holder_inputs() {
+    use num_bigint::BigUint;
+    let mut params: serde_json::Value = serde_json::from_str(include_str!("../../lido/balance-state/tests/fixtures/mainnet-steth-v4-epoch.json")).unwrap();
+    params["epochs"][0]["activation_block"] = 10.into();
+    let cfg = lido_balance_state::parse(&params.to_string()).unwrap();
+    let epoch = &cfg.epochs[0];
+    let half = 1u128 << 127;
+    for (total, external, shares, expected, derived_count) in [
+        (u128::MAX, 0, u128::MAX - 1, (BigUint::from(1u8) << 128u32) - 6u8, 1),
+        (half + 1, half, 1, (BigUint::from(1u8) << 129u32) - 2u8, 0),
+    ] {
+        let mut input = block(10, 100);
+        let holder_slot = lido_balance_state::mapping_key(&HOLDER, &epoch.shares_slot);
+        let mut preimage = vec![0; 12];
+        preimage.extend_from_slice(&HOLDER);
+        preimage.extend_from_slice(&epoch.shares_slot);
+        input.transaction_traces = vec![eth::TransactionTrace {
+            status: eth::TransactionTraceStatus::Succeeded as i32,
+            calls: vec![eth::Call {
+                address: epoch.steth.clone(),
+                keccak_preimages: [(hex::encode(holder_slot), hex::encode(preimage))].into(),
+                storage_changes: [
+                    (holder_slot, packed(0, 0), packed(shares, 0)),
+                    (epoch.total_and_external_shares_slot, packed(1, 0), packed(total, external)),
+                    (epoch.buffered_slot, packed(1, 0), packed(u128::MAX, u128::MAX)),
+                    (epoch.cl_slot, packed(1, 1), packed(0, 0)),
+                ]
+                .into_iter()
+                .enumerate()
+                .map(|(i, (key, old_value, new_value))| eth::StorageChange {
+                    address: epoch.steth.clone(),
+                    key: key.to_vec(),
+                    old_value,
+                    new_value,
+                    ordinal: 20 + i as u64,
+                })
+                .collect(),
+                ..Default::default()
+            }],
+            ..Default::default()
+        }];
+        let output = lido_balance_state::project(&input, &cfg).unwrap();
+        assert_eq!(output.clocks[0].spec_revision, 4);
+        let qualified = qualify(&output, ReferenceModel::LidoV4);
+        let mut state = ProtocolLedger::new(4);
+        state.apply(&output).unwrap();
+        assert_eq!(state.report().current_block_derived, derived_count);
+        let result = qualified.evaluate(&state, &HOLDER, Metric::LidoBalanceOf).unwrap();
+        assert_eq!(result.value.to_string(), expected.to_string());
+        assert_eq!(result.clock.hash, input.hash);
+        assert_eq!(result.clock.spec_revision, 4);
+        let original_holder = result.holder.unwrap();
+        assert_eq!(original_holder.row.value, shares.to_string());
+        assert_eq!(original_holder.row.raw_word, packed(shares, 0));
+        assert_eq!(original_holder.observed_at.number, 10);
+        let idle = lido_balance_state::project(&block(11, 101), &cfg).unwrap();
+        state.apply(&idle).unwrap();
+        assert_eq!(state.report().current_block_derived, 0);
+        let result = qualified.evaluate(&state, &HOLDER, Metric::LidoBalanceOf).unwrap();
+        assert_eq!(result.value.to_string(), expected.to_string());
+        assert_eq!(result.clock.number, 11);
+        assert_eq!(result.holder.unwrap(), original_holder);
+        state.undo(10).unwrap();
+        assert_eq!(state.report().current_block_derived, derived_count);
+        assert_eq!(amount(&qualified, &state, Metric::LidoBalanceOf), expected.to_string());
+    }
+}
+
+#[test]
 fn actual_lido_projector_logs_are_separate_from_stored_getter_inputs() {
     let mut params: serde_json::Value = serde_json::from_str(include_str!("../../lido/balance-state/tests/fixtures/mainnet-steth-v4-epoch.json")).unwrap();
     params["epochs"][0]["activation_block"] = 10.into();
