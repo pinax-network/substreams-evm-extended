@@ -2,7 +2,7 @@
 //! contract-version epoch, emitting `evm.balance_state.v1.Events`.
 //!
 //! stETH `balanceOf(holder)` under contract version 4 is
-//! `shares[holder] * internalEther / internalShares`, where
+//! `((shares[holder] * internalEther) mod 2^256) / internalShares`, where
 //! `internalEther = bufferedEther + clValidatorsBalance + clPendingBalance +
 //! depositedPostReport` and `internalShares = totalShares - externalShares`.
 //! The map emits the holder shares (`HolderBasis` SHARES), the three packed
@@ -30,9 +30,9 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "lido_balance_state";
-/// 3: exclusive invalidation cutoff, no partial end-of-block state, bounded
-/// report evidence, and equal-value version/migration guards.
-pub const SPEC_REVISION: u32 = 3;
+/// 4: source-matched uint256 wrapping of the external-ether product and
+/// omission of a derived total when the getter's checked addition fails.
+pub const SPEC_REVISION: u32 = 4;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
@@ -808,13 +808,23 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             let external_shares = bits(&shares.new, 128, 128);
             let internal_shares = total_shares.clone() - external_shares.clone();
             if internal_shares <= BigInt::zero() {
-                continue; // division by zero in the getter; not derivable
+                // Zero denominator, or the conservatively unsupported state
+                // externalShares > totalShares; no derived value is admitted.
+                continue;
             }
             let internal_ether = bits(&buffered.new, 0, 128) + bits(&buffered.new, 128, 128) + bits(&cl.new, 0, 128) + bits(&cl.new, 128, 128);
-            let external_ether = external_shares * internal_ether.clone() / internal_shares;
+            // Pinned Solidity 0.4.24 uses plain MUL (wraps before DIV), then
+            // SafeMath.add for the total. Preserve the six stored facts even
+            // when the optional derived getter result cannot be returned.
+            let uint256_modulus = BigInt::from(1) << 256u32;
+            let external_ether = (external_shares * internal_ether.clone() % uint256_modulus.clone()) / internal_shares;
+            let total_pooled_ether = internal_ether + external_ether;
+            if total_pooled_ether >= uint256_modulus {
+                continue;
+            }
             let last = [shares, buffered, cl].into_iter().max_by_key(|r| r.ordinal).unwrap();
             events.global_state.push(pb::GlobalState {
-                value: (internal_ether + external_ether).to_string(),
+                value: total_pooled_ether.to_string(),
                 observation: pb::Observation::Derived as i32,
                 scope: scope_of(last.scope) as i32,
                 ordinal: last.ordinal,

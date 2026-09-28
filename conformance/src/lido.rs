@@ -10,6 +10,9 @@
 //! wei; results are truncated as the EVM does. `getPooledEthByShares` and
 //! `getSharesByPooledEth` require the argument to be below `UINT128_MAX`
 //! (`~uint128(0)`, StETH.sol:58, 318, 330), so `2^128 - 1` itself reverts.
+//! Solidity 0.4.24's plain products wrap at 256 bits before division; the
+//! total-pooled-ether addition uses SafeMath and refuses overflow. The sum of
+//! four packed uint128 ether fields need not itself fit uint128.
 use crate::{Result, Unknown};
 use num_bigint::BigUint;
 use num_traits::Zero;
@@ -31,6 +34,9 @@ fn fits_uint128(v: &BigUint) -> bool {
 /// `require(_amount < UINT128_MAX)`: strictly below `2^128 - 1`.
 fn below_uint128_max(v: &BigUint) -> bool {
     v.bits() < 128 || (v.bits() == 128 && v.count_ones() < 128)
+}
+fn wrapping_product(a: &BigUint, b: &BigUint) -> BigUint {
+    (a * b) % (BigUint::from(1u8) << 256u32)
 }
 
 impl Pool {
@@ -63,19 +69,23 @@ impl Pool {
         self.check()?;
         Ok(&self.total_shares - &self.external_shares)
     }
-    /// `_getExternalEther(internalEther)`: `externalShares * internalEther / internalShares`.
+    /// `_getExternalEther(internalEther)`: wrap the uint256 product before division.
     pub fn external_ether(&self) -> Result<BigUint> {
         let internal_shares = self.internal_shares()?;
         if internal_shares.is_zero() {
             return Err(Unknown::Invalid("zero internal shares"));
         }
-        Ok(&self.external_shares * self.internal_ether()? / internal_shares)
+        Ok(wrapping_product(&self.external_shares, &self.internal_ether()?) / internal_shares)
     }
     /// `getTotalPooledEther()`.
     pub fn total_pooled_ether(&self) -> Result<BigUint> {
-        Ok(self.internal_ether()? + self.external_ether()?)
+        let total = self.internal_ether()? + self.external_ether()?;
+        if total.bits() > 256 {
+            return Err(Unknown::Invalid("MATH_ADD_OVERFLOW"));
+        }
+        Ok(total)
     }
-    /// `getPooledEthByShares(shares)`: `shares * internalEther / internalShares`.
+    /// `getPooledEthByShares(shares)`: wrap the uint256 product before division.
     pub fn pooled_eth_by_shares(&self, shares: &BigUint) -> Result<BigUint> {
         if !below_uint128_max(shares) {
             return Err(Unknown::Invalid("SHARES_TOO_LARGE"));
@@ -84,7 +94,7 @@ impl Pool {
         if internal_shares.is_zero() {
             return Err(Unknown::Invalid("zero internal shares"));
         }
-        Ok(shares * self.internal_ether()? / internal_shares)
+        Ok(wrapping_product(shares, &self.internal_ether()?) / internal_shares)
     }
     /// `getSharesByPooledEth(eth)`: `eth * internalShares / internalEther`.
     pub fn shares_by_pooled_eth(&self, eth: &BigUint) -> Result<BigUint> {
@@ -116,6 +126,9 @@ pub fn pooled_eth_from_report(shares: &BigUint, post_total_shares: &BigUint, pos
     }
     Ok(shares * post_total_ether / post_total_shares)
 }
+
+#[cfg(test)]
+mod source_oracle;
 
 #[cfg(test)]
 mod tests {
@@ -239,5 +252,30 @@ mod tests {
         assert_eq!(rich.shares_by_pooled_eth(&n(3)).unwrap(), n(1));
         let poor = pool(1_000, 0, 1, 0, 0, 0);
         assert_eq!(poor.pooled_eth_by_shares(&n(999)).unwrap(), n(0));
+    }
+
+    #[test]
+    fn holder_product_wraps_before_division_even_when_final_unbounded_value_fits() {
+        let p = pool(u128::MAX, 0, u128::MAX, u128::MAX, 0, 0);
+        let expected = (n(1) << 128u32) - n(6);
+        assert_eq!(p.pooled_eth_by_shares(&n(u128::MAX - 1)), Ok(expected.clone()));
+        assert_eq!(balance_of(Some(&n(u128::MAX - 1)), &p), Ok(expected));
+    }
+
+    #[test]
+    fn external_product_wraps_before_division_even_when_final_unbounded_value_fits() {
+        let p = pool(u128::MAX, u128::MAX - 2, u128::MAX, u128::MAX, 0, 0);
+        let n128 = n(1) << 128u32;
+        let expected = (n(1) << 255u32) - n(4) * &n128 + n(3);
+        assert_eq!(p.external_ether(), Ok(expected.clone()));
+        assert_eq!(p.total_pooled_ether(), Ok(expected + n(2) * n128 - n(2)));
+    }
+
+    #[test]
+    fn total_pooled_addition_refuses_uint256_overflow_after_valid_external_product() {
+        let half = 1u128 << 127;
+        let p = pool(half + 1, half, u128::MAX, u128::MAX, 0, 0);
+        assert_eq!(p.external_ether(), Ok((n(1) << 256u32) - (n(1) << 128u32)));
+        assert_eq!(p.total_pooled_ether(), Err(Unknown::Invalid("MATH_ADD_OVERFLOW")));
     }
 }

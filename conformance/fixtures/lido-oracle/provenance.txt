@@ -1,0 +1,41 @@
+706e7bd0505ba6aba91e4fdb9362ba7981df373188116cc6cf34aa31f80f793b  out/lido-oracle-20260928/source-03/build_lido_oracle.rs
+https://raw.githubusercontent.com/lidofinance/core/2da0f48f1a2a103a394dcf8760810fe9165697fb/contracts/0.4.24/StETH.sol
+63ebed0e205b602fe2e427bb09c111479f98253bd02f96ac052b38202d3713bd  out/lido-oracle-20260928/source-03/StETH.sol
+https://raw.githubusercontent.com/lidofinance/core/2da0f48f1a2a103a394dcf8760810fe9165697fb/contracts/0.4.24/Lido.sol
+3bf84b96fb155af2290e6b26bc0138de356442a9abe3ea0f5274497f9fbffc10  out/lido-oracle-20260928/source-03/Lido.sol
+https://raw.githubusercontent.com/lidofinance/core/2da0f48f1a2a103a394dcf8760810fe9165697fb/contracts/0.4.24/utils/UnstructuredStorageExt.sol
+11dbb51c4885d38eee1fdd632a45f79223647785ee80c0877a1d7123d7a3aea6  out/lido-oracle-20260928/source-03/UnstructuredStorageExt.sol
+https://raw.githubusercontent.com/aragon/aragonOS/f3ae59b00f73984e562df00129c925339cd069ff/contracts/common/UnstructuredStorage.sol
+6bbbb8fb3d32ba56d6f967f0eb437941aedae143c6dcedecac87d81a81ffd000  out/lido-oracle-20260928/source-03/UnstructuredStorage.sol
+https://raw.githubusercontent.com/aragon/aragonOS/f3ae59b00f73984e562df00129c925339cd069ff/contracts/lib/math/SafeMath.sol
+ff141c591b220f5c9973f0bcbd5bad55f6121491aa490186e987c1ef0c9b7bae  out/lido-oracle-20260928/source-03/SafeMath.sol
+https://raw.githubusercontent.com/lidofinance/core/2da0f48f1a2a103a394dcf8760810fe9165697fb/LICENSE
+3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986  out/lido-oracle-20260928/source-03/lido-LICENSE.txt
+https://raw.githubusercontent.com/aragon/aragonOS/f3ae59b00f73984e562df00129c925339cd069ff/LICENSE
+37d4e0f6a77260ae05ebfbcd00eabac2a542b52203d9b3613b36e0dc3c74726e  out/lido-oracle-20260928/source-03/aragon-LICENSE.txt
+https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json
+22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af  out/lido-oracle-20260928/source-03/solc-list.json
+compiler_url=https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/solc-macosx-amd64-v0.4.24+commit.e67f0147
+solc, the solidity compiler commandline interface
+Version: 0.4.24+commit.e67f0147.Darwin.appleclang
+7034c4048bc713d5c14cdd6681953c736e2adbdb9174f8bfbfb6a097109ffaaa  /Users/denis/.solc-select/artifacts/solc-0.4.24/solc-0.4.24
+storage relocation: 0x6038150aecaa250d524370a0fdcdec13f2690e0723eaf277f41d7cae26b359e6 -> bytes32(0)
+storage relocation: 0x81a11fa1111afa59b50051f60ccf604a39d96acb484dc467ad8eadb4a63f0a5f -> bytes32(1)
+storage relocation: 0x096e465397f38e659238ccd5d5a2c434ced54a63fd8d694045bfb058ab9d8112 -> bytes32(2)
+verbatim function: function balanceOf(
+verbatim function: function getSharesByPooledEth(
+verbatim function: function getPooledEthByShares(
+verbatim function: function getTotalPooledEther(
+verbatim function: function _getInternalEther(
+verbatim function: function _getExternalEther(
+verbatim function: function _getTotalPooledEther(
+verbatim function: function _getShareRateNumerator(
+verbatim function: function _getShareRateDenominator(
+verbatim function: function _getTotalAndExternalShares(
+verbatim function: function _getBufferedEtherAndDepositedPostReport(
+verbatim function: function _getClValidatorsBalanceAndClPendingBalance(
+Other harness substitutions: PackedOracle contains the verbatim UnstructuredStorageExt getLowAndHighUint128 function and low mask; library name/import plumbing changed only. _sharesOf(address) is a controlled slot3 read, not a real holder mapping. Three public wrappers expose unchanged internal getters. No arithmetic function body edits.
+compiler arguments (working directory is fresh output): --bin-runtime --hashes --optimize --optimize-runs 200 --evm-version byzantium -o build LidoOracle.sol
+f20d50cc97e9ee12399c6c92ac8f0afdd2595ca0f79e95c88a7d9a960dfcefce  out/lido-oracle-20260928/source-03/LidoOracle.sol
+53b8fff257d0cadfc4c60333522ff4038b6d14b3d17eff50e4b719c3b48e9ab8  out/lido-oracle-20260928/source-03/build/LidoOracle.bin-runtime
+23292c315cb4262c32f58738f7997f9010f627d8a22f755ff362ccab5ca9ec9e  out/lido-oracle-20260928/source-03/build/LidoOracle.signatures

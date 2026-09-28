@@ -248,15 +248,19 @@ Ethereum mainnet, `docs.lido.fi/deployed-contracts` (protocol version v4.0.1) an
 - stETH/Lido proxy `0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84`; implementation listed `0x028271E30a695c0527A0C50cA30603feD004cDb0`; wstETH `0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0`; WithdrawalQueueERC721 proxy `0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1` (deploy record implementation `0xE42C659Dc09109566720EA8b2De186c2Be7D94D9`); Accounting proxy `0x23ED611be0e1a820978875C0122F92260804cdDf`; VaultHub proxy `0x1d201BE093d847f6446530Efb0E8Fb426d176709`.
 - **Selected epoch**: Lido contract version 4, with deployment and activation
   qualification still outstanding under #23. The getter is
-  `balanceOf = floor(shares[holder] × internalEther / internalShares)`, where
+  `balanceOf = floor(((shares[holder] × internalEther) mod 2^256) / internalShares)`, where
   `internalShares = totalShares − externalShares`. Since V3 `totalShares`
   occupies the low 128 bits of `keccak256("lido.StETH.totalAndExternalShares")`
   with external shares in the high 128 bits, and the pre-V3 slot
   `keccak256("lido.StETH.totalShares")` is zeroed at migration.
-  `totalPooledEther = internalEther + floor(externalShares × internalEther / internalShares)`
+  `totalPooledEther = internalEther + floor(((externalShares × internalEther) mod 2^256) / internalShares)`
   is a separate getter value: substituting its already-truncated ratio
   `totalPooledEther / totalShares` can change the observable holder balance
-  ([exact reference model](../conformance/src/lido.rs)). CL balances reach
+  ([exact reference model](../conformance/src/lido.rs)). The final total addition
+  is checked; spec revision 4 omits only the derived total on overflow and
+  retains all six observed inputs. The [compiled source controls](../conformance/fixtures/lido-oracle/README.md)
+  exercise accepted packed inputs, without claiming deployed reachability.
+  CL balances reach
   the execution layer through accounting reports; unchanged holders are
   evaluated from retained shares and the latest global inputs.
 - wstETH conversion, withdrawal-request NFTs and validator balances are separate models.
