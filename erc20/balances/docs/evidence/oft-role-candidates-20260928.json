@@ -1,0 +1,1212 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "out/oft-role-candidates-20260928/replay-01/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "out/oft-role-candidates-20260928/replay-01/candidate-combined-layouts.json",
+      "sha256": "872c0fa2b24e662b5871e44fb19062908b405220b90fe49594e9fd92a2978654"
+    },
+    {
+      "path": "out/oft-role-candidates-20260928/replay-01/replay-role-candidates.rs",
+      "sha256": "4c2c0651fda278badf1820b4c566ca557b64d7e3a1b185d6d9849b6a14aacb6e"
+    },
+    {
+      "path": "out/oft-role-candidates-20260928/replay-01/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "out/oft-role-candidates-20260928/replay-01/blocks.jsonl",
+      "sha256": "a9ce61e65961b4aca40ffc9ea2105fdca90a44b27987e0ec976de20c6882e01f"
+    },
+    {
+      "path": "out/oft-role-candidates-20260928/replay-01/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "out/oft-role-candidates-20260928/replay-01/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "out/oft-role-candidates-20260928/replay-01/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "attempted_block": 122289029,
+  "candidate_matches_current_baseline_all_blocks": true,
+  "candidate_profiles": {
+    "0x9b6a1d4fa5d90e5f2d34130053978d14cd301d58": {
+      "cold_nonzero_reference_observations": 7,
+      "cold_reference_observations": 15,
+      "emitted_rows": 17,
+      "initialized_observed_holders": 8,
+      "persisted_fixed_role_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 17
+    },
+    "0xf3d5b4c34ed623478cc5141861776e6cf7ae3a1e": {
+      "cold_nonzero_reference_observations": 31,
+      "cold_reference_observations": 71,
+      "emitted_rows": 72,
+      "initialized_observed_holders": 13,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 72
+    }
+  },
+  "canonical_reference_interval_and_baseline_binding_verified": true,
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 111.317429209,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/oft-role-candidates/layouts.json",
+      "sha256": "c54582684d1ed1ffa817dd7e63a502ed4b849f1f37914bdc1f50585b1f637cab"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/oft-role-candidates/source-review.json",
+      "sha256": "f377f7091c31863f8eebedad2ba4e482090c0c2d676530de3a1cf40f62fc0ac7"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_completed_block": 122289029,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 66265,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 110139,
+    "enumerated": [],
+    "first_block": 122288006,
+    "initialized_holders": 33591,
+    "known_zero_holders": 6197,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 33591,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "scope": "Two NOT-QUALIFIED Kgen/Deep exact plain-role membership paths plus three fixed Deep admin words applied to unchanged historical431. Full saved capture/compiler/constructor/runtime reconstruction and native parity do not qualify deployed role calls, initializer history, current proxy state or replacement packages. Public source gaps and independent forwarder-array/long-bytes limitations remain; creation is refused. Canonical values never seed retained state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "e584ee12a0dcac7bbd011185ee1cab421b81f4744d685522fbda5ba30616cf13",
+  "source_rechecks": [
+    {
+      "captures": [
+        {
+          "address": "0xf3d5b4c34ed623478cc5141861776e6cf7ae3a1e",
+          "capture": "kgen",
+          "capture_sha256": "e71ba802e1b6158d14ee38e47c793fb7ef025a484f9a3221a95a70a9bd0190df",
+          "chain_id": 56,
+          "compiler": "0.8.22+commit.4fc1097e",
+          "compiler_settings": {
+            "evmVersion": "paris",
+            "metadata": {
+              "useLiteralContent": true
+            },
+            "optimizer": {
+              "enabled": true,
+              "runs": 200
+            }
+          },
+          "constructor_append_bytes": 288,
+          "immutable_references": {
+            "1386": [
+              {
+                "length": 32,
+                "start": 2284
+              },
+              {
+                "length": 32,
+                "start": 4605
+              },
+              {
+                "length": 32,
+                "start": 8747
+              },
+              {
+                "length": 32,
+                "start": 9717
+              },
+              {
+                "length": 32,
+                "start": 10890
+              },
+              {
+                "length": 32,
+                "start": 13712
+              },
+              {
+                "length": 32,
+                "start": 14536
+              },
+              {
+                "length": 32,
+                "start": 14721
+              }
+            ],
+            "2778": [
+              {
+                "length": 32,
+                "start": 2794
+              },
+              {
+                "length": 32,
+                "start": 12300
+              },
+              {
+                "length": 32,
+                "start": 12530
+              },
+              {
+                "length": 32,
+                "start": 13403
+              }
+            ],
+            "4703": [
+              {
+                "length": 32,
+                "start": 2552
+              }
+            ]
+          },
+          "immutable_values": {
+            "immutables": {
+              "1386": "0x0000000000000000000000001a44076050125825900e736c501f859c50fe728c",
+              "2778": "0x0000000000000000000000000000000000000000000000000000000000000064",
+              "4703": "0x000000000000000000000000bd09506ce83927374796516ef139edd35c8aa378"
+            }
+          },
+          "original_match_labels": {
+            "creationMatch": "exact_match",
+            "match": "exact_match",
+            "runtimeMatch": "exact_match"
+          },
+          "recorded_deployment": {
+            "blockNumber": "59625960",
+            "deployer": "0x17cFABF22aA9f67aA178b3F53e3121Faac31b339",
+            "transactionHash": "0x187f6f6687df866a0e4e3f428a072a35393a92708cf4250d31262dac78667de7",
+            "transactionIndex": "88"
+          },
+          "runtime_bytes": 19452,
+          "runtime_hash": "0xfc77b3c0763583345ead87010618488c5eb5f292e12c0857b94bd200761938cd",
+          "saved_creation_hash": "0xad44ad4f3ad5cb4051e733e04acd2ec20ed5084154f436b61777b45d63a5b788",
+          "source_files": [
+            {
+              "metadata_keccak256": "0xf7f941bee89ea6369950fe54e8ac476ae6478b958b20fc0e8a83e8ff1364eac3",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "a88fb702b371527c3791d7e5c168c1157d39021ed29b51e627e02973e6a740e0"
+            },
+            {
+              "metadata_keccak256": "0x9641abba8d53b08bb517d1b74801dd15ea7b84d77a6719085bd96c8ea94e3ca0",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "24e4add7dd95a72dad23e26c4fadfc1b6ce63148e0c7f4d6ad5dfaeda79db3e7"
+            },
+            {
+              "metadata_keccak256": "0x5cf5f24751b4e3ea1c9c5ded07cedfdfd62566b6daaffcc0144733859c9dba0c",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLib.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "7a5733cf68663e1a924c5237adfdad5522a063e2214a81a7ca932242dc45481b"
+            },
+            {
+              "metadata_keccak256": "0x919b37133adff4dc528e3061deb2789c3149971b530c61e556fb3d09ab315dfc",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLibManager.sol",
+              "primary_status": "exact_vendored_snapshot_upstream_differs",
+              "sha256": "ffc33e319ab5e9d1392d16f8716625bcfb1dc34b744551f87dad1c0eb3ad11f1"
+            },
+            {
+              "metadata_keccak256": "0x0878f64dffebf58c4165569416372f40860fab546b88cd926eba0d5cb6d8d972",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingChannel.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9d0100f7cede83d5a4f6c9e03d6bfd24f861e9331b298ca4c73f99b161c718d5"
+            },
+            {
+              "metadata_keccak256": "0x85bc7090134529ec474866dc4bb1c48692d518c756eb0a961c82574829c51901",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingComposer.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "5e7e5a47a477dcf05c034d5135bf6516119af881ea78d586805eee0ad5ab6b12"
+            },
+            {
+              "metadata_keccak256": "0xff0c546c2813dae3e440882f46b377375f7461b0714efd80bd3f0c6e5cb8da4e",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingContext.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "b7f081828b8d0d206833953ebd73101bb28ac62541e7e8365fddc38eb440a92a"
+            },
+            {
+              "metadata_keccak256": "0xf1c07bc61e7b1dce195ed12d50f87980fbf2d63cac1326fd28287f55fe0ba625",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ISendLib.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "816acb88e015f130be9811b4e8efda8d829830ead2f009eb5a9444137af301b5"
+            },
+            {
+              "metadata_keccak256": "0x2ebbcaaab3554edcd41b581f1a72ac1806afbfb8047d0d47ff098f9af30d6deb",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/libs/AddressCast.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "e48211bfba874d0ce5c3b1fc4e4aac67450ac9539a75e814807745181d04e7dd"
+            },
+            {
+              "metadata_keccak256": "0xc84cf1bf785977fe1fbe7566eef902c2db68d0e163813ebe6c34921754802680",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/messagelib/libs/PacketV1Codec.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "ed105f6e0e1ac7ef92b582e30d0d55d260cdcd6ca63057cd866f4c019c069b44"
+            },
+            {
+              "metadata_keccak256": "0xac362c4c291fad2f1511a968424b2e78a5ad502d1c867bd31da04be742aca8c5",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "92b191c937374b6e76686245b7b98eb3bc0bfacff4d54b279b7ecf1321878e04"
+            },
+            {
+              "metadata_keccak256": "0x13a9c2d1d2c1f086b8624f2e84c4a4702212daae36f701d92bb915b535cbe4cc",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/OAppCore.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "b0a3e30618f5d4c71732a2048d7c2928be399508d6ec622c9345915c92b3dd0a"
+            },
+            {
+              "metadata_keccak256": "0x0174e9f1ec4cefe4b5adc26c392269c699b9ff75965364e5b7264426a462c70b",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/OAppReceiver.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "8d1dd4a6a74c3d9704a078e6404dcf7aab688b750ea64e8331f873e253862bc0"
+            },
+            {
+              "metadata_keccak256": "0x518cf4adca601923ed4baa6619846a253ea32b8d8775f8bc1faa3dfac7f67c20",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/OAppSender.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "276f5d551ae7e478fb0c56002acf5476e628748c1f5ba0d63ea051e93813a137"
+            },
+            {
+              "metadata_keccak256": "0x40e49f2de74506e1da5dcaed53a39853f691647f4ceb0fccc8f49a68d3f47c58",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppCore.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "041dd35f0a4a22425614414c05cd5aae6ce7e4b5b86b0350045e57c0ed3cbf1b"
+            },
+            {
+              "metadata_keccak256": "0x339654e699043c400cad92de209aa23855ce10211c31cf4114042cc5224d3b7c",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppMsgInspector.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "5bb1fd1038c648bff4e9c7b88f322c5cde41d355f03090ad1ec46f6712f09c4e"
+            },
+            {
+              "metadata_keccak256": "0x9fc08a51e9d7c9c710c4eb26f84fe77228305ad7da63fa486ff24ebf2f3bc461",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppOptionsType3.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "c14d4f013045452583eae3baf14743e0628e24c146c3beea5a10b992b1171756"
+            },
+            {
+              "metadata_keccak256": "0xd26135185e19b3732746d4a9e2923e896f28dec8664bab161faea2ee26fcdc3d",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppReceiver.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "da4aff9322961c648e2221f7df203a44b375a397f2548b74679b3e9d0ae9addd"
+            },
+            {
+              "metadata_keccak256": "0x5275636cd47e660a2fdf6c7fe9d41ff3cc866b785cc8a9d88c1b8ca983509f01",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/libs/OAppOptionsType3.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "7414ab6a173705ac741772684d2bda00a0ed044c5e9faa3339a2dfe10ec867f3"
+            },
+            {
+              "metadata_keccak256": "0x205a0abfd8b3c9af2740769f251381b84999b8e9347f3cd50de3ef8290a17750",
+              "path": "@layerzerolabs/oapp-evm/contracts/precrime/OAppPreCrimeSimulator.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "b0fcd1e2da22197e21ff13a350ac9d0a7f7e5e8bb1528c5d9860a3b820f555f9"
+            },
+            {
+              "metadata_keccak256": "0x5d24db150949ea8e6437178e65a942e8c8b7f332e5daf32750f56b23b35b5bb2",
+              "path": "@layerzerolabs/oapp-evm/contracts/precrime/interfaces/IOAppPreCrimeSimulator.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "2db19c9641e81e5366c268c40506db56ee5434b5c874cffe02fb1e18034a9285"
+            },
+            {
+              "metadata_keccak256": "0xc8d869f27ef8ceb2e13fdf6a70682fd4dee3f90c4924eb8e125bc1e66cb6af84",
+              "path": "@layerzerolabs/oapp-evm/contracts/precrime/interfaces/IPreCrime.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "25a8f3b9257ed4f65fca276f7631cca3ead87c2f17c837e6eee90c8835433380"
+            },
+            {
+              "metadata_keccak256": "0xcb2fb1c5b2eb3731de78b479b9c2ab3bba326fe0b0b3a008590f18e881e457a6",
+              "path": "@layerzerolabs/oapp-evm/contracts/precrime/libs/Packet.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "b95b1e7f7470306f41da606d0984b9384d2134fc19ee814d7d9f98c613836745"
+            },
+            {
+              "metadata_keccak256": "0xdc3582e4a20e02a79050c17058a1f1f42a4335d1a70be06c0a52a3fb05d4c89a",
+              "path": "@layerzerolabs/oft-evm/contracts/OFT.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "6f7e6b7d514cd2be4e6e5fa0827706289882a62c496786c9c08d5560e1c52415"
+            },
+            {
+              "metadata_keccak256": "0xdda89798c66928bba9e0fa44b3edf4710ff15cf46edadcf3e15c92d78fcc9ca8",
+              "path": "@layerzerolabs/oft-evm/contracts/OFTCore.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "5279e6c361b133d057aed94e17f538567cf3d3bc36ca252779b3e013d339e8f1"
+            },
+            {
+              "metadata_keccak256": "0xc60c7b4374b3d89f33b8de982f463c92374a8548800c816fe776f0ec76351fb0",
+              "path": "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "560266d2a54174fdb45cfc792e1fd8f6d215b39d8046df08b11c554c8ee292c2"
+            },
+            {
+              "metadata_keccak256": "0xaae73d6eb8b9561c43f1802f3c416c00ccd35f172b711f9781ccdf1b25a40db5",
+              "path": "@layerzerolabs/oft-evm/contracts/libs/OFTComposeMsgCodec.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "c1fe5b84aa7fdc9b5480174db9d46baa241edc7a1cc63a93a827e16b7dc21fc8"
+            },
+            {
+              "metadata_keccak256": "0x5358948017669c03e157f871d8c38e988f9004dbd0801ad3119d2487f0d40b0b",
+              "path": "@layerzerolabs/oft-evm/contracts/libs/OFTMsgCodec.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "3e6dfff6595f8af1c1618a80e30efd16f117652e1fd73ffb1f6795dcc443d658"
+            },
+            {
+              "metadata_keccak256": "0x1a6b4f6b7798ab80929d491b89d5427a9b3338c0fd1acd0ba325f69c6f1646af",
+              "path": "@openzeppelin/contracts/access/AccessControl.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "93c8ebfe7b36ef4d180f1660a5a741125691957726209720af476fdd5c7bac43"
+            },
+            {
+              "metadata_keccak256": "0xbff9f59c84e5337689161ce7641c0ef8e872d6a7536fbc1f5133f128887aba3c",
+              "path": "@openzeppelin/contracts/access/IAccessControl.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "140304b7e99d517c57a13f391dfd3b550ca633a507f7b2af130f391b6cd89cc5"
+            },
+            {
+              "metadata_keccak256": "0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb",
+              "path": "@openzeppelin/contracts/access/Ownable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "38578bd71c0a909840e67202db527cc6b4e6b437e0f39f0c909da32c1e30cb81"
+            },
+            {
+              "metadata_keccak256": "0xdcad8898fda432696597752e8ec361b87d85c82cb258115427af006dacf7128c",
+              "path": "@openzeppelin/contracts/access/Ownable2Step.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "c75345d7b9feef17ae29f2a800ca2f65f8021cf80436a41d6ec00f57f5180f36"
+            },
+            {
+              "metadata_keccak256": "0xd5ea07362ab630a6a3dee4285a74cf2377044ca2e4be472755ad64d7c5d4b69d",
+              "path": "@openzeppelin/contracts/interfaces/IERC1363.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9c3a75a925a6dac9e88b03cddc58d42fe3131b0aaaad84408521f3f7af2f991b"
+            },
+            {
+              "metadata_keccak256": "0x0afcb7e740d1537b252cb2676f600465ce6938398569f09ba1b9ca240dde2dfc",
+              "path": "@openzeppelin/contracts/interfaces/IERC165.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "dfb3f56fa928a7c6cae41a7ce2c86b9210fa18d33fa26389099d66a0fa790368"
+            },
+            {
+              "metadata_keccak256": "0x1a6221315ce0307746c2c4827c125d821ee796c74a676787762f4778671d4f44",
+              "path": "@openzeppelin/contracts/interfaces/IERC20.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "0158e2d3e0e28bedd99eec13dcf1a8aa3a70a5b7e4bb2ad709609c95fcc740d1"
+            },
+            {
+              "metadata_keccak256": "0x19fdfb0f3b89a230e7dbd1cf416f1a6b531a3ee5db4da483f946320fc74afc0e",
+              "path": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "df936240c9a5d342582cbda70dd773b1c1d0e0dda3042b1c17b902ef0c36827b"
+            },
+            {
+              "metadata_keccak256": "0x345acfb731203002ef98916d5a222339709db0ad44dc4a389e7f1ce4088ce59b",
+              "path": "@openzeppelin/contracts/metatx/ERC2771Context.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "4a20dbcf842652e57b1bd4c3c08d8cbc2c0e167e2a5e8437e0d898a450443c34"
+            },
+            {
+              "metadata_keccak256": "0x86b7b71a6aedefdad89b607378eeab1dcc5389b9ea7d17346d08af01d7190994",
+              "path": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9f906af4cba6e7e091dc12d45e6687e1239cf82d17678198424250fd64ab96bd"
+            },
+            {
+              "metadata_keccak256": "0x74ed01eb66b923d0d0cfe3be84604ac04b76482a55f9dd655e1ef4d367f95bc2",
+              "path": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "01b6f5c4fa45fd38822b286ecef6daf983d27306dd6362496fa71b3e4600b72c"
+            },
+            {
+              "metadata_keccak256": "0xd6fa4088198f04eef10c5bce8a2f4d60554b7ec4b987f684393c01bf79b94d9f",
+              "path": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "0b7132f17d14d1d84b41b0bb429be62dafdff00fd3470f68724d8018eb07f57a"
+            },
+            {
+              "metadata_keccak256": "0x982c5cb790ab941d1e04f807120a71709d4c313ba0bfc16006447ffbd27fbbd5",
+              "path": "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "ac1fd9fa99b194a8db8dfa9ae8e3ff44feaa8f16668241fd2b66ae8b47d7c082"
+            },
+            {
+              "metadata_keccak256": "0xa4b9958797e0e9cde82a090525e90f80d5745ba1c67ee72b488bd3087498a17e",
+              "path": "@openzeppelin/contracts/utils/Arrays.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "8320f75b46c18204dd6f2b3654058129625b849a95c3a55a44ae531f77f0eca9"
+            },
+            {
+              "metadata_keccak256": "0x302eecd8cf323b4690e3494a7d960b3cbce077032ab8ef655b323cdd136cec58",
+              "path": "@openzeppelin/contracts/utils/Comparators.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "52fb1c8f57967d42a3214bde4a8a414ab25c2e3a844d00e171ca56487024e009"
+            },
+            {
+              "metadata_keccak256": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+              "path": "@openzeppelin/contracts/utils/Context.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "847fda5460fee70f56f4200f59b82ae622bb03c79c77e67af010e31b7e2cc5b6"
+            },
+            {
+              "metadata_keccak256": "0xf7fe324703a64fc51702311dc51562d5cb1497734f074e4f483bfb6717572d7a",
+              "path": "@openzeppelin/contracts/utils/Panic.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "270fc8401c1a13fae6a7a4a2dd6e381b95d658896701e51f0d3e2688acab3dec"
+            },
+            {
+              "metadata_keccak256": "0xdb484371dfbb848cb6f5d70464e9ac9b2900e4164ead76bbce4fef0b44bcc68f",
+              "path": "@openzeppelin/contracts/utils/Pausable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "2c26130748f06552c65ca74d89eaf78c9324a3cbac3ba6fdbadaa8beba0cb0b4"
+            },
+            {
+              "metadata_keccak256": "0x11a5a79827df29e915a12740caf62fe21ebe27c08c9ae3e09abe9ee3ba3866d3",
+              "path": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "32fbb1c908ec1b4de85cc1bb10091aebd5816ffe80dfdd5ca5e084fbea67a462"
+            },
+            {
+              "metadata_keccak256": "0x67672e4ca1dafdcc661d4eba8475cfac631fa0933309258e3af7644b92e1fb26",
+              "path": "@openzeppelin/contracts/utils/SlotDerivation.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "daddbbeb265c87b7172548d58baede96b167cd89c6c7884ff2705676fab69438"
+            },
+            {
+              "metadata_keccak256": "0xcf74f855663ce2ae00ed8352666b7935f6cddea2932fdf2c3ecd30a9b1cd0e97",
+              "path": "@openzeppelin/contracts/utils/StorageSlot.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "75704538dcb223239280c6726d9a31cf769a7816718517c997fc7d63bdb70778"
+            },
+            {
+              "metadata_keccak256": "0x2d9dc2fe26180f74c11c13663647d38e259e45f95eb88f57b61d2160b0109d3e",
+              "path": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "61a2b12c96857aaa35f48aeda67a4281637a42494c0b3795be0ae976aa7b3793"
+            },
+            {
+              "metadata_keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+              "path": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9055c2994b37dea1a41b7b7926dcb510f05dbe2540b0aafc5fbee9558fffd0ca"
+            },
+            {
+              "metadata_keccak256": "0x1225214420c83ebcca88f2ae2b50f053aaa7df7bd684c3e878d334627f2edfc6",
+              "path": "@openzeppelin/contracts/utils/math/Math.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "92fee281fd46a1b058b190cf21d6b1a528f0433a907850ae1c9bcf36c5c0cd98"
+            },
+            {
+              "metadata_keccak256": "0x195533c86d0ef72bcc06456a4f66a9b941f38eb403739b00f21fd7c1abd1ae54",
+              "path": "@openzeppelin/contracts/utils/math/SafeCast.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9769274bf53f26a7c7896c526ea1980dc9bea5bf5c2a5fd04870008c4afc1de9"
+            },
+            {
+              "metadata_keccak256": "0x1fc283df727585919c3db301b948a3e827aee16917457ad7f916db9da2228e77",
+              "path": "@openzeppelin/contracts/utils/structs/EnumerableSet.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "53507e71995d0e76d29d6dd897d0bcc3f069fd81f03cb431d7342bdfcc0d5345"
+            },
+            {
+              "metadata_keccak256": "0x0aa915414f6e7fc80a11cc893cd47ffb0099b9370e62d79fa12c726ad15f7172",
+              "path": "contracts/KgenOFT.sol",
+              "primary_status": "nonmatching_public_token_whitespace_not_normalized",
+              "sha256": "146cc456e313a2f21776fa010ed08196423a52c0b3a0d372fe263316217d4995"
+            }
+          ]
+        },
+        {
+          "address": "0x76ec4be0109305fb4543f1d1a8a515ac3bcabd60",
+          "capture": "deep",
+          "capture_sha256": "3f2b8fa6fcf517c932f4793951a3aba6ff4567ef0c23c6dd989c33d0ba102a7e",
+          "chain_id": 56,
+          "compiler": "0.8.28+commit.7893614a",
+          "compiler_settings": {
+            "evmVersion": "paris",
+            "metadata": {
+              "useLiteralContent": true
+            },
+            "optimizer": {
+              "enabled": true,
+              "runs": 200
+            }
+          },
+          "constructor_append_bytes": 32,
+          "immutable_references": {
+            "1356": [
+              {
+                "length": 32,
+                "start": 1898
+              },
+              {
+                "length": 32,
+                "start": 3398
+              },
+              {
+                "length": 32,
+                "start": 6677
+              },
+              {
+                "length": 32,
+                "start": 8281
+              },
+              {
+                "length": 32,
+                "start": 9320
+              },
+              {
+                "length": 32,
+                "start": 11794
+              },
+              {
+                "length": 32,
+                "start": 13400
+              },
+              {
+                "length": 32,
+                "start": 13585
+              }
+            ],
+            "3194": [
+              {
+                "length": 32,
+                "start": 2347
+              },
+              {
+                "length": 32,
+                "start": 10694
+              },
+              {
+                "length": 32,
+                "start": 10811
+              },
+              {
+                "length": 32,
+                "start": 11404
+              }
+            ]
+          },
+          "immutable_values": {
+            "immutables": {
+              "1356": "0x0000000000000000000000001a44076050125825900e736c501f859c50fe728c",
+              "3194": "0x000000000000000000000000000000000000000000000000000000e8d4a51000"
+            }
+          },
+          "original_match_labels": {
+            "creationMatch": "exact_match",
+            "match": "exact_match",
+            "runtimeMatch": "exact_match"
+          },
+          "recorded_deployment": {
+            "blockNumber": "73719448",
+            "deployer": "0x40E0400d7F4Cb921635bf241B7EA0af4914d59bE",
+            "transactionHash": "0xc535e44147d4699a7ab7adf6948075016b2e7de9b1aeb449d87dbba0ec4796c3",
+            "transactionIndex": "57"
+          },
+          "runtime_bytes": 18925,
+          "runtime_hash": "0x65a4e8836b6ad79fd414fbbfe50ce30aa221ef90703d21e19327bb0f8c78340c",
+          "saved_creation_hash": "0x3090cf2eca29e9365368b50266d6f7863d2464c56bb9c4e4f907445d84051362",
+          "source_files": [
+            {
+              "metadata_keccak256": "0xf7f941bee89ea6369950fe54e8ac476ae6478b958b20fc0e8a83e8ff1364eac3",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "a88fb702b371527c3791d7e5c168c1157d39021ed29b51e627e02973e6a740e0"
+            },
+            {
+              "metadata_keccak256": "0x9641abba8d53b08bb517d1b74801dd15ea7b84d77a6719085bd96c8ea94e3ca0",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "24e4add7dd95a72dad23e26c4fadfc1b6ce63148e0c7f4d6ad5dfaeda79db3e7"
+            },
+            {
+              "metadata_keccak256": "0x5cf5f24751b4e3ea1c9c5ded07cedfdfd62566b6daaffcc0144733859c9dba0c",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLib.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "7a5733cf68663e1a924c5237adfdad5522a063e2214a81a7ca932242dc45481b"
+            },
+            {
+              "metadata_keccak256": "0x919b37133adff4dc528e3061deb2789c3149971b530c61e556fb3d09ab315dfc",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLibManager.sol",
+              "primary_status": "nonmatching_upstream_interface",
+              "sha256": "ffc33e319ab5e9d1392d16f8716625bcfb1dc34b744551f87dad1c0eb3ad11f1"
+            },
+            {
+              "metadata_keccak256": "0x0878f64dffebf58c4165569416372f40860fab546b88cd926eba0d5cb6d8d972",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingChannel.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9d0100f7cede83d5a4f6c9e03d6bfd24f861e9331b298ca4c73f99b161c718d5"
+            },
+            {
+              "metadata_keccak256": "0x85bc7090134529ec474866dc4bb1c48692d518c756eb0a961c82574829c51901",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingComposer.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "5e7e5a47a477dcf05c034d5135bf6516119af881ea78d586805eee0ad5ab6b12"
+            },
+            {
+              "metadata_keccak256": "0xff0c546c2813dae3e440882f46b377375f7461b0714efd80bd3f0c6e5cb8da4e",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingContext.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "b7f081828b8d0d206833953ebd73101bb28ac62541e7e8365fddc38eb440a92a"
+            },
+            {
+              "metadata_keccak256": "0xf1c07bc61e7b1dce195ed12d50f87980fbf2d63cac1326fd28287f55fe0ba625",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ISendLib.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "816acb88e015f130be9811b4e8efda8d829830ead2f009eb5a9444137af301b5"
+            },
+            {
+              "metadata_keccak256": "0x2ebbcaaab3554edcd41b581f1a72ac1806afbfb8047d0d47ff098f9af30d6deb",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/libs/AddressCast.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "e48211bfba874d0ce5c3b1fc4e4aac67450ac9539a75e814807745181d04e7dd"
+            },
+            {
+              "metadata_keccak256": "0xc84cf1bf785977fe1fbe7566eef902c2db68d0e163813ebe6c34921754802680",
+              "path": "@layerzerolabs/lz-evm-protocol-v2/contracts/messagelib/libs/PacketV1Codec.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "ed105f6e0e1ac7ef92b582e30d0d55d260cdcd6ca63057cd866f4c019c069b44"
+            },
+            {
+              "metadata_keccak256": "0xbe135fd35bf12c97aeb701caeb6c5d0c1c28c1ac2ab1d4219d15f8384951c140",
+              "path": "@layerzerolabs/oapp-evm-upgradeable/contracts/oapp/OAppCoreUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "59b1bb75bf8ddf34a0e069f57c0c146c39032ae4ede6b23cef713e3051d7241d"
+            },
+            {
+              "metadata_keccak256": "0xa38e5d26d044331212af7fc69dbbdebf25f527811bbd0492a4cee9ecdd3bd671",
+              "path": "@layerzerolabs/oapp-evm-upgradeable/contracts/oapp/OAppReceiverUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "297331faa9819e5768dd3563d435e7531d55866deadf3d0214525a1ee91ac25b"
+            },
+            {
+              "metadata_keccak256": "0x4e13557c5dc7c983f69d32911572efdbddea071a03bf2fc50e1cad92ddf0ef49",
+              "path": "@layerzerolabs/oapp-evm-upgradeable/contracts/oapp/OAppSenderUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "fa4225fb41bf9e19b1637aa35fa334123f6c7c0c859b4ae73475b6d0479be8bd"
+            },
+            {
+              "metadata_keccak256": "0xc298cebb8133eed14fcc29865cb8bc5dbeba7b49a3127eea05653b738ceeb71c",
+              "path": "@layerzerolabs/oapp-evm-upgradeable/contracts/oapp/OAppUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "62442ce70da0e5240b20ecf0f6f99b5345b8cd22094981f007ea8a1d5d1ba49c"
+            },
+            {
+              "metadata_keccak256": "0x86290701e499aa0b3c95a544001b0a52b6246e134856f135080f3f6e39f6329a",
+              "path": "@layerzerolabs/oapp-evm-upgradeable/contracts/oapp/libs/OAppOptionsType3Upgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "15e51fdc02f3bfc6b0a3e39dce346c499116bd2ac2e8c781cae174890ab200f8"
+            },
+            {
+              "metadata_keccak256": "0x4db480709caa7ab95f964a0ef2998072ba4e9398a6dc9d8d2d2bba51002d070e",
+              "path": "@layerzerolabs/oapp-evm-upgradeable/contracts/precrime/OAppPreCrimeSimulatorUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "416c9e930df0f5f4720756600758339d02fc6f0eaf86bfbbd0e5234733ff81ff"
+            },
+            {
+              "metadata_keccak256": "0x13a9c2d1d2c1f086b8624f2e84c4a4702212daae36f701d92bb915b535cbe4cc",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/OAppCore.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "b0a3e30618f5d4c71732a2048d7c2928be399508d6ec622c9345915c92b3dd0a"
+            },
+            {
+              "metadata_keccak256": "0x518cf4adca601923ed4baa6619846a253ea32b8d8775f8bc1faa3dfac7f67c20",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/OAppSender.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "276f5d551ae7e478fb0c56002acf5476e628748c1f5ba0d63ea051e93813a137"
+            },
+            {
+              "metadata_keccak256": "0x40e49f2de74506e1da5dcaed53a39853f691647f4ceb0fccc8f49a68d3f47c58",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppCore.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "041dd35f0a4a22425614414c05cd5aae6ce7e4b5b86b0350045e57c0ed3cbf1b"
+            },
+            {
+              "metadata_keccak256": "0x339654e699043c400cad92de209aa23855ce10211c31cf4114042cc5224d3b7c",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppMsgInspector.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "5bb1fd1038c648bff4e9c7b88f322c5cde41d355f03090ad1ec46f6712f09c4e"
+            },
+            {
+              "metadata_keccak256": "0x9fc08a51e9d7c9c710c4eb26f84fe77228305ad7da63fa486ff24ebf2f3bc461",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppOptionsType3.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "c14d4f013045452583eae3baf14743e0628e24c146c3beea5a10b992b1171756"
+            },
+            {
+              "metadata_keccak256": "0xd26135185e19b3732746d4a9e2923e896f28dec8664bab161faea2ee26fcdc3d",
+              "path": "@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppReceiver.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "da4aff9322961c648e2221f7df203a44b375a397f2548b74679b3e9d0ae9addd"
+            },
+            {
+              "metadata_keccak256": "0x5d24db150949ea8e6437178e65a942e8c8b7f332e5daf32750f56b23b35b5bb2",
+              "path": "@layerzerolabs/oapp-evm/contracts/precrime/interfaces/IOAppPreCrimeSimulator.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "2db19c9641e81e5366c268c40506db56ee5434b5c874cffe02fb1e18034a9285"
+            },
+            {
+              "metadata_keccak256": "0xc8d869f27ef8ceb2e13fdf6a70682fd4dee3f90c4924eb8e125bc1e66cb6af84",
+              "path": "@layerzerolabs/oapp-evm/contracts/precrime/interfaces/IPreCrime.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "25a8f3b9257ed4f65fca276f7631cca3ead87c2f17c837e6eee90c8835433380"
+            },
+            {
+              "metadata_keccak256": "0xcb2fb1c5b2eb3731de78b479b9c2ab3bba326fe0b0b3a008590f18e881e457a6",
+              "path": "@layerzerolabs/oapp-evm/contracts/precrime/libs/Packet.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "b95b1e7f7470306f41da606d0984b9384d2134fc19ee814d7d9f98c613836745"
+            },
+            {
+              "metadata_keccak256": "0x06eb4871b41d7cbe307297c248450295fa0b03becfd0c48d6fe1594c4d198e23",
+              "path": "@layerzerolabs/oft-evm-upgradeable/contracts/oft/OFTCoreUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "e2c7ee3e7669ab4cb6a68e93aef73c70d39860f7d4aca4a9af7f0aa3eec3d0e1"
+            },
+            {
+              "metadata_keccak256": "0xc60c7b4374b3d89f33b8de982f463c92374a8548800c816fe776f0ec76351fb0",
+              "path": "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "560266d2a54174fdb45cfc792e1fd8f6d215b39d8046df08b11c554c8ee292c2"
+            },
+            {
+              "metadata_keccak256": "0xaae73d6eb8b9561c43f1802f3c416c00ccd35f172b711f9781ccdf1b25a40db5",
+              "path": "@layerzerolabs/oft-evm/contracts/libs/OFTComposeMsgCodec.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "c1fe5b84aa7fdc9b5480174db9d46baa241edc7a1cc63a93a827e16b7dc21fc8"
+            },
+            {
+              "metadata_keccak256": "0x5358948017669c03e157f871d8c38e988f9004dbd0801ad3119d2487f0d40b0b",
+              "path": "@layerzerolabs/oft-evm/contracts/libs/OFTMsgCodec.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "3e6dfff6595f8af1c1618a80e30efd16f117652e1fd73ffb1f6795dcc443d658"
+            },
+            {
+              "metadata_keccak256": "0x85a70e2b1b65e9ba456add364d22b97eb9944083df1c39c0b4bd6a4b5aa386a4",
+              "path": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "a5dee9f239e3334a7e3149dc9e72e2b0e7421813fb94660695b855384da6191e"
+            },
+            {
+              "metadata_keccak256": "0xc163fcf9bb10138631a9ba5564df1fa25db9adff73bd9ee868a8ae1858fe093a",
+              "path": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9247b9ad7939d23990dbdc9274917c3762ffb37e5137ef7bbfcc2e2fba1b8dd2"
+            },
+            {
+              "metadata_keccak256": "0xdb4d24ee2c087c391d587cd17adfe5b3f9d93b3110b1388c2ab6c7c0ad1dcd05",
+              "path": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "f527a063813c2bf60c153fb08e38539578935402894fcc36fac42324ca325d3b"
+            },
+            {
+              "metadata_keccak256": "0xfcd09c2aa8cc3f93e12545454359f901965db312bc03833daf84de0c03e05022",
+              "path": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "5c0c6f1cc199d0e388beb7cb63b8d157b878fe7018f29fe83a3dd3c9102c4e8b"
+            },
+            {
+              "metadata_keccak256": "0x075302c23ba4b3a1d2a5000947ac44bbb4e84b011ecadad6f5e3fd92cd568659",
+              "path": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "f624b376be44f15b6d25fc26bd3bd13f511160640d228c7e93dbf17310b81ab9"
+            },
+            {
+              "metadata_keccak256": "0xdbef5f0c787055227243a7318ef74c8a5a1108ca3a07f2b3a00ef67769e1e397",
+              "path": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "a08e16324da33a9d666dc07a22ae58031c242a3869f6808e55b4b82fc70cb209"
+            },
+            {
+              "metadata_keccak256": "0x778f4a1546a1c6c726ecc8e2348a2789690fb8f26e12bd9d89537669167b79a4",
+              "path": "@openzeppelin/contracts-upgradeable/utils/NoncesUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "d63abfbf20ca119bf162ec5bb343df4b189208d1d0a73657555f688536498cd8"
+            },
+            {
+              "metadata_keccak256": "0xa6bf6b7efe0e6625a9dcd30c5ddf52c4c24fe8372f37c7de9dbf5034746768d5",
+              "path": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "78df1c8d83d858b123485f7cc2e15e40e28d787a21f949374ee34aa45c1ad69c"
+            },
+            {
+              "metadata_keccak256": "0x89374b2a634f0a9c08f5891b6ecce0179bc2e0577819c787ed3268ca428c2459",
+              "path": "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "91c98a39169b1ad2a4babb09e7a7c89d895956739d3f960701911cbc8b542050"
+            },
+            {
+              "metadata_keccak256": "0x6694b63ddb2c59bbe341c846171798350e8f72fa02189fcdeaca864e28b54e1f",
+              "path": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "d2105a1e3ba533399fb408105267329c2c134fcb18043a9c024d1b6e81982fc9"
+            },
+            {
+              "metadata_keccak256": "0xbff9f59c84e5337689161ce7641c0ef8e872d6a7536fbc1f5133f128887aba3c",
+              "path": "@openzeppelin/contracts/access/IAccessControl.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "140304b7e99d517c57a13f391dfd3b550ca633a507f7b2af130f391b6cd89cc5"
+            },
+            {
+              "metadata_keccak256": "0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb",
+              "path": "@openzeppelin/contracts/access/Ownable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "38578bd71c0a909840e67202db527cc6b4e6b437e0f39f0c909da32c1e30cb81"
+            },
+            {
+              "metadata_keccak256": "0xd5ea07362ab630a6a3dee4285a74cf2377044ca2e4be472755ad64d7c5d4b69d",
+              "path": "@openzeppelin/contracts/interfaces/IERC1363.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9c3a75a925a6dac9e88b03cddc58d42fe3131b0aaaad84408521f3f7af2f991b"
+            },
+            {
+              "metadata_keccak256": "0x0afcb7e740d1537b252cb2676f600465ce6938398569f09ba1b9ca240dde2dfc",
+              "path": "@openzeppelin/contracts/interfaces/IERC165.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "dfb3f56fa928a7c6cae41a7ce2c86b9210fa18d33fa26389099d66a0fa790368"
+            },
+            {
+              "metadata_keccak256": "0x1a6221315ce0307746c2c4827c125d821ee796c74a676787762f4778671d4f44",
+              "path": "@openzeppelin/contracts/interfaces/IERC20.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "0158e2d3e0e28bedd99eec13dcf1a8aa3a70a5b7e4bb2ad709609c95fcc740d1"
+            },
+            {
+              "metadata_keccak256": "0xfb223a85dd0b2175cfbbaa325a744e2cd74ecd17c3df2b77b0722f991d2725ee",
+              "path": "@openzeppelin/contracts/interfaces/IERC5267.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "f89772d2d4fafcbef8b73bb10ee9a3373edec2eedb2f1b302320915b351dc3d1"
+            },
+            {
+              "metadata_keccak256": "0x19fdfb0f3b89a230e7dbd1cf416f1a6b531a3ee5db4da483f946320fc74afc0e",
+              "path": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "df936240c9a5d342582cbda70dd773b1c1d0e0dda3042b1c17b902ef0c36827b"
+            },
+            {
+              "metadata_keccak256": "0x74ed01eb66b923d0d0cfe3be84604ac04b76482a55f9dd655e1ef4d367f95bc2",
+              "path": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "01b6f5c4fa45fd38822b286ecef6daf983d27306dd6362496fa71b3e4600b72c"
+            },
+            {
+              "metadata_keccak256": "0xd6fa4088198f04eef10c5bce8a2f4d60554b7ec4b987f684393c01bf79b94d9f",
+              "path": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "0b7132f17d14d1d84b41b0bb429be62dafdff00fd3470f68724d8018eb07f57a"
+            },
+            {
+              "metadata_keccak256": "0x2fa0657dd7b8bc75475a47f64bc04a9adb42236b15d65e6781594ea69a46c3e4",
+              "path": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "e3e2cd98b7a5b9cba47c4ccec3685fdaf838a00e5d6f188b289907f9a6d0b58f"
+            },
+            {
+              "metadata_keccak256": "0x982c5cb790ab941d1e04f807120a71709d4c313ba0bfc16006447ffbd27fbbd5",
+              "path": "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "ac1fd9fa99b194a8db8dfa9ae8e3ff44feaa8f16668241fd2b66ae8b47d7c082"
+            },
+            {
+              "metadata_keccak256": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+              "path": "@openzeppelin/contracts/utils/Context.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "847fda5460fee70f56f4200f59b82ae622bb03c79c77e67af010e31b7e2cc5b6"
+            },
+            {
+              "metadata_keccak256": "0xf7fe324703a64fc51702311dc51562d5cb1497734f074e4f483bfb6717572d7a",
+              "path": "@openzeppelin/contracts/utils/Panic.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "270fc8401c1a13fae6a7a4a2dd6e381b95d658896701e51f0d3e2688acab3dec"
+            },
+            {
+              "metadata_keccak256": "0xad148d59f05165f9217d0a9e1ac8f772abb02ea6aaad8a756315c532bf79f9f4",
+              "path": "@openzeppelin/contracts/utils/Strings.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "2db7d21151644c57f75ed3ab55e87f3cf7fbf587a65345650fd740e2cfd50be3"
+            },
+            {
+              "metadata_keccak256": "0x69f54c02b7d81d505910ec198c11ed4c6a728418a868b906b4a0cf29946fda84",
+              "path": "@openzeppelin/contracts/utils/cryptography/ECDSA.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "0964ddd02f4a7a8cf9ba130e3aeead588ca3d425d5bc13cc4221358c69108ed0"
+            },
+            {
+              "metadata_keccak256": "0x26670fef37d4adf55570ba78815eec5f31cb017e708f61886add4fc4da665631",
+              "path": "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "936a89f512d5da84b0896b66d2398f2bea9eefdf2afa788af5265fcd74302693"
+            },
+            {
+              "metadata_keccak256": "0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c",
+              "path": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9055c2994b37dea1a41b7b7926dcb510f05dbe2540b0aafc5fbee9558fffd0ca"
+            },
+            {
+              "metadata_keccak256": "0x1225214420c83ebcca88f2ae2b50f053aaa7df7bd684c3e878d334627f2edfc6",
+              "path": "@openzeppelin/contracts/utils/math/Math.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "92fee281fd46a1b058b190cf21d6b1a528f0433a907850ae1c9bcf36c5c0cd98"
+            },
+            {
+              "metadata_keccak256": "0x195533c86d0ef72bcc06456a4f66a9b941f38eb403739b00f21fd7c1abd1ae54",
+              "path": "@openzeppelin/contracts/utils/math/SafeCast.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "9769274bf53f26a7c7896c526ea1980dc9bea5bf5c2a5fd04870008c4afc1de9"
+            },
+            {
+              "metadata_keccak256": "0xb1970fac7b64e6c09611e6691791e848d5e3fe410fa5899e7df2e0afd77a99e3",
+              "path": "@openzeppelin/contracts/utils/math/SignedMath.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "1ed50b1056af886752f0fb48a0165d381e69bb4a4b18b893b066dc144a7e08d7"
+            },
+            {
+              "metadata_keccak256": "0xb6deb07f0c08f2a2cf6a7929f20368a8f823cb26532287e41b0f51f38e9e78df",
+              "path": "contracts/DeepTokenOFT.sol",
+              "primary_status": "independent_custom_primary_gap",
+              "sha256": "4231e0e6246c5474093a383bf33c0deb29a3989bd0e2dfb0f8b624490ac8c0a0"
+            },
+            {
+              "metadata_keccak256": "0x1fad95e47121c8a576cdaa7c1b3475c16b401436d4ddf88ff504bd510e20f45d",
+              "path": "contracts/base/BanlistControlUpgradeable.sol",
+              "primary_status": "independent_custom_primary_gap",
+              "sha256": "40cdb19c64040ea4820c2705afa861487476da1b82cc55444391f2bb5d9c5d00"
+            },
+            {
+              "metadata_keccak256": "0xe86883d3aed4b7ebcb6159c798e9028b10d4675eca0ce9df419e9e48d10a81a8",
+              "path": "contracts/base/ERC20ControlSafeBridgeUpgradeable.sol",
+              "primary_status": "independent_custom_primary_gap",
+              "sha256": "77504b5e88350403a4c5f1e850685d9c7f2599fc5981e5a0280ee17c9abe9ae3"
+            },
+            {
+              "metadata_keccak256": "0x17c66b18380e69ce3e98933ffa05fe82953fd2e46a6a2eccaf3c9bf18cf20451",
+              "path": "contracts/base/GuardControlUpgradeable.sol",
+              "primary_status": "independent_custom_primary_gap",
+              "sha256": "f819d803187aef18aed6b6e8043e5d4fee3955730d6f002b896678559fd02233"
+            },
+            {
+              "metadata_keccak256": "0xda4417beac91b39e8687a7bae789968d2d128b85a20b9f2a7220dd957326d9f7",
+              "path": "contracts/interfaces/IBanlistControl.sol",
+              "primary_status": "independent_custom_primary_gap",
+              "sha256": "cb3e64f4c8fc38d32294d867e71eb4986e8dae49ee60d8df39f1d9d5c8192281"
+            },
+            {
+              "metadata_keccak256": "0x8915d95470c5eca40c23052e029c0e6625d69c67a5ba2a0dde3eb1a626e90c56",
+              "path": "contracts/interfaces/IERC20Control.sol",
+              "primary_status": "independent_custom_primary_gap",
+              "sha256": "a0ad9b5c3dd2b28ded5c0cbf9b8baf63bb1ad62ad27da4a81d889ecd24e70286"
+            },
+            {
+              "metadata_keccak256": "0xb39e9824a41cd0cf6323c78227c78f463f25b89f5637aee50d6635b3a8e1bad2",
+              "path": "contracts/interfaces/IGuardControl.sol",
+              "primary_status": "independent_custom_primary_gap",
+              "sha256": "6108fccaacf72c9d53acdd5f1a3a8a1904237486d6cfc64c1e4eff571011980c"
+            }
+          ]
+        },
+        {
+          "address": "0x9b6a1d4fa5d90e5f2d34130053978d14cd301d58",
+          "capture": "proxy",
+          "capture_sha256": "41fbd48e0c4d9dd498b6c3c5b6239e98caa2c9df1d1d3d575bb473f93a094c48",
+          "chain_id": 56,
+          "compiler": "0.8.28+commit.7893614a",
+          "compiler_settings": {
+            "evmVersion": "paris",
+            "metadata": {
+              "useLiteralContent": true
+            },
+            "optimizer": {
+              "enabled": true,
+              "runs": 200
+            }
+          },
+          "constructor_append_bytes": 288,
+          "immutable_references": {
+            "621": [
+              {
+                "length": 32,
+                "start": 16
+              }
+            ]
+          },
+          "immutable_values": {
+            "immutables": {
+              "621": "0x000000000000000000000000cc1c3381fde6bc19596f7f6119fc4a44c5a3d636"
+            }
+          },
+          "original_match_labels": {
+            "creationMatch": "exact_match",
+            "match": "exact_match",
+            "runtimeMatch": "exact_match"
+          },
+          "recorded_deployment": {
+            "blockNumber": "73700424",
+            "deployer": "0x40E0400d7F4Cb921635bf241B7EA0af4914d59bE",
+            "transactionHash": "0xd10b7561d49decc27b79c2b8702aca3ba3b782eda57911fa9a0b1c956831196e",
+            "transactionIndex": "83"
+          },
+          "runtime_bytes": 1166,
+          "runtime_hash": "0xd880cb6fa8a18faabeb57bb1cb2b1900371f7338c8c3c3f7add63574dad08e3c",
+          "saved_creation_hash": "0x1f8bf038354d428f4a59a250e1f036a95960c44a4f950c5f2293afeda596d87e",
+          "source_files": [
+            {
+              "metadata_keccak256": "0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb",
+              "path": "@openzeppelin/contracts/access/Ownable.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "38578bd71c0a909840e67202db527cc6b4e6b437e0f39f0c909da32c1e30cb81"
+            },
+            {
+              "metadata_keccak256": "0xbf2aefe54b76d7f7bcd4f6da1080b7b1662611937d870b880db584d09cea56b5",
+              "path": "@openzeppelin/contracts/interfaces/IERC1967.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "c4e901318ab6d4963582c62c62ce988a34c68dbae71846b67decacde79e9a317"
+            },
+            {
+              "metadata_keccak256": "0xa3066ff86b94128a9d3956a63a0511fa1aae41bd455772ab587b32ff322acb2e",
+              "path": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "a06fe97082355529c1da9076ea6c4518875ca9fdb1a4fa1e194c35cff21b29a1"
+            },
+            {
+              "metadata_keccak256": "0xa1ad192cd45317c788618bef5cb1fb3ca4ce8b230f6433ac68cc1d850fb81618",
+              "path": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "58c5b19893bf3d7f9e1aa0edc5b908b915eb7af4381800deb425a6e5331f4432"
+            },
+            {
+              "metadata_keccak256": "0xc3f2ec76a3de8ed7a7007c46166f5550c72c7709e3fc7e8bb3111a7191cdedbd",
+              "path": "@openzeppelin/contracts/proxy/Proxy.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "5f5081378d4bc82b814b0d64990b7f7b9c69697593b73a3341f4a269940ba540"
+            },
+            {
+              "metadata_keccak256": "0x20462ddb2665e9521372c76b001d0ce196e59dbbd989de9af5576cad0bd5628b",
+              "path": "@openzeppelin/contracts/proxy/beacon/IBeacon.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "c1c9726bbb0ec4c540c7c98059dcded69a8586b46c168036672381033ee76239"
+            },
+            {
+              "metadata_keccak256": "0x46f86003755f50eff00a7c5aaf493ae62e024142b8aec4493a313851d3c14872",
+              "path": "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "4da9a90b1c8b45fdab7d73d8cf81f51cf7d990657ee4e3f943492c3bf0e4c2f1"
+            },
+            {
+              "metadata_keccak256": "0x92579f452fe663595a898cbac85d80bb3868a6c9f034f19ba7fbebdfa3b65a4d",
+              "path": "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "8391555685fb89d92ad37327d21e098b242058c10ded6398447b4eeb1c908ab0"
+            },
+            {
+              "metadata_keccak256": "0x6d0ae6e206645341fd122d278c2cb643dea260c190531f2f3f6a0426e77b00c0",
+              "path": "@openzeppelin/contracts/utils/Address.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "f1a9255dbc40cf9ae7c786abed3b022691a9d24bca0c7f05dc60e63421d405ab"
+            },
+            {
+              "metadata_keccak256": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+              "path": "@openzeppelin/contracts/utils/Context.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "847fda5460fee70f56f4200f59b82ae622bb03c79c77e67af010e31b7e2cc5b6"
+            },
+            {
+              "metadata_keccak256": "0x6afa713bfd42cf0f7656efa91201007ac465e42049d7de1d50753a373648c123",
+              "path": "@openzeppelin/contracts/utils/Errors.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "0704b9d6c032cca8512a3bc3f30f49f86f1f03102d2896a3d23e794b82efea66"
+            },
+            {
+              "metadata_keccak256": "0xcf74f855663ce2ae00ed8352666b7935f6cddea2932fdf2c3ecd30a9b1cd0e97",
+              "path": "@openzeppelin/contracts/utils/StorageSlot.sol",
+              "primary_status": "exact_upstream",
+              "sha256": "75704538dcb223239280c6726d9a31cf769a7816718517c997fc7d63bdb70778"
+            }
+          ]
+        }
+      ],
+      "contracts": [
+        "0xf3d5b4c34ed623478cc5141861776e6cf7ae3a1e",
+        "0x9b6a1d4fa5d90e5f2d34130053978d14cd301d58"
+      ],
+      "deep_configured_implementation": "0x76ec4be0109305fb4543f1d1a8a515ac3bcabd60",
+      "deep_fixed_admin_words": [
+        "0xb16e88c42fd4e48df2dd6a2eabd6bc9aec654ec170056b470819f8892cc6431d",
+        "0x18476f5b3d6d00091ddd56161ac5e9ba807d29b59f48f8df98938ee352a7cf24",
+        "0xcc685bd430dd10cd13db9f52a68d39fc6e8fa7409ed69c8c1ed8aecaff3c8832"
+      ],
+      "deep_membership_root": "0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800",
+      "deep_proxy_admin_nonce_hypothesis": 1,
+      "deep_proxy_history_limit": "The saved proxy constructor initializes an older implementation before creating ProxyAdmin. RLP(proxy, nonce 1) matches the saved immutable but does not prove the old initializer made no CREATE calls, its semantics, deployment qualification, current pointer/owner or initialized holders. The old initializer is opaque and is not decoded as the later DeepTokenOFT implementation.",
+      "deep_proxy_original_implementation": "0x563fe7f145f39e31cd7138193df6fe03f5b14253",
+      "fresh_compilation": false,
+      "initial_state_seeded": false,
+      "kgen_membership_root": "0x000000000000000000000000000000000000000000000000000000000000000a",
+      "old_initializer_hex": "f8c8765e000000000000000000000000e0e90104409c860e780ba9a702db2d45c5e5a10100000000000000000000000047c3026020448f26b015a6f2d3643a24f51745e000000000000000000000000063fa2433fb5876cb0ae929c809247d9e2b5fe1c9000000000000000000000000e0e90104409c860e780ba9a702db2d45c5e5a101",
+      "old_initializer_interpreted": false,
+      "qualified": false,
+      "runtime_reconstructed_from_saved_compiler_bytes": true,
+      "scope": "Separate plain-role candidates only. Forwarder enumeration and long-byte metadata remain unsupported. No authorization, producer visibility, deployment or replacement-package qualification.",
+      "source_gaps": "Kgen public token source differs in whitespace and is not normalized; its exact protocol interface snapshot is vendored in the token repository, not an exact LayerZero upstream match. Deep has seven custom primary-source gaps plus the nonmatching upstream protocol interface. All captured source bytes remain complete and pinned."
+    }
+  ],
+  "start_inclusive": 122288006,
+  "status": "passed_offline_role_candidate_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0
+}
