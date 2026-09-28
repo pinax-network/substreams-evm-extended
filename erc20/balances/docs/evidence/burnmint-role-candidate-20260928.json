@@ -1,0 +1,148 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "out/burnmint-role-20260928/replay-02/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "out/burnmint-role-20260928/replay-02/candidate-combined-layouts.json",
+      "sha256": "79d5def14372057cadf1eecfb924cf091dd77b1687e9e8a6625247146f81bde9"
+    },
+    {
+      "path": "out/burnmint-role-20260928/replay-02/replay-role-candidates.rs",
+      "sha256": "d3af41a52bfca99a8fb26f942b5a903bd9e83e68264663b480ab757eb6932a6f"
+    },
+    {
+      "path": "out/burnmint-role-20260928/replay-02/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "out/burnmint-role-20260928/replay-02/blocks.jsonl",
+      "sha256": "a9ce61e65961b4aca40ffc9ea2105fdca90a44b27987e0ec976de20c6882e01f"
+    },
+    {
+      "path": "out/burnmint-role-20260928/replay-02/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "out/burnmint-role-20260928/replay-02/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "out/burnmint-role-20260928/replay-02/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "attempted_block": 122289029,
+  "candidate_matches_current_baseline_all_blocks": true,
+  "candidate_profiles": {
+    "0xac23b90a79504865d52b49b327328411a23d4db2": {
+      "cold_nonzero_reference_observations": 0,
+      "cold_reference_observations": 34,
+      "emitted_rows": 38,
+      "initialized_observed_holders": 11,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 38
+    }
+  },
+  "canonical_reference_interval_and_baseline_binding_verified": true,
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 112.515713625,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/burnmint-role-candidate/layouts.json",
+      "sha256": "601aaffd273c9b054090b99d0382443ae6690822bff64702a702fbd808498713"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/burnmint-role-candidate/primary-sources.json",
+      "sha256": "e9bb0b46443c08550c7b4e8793e118b15e943ce8a4f0a962941ee77927c5d796"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_completed_block": 122289029,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 66265,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 110139,
+    "enumerated": [],
+    "first_block": 122288006,
+    "initialized_holders": 33591,
+    "known_zero_holders": 6197,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 33591,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "scope": "One unqualified BurnMint exact role path applied to unchanged 431; full saved native parity, not package/runtime/live qualification. Canonical values never seed retained state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "78cb5b1744bf88d26560cfd0ba4da0840f39cc48032acf04d881b72a11776efb",
+  "source_rechecks": [
+    {
+      "chain_id": 56,
+      "contract": "0xac23b90a79504865d52b49b327328411a23d4db2",
+      "immutable_transformations": 3,
+      "primary_import_relocations": 1,
+      "primary_pin": "e6287bd5ec0cb86925584b050b6aed0fa9b1b2e8",
+      "qualified": false,
+      "runtime_hash": "0x688f1e2193eea752e7eaa2acc9607ede95429383234670d6d84c0ee3336eb3d0",
+      "runtime_reconstructed_from_saved_compiler_bytes": true,
+      "source_capture_sha256": "8c2bf80a6aef279bc19fbb13885c1067247b9fd8b2d6cf3a0e0645b7bd4fd489",
+      "source_files": 14
+    }
+  ],
+  "start_inclusive": 122288006,
+  "status": "passed_offline_role_candidate_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0
+}

@@ -140,6 +140,29 @@ mod offline {
         ensure!(out.len() as u64 == STOP - START, "incomplete clocks");
         Ok(out)
     }
+    fn verify_reference_binding(hr: &Value, rr: &Value, reference_sha: &str, clock: &BTreeMap<u64, String>) -> Result<()> {
+        ensure!(
+            rr["chain_id"] == 56 && rr["start"] == START && rr["stop_exclusive"] == STOP && rr["blocks"] == STOP - START,
+            "canonical reference network/interval mismatch"
+        );
+        ensure!(rr["reference_sha256"] == reference_sha, "canonical reference file binding mismatch");
+        let bindings = hr["baseline_bindings"].as_array().context("historical baseline bindings")?;
+        let references: Vec<_> = bindings.iter().filter(|b| b["path"] == "out/top50-1024/reference.jsonl").collect();
+        ensure!(
+            references.len() == 1 && references[0]["sha256"] == reference_sha,
+            "canonical reference differs from historical baseline binding"
+        );
+        ensure!(
+            hr["blocks"] == STOP - START
+                && clock.keys().copied().eq(START..STOP)
+                && rr["first_hash"] == hr["first_hash"]
+                && rr["last_hash"] == hr["last_hash"]
+                && hr["first_hash"].as_str() == clock.get(&START).map(String::as_str)
+                && hr["last_hash"].as_str() == clock.get(&(STOP - 1)).map(String::as_str),
+            "canonical reference fork/clock boundary mismatch"
+        );
+        Ok(())
+    }
     fn source_files(dir: &Path, result: &mut Vec<PathBuf>) -> Result<()> {
         for entry in fs::read_dir(dir)? {
             let p = entry?.path();
@@ -151,7 +174,7 @@ mod offline {
         }
         Ok(())
     }
-    fn source_inventory(root: &Path) -> Result<Value> {
+    fn source_inventory(root: &Path, burnmint: bool) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
         let mut paths = vec![
             repo.join("Cargo.toml"),
@@ -166,8 +189,14 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        paths.push(root.join("tests/fixtures/role-path-candidates/layouts.json"));
-        paths.push(root.join("tests/fixtures/role-path-candidates/source-review.json"));
+        if burnmint {
+            for name in ["layouts.json", "source-capture.json", "primary-sources.json"] {
+                paths.push(root.join("tests/fixtures/burnmint-role-candidate").join(name));
+            }
+        } else {
+            paths.push(root.join("tests/fixtures/role-path-candidates/layouts.json"));
+            paths.push(root.join("tests/fixtures/role-path-candidates/source-review.json"));
+        }
         paths.sort();
         Ok(json!(paths
             .iter()
@@ -364,15 +393,15 @@ mod offline {
         Ok(counts)
     }
 
-    fn run(root: &Path, output: &Path, report: &mut Value) -> Result<()> {
+    fn run(root: &Path, cache: &Path, output: &Path, burnmint: bool, report: &mut Value) -> Result<()> {
         let started = Instant::now();
         fs::copy(root.join("tools/src/bin/replay_role_candidates.rs"), output.join("replay-role-candidates.rs"))?;
         let fixture = root.join("tests/fixtures/bsc-refined450-layouts.json");
-        let historical_path = root.join("out/refined450-combined/events.jsonl");
-        let historical_report_path = root.join("out/refined450-combined/report.json");
-        let clock_path = root.join("out/refined450-combined/events.clocks.txt");
-        let reference_path = root.join("out/top50-1024/reference.jsonl");
-        let reference_report_path = root.join("out/top50-1024/report.json");
+        let historical_path = cache.join("out/refined450-combined/events.jsonl");
+        let historical_report_path = cache.join("out/refined450-combined/report.json");
+        let clock_path = cache.join("out/refined450-combined/events.clocks.txt");
+        let reference_path = cache.join("out/top50-1024/reference.jsonl");
+        let reference_report_path = cache.join("out/top50-1024/report.json");
         let hr = read(&historical_report_path)?;
         let rr = read(&reference_report_path)?;
         ensure!(hr["status"] == "bounded_parity", "historical report status");
@@ -380,19 +409,40 @@ mod offline {
             hr["layouts_sha256"] == sha(&fixture)? && hr["events_sha256"] == sha(&historical_path)? && hr["clock_capture_sha256"] == sha(&clock_path)?,
             "historical binding mismatch"
         );
-        ensure!(rr["reference_sha256"] == sha(&reference_path)?, "canonical reference binding mismatch");
+        let clock = clocks(&clock_path)?;
+        verify_reference_binding(&hr, &rr, &sha(&reference_path)?, &clock)?;
+        report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join("tests/fixtures/role-path-candidates/layouts.json");
-        let review_path = root.join("tests/fixtures/role-path-candidates/source-review.json");
+        let candidate_path = root.join(if burnmint {
+            "tests/fixtures/burnmint-role-candidate/layouts.json"
+        } else {
+            "tests/fixtures/role-path-candidates/layouts.json"
+        });
+        let review_path = root.join(if burnmint {
+            "tests/fixtures/burnmint-role-candidate/primary-sources.json"
+        } else {
+            "tests/fixtures/role-path-candidates/source-review.json"
+        });
         let candidates = read(&candidate_path)?;
         let review = read(&review_path)?;
         let mut migrated: Value = serde_json::from_str(&baseline_text)?;
         ensure!(
-            candidates.as_array().context("candidate array")?.len() == 2,
-            "exactly two reviewed candidates required"
+            candidates.as_array().context("candidate array")?.len() == if burnmint { 1 } else { 2 },
+            "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = verify_review(root, &review, &candidates)?;
+        report["source_rechecks"] = if burnmint {
+            use erc20_balances_tools::burnmint_role as bound;
+            let raw = fs::read(root.join("tests/fixtures/burnmint-role-candidate/source-capture.json"))?;
+            let original = fs::read(cache.join(format!("out/ranks201-250-source-review/{}.json", bound::CONTRACT)))?;
+            ensure!(raw == original, "committed source capture differs from original cache");
+            let capture = bound::verify_capture(&raw)?;
+            bound::verify_primary(&capture, &review)?;
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([{"contract":bound::CONTRACT,"chain_id":56,"qualified":false,"source_capture_sha256":bound::CAPTURE,"source_files":14,"runtime_hash":bound::RUNTIME,"immutable_transformations":3,"runtime_reconstructed_from_saved_compiler_bytes":true,"primary_pin":bound::PIN,"primary_import_relocations":1}])
+        } else {
+            verify_review(root, &review, &candidates)?
+        };
         for candidate in candidates.as_array().unwrap() {
             let original = migrated
                 .as_array_mut()
@@ -423,7 +473,7 @@ mod offline {
         let layouts = erc20_balances::layout::parse(&migrated.to_string()).map_err(|e| anyhow::anyhow!(e.to_string()))?;
         ensure!(layouts.len() == 431 && hr["configured_profiles"] == 431, "profile scope changed");
         let configured: BTreeSet<_> = layouts.iter().map(|l| l.contract.clone()).collect();
-        let before = source_inventory(root)?;
+        let before = source_inventory(root, burnmint)?;
         write(&output.join("source-inputs.json"), &before)?;
         report["inputs"] = json!([
             &fixture,
@@ -441,7 +491,6 @@ mod offline {
         report["source_inventory_sha256"] = json!(sha(&output.join("source-inputs.json"))?);
         let historical = stream(&historical_path)?;
         let reference = stream(&reference_path)?;
-        let clock = clocks(&clock_path)?;
         let mut native_file = BufWriter::new(File::create(output.join("native-events.jsonl"))?);
         let mut differences = BufWriter::new(File::create(output.join("differences.jsonl"))?);
         let mut inventory = BufWriter::new(File::create(output.join("blocks.jsonl"))?);
@@ -459,7 +508,8 @@ mod offline {
         let mut counts = BTreeMap::<&str, u64>::new();
         let mut prior = hr["first_parent_hash"].as_str().context("historical parent")?.to_owned();
         for height in START..STOP {
-            let path = root.join(format!("out/top50-full-holder-blocks/{height}.pb"));
+            report["attempted_block"] = json!(height);
+            let path = cache.join(format!("out/top50-full-holder-blocks/{height}.pb"));
             let bytes = fs::read(&path)?;
             let block = eth::Block::decode(bytes.as_slice())?;
             let hash = format!("0x{}", hex::encode(&block.hash));
@@ -592,6 +642,12 @@ mod offline {
             *counts.entry("canonical_configured_reference_rows").or_default() += filtered_reference;
             *counts.entry("canonical_reference_only_retained_matches").or_default() += carried;
             *counts.entry("canonical_reference_only_unknown_cold_holders").or_default() += cold;
+            // Preserve progress if a later mapper/identity/ledger check fails.
+            // Never insert fake empty rows to bridge a refusal.
+            report["counts"] = json!(counts);
+            report["candidate_profiles"] = json!(selected_counts);
+            report["retention"] = json!(ledger.report());
+            report["last_completed_block"] = json!(height);
             writeln!(
                 native_file,
                 "{}",
@@ -638,7 +694,7 @@ mod offline {
         report["first_hash"] = hr["first_hash"].clone();
         report["first_parent_hash"] = hr["first_parent_hash"].clone();
         report["all_1024_clocks_equal_saved_canonical_bound_clocks"] = json!(true);
-        report["source_inputs_unchanged"] = json!(before == source_inventory(root)?);
+        report["source_inputs_unchanged"] = json!(before == source_inventory(root, burnmint)?);
         report["artifacts"] = json!([
             "native-events.jsonl",
             "candidate-combined-layouts.json",
@@ -671,10 +727,23 @@ mod offline {
         let mut args = std::env::args().skip(1);
         let root = PathBuf::from(args.next().context("crate root required")?);
         let output = PathBuf::from(args.next().context("fresh output required")?);
+        let burnmint = match args.next().as_deref() {
+            None => false,
+            Some("--burnmint") => true,
+            _ => bail!("expected --burnmint <original package root>"),
+        };
+        let cache = if burnmint {
+            PathBuf::from(args.next().context("original package root required")?)
+        } else {
+            root.clone()
+        };
         ensure!(args.next().is_none(), "unexpected arguments");
         fs::create_dir(&output).context("output must be fresh")?;
         let mut report = json!({"status":"incomplete","mode":"offline_saved_data_only","start_inclusive":START,"stop_exclusive":STOP,"network_requests":0,"new_rpc_balance_controls":0,"substreams_firehose_or_sink_commands":0,"comparison":"All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).","scope":"Two unqualified role-path candidates applied to an otherwise unchanged 431-profile baseline; native Rust replay, not a new WASM/package/live qualification. Historical output remains immutable. Canonical RPC capture is compared on overlap and on holders independently learned from native emissions; unknown cold holders are explicitly retained as unknown, with no hidden initial state."});
-        if let Err(error) = run(&root, &output, &mut report) {
+        if burnmint {
+            report["scope"] = json!("One unqualified BurnMint exact role path applied to unchanged 431; full saved native parity, not package/runtime/live qualification. Canonical values never seed retained state.");
+        }
+        if let Err(error) = run(&root, &cache, &output, burnmint, &mut report) {
             report["status"] = json!("failed");
             report["error"] = json!(format!("{error:#}"));
             write(&output.join("report.json"), &report)?;
@@ -683,5 +752,47 @@ mod offline {
         write(&output.join("report.json"), &report)?;
         println!("{}", serde_json::to_string_pretty(&report)?);
         Ok(())
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn canonical_reference_requires_original_network_interval_fork_and_baseline_binding() {
+            let clock: BTreeMap<_, _> = (START..STOP).map(|h| (h, format!("0x{h:064x}"))).collect();
+            let hr = json!({"blocks":STOP-START,"first_hash":clock[&START],"last_hash":clock[&(STOP-1)],"baseline_bindings":[{"path":"out/top50-1024/reference.jsonl","sha256":"original"}]});
+            let rr = json!({"chain_id":56,"start":START,"stop_exclusive":STOP,"blocks":STOP-START,"reference_sha256":"original","first_hash":clock[&START],"last_hash":clock[&(STOP-1)]});
+            verify_reference_binding(&hr, &rr, "original", &clock).unwrap();
+            for (key, value) in [
+                ("chain_id", json!(1)),
+                ("start", json!(START + 1)),
+                ("stop_exclusive", json!(STOP + 1)),
+                ("blocks", json!(1)),
+                ("first_hash", json!("different fork")),
+                ("last_hash", json!("different fork")),
+                ("reference_sha256", json!("replacement")),
+            ] {
+                let mut changed = rr.clone();
+                changed[key] = value;
+                assert!(verify_reference_binding(&hr, &changed, "original", &clock).is_err(), "{key}");
+            }
+            // A replacement file and self-consistent replacement report still
+            // cannot overwrite the original report's canonical binding.
+            let mut changed = rr.clone();
+            changed["reference_sha256"] = json!("replacement");
+            assert!(verify_reference_binding(&hr, &changed, "replacement", &clock).is_err());
+            for bindings in [json!([]), json!([hr["baseline_bindings"][0], hr["baseline_bindings"][0]])] {
+                let mut changed = hr.clone();
+                changed["baseline_bindings"] = bindings;
+                assert!(verify_reference_binding(&changed, &rr, "original", &clock).is_err());
+            }
+            let mut missing = clock.clone();
+            missing.remove(&(START + 1));
+            assert!(verify_reference_binding(&hr, &rr, "original", &missing).is_err());
+            let mut changed = clock;
+            changed.insert(START, "different fork".into());
+            assert!(verify_reference_binding(&hr, &rr, "original", &changed).is_err());
+        }
     }
 }

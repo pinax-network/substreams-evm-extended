@@ -1,0 +1,30 @@
+{
+  "topic": "BurnMintERC20 exact role-path candidate, 2026-09-28; offline only and unqualified",
+  "facts": [
+    {
+      "key": "primary_source_relocation",
+      "value": "13 of 14 primary files match cached source bytes exactly. BurnMintERC20 differs only in its IGetCCIPAdmin import path, from ccip/interfaces to shared/interfaces; the interface contents match exactly.",
+      "source_url": "https://raw.githubusercontent.com/smartcontractkit/chainlink/e6287bd5ec0cb86925584b050b6aed0fa9b1b2e8/contracts/src/v0.8/shared/token/ERC20/BurnMintERC20.sol",
+      "source_pin": "smartcontractkit/chainlink@e6287bd5ec0cb86925584b050b6aed0fa9b1b2e8 contracts/src/v0.8/shared/token/ERC20/BurnMintERC20.sol, contracts/src/v0.8/ccip/interfaces/IGetCCIPAdmin.sol and vendor/openzeppelin-solidity/v4.8.3",
+      "note": "All original primary texts, URLs and SHA256 hashes retained in erc20/balances/tests/fixtures/burnmint-role-candidate/primary-sources.json. The Rust verifier permits only the documented single import relocation, never arbitrary normalization."
+    },
+    {
+      "key": "role_admin_reachability",
+      "value": "Only membership at [bytes32 role,address account] is writable through reachable role methods; _setRoleAdmin has no callsite in the complete concrete source.",
+      "source_url": "https://raw.githubusercontent.com/smartcontractkit/chainlink/e6287bd5ec0cb86925584b050b6aed0fa9b1b2e8/contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/access/AccessControl.sol",
+      "source_pin": "smartcontractkit/chainlink@e6287bd5ec0cb86925584b050b6aed0fa9b1b2e8 contracts/src/v0.8/shared/token/ERC20/BurnMintERC20.sol and contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/access/AccessControl.sol",
+      "note": "AccessControl lines 144-182 public grant/revoke/renounce, 214-218 unused admin setter, 227-245 membership writes. BurnMint lines 36-53 constructor grants default admin membership, 141-143 grants mint/burn roles, 155-160 writes separate s_ccipAdmin scalar. No enumerable membership structure or balanceOf override. The candidate changes only root 5 width 2 to one typed membership path; grants/revokes are tested as synthetic Extended shapes, not executed transactions."
+    },
+    {
+      "key": "balance_getter_and_saved_runtime_binding",
+      "value": "Inherited ERC20 balanceOf returns _balances[account] directly. Saved source capture binds chain 56/address ac23b90a79504865d52b49b327328411a23d4db2, complete layout/source set, and runtime 688f1e2193eea752e7eaa2acc9607ede95429383234670d6d84c0ee3336eb3d0.",
+      "source_url": "https://raw.githubusercontent.com/smartcontractkit/chainlink/e6287bd5ec0cb86925584b050b6aed0fa9b1b2e8/contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/ERC20.sol",
+      "source_pin": "smartcontractkit/chainlink@e6287bd5ec0cb86925584b050b6aed0fa9b1b2e8 contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/ERC20.sol; original cached capture SHA256 8c2bf80a6aef279bc19fbb13885c1067247b9fd8b2d6cf3a0e0645b7bd4fd489",
+      "note": "Full capture is retained byte-identically. Exactly three 32-byte immutable substitutions reconstruct saved runtime: id 54 (offset 3213) decimals 18; id 57 (offsets 439, 2357) fixed maxSupply. No CBOR/library replacement. This is reconstruction from cached compiled bytes, not a fresh compilation or current live code/activation binding."
+    }
+  ],
+  "open_questions": [
+    "Candidate promotion still requires explicitly authorized fresh runtime controls, actual packaged output/RPC parity and initialized-holder/final-state validation.",
+    "The remaining legacy role cohort and unresolved source cases are outside this one-profile candidate; issue 4 remains open."
+  ]
+}

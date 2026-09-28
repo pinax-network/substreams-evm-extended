@@ -1,11 +1,13 @@
 # Bounded legacy role-path migration
 
 Issue [#4](https://github.com/pinax-network/substreams-evm-extended/issues/4)
-now has two separate offline candidate profiles, covering Token
+has the two offline candidate profiles recorded here, covering Token
 `0x255e746abb8d9acac00d6d023e5e63e3b8dfa7cd` and CYS
 `0x0c69199c1562233640e0db5ce2c399a88eb507c7`. The published 431-profile
 baseline remains byte-for-byte unchanged at SHA-256
 `e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468`.
+The later [BurnMint candidate](burnmint-role-candidate.md) has separate
+source controls and replay evidence; this report's original scope is unchanged.
 
 The [candidate fixture](../tests/fixtures/role-path-candidates/README.md)
 replaces only each token's legacy role-root width-two rule with the exact

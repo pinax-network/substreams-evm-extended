@@ -115,6 +115,22 @@ bounded legacy-profile candidate migration. Consult that record for the
 follow-up implementation and validation; the historical evidence below keeps
 its original scope.
 
+The [BurnMint role candidate](../erc20/balances/docs/burnmint-role-candidate.md)
+extends #4's offline per-profile review to
+`0xac23b90a79504865d52b49b327328411a23d4db2`. Its root-5 rule permits only the
+source-bound `[bytes32 role, address member]` mapping word. All other profile
+fields and both historical/qualified cohorts are unchanged. The complete
+cached capture, 14 primary source files, saved layout/compiler metadata and
+three immutable substitutions are bound; the only primary-source difference
+is an explicitly checked interface import relocation. This is saved runtime
+reconstruction, not a new compilation or current runtime check. Source-derived
+shape tests preserve balance writes and reject unreachable admin/adjacent and
+malformed paths. The saved replay tool now independently binds reference
+network, interval, fork boundaries and its original historical digest before
+comparison. New artifacts and validation remain under
+`out/burnmint-role-20260928/` in `bsc-exclusion-review`; the report preserves
+the exact interval, observed-holder counts and remaining promotion gates.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and

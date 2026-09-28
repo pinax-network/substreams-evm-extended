@@ -1,6 +1,7 @@
 #![cfg(not(target_arch = "wasm32"))]
 
 pub mod audit;
+pub mod burnmint_role;
 pub mod capture;
 pub mod cli;
 pub mod comparison;

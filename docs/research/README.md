@@ -20,5 +20,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `09-BSC_exclusion_candidates.json` | Saved TAKE/TOPS source/runtime reconstruction, TAKE maintainer pins and one unqualified guard-slot candidate; unresolved RADR/BNC4/sPro/swkeyDAO2 evidence | `erc20/balances`, issue #61 |
 | `10-Compound_v2_checked_arithmetic.json` | Checked uint256 operation order and compiled pinned-source comparisons for current/2019 CToken, WhitePaper and legacy/current jump-rate arithmetic | `conformance::compound_v2`, issues #14/#16 |
 | `11-Known_zero_reference_inputs.json` | Known-zero Aave index and SavingsDai chi branches, floor/ceil division failures and retained missing-state boundaries | `conformance::aave`, `conformance::erc4626`, issues #7/#16 |
+| `12-BurnMint_role_candidate.json` | Complete saved/primary source binding with one import relocation, reachable role membership and unqualified exact-path candidate | `erc20/balances`, issue #4 |
 
 Claims marked with a correction in a file supersede the corresponding claim.
