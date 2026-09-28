@@ -76,6 +76,8 @@ only after reviewing its complete source/runtime and validating the narrower
 configuration. The new rule is currently checked offline; the committed SPKGs
 and historical qualification reports predate it. See the
 [supported shapes and validation limits](docs/typed-mapping-paths.md).
+The separate [Point/Bedrock candidates](docs/point-bedrock-role-candidates.md)
+preserve the published baseline and record their bounded source/replay evidence.
 
 `enumerable_address_sets` separately validates complete correlated role-member
 array/index operations, with event-level permissions and no persistent set

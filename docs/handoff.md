@@ -174,6 +174,25 @@ comparison. New artifacts and validation remain under
 `out/burnmint-role-20260928/` in `bsc-exclusion-review`; the report preserves
 the exact interval, observed-holder counts and remaining promotion gates.
 
+The separate [Point/Bedrock role candidates](../erc20/balances/docs/point-bedrock-role-candidates.md)
+narrow only the legacy role rules at roots 0 and 5 to the exact two-key
+membership path. Complete cached captures bind all 23 source files, compiler
+inputs/outputs, layouts and saved runtimes without immutable substitutions or
+metadata transformations. Bedrock's token and dependencies match immutable
+public source pins; Point's ten dependencies also match, but its independent
+token repository remains an explicit gap. Shape tests distinguish membership
+from role-admin writes and preserve Bedrock's freeze scalar and user mapping.
+The Rust preparation and replay mode preserve both earlier candidate modes
+and the immutable canonical-reference checks. Fresh outputs and failed attempts
+remain under `out/point-bedrock-roles-20260928/` in
+`network-verification-config`. The final replay covers BSC
+[122288006, 122289030), matching all 110,139 baseline rows. Point contributes
+28 same-block reference matches and 11 initialized observed holders; Bedrock
+contributes 30 and 18. Their 18 and 19 cold observations remain unknown, and
+neither has a persisted role-membership write in this window. No candidate is
+promoted or independently qualified by these source-shape and historical
+replay controls.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and

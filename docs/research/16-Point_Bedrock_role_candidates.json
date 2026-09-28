@@ -1,0 +1,38 @@
+{
+  "topic": "Point/MCoin and Bedrock/BR exact role-path candidates, 2026-09-28; offline only and NOT-QUALIFIED",
+  "facts": [
+    {
+      "key": "bedrock_primary_source",
+      "value": "The complete saved 12-file Bedrock source set has exact primary matches: BR.sol at Bedrock-Technology/BR commit 48f3eb27d953a00ac7d2b6bc2719052b95ad18bd and 11 OpenZeppelin contracts at commit 0a25c1940ca220686588c4af3ec526f725fe2582 (v4.8.3). No source normalization or runtime transformation is permitted.",
+      "source_url": "https://raw.githubusercontent.com/Bedrock-Technology/BR/48f3eb27d953a00ac7d2b6bc2719052b95ad18bd/contracts/BR.sol",
+      "source_pin": "Bedrock-Technology/BR@48f3eb27d953a00ac7d2b6bc2719052b95ad18bd contracts/BR.sol; OpenZeppelin/openzeppelin-contracts@0a25c1940ca220686588c4af3ec526f725fe2582 contracts/",
+      "note": "All 12 primary files, exact URLs and SHA-256 hashes are preserved in erc20/balances/tests/fixtures/point-bedrock-role-candidates/primary-sources.json. The source-capture SHA-256 is 4a1d4290e378ee9bf416f83b60097b9bed9ac1c43a22e42137d3874d9c936c0a."
+    },
+    {
+      "key": "point_primary_source_gap",
+      "value": "Point's 10 captured OpenZeppelin dependencies match v4.7.0 exactly. No independently pinned public token repository for contracts/Point.sol was recovered; that gap remains explicit rather than inferring a token source pin from dependency matches.",
+      "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/tree/8c49ad74eae76ee389d038780d407cf90b4ae1de/contracts",
+      "source_pin": "OpenZeppelin/openzeppelin-contracts@8c49ad74eae76ee389d038780d407cf90b4ae1de contracts/; original complete Point capture SHA256 379a18f2648c684062838d90735bc4bfee90187d62f15e64e18c5ce6b1f1ae88",
+      "note": "All 11 captured files including Point.sol remain byte-identical and cross-bound to compiler input, metadata, layout and complete saved runtime. The ten independently fetched dependency files are preserved separately with immutable URLs and hashes."
+    },
+    {
+      "key": "role_membership_and_getter_invariance",
+      "value": "Both tokens inherit the direct ERC20 balanceOf getter and non-enumerable AccessControl. RoleData contains address-to-bool members at offset 0 and bytes32 adminRole at offset 1. Complete concrete source review finds no _setRoleAdmin callsite beyond its internal declaration. Constructor grants and public grant/revoke/renounce reach membership writes.",
+      "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/0a25c1940ca220686588c4af3ec526f725fe2582/contracts/access/AccessControl.sol",
+      "source_pin": "Bedrock BR.sol at 48f3eb27d953a00ac7d2b6bc2719052b95ad18bd; AccessControl.sol and ERC20.sol at OZ commits 0a25c1940ca220686588c4af3ec526f725fe2582 and 8c49ad74eae76ee389d038780d407cf90b4ae1de; exact Point token capture",
+      "note": "Point uses roles root 0 and balances root 1. Bedrock uses roles root 5 and balances root 0; freezeToRecipient slot 6 and frozenUsers root 7 remain distinct and unchanged. Source-derived Extended-record tests exercise permitted membership shapes and refusal of admin/adjacent/depth/padding/preimage/runtime changes, not executed role authorization or boolean value validation."
+    },
+    {
+      "key": "saved_compiler_runtime_binding",
+      "value": "Rust verification requires complete chain 56/address/source/input/metadata/output/layout bindings and equality of saved compiler bytes to the entire saved runtime, including original CBOR metadata. Point uses solc 0.8.9+commit.e5eed63a; Bedrock uses solc 0.8.17+commit.8df45f5f. Immutable and link references and transformation lists are empty.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/tree/main/erc20/balances/tests/fixtures/point-bedrock-role-candidates",
+      "source_pin": "Point capture 379a18f2648c684062838d90735bc4bfee90187d62f15e64e18c5ce6b1f1ae88 / runtime 0xa099dede5abb0391e457e8f49f4b61061005b3aea81cd5be261380d99b5659ec; Bedrock capture 4a1d4290e378ee9bf416f83b60097b9bed9ac1c43a22e42137d3874d9c936c0a / runtime 0xf5a9b1fe6edbc5caf0c7e395f1fca9d2bb67f7d232ca90e149507a8b842256c4",
+      "note": "This reconstructs saved compiler output; it is not fresh Solidity compilation, current on-chain runtime observation or replacement package qualification. Per-file SHA-256 and Keccak bindings are in source-review.json."
+    }
+  ],
+  "open_questions": [
+    "Point token's independently pinned primary repository remains unresolved.",
+    "Fresh authorized runtime controls, actual replacement-package/RPC parity, initialized-holder/final-state checks and actual role-operation visibility remain promotion gates.",
+    "The other issue #4 legacy cohorts and unresolved-source cases are outside this bounded two-profile candidate; issue #4 stays open."
+  ]
+}
