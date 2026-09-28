@@ -23,6 +23,17 @@ conversion (accrual to the evaluation block or timestamp) and debt
 (`borrowBalanceOf`, Compound v2 borrow snapshots) are different results, and
 none replaces `evm.balances.v1.Balance.amount`.
 
+Explicit numeric zero inputs follow their pinned source branches. A known-zero
+Aave index or SavingsDai `chi` is not a missing-state marker; normalization or
+projection still runs when the source requires it. SavingsDai floor division
+by zero returns an error, while its rounded-up helper returns zero for a zero
+numerator after projection succeeds. The retained bridge continues to reject
+absent facts, including for a known-zero holder. These
+[source-branch regressions](../docs/research/11-Known_zero_reference_inputs.json)
+use synthetic explicit values and one initialized observed holder per case
+over blocks 10–11, with idle-clock and undo controls. They do not establish
+on-chain reachability or new deployment qualification.
+
 ## What is and is not established
 
 - The Aave saved-block oracle checks reserve-index arithmetic. The later

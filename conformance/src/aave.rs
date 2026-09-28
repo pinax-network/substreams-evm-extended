@@ -105,9 +105,8 @@ pub enum Era {
 
 /// The observable ERC-20 `balanceOf` of an aToken holder at a block clock.
 pub fn balance_of(scaled: &BigUint, reserve: &Reserve, current_timestamp: u64, era: Era) -> Result<BigUint> {
-    if reserve.liquidity_index.is_zero() {
-        return Err(Unknown::MissingInput("liquidity index"));
-    }
+    // Explicit numeric inputs may be zero. Missing-state detection belongs
+    // to the caller; a known zero must still execute normalization first.
     let index = reserve.normalized_income(current_timestamp)?;
     match era {
         Era::HalfUp => ray_mul(scaled, &index),
@@ -179,7 +178,7 @@ mod tests {
     }
 
     #[test]
-    fn balance_of_distinguishes_rounding_eras_and_refuses_missing_state() {
+    fn balance_of_distinguishes_rounding_eras_and_accepts_known_zero_index() {
         let reserve = Reserve {
             liquidity_index: b("1000000000000000000000000000") + b("500000000000000000000000000"),
             current_liquidity_rate: BigUint::zero(),
@@ -187,11 +186,33 @@ mod tests {
         };
         assert_eq!(balance_of(&one(), &reserve, 1, Era::HalfUp).unwrap(), b("2"));
         assert_eq!(balance_of(&one(), &reserve, 1, Era::Floor).unwrap(), b("1"));
-        let uninitialized = Reserve {
+        let known_zero = Reserve {
             liquidity_index: BigUint::zero(),
             ..reserve
         };
-        assert_eq!(balance_of(&one(), &uninitialized, 1, Era::Floor), Err(Unknown::MissingInput("liquidity index")));
+        for era in [Era::Floor, Era::HalfUp] {
+            assert_eq!(balance_of(&one(), &known_zero, 1, era).unwrap(), BigUint::zero());
+            assert_eq!(balance_of(&one(), &known_zero, 2, era).unwrap(), BigUint::zero());
+        }
+    }
+
+    #[test]
+    fn known_zero_index_or_shares_do_not_skip_required_normalization() {
+        let reserve = Reserve {
+            liquidity_index: BigUint::zero(),
+            current_liquidity_rate: (BigUint::one() << 256u32) - BigUint::one(),
+            last_update_timestamp: 1,
+        };
+        for era in [Era::Floor, Era::HalfUp] {
+            for shares in [BigUint::zero(), one()] {
+                assert_eq!(balance_of(&shares, &reserve, 1, era).unwrap(), BigUint::zero());
+                assert_eq!(
+                    balance_of(&shares, &reserve, 0, era),
+                    Err(Unknown::Invalid("evaluation clock precedes last update"))
+                );
+                assert_eq!(balance_of(&shares, &reserve, 3, era), Err(Unknown::Invalid("linear interest overflow")));
+            }
+        }
     }
 }
 

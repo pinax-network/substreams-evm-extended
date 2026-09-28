@@ -313,6 +313,60 @@ fn missing_holder_global_and_model_are_unknown_even_for_zero() {
 }
 
 #[test]
+fn known_zero_aave_index_is_distinct_from_a_missing_fact_through_idle_clocks() {
+    for shares in ["0", "1"] {
+        let (mut initial, qualified) = aave_initial(shares);
+        initial.global_state[0].value = "0".into();
+        let mut state = seed(initial.clone());
+        assert_eq!(amount(&qualified, &state, Metric::AaveBalanceOf), "0");
+        state.apply(&events(11, 101, vec![], vec![], vec![])).unwrap();
+        assert_eq!(amount(&qualified, &state, Metric::AaveBalanceOf), "0");
+        state.undo(10).unwrap();
+        assert_eq!(amount(&qualified, &state, Metric::AaveBalanceOf), "0");
+        initial.global_state.remove(0);
+        initial.clocks[0].global_state_count -= 1;
+        assert!(matches!(
+            qualified.evaluate(&seed(initial), &HOLDER, Metric::AaveBalanceOf),
+            Err(Unknown::MissingInput(_))
+        ));
+    }
+}
+
+#[test]
+fn known_zero_sdai_chi_is_distinct_from_missing_inputs_through_idle_clocks() {
+    for shares in ["0", "1"] {
+        let epoch = model(ReferenceModel::SavingsDai);
+        let initial = events(
+            10,
+            100,
+            vec![epoch.clone()],
+            vec![holder(&epoch, shares)],
+            vec![
+                global(&epoch, pb::StateField::MakerPotChi, "0", RAY),
+                global(&epoch, pb::StateField::MakerPotDsr, RAY, RAY),
+                global(&epoch, pb::StateField::MakerPotRho, "100", "1"),
+            ],
+        );
+        let qualified = qualify(&initial, ReferenceModel::SavingsDai);
+        let mut state = seed(initial.clone());
+        assert_eq!(amount(&qualified, &state, Metric::SavingsDaiConvertToAssets), "0");
+        state.apply(&events(11, 101, vec![], vec![], vec![])).unwrap();
+        assert_eq!(amount(&qualified, &state, Metric::SavingsDaiConvertToAssets), "0");
+        state.undo(10).unwrap();
+        assert_eq!(amount(&qualified, &state, Metric::SavingsDaiConvertToAssets), "0");
+        for index in 0..3 {
+            let mut missing = initial.clone();
+            missing.global_state.remove(index);
+            missing.clocks[0].global_state_count -= 1;
+            assert!(matches!(
+                qualified.evaluate(&seed(missing), &HOLDER, Metric::SavingsDaiConvertToAssets),
+                Err(Unknown::MissingInput(_))
+            ));
+        }
+    }
+}
+
+#[test]
 fn rejected_partial_scale_layout_and_identity_updates_are_atomic() {
     let (initial, qualified) = aave_initial("5");
     let mut state = seed(initial);
