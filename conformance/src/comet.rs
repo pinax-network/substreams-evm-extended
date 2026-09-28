@@ -10,6 +10,9 @@ use crate::{Result, Unknown};
 use num_bigint::{BigInt, BigUint, Sign};
 use num_traits::{One, Zero};
 
+#[cfg(test)]
+mod source_oracle;
+
 pub const FACTOR_SCALE: u64 = 1_000_000_000_000_000_000;
 pub const BASE_INDEX_SCALE: u64 = 1_000_000_000_000_000;
 pub const SECONDS_PER_YEAR: u64 = 31_536_000;
@@ -140,7 +143,7 @@ impl Market {
     pub fn accrued_indices(&self, now: u64) -> Result<(u64, u64)> {
         // Every timestamp-projected getter calls getNowInternal() before
         // subtracting lastAccrualTime or taking the equal-time branch.
-        // CometWithExtendedAssetList.sol:221-223 at the pinned revision.
+        // CometWithExtendedAssetList.sol:246-249 at the pinned revision.
         if now >= (1 << 40) {
             return Err(Unknown::Invalid("Comet timestamp exceeds uint40"));
         }

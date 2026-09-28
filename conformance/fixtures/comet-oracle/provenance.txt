@@ -1,0 +1,27 @@
+pin: f766f51583c23acc33b2a7824654ef2029a96804
+solc, the solidity compiler commandline interface
+Version: 0.8.15+commit.e14f2714.Darwin.appleclang
+00656dc73224e4c0702940df10310bdc024b60f4a7598e774d305bc3b94f7d79  /Users/denis/.codex/worktrees/network-verification-config/substreams-evm-extended/out/comet-oracle-20260928/solc-0.8.15-official
+
+compiler manifest: https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json
+22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af  out/comet-oracle-20260928/source-03/solc-list.json
+4466ee7b3b944e0d3cc5389439a0d9b472d8b910ea363ed09d607fb5e8393e75  out/comet-oracle-20260928/source-03/build_comet_oracle.rs
+https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/LICENSE
+8a5f4b7c46a14f9a2fa407b1695a56e348e60c2d2b40bc1818152abe384582c3  out/comet-oracle-20260928/source-03/LICENSE
+https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometWithExtendedAssetList.sol
+c9099e56eda092fd0150005706edf086723899afb102f164b60ad1f36a426961  out/comet-oracle-20260928/source-03/CometWithExtendedAssetList.sol
+https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometMainInterface.sol
+8dab837c9ef1d3805413b2d5c948d8c1f5b009da4e4f9505795b2a1535ec0d1b  out/comet-oracle-20260928/source-03/CometMainInterface.sol
+https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometCore.sol
+1d80f0d12c101d01c2e1f38e8662cfcf350299b1c78188f8c501bb1c51b5ec78  out/comet-oracle-20260928/source-03/CometCore.sol
+https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometMath.sol
+b649c9c7bdc945ed7901da3454a526deb8e73400243069e36670bf8a89267a0f  out/comet-oracle-20260928/source-03/CometMath.sol
+https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometStorage.sol
+7475e03d2945a35e9bbd93fa96ba8bc18d50f60cdb9ea992e6742efbc199850c  out/comet-oracle-20260928/source-03/CometStorage.sol
+https://raw.githubusercontent.com/compound-finance/comet/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometConfiguration.sol
+e055b1588dcd7d24ba8dd79b2fec7bcb8132b1bfbf8670448ad37d7150cc75b4  out/comet-oracle-20260928/source-03/CometConfiguration.sol
+compiler arguments: --bin-runtime --hashes --storage-layout --optimize --evm-version petersburg --metadata-hash none -o build Oracle.sol
+3b404f960e71e2c8885a94429fa04383a426ca3ca46e49d5b2a48fb4b117b51d  out/comet-oracle-20260928/source-03/Oracle.sol
+09156302621c78548f41c63956c13bc2347a192163dce788c21221bf9ddc1e9a  out/comet-oracle-20260928/source-03/build/Oracle.bin-runtime
+9bd2853aca50e4fba4a3f169f3fe13cf16c0f0a464d81bdc081d570df624d1a7  out/comet-oracle-20260928/source-03/build/Oracle.signatures
+e1cef027f4c307d1128f6d00f85cea78babd1465942bf291e43511b3761d1a29  out/comet-oracle-20260928/source-03/build/Oracle_storage.json

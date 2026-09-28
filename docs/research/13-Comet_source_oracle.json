@@ -1,0 +1,30 @@
+{
+  "topic": "Bounded pinned Comet source execution, 2026-09-28",
+  "facts": [
+    {
+      "key": "exact_selected_source_paths",
+      "value": "The host oracle compiles complete pinned rate, utilization, accrued-index and supplied/debt getter function bodies, inheriting unchanged Core, Math, Storage and Configuration. Only override modifiers and holder mapping reads are substituted; rates and signed principal are explicit inputs.",
+      "source_url": "https://github.com/compound-finance/comet/blob/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometWithExtendedAssetList.sol",
+      "source_pin": "compound-finance/comet@f766f51583c23acc33b2a7824654ef2029a96804",
+      "note": "The generated harness, exact selectors, storage layout, all source hashes and as-run Rust generator hash are recorded under conformance/fixtures/comet-oracle. No constructor or deployed runtime is executed."
+    },
+    {
+      "key": "official_compiler",
+      "value": "Solidity 0.8.15+commit.e14f2714 official macOS amd64 binary SHA-256 is 00656dc73224e4c0702940df10310bdc024b60f4a7598e774d305bc3b94f7d79, checked against the exact release entry in the pinned solc-bin manifest.",
+      "source_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json",
+      "source_pin": "ethereum/solc-bin@16a99b8c26ed33a91796e209ff6797ee7baf2b0d",
+      "note": "Optimizer enabled, petersburg target, metadata hash disabled. Final capture out/comet-oracle-20260928/source-03 preserves the previous identical-runtime source-01 and source-02 captures. The pinned upstream license accompanies the derivative harness. Earlier historical native compiler evidence is unchanged."
+    },
+    {
+      "key": "bounded_comparisons",
+      "value": "1,515 model comparisons cover rates, packed stored utilization, both projected indices, supplied balance, debt and inherited conversions; two additional ABI controls reject invalid widths. Explicit failures cover uint40 time, backward clock, both indices, int104 extremes and safe casts.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/blob/main/conformance/src/comet/source_oracle.rs",
+      "source_pin": "repository host-only conformance tests for the source pin above",
+      "note": "Six boundary and 32 deterministic generated markets use explicit values, three clocks and five signed principals. The shared bounded interpreter adds TIMESTAMP, SIGNEXTEND and SGT with direct controls. No saved chain interval or initialized observed-holder coverage is claimed."
+    }
+  ],
+  "open_questions": [
+    "Constructor configuration, immutable/proxy/runtime binding and reachability require independent deployment evidence.",
+    "Ethereum captured getter, initialized-holder replay and package qualification remain separate #15/#16 gates; these offline controls do not authorize live calls."
+  ]
+}
