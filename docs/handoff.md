@@ -258,6 +258,22 @@ artifacts are under `out/tagger-role-20260928/` in
 `network-verification-config`; historical package evidence does not qualify
 this candidate or establish actual admin/member operation visibility.
 
+The separate [Artx role candidate](../erc20/balances/docs/artx-role-candidate.md)
+narrows only root 151 to exact membership, preserving the proxy's runtime,
+implementation address/hash, EIP-1967 pointer guard and all unrelated storage.
+It introduces no admin permission. Both complete captures bind 35 input files;
+34 dependencies match immutable OpenZeppelin pins, while the BUSL-1.1 token's
+independent public source remains unresolved. The proxy capture has 14 input
+files but exactly eight selected output/metadata source IDs; the implementation
+has 21 aligned files. The verifier preserves those different sets explicitly.
+Saved bytecode reconstruction permits only three implementation self-address
+substitutions and independently encodes the exact 480-byte proxy constructor
+append. Zero initial supply and empty mint arrays do not seed holder state or
+qualify deployment, current pointer or owner. Both creation guards remain
+active. Preparation, failed attempts and validation artifacts are under
+`out/artx-role-20260928/` in `bsc-exclusion-review`; the candidate and both
+unchanged historical cohorts retain their separate qualification boundaries.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and
