@@ -126,7 +126,7 @@ fn savings_dai_rows_evaluate_with_the_pot_model() {
     .unwrap();
     let model = erc4626::SavingsDai {
         chi: global(&events, &sdai.vault, pb::StateField::MakerPotChi),
-        rho: u64::try_from(global(&events, &sdai.vault, pb::StateField::MakerPotRho)).unwrap(),
+        rho: global(&events, &sdai.vault, pb::StateField::MakerPotRho),
         dsr: global(&events, &sdai.vault, pb::StateField::MakerPotDsr),
     };
     assert_eq!((&model.chi, &model.dsr), (&chi, &dsr));

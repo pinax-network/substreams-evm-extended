@@ -22,6 +22,8 @@
 //! underlying claim, a different metric. Missing input is an error, never 0.
 #[cfg(test)]
 pub(crate) mod oz_evm_oracle;
+#[cfg(test)]
+mod sdai_source_oracle;
 
 use crate::aave;
 use crate::{Result, Unknown};
@@ -169,17 +171,22 @@ pub fn rpow(x: &BigUint, n: u64) -> Result<BigUint> {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SavingsDai {
-    /// Pot `chi` (ray), `rho` (seconds) and `dsr` (ray per second).
+    /// Pot `chi` (ray), `rho` (uint256 seconds) and `dsr` (ray per second).
     pub chi: BigUint,
-    pub rho: u64,
+    pub rho: BigUint,
     pub dsr: BigUint,
 }
 impl SavingsDai {
     /// The `chi` `convertToAssets` uses at `timestamp`: the stored one when
     /// no time passed since `rho`, else the drip projection.
     pub fn chi_at(&self, timestamp: u64) -> Result<BigUint> {
+        checked(self.rho.clone())?;
+        let timestamp = BigUint::from(timestamp);
         if timestamp > self.rho {
-            let growth = rpow(&self.dsr, timestamp - self.rho)?;
+            // The chain clock is u64; a positive difference necessarily fits
+            // even though the stored Pot timestamp has the full uint256 domain.
+            let elapsed = u64::try_from(timestamp - &self.rho).expect("positive elapsed is bounded by the u64 clock");
+            let growth = rpow(&self.dsr, elapsed)?;
             Ok(checked(growth * &self.chi)? / ray())
         } else {
             Ok(self.chi.clone())
@@ -364,7 +371,7 @@ mod tests {
     fn sdai_projects_chi_between_drips_and_rounds_like_the_source() {
         let s = SavingsDai {
             chi: ray() + ray() / 20u8,
-            rho: 1_000,
+            rho: n(1_000),
             dsr: ray(),
         }; // chi 1.05, zero rate
         assert_eq!(s.convert_to_assets(&n(100), 1_000).unwrap(), n(105));
@@ -379,21 +386,29 @@ mod tests {
         // With a rate, chi grows after rho and is stored-only before/at rho.
         let growing = SavingsDai {
             chi: ray(),
-            rho: 1_000,
+            rho: n(1_000),
             dsr: ray() * 2u8,
         }; // doubling per second (synthetic)
         assert_eq!(growing.chi_at(1_000).unwrap(), ray());
         assert_eq!(growing.chi_at(999).unwrap(), ray());
         assert_eq!(growing.chi_at(1_003).unwrap(), ray() * 8u8);
         assert_eq!(growing.convert_to_assets(&n(3), 1_003).unwrap(), n(24));
-        assert_eq!(SavingsDai { chi: n(0), rho: 0, dsr: ray() }.convert_to_assets(&n(1), 1), Ok(n(0)));
+        assert_eq!(
+            SavingsDai {
+                chi: n(0),
+                rho: n(0),
+                dsr: ray()
+            }
+            .convert_to_assets(&n(1), 1),
+            Ok(n(0))
+        );
     }
 
     #[test]
     fn sdai_known_zero_chi_preserves_projection_and_conversion_branches() {
         let zero = SavingsDai {
             chi: n(0),
-            rho: 100,
+            rho: n(100),
             dsr: ray(),
         };
         for timestamp in [99, 100, 101] {
@@ -419,7 +434,7 @@ mod tests {
         assert_eq!(overflowing.preview_mint(&n(0), 102), Err(Unknown::Invalid("uint256 overflow")));
         let product_overflow = SavingsDai {
             chi: max_uint256(),
-            rho: 100,
+            rho: n(100),
             dsr: ray() * 2u8,
         };
         assert_eq!(product_overflow.convert_to_assets(&n(0), 101), Err(Unknown::Invalid("uint256 overflow")));
@@ -432,7 +447,7 @@ mod tests {
     fn sdai_projected_zero_chi_returns_errors_without_panicking() {
         let zero = SavingsDai {
             chi: ray(),
-            rho: 100,
+            rho: n(100),
             dsr: n(0),
         };
         assert_eq!(zero.chi_at(101).unwrap(), n(0));

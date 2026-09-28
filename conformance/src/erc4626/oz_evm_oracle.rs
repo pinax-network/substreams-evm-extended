@@ -32,6 +32,34 @@ pub(crate) fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std:
 /// Comet's source reads TIMESTAMP before any principal-sign early return.
 /// Other fixtures retain the original zero-timestamp execution entrypoint.
 pub(crate) fn execute_at(code: &[u8], calldata: &[u8], storage: &[BigUint], timestamp: &BigUint) -> std::result::Result<Vec<u8>, Vec<u8>> {
+    match execute_outcome_at(code, calldata, storage, timestamp) {
+        OracleExit::Return(output) => Ok(output),
+        OracleExit::Revert(output) => Err(output),
+        OracleExit::Invalid => Err(Vec::new()), // Preserve older-solc callers.
+    }
+}
+
+/// Modern source fixtures may deliberately REVERT without data. INVALID
+/// must not masquerade as one of those recognized source failures.
+pub(crate) fn execute_modern_at(code: &[u8], calldata: &[u8], storage: &[BigUint], timestamp: &BigUint) -> std::result::Result<Vec<u8>, Vec<u8>> {
+    match execute_outcome_at(code, calldata, storage, timestamp) {
+        OracleExit::Return(output) => Ok(output),
+        OracleExit::Revert(output) => Err(output),
+        OracleExit::Invalid => panic!("INVALID in modern oracle path"),
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum OracleExit {
+    Return(Vec<u8>),
+    Revert(Vec<u8>),
+    Invalid,
+}
+
+/// Preserve the exact termination kind for source-specific assertions.
+/// Unsupported instructions, malformed execution and resource exhaustion
+/// still panic, rather than returning an accepted Solidity failure.
+pub(crate) fn execute_outcome_at(code: &[u8], calldata: &[u8], storage: &[BigUint], timestamp: &BigUint) -> OracleExit {
     assert!(timestamp.bits() <= 256, "timestamp outside EVM word");
     // Each call has isolated state. Compound's source oracle additionally
     // exercises SSTORE and event emission; no write escapes this invocation.
@@ -53,7 +81,7 @@ pub(crate) fn execute_at(code: &[u8], calldata: &[u8], storage: &[BigUint], time
         let op = code[pc];
         pc += 1;
         match op {
-            0x00 => return Ok(Vec::new()),
+            0x00 => return OracleExit::Return(Vec::new()),
             0x01..=0x04 | 0x06 | 0x0a..=0x0b | 0x10..=0x14 | 0x16..=0x18 | 0x1b..=0x1c => {
                 let a = stack.pop().unwrap();
                 let b = stack.pop().unwrap();
@@ -213,14 +241,30 @@ pub(crate) fn execute_at(code: &[u8], calldata: &[u8], storage: &[BigUint], time
                 let offset = stack.pop().unwrap().to_usize().unwrap();
                 let length = stack.pop().unwrap().to_usize().unwrap();
                 let output = memory[offset..offset + length].to_vec();
-                return if op == 0xf3 { Ok(output) } else { Err(output) };
+                return if op == 0xf3 { OracleExit::Return(output) } else { OracleExit::Revert(output) };
             }
-            0xfe => return Err(Vec::new()), // Solidity 0.5 assert failure (INVALID)
+            0xfe => return OracleExit::Invalid,
             _ => panic!("unsupported oracle opcode 0x{op:02x} at {}", pc - 1),
         }
         assert!(stack.len() <= 1024);
     }
     panic!("oracle step budget exceeded")
+}
+
+#[test]
+fn oracle_vm_exit_kind_keeps_empty_return_revert_and_invalid_distinct() {
+    let clock = BigUint::zero();
+    let returned = decode("60006000f3");
+    let reverted = decode("60006000fd");
+    assert_eq!(execute_outcome_at(&returned, &[], &[], &clock), OracleExit::Return(vec![]));
+    assert_eq!(execute_outcome_at(&reverted, &[], &[], &clock), OracleExit::Revert(vec![]));
+    assert_eq!(execute_outcome_at(&[0xfe], &[], &[], &clock), OracleExit::Invalid);
+    assert_eq!(execute_modern_at(&returned, &[], &[], &clock), Ok(vec![]));
+    assert_eq!(execute_modern_at(&reverted, &[], &[], &clock), Err(vec![]));
+    assert!(std::panic::catch_unwind(|| execute_modern_at(&[0xfe], &[], &[], &clock)).is_err());
+    assert!(std::panic::catch_unwind(|| execute_outcome_at(&[0xff], &[], &[], &clock)).is_err());
+    assert!(std::panic::catch_unwind(|| execute_modern_at(&[0xff], &[], &[], &clock)).is_err());
+    assert_eq!(execute(&[0xfe], &[], &[]), Err(vec![]), "legacy entrypoint stays compatible");
 }
 
 fn oracle(vault: &OzVirtualOffset, amount: &BigUint, selector: &str) -> std::result::Result<BigUint, Vec<u8>> {

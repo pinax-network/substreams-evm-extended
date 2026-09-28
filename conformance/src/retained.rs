@@ -381,9 +381,7 @@ impl QualifiedModel {
                 let model = erc4626::SavingsDai {
                     chi: read(pb::StateField::MakerPotChi, RAY, stored)?,
                     dsr: read(pb::StateField::MakerPotDsr, RAY, stored)?,
-                    rho: read(pb::StateField::MakerPotRho, "1", stored)?
-                        .to_u64()
-                        .ok_or(Unknown::Invalid("Pot timestamp exceeds u64"))?,
+                    rho: read(pb::StateField::MakerPotRho, "1", stored)?,
                 };
                 model.convert_to_assets(shares()?, clock.timestamp)?
             }
