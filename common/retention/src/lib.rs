@@ -31,6 +31,10 @@ use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::fmt;
 
+/// Full protocol inputs for bounded host-side reference evaluation.
+#[cfg(not(target_arch = "wasm32"))]
+pub mod protocol;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Error(pub String);
 impl fmt::Display for Error {
@@ -751,7 +755,7 @@ impl Ledger {
             {
                 return err("global state row has an unknown field, observation, boundary or scope");
             }
-            if !valid_decimal(&row.value, row.signed) {
+            if !row.value.is_empty() && !valid_decimal(&row.value, row.signed) {
                 return err(format!("invalid global state value `{}`", row.value));
             }
             member(&row.market, row.epoch)?;
