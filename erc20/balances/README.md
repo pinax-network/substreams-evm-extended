@@ -690,3 +690,12 @@ targets local namespaced role operations and raw ERC20 getters in synthetic
 accounts. On-chain creation/deployment evidence is absent; initializer, external
 client, transfer and timed UI success paths remain excluded. No SecuritiesToken
 ingestion rule, candidate or seventeen-profile qualification is added.
+
+The [GMToken Phase A proof](docs/gm-operation-proof.md) binds three complete
+captures to official solc 0.8.16, preserving 15 exact Ondo-vendored dependencies,
+seven unique upstream proxy dependencies and five custom primary-source gaps.
+It compares selected local role/getter paths across the exact compiled and
+captured runtimes, whose declared CBOR metadata differs. Synthetic construction
+returns compiler runtime; on-chain creation stays unbound. External compliance,
+pause logic and beacon dispatch remain excluded; no GM ingestion rule or
+candidate is added.

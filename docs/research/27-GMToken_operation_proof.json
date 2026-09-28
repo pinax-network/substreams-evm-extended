@@ -1,0 +1,59 @@
+{
+  "id": 27,
+  "title": "GMToken local role and raw getter operation proof (Phase A only)",
+  "issue": 4,
+  "status": "host-only operation proof passed; NOT-QUALIFIED; no candidate",
+  "implementation": "0x578f397ca4661d1db4d9a65065d6b284a1a850fd",
+  "proxies": [
+    "0x9b8e987e6fec8cf1380c4dca7071e2c7853aeea1",
+    "0xa9ee28c80f960b889dfbd1902055218cba016f75"
+  ],
+  "source_records": 34,
+  "unique_source_profiles": 27,
+  "exact_ondo_vendored_dependencies": 15,
+  "unique_exact_upstream_proxy_dependencies": 7,
+  "custom_BUSL_primary_gaps": 5,
+  "vendor_pin": "ondoprotocol/usdy@3912ca0698c2992e4db997d0855e62588c44e2c0",
+  "proxy_pin": "OpenZeppelin/openzeppelin-contracts@ecd2ca2cd7cac116f7a37d0e474bbb3d7d5e1c4d",
+  "contextual_custom_nonmatch_pin": "ondoprotocol/rwa-contracts@046c5c58a2d2202e70d7c2c4f13f414f15de47f4",
+  "compiler": "0.8.16+commit.07a7930e",
+  "compiler_sha256": "7d471cb9bae9a7f29c7ebf402f7e16fa8226b17ba9ab68a88ce107114479dc4d",
+  "compiler_keccak256": "0xf3dd3636e7bca007430e091bcacc2dd9b9af72edb838a0e0d77de9610169f7c3",
+  "compiler_manifest_revision": "16a99b8c26ed33a91796e209ff6797ee7baf2b0d",
+  "settings": "Original exact London/optimizer 200 settings including differing remappings/metadata keys; only outputSelection added",
+  "source_semantics": "Membership root 201 and independent enumerable root 251; void parent bool/log condition then unconditional set add/remove; no custom role/admin override",
+  "runtime_substitutions": "Exactly one 53-byte CBOR replacement at implementation offset 8218 or proxy offset 771; full byte reconstruction, no arbitrary stripping or immutables",
+  "creation_boundary": "All creation matches/onchain bytes/transformations remain null. Synthetic compiler creation returns compiler runtime; separately compared captured runtime differs in metadata.",
+  "execution_boundary": "Current bounded VM unchanged; explicit self installed sizes 0/8271/824. Local initialization uses pointer stores only; external pause/compliance, beacon construction/dispatch and deployed initialization are excluded.",
+  "evidence": "../../erc20/balances/docs/gm-operation-proof.md",
+  "operation_attempt": "out/gm-operation-proof-20260928/operations-03",
+  "limits": [
+    "Capture-bound custom primary gaps remain",
+    "No production parser/schema/candidate/baseline/dependency/protobuf changes",
+    "No chain calls, live state claims or saved-block replay",
+    "Synthetic malformed state is not coherent ingestion admission"
+  ],
+  "synthetic_calls": 1567,
+  "compiled_captured_matrix_pairs": 783,
+  "returned_calls": 1279,
+  "reverted_calls": 274,
+  "explicit_unsupported_controls": 14,
+  "invalid_calls": 0,
+  "measured_initializer": "13 stores/four logs on success; zero compliance four/no logs; zero manager five/one log; exact full attempted effects and rollback",
+  "unsupported_boundaries": "Missing self context: EXTCODESIZE PC 1889. Six hook paths per runtime: GAS PC 5556 before pause STATICCALL; no client execution, never treated as Solidity revert.",
+  "compiler_attempt": "out/gm-operation-proof-20260928/source-03",
+  "source_inventory_sha256": "cb3c63c450dcaab117839717bf712836d7e326966f2e42162e86d9f8c4d05248",
+  "operation_report_sha256": "13ba3d4874ccc21310a2c90df3aa7b5ccfe5c9de215ff4a1969c2bc8c5eb38d8",
+  "full_opcode_records": 438481,
+  "mapped_effect_annotations": 6449,
+  "reports": [
+    "../../erc20/balances/docs/evidence/gm-operation-proof-20260928-compiler.json",
+    "../../erc20/balances/docs/evidence/gm-operation-proof-20260928.json"
+  ],
+  "preserved_attempts": [
+    "Initial E0716 Rust temporary-slice lifetime compile failure",
+    "source-01: exact proxy creation CBOR offset differs from final53 bytes; literal preserved",
+    "operations-01: maximum dynamic string length requires exact Panic(0x41), not empty REVERT",
+    "Clippy nonminimal boolean expression; equivalent simplification only"
+  ]
+}
