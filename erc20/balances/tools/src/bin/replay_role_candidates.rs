@@ -182,6 +182,7 @@ mod offline {
         FheB2,
         Bas,
         Tagger,
+        Artx,
     }
     fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
@@ -198,7 +199,17 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::Tagger {
+        if mode == Mode::Artx {
+            for name in [
+                "layouts.json",
+                "source-review.json",
+                "proxy.json",
+                "implementation.json",
+                "primary-sources.json",
+            ] {
+                paths.push(root.join(erc20_balances_tools::artx_role::FIXTURE).join(name));
+            }
+        } else if mode == Mode::Tagger {
             for name in ["layouts.json", "source-review.json", "TaggerToken.json"] {
                 paths.push(root.join(erc20_balances_tools::tagger_role::FIXTURE).join(name));
             }
@@ -507,7 +518,9 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if mode == Mode::Tagger {
+        let candidate_path = root.join(if mode == Mode::Artx {
+            "tests/fixtures/artx-role-candidate/layouts.json"
+        } else if mode == Mode::Tagger {
             "tests/fixtures/tagger-role-candidate/layouts.json"
         } else if mode == Mode::Bas {
             "tests/fixtures/bas-role-candidate/layouts.json"
@@ -520,7 +533,9 @@ mod offline {
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if mode == Mode::Tagger {
+        let review_path = root.join(if mode == Mode::Artx {
+            "tests/fixtures/artx-role-candidate/source-review.json"
+        } else if mode == Mode::Tagger {
             "tests/fixtures/tagger-role-candidate/source-review.json"
         } else if mode == Mode::Bas {
             "tests/fixtures/bas-role-candidate/source-review.json"
@@ -537,10 +552,27 @@ mod offline {
         let review = read(&review_path)?;
         let mut migrated: Value = serde_json::from_str(&baseline_text)?;
         ensure!(
-            candidates.as_array().context("candidate array")?.len() == if matches!(mode, Mode::Burnmint | Mode::Bas | Mode::Tagger) { 1 } else { 2 },
+            candidates.as_array().context("candidate array")?.len()
+                == if matches!(mode, Mode::Burnmint | Mode::Bas | Mode::Tagger | Mode::Artx) {
+                    1
+                } else {
+                    2
+                },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if mode == Mode::Tagger {
+        report["source_rechecks"] = if mode == Mode::Artx {
+            use erc20_balances_tools::artx_role as bound;
+            let mut captures = Vec::new();
+            for p in &bound::CAPTURES {
+                let raw = fs::read(root.join(bound::FIXTURE).join(format!("{}.json", p.label)))?;
+                ensure!(raw == fs::read(cache.join(p.cache))?, "committed Artx capture differs from original cache");
+                captures.push(bound::verify_capture(&raw, p)?);
+            }
+            ensure!(review == bound::review(&captures)?, "Artx review differs from complete captures");
+            bound::verify_primary_raw(&fs::read(root.join(bound::FIXTURE).join("primary-sources.json"))?, &captures)?;
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([review])
+        } else if mode == Mode::Tagger {
             use erc20_balances_tools::tagger_role as bound;
             let raw = fs::read(root.join(bound::FIXTURE).join("TaggerToken.json"))?;
             ensure!(
@@ -939,7 +971,8 @@ mod offline {
             Some("--fhe-b2") => Mode::FheB2,
             Some("--bas") => Mode::Bas,
             Some("--tagger") => Mode::Tagger,
-            _ => bail!("expected --burnmint, --point-bedrock, --fhe-b2, --bas or --tagger, followed by <original package root>"),
+            Some("--artx") => Mode::Artx,
+            _ => bail!("expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger or --artx, followed by <original package root>"),
         };
         let cache = if mode != Mode::TokenCys {
             PathBuf::from(args.next().context("original package root required")?)
@@ -963,6 +996,9 @@ mod offline {
         }
         if mode == Mode::Tagger {
             report["scope"] = json!("One NOT-QUALIFIED Tagger exact outer-admin and membership candidate applied to unchanged 431; saved CBOR-only reconstruction and native parity do not qualify deployment, current owner or replacement package. Independent token/dependency source pins for the flattened capture remain unresolved. Canonical values never seed retained state.");
+        }
+        if mode == Mode::Artx {
+            report["scope"] = json!("One NOT-QUALIFIED Artx proxy membership path applied to historical431; exact saved proxy/implementation/compiler/constructor bindings and native parity are not current pointer/owner, deployment or replacement-package qualification. Public token source gap remains unresolved. Zero initial supply and canonical values never seed retained state.");
         }
         if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");

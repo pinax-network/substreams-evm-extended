@@ -1,0 +1,38 @@
+{
+  "topic": "Artx proxy membership candidate, 2026-09-28; offline only and NOT-QUALIFIED",
+  "facts": [
+    {
+      "key": "complete_proxy_and_implementation_capture_sets",
+      "value": "The exact proxy capture preserves fourteen compiler inputs and exactly eight selected compiler-output/source-ID/metadata files. Six input-only dependencies are retained. The implementation has twenty-one aligned source/input/output/metadata files. Rust checks exact raw hashes, addresses, chain 56, original exact_match labels, complete compiler settings/ABI/docs/layout and bytecode.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/tree/main/erc20/balances/tests/fixtures/artx-role-candidate",
+      "source_pin": "Proxy capture 22e604d6c46a14825b5a95f686ffb1875475ad0725fe63d7d77747bb0931d9ab; implementation capture f01037c490dd41a7e656ad3dcf8b7cfd95ee125f3378ceac81d663933a5d7e7e",
+      "note": "The proxy is 0x8105743e8a19c915a604d7d9e7aa3a060a4c2c32, and its implementation is 0xc401796ec909f7774703528571c3590748ebc563. Input-only source bytes remain bound by the full raw capture and exact primary proof; selected metadata Keccaks are not invented."
+    },
+    {
+      "key": "exact_dependencies_and_unresolved_token_source",
+      "value": "All fourteen proxy dependencies match OpenZeppelin v5.2.0 and all twenty implementation dependencies match OpenZeppelin Upgradeable v4.9.6 byte-for-byte. The token's independent primary repository remains unresolved after the bounded ULTILAND/public-code search; no normalization or inferred token pin is allowed.",
+      "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/tree/2d081f24cac1a867f6f73d512f2022e1fa987854/contracts",
+      "source_pin": "Proxy OZ acd4ff74de833399287ed6b31b4debf6b2b35527; implementation OZ Upgradeable 2d081f24cac1a867f6f73d512f2022e1fa987854; original primary proof 57adbbb35d47187a3edada8f43da5471274f27114652490bb5736528aeaf9bb1",
+      "note": "All 34 primary contents/URLs/hashes/selected-output flags are preserved. Captured contracts/ArtxToken.sol SHA-256 ba971c5212b7cc1dd5a679bf6501fb4588540fb8a1f2c42325d72248575693d8 retains BUSL-1.1; dependency MIT notices retained. A bounded unsuccessful search is not proof no public source exists."
+    },
+    {
+      "key": "independent_saved_runtime_and_constructor_reconstruction",
+      "value": "The 170-byte proxy runtime is untransformed. The 10,348-byte implementation runtime has exactly three replacements for UUPS __self immutable ID 1097 at offsets 1785, 2035 and 2980, independently padded from the implementation address. The complete 480-byte proxy constructor append independently encodes the implementation plus 356-byte __ArtxToken_init calldata for Ultiland/ARTX, zero supply and empty arrays. The 10,574-byte implementation creation object is unchanged.",
+      "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts-upgradeable/2d081f24cac1a867f6f73d512f2022e1fa987854/contracts/proxy/utils/UUPSUpgradeable.sol",
+      "source_pin": "Proxy runtime 0x864cc9ad53b338b82da1f7cab85ab0b3d5c8861acb422b6fec63cf36234f36a6; implementation runtime 0xf8ef8aafe948cf5240fb04631cd152673a48a13c9c6be2e638e2642250d4f03c",
+      "note": "Saved compiler reconstruction is not fresh compilation, current proxy pointer/owner or deployment qualification. No holder state is seeded from constructor inputs. Captured proxy block 67828331 and implementation block 67828310 remain historical facts only."
+    },
+    {
+      "key": "membership_getter_invariance_and_guards",
+      "value": "ArtxToken inherits direct ERC20Upgradeable balanceOf at root 51. Complete implementation source has only the unused inherited _setRoleAdmin declaration. Initializer grants and public grant/revoke/renounce reach root 151 inner address/bool membership. The candidate changes only legacy width 2 to exact [bytes32, address] membership at offset 0, width 1; UUPS owner-gated upgrades and all source-bound runtime/pointer/deployment guards remain.",
+      "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts-upgradeable/2d081f24cac1a867f6f73d512f2022e1fa987854/contracts/access/AccessControlUpgradeable.sol",
+      "source_pin": "Exact captured ArtxToken and pinned AccessControlUpgradeable/ERC20Upgradeable; ERC1967 slot 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+      "note": "Initializer flags at slot 0, allowances at 52, supply/name/symbol at 53/54/55, owner at 201, counters at 351/352 and unsupported gap arrays remain unchanged. Synthetic storage shapes do not execute authorization or boolean validation, nor establish live role-operation visibility."
+    }
+  ],
+  "open_questions": [
+    "The token's exact independent primary repository remains unresolved.",
+    "Fresh runtime/dependency controls, actual replacement-package/getter parity, initialized-holder/final-state checks and actual role-operation observations remain promotion gates.",
+    "Other legacy profiles, enumerable structures and parser extensions remain outside this bounded candidate; issue 4 stays open."
+  ]
+}

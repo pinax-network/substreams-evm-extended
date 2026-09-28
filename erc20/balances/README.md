@@ -85,6 +85,9 @@ and one fixed PAUSER admin word; its public token-source gap remains explicit.
 The separate [Tagger candidate](docs/tagger-role-candidate.md) covers its
 reachable outer admin word and membership path, with exact saved CBOR
 reconstruction and an explicit independent primary-source gap.
+The separate [Artx candidate](docs/artx-role-candidate.md) binds both proxy
+and implementation captures and changes only membership, preserving upgrade
+guards and the unresolved token-source pin.
 
 `enumerable_address_sets` separately validates complete correlated role-member
 array/index operations, with event-level permissions and no persistent set
