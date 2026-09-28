@@ -1,0 +1,37 @@
+{
+  "topic": "Compound v2 host checked uint256 intermediates and bounded offline source execution, 2026-09-28",
+  "facts": [
+    {
+      "key": "current_ctoken_checked_intermediates",
+      "value": "Cash plus borrows is checked before reserves subtraction; exchange scaling, accrue products and additions, and underlying conversion check uint256 intermediates before division.",
+      "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/a3214f67b73310d547e00fc578e8355911c9d376/contracts/CToken.sol",
+      "source_pin": "compound-finance/compound-protocol@a3214f67b73310d547e00fc578e8355911c9d376 contracts/CToken.sol, contracts/ExponentialNoError.sol",
+      "note": "CToken exchange lines 265-283, accrual 297-343, underlying 160-163. Current cToken returns early before rate evaluation when the accrual block equals the evaluation block. Solidity 0.8 arithmetic is checked, including intermediate expressions whose final quotient would fit. Source SHA-256 and compiler bindings are in conformance/fixtures/compound-v2-oracle/provenance.txt."
+    },
+    {
+      "key": "legacy_checked_errors",
+      "value": "The 2019 helpers use checked mulUInt/addUInt/subUInt with error returns; CToken checks rate and cap before its block delta. Failed checked accrual returns a nonzero error and leaves market words unchanged.",
+      "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/f385d71983ae5c5799faae9b2dfea43e5cf75262/contracts/CToken.sol",
+      "source_pin": "compound-finance/compound-protocol@f385d71983ae5c5799faae9b2dfea43e5cf75262 contracts/CToken.sol, contracts/Exponential.sol, contracts/CarefulMath.sol, contracts/ErrorReporter.sol, contracts/WhitePaperInterestRateModel.sol",
+      "note": "The model returns Unknown::Invalid for unusable values, not the on-chain ABI error code. The oracle separately checks legacy error codes and state preservation. Backwards-block legacy assert executes INVALID; current underflow panics. WhitePaper ignores reserves and divides its checked annual rate after addition."
+    },
+    {
+      "key": "jump_rate_checked_operation_order",
+      "value": "Both modern and 2020 legacy jump models check utilization numerator/denominator, normal/jump products and additions, supply products, and annual multiplier/kink scaling products before divisions.",
+      "source_url": "https://raw.githubusercontent.com/compound-finance/compound-protocol/4caf72a1f88335adc9cc06acf6f372241369ed01/contracts/BaseJumpRateModelV2.sol",
+      "source_pin": "compound-finance/compound-protocol@4caf72a1f88335adc9cc06acf6f372241369ed01 contracts/BaseJumpRateModelV2.sol, contracts/LegacyJumpRateModelV2.sol, contracts/SafeMath.sol; compound-finance/compound-protocol@a3214f67b73310d547e00fc578e8355911c9d376 contracts/BaseJumpRateModelV2.sol",
+      "note": "Legacy jump uses SafeMath and reverts on arithmetic errors, despite returning an error/rate tuple on success. The 2019 WhitePaper returns nonzero checked-math error codes instead. These are exercised as distinct outcomes, never zero-valued success."
+    },
+    {
+      "key": "offline_oracle_scope",
+      "value": "2676 calls execute compiled pinned arithmetic and rate functions in controlled harnesses, without chain access or new runtime dependencies.",
+      "source_url": "https://github.com/compound-finance/compound-protocol/tree/a3214f67b73310d547e00fc578e8355911c9d376/contracts",
+      "source_pin": "Three Compound commits above; solc 0.8.10, 0.5.8, 0.5.17 official macosx-amd64 binaries from ethereum/solc-bin@16a99b8c26ed33a91796e209ff6797ee7baf2b0d",
+      "note": "Rust builder extracts complete CToken exchange/accrue function bodies, removes override modifiers and substitutes only the external rate call with controlled scalar/error inputs; source helpers and rate functions are inherited unchanged. This isolates arithmetic and state/error behavior, not deployed getters or the entire EVM. See conformance/fixtures/compound-v2-oracle/README.md for substitutions, counts, hashes and reproduction."
+    }
+  ],
+  "open_questions": [
+    "No fresh deployed-runtime/activation binding, Ethereum getter capture, initialized-holder evidence, or packaged output qualification is supplied by this offline oracle.",
+    "No Compound III/Comet or retained projection support is changed; selected Compound v2 issue acceptance remains separate from arithmetic conformance."
+  ]
+}

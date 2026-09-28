@@ -46,6 +46,38 @@ fn fits_uint256(v: &BigUint) -> bool {
     v.bits() <= 256
 }
 
+fn uint256(value: BigUint, error: &'static str) -> Result<BigUint> {
+    if fits_uint256(&value) {
+        Ok(value)
+    } else {
+        Err(Unknown::Invalid(error))
+    }
+}
+
+// Solidity checks each intermediate before any later division/subtraction.
+// Also reject non-uint256 host inputs instead of allowing a zero multiplier
+// or a large divisor to conceal a malformed word.
+fn add256(a: &BigUint, b: &BigUint, error: &'static str) -> Result<BigUint> {
+    if !fits_uint256(a) || !fits_uint256(b) {
+        return Err(Unknown::Invalid(error));
+    }
+    uint256(a + b, error)
+}
+fn mul256(a: &BigUint, b: &BigUint, error: &'static str) -> Result<BigUint> {
+    if !fits_uint256(a) || !fits_uint256(b) {
+        return Err(Unknown::Invalid(error));
+    }
+    uint256(a * b, error)
+}
+
+#[cfg(test)]
+#[path = "compound_v2/checked_tests.rs"]
+mod checked_tests;
+
+#[cfg(test)]
+#[path = "compound_v2/source_oracle.rs"]
+mod source_oracle;
+
 /// Stored market state (`CTokenStorage`) plus the cross-contract cash input.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Market {
@@ -64,16 +96,14 @@ impl Market {
     /// `exchangeRateStoredInternal()`.
     pub fn exchange_rate_stored(&self) -> Result<BigUint> {
         if self.total_supply.is_zero() {
-            return Ok(self.initial_exchange_rate_mantissa.clone());
+            return uint256(self.initial_exchange_rate_mantissa.clone(), "initial exchange rate exceeds uint256");
         }
-        let cash_plus_borrows = &self.total_cash + &self.total_borrows;
+        uint256(self.total_supply.clone(), "total supply exceeds uint256")?;
+        let cash_plus_borrows = add256(&self.total_cash, &self.total_borrows, "cash plus borrows overflow")?;
         if cash_plus_borrows < self.total_reserves {
             return Err(Unknown::Invalid("reserves exceed cash plus borrows"));
         }
-        let numerator = (cash_plus_borrows - &self.total_reserves) * u(EXP_SCALE);
-        if !fits_uint256(&numerator) {
-            return Err(Unknown::Invalid("exchange rate overflow"));
-        }
+        let numerator = mul256(&(cash_plus_borrows - &self.total_reserves), &u(EXP_SCALE), "exchange rate overflow")?;
         Ok(numerator / &self.total_supply)
     }
 }
@@ -92,9 +122,13 @@ impl JumpRateModelV2 {
         if kink.is_zero() {
             return Err(Unknown::Invalid("zero kink"));
         }
+        uint256(base_rate_per_year.clone(), "base rate exceeds uint256")?;
+        uint256(jump_multiplier_per_year.clone(), "jump multiplier exceeds uint256")?;
+        let numerator = mul256(multiplier_per_year, &u(EXP_SCALE), "annual multiplier scaling overflow")?;
+        let denominator = mul256(&u(BLOCKS_PER_YEAR), kink, "annual kink scaling overflow")?;
         Ok(JumpRateModelV2 {
             base_rate_per_block: base_rate_per_year / u(BLOCKS_PER_YEAR),
-            multiplier_per_block: multiplier_per_year * u(EXP_SCALE) / (u(BLOCKS_PER_YEAR) * kink),
+            multiplier_per_block: numerator / denominator,
             jump_multiplier_per_block: jump_multiplier_per_year / u(BLOCKS_PER_YEAR),
             kink: kink.clone(),
         })
@@ -104,7 +138,8 @@ impl JumpRateModelV2 {
         if borrows.is_zero() {
             return Ok(BigUint::zero());
         }
-        let denominator = cash + borrows;
+        let numerator = mul256(borrows, &u(EXP_SCALE), "utilization numerator overflow")?;
+        let denominator = add256(cash, borrows, "cash plus borrows overflow")?;
         if denominator < *reserves {
             return Err(Unknown::Invalid("reserves exceed cash plus borrows"));
         }
@@ -112,17 +147,21 @@ impl JumpRateModelV2 {
         if denominator.is_zero() {
             return Err(Unknown::Invalid("zero utilization denominator"));
         }
-        Ok(borrows * u(EXP_SCALE) / denominator)
+        Ok(numerator / denominator)
     }
     /// `getBorrowRateInternal`.
     pub fn borrow_rate(&self, cash: &BigUint, borrows: &BigUint, reserves: &BigUint) -> Result<BigUint> {
         let util = Self::utilization(cash, borrows, reserves)?;
+        uint256(self.kink.clone(), "kink exceeds uint256")?;
         if util <= self.kink {
-            Ok(util * &self.multiplier_per_block / u(EXP_SCALE) + &self.base_rate_per_block)
+            let scaled = mul256(&util, &self.multiplier_per_block, "normal rate product overflow")? / u(EXP_SCALE);
+            add256(&scaled, &self.base_rate_per_block, "normal rate addition overflow")
         } else {
-            let normal = &self.kink * &self.multiplier_per_block / u(EXP_SCALE) + &self.base_rate_per_block;
+            let scaled = mul256(&self.kink, &self.multiplier_per_block, "normal rate product overflow")? / u(EXP_SCALE);
+            let normal = add256(&scaled, &self.base_rate_per_block, "normal rate addition overflow")?;
             let excess = util - &self.kink;
-            Ok(excess * &self.jump_multiplier_per_block / u(EXP_SCALE) + normal)
+            let jump = mul256(&excess, &self.jump_multiplier_per_block, "jump rate product overflow")? / u(EXP_SCALE);
+            add256(&jump, &normal, "jump rate addition overflow")
         }
     }
     /// `getSupplyRate`.
@@ -132,8 +171,12 @@ impl JumpRateModelV2 {
         }
         let one_minus_reserve_factor = u(EXP_SCALE) - reserve_factor_mantissa;
         let borrow_rate = self.borrow_rate(cash, borrows, reserves)?;
-        let rate_to_pool = borrow_rate * one_minus_reserve_factor / u(EXP_SCALE);
-        Ok(Self::utilization(cash, borrows, reserves)? * rate_to_pool / u(EXP_SCALE))
+        let rate_to_pool = mul256(&borrow_rate, &one_minus_reserve_factor, "supply pool rate overflow")? / u(EXP_SCALE);
+        Ok(mul256(
+            &Self::utilization(cash, borrows, reserves)?,
+            &rate_to_pool,
+            "supply utilization product overflow",
+        )? / u(EXP_SCALE))
     }
 }
 
@@ -151,23 +194,15 @@ impl WhitePaper2019 {
         if borrows.is_zero() {
             return Ok(BigUint::zero());
         }
-        let scaled = borrows * u(EXP_SCALE);
-        if !fits_uint256(&(cash + borrows)) || !fits_uint256(&scaled) {
-            return Err(Unknown::Invalid("utilization overflow"));
-        }
-        Ok(scaled / (cash + borrows))
+        let denominator = add256(cash, borrows, "utilization overflow")?;
+        let scaled = mul256(borrows, &u(EXP_SCALE), "utilization overflow")?;
+        Ok(scaled / denominator)
     }
     /// `getBorrowRate(cash, borrows, _reserves)`: the annual rate
     /// `utilization × multiplier / 1e18 + baseRate`, then `/ blocksPerYear`.
     pub fn borrow_rate(&self, cash: &BigUint, borrows: &BigUint) -> Result<BigUint> {
-        let muled = Self::utilization(cash, borrows)? * &self.multiplier_per_year;
-        if !fits_uint256(&muled) {
-            return Err(Unknown::Invalid("utilization multiplier overflow"));
-        }
-        let annual = muled / u(EXP_SCALE) + &self.base_rate_per_year;
-        if !fits_uint256(&annual) {
-            return Err(Unknown::Invalid("base rate addition overflow"));
-        }
+        let muled = mul256(&Self::utilization(cash, borrows)?, &self.multiplier_per_year, "utilization multiplier overflow")?;
+        let annual = add256(&(muled / u(EXP_SCALE)), &self.base_rate_per_year, "base rate addition overflow")?;
         Ok(annual / u(BLOCKS_PER_YEAR))
     }
 }
@@ -199,9 +234,6 @@ pub fn accrue(market: &Market, model: &JumpRateModelV2, current_block: u64) -> R
 /// returns early at the accrual block; the 2019 tree computes the borrow rate
 /// and checks its cap first (a zero block delta then changes nothing).
 pub fn accrue_with(market: &Market, model: &RateModel, revision: CTokenRevision, current_block: u64) -> Result<Market> {
-    if current_block < market.accrual_block_number {
-        return Err(Unknown::Invalid("evaluation block precedes accrual block"));
-    }
     if revision == CTokenRevision::Current && current_block == market.accrual_block_number {
         return Ok(market.clone());
     }
@@ -209,15 +241,27 @@ pub fn accrue_with(market: &Market, model: &RateModel, revision: CTokenRevision,
     if borrow_rate > revision.borrow_rate_max_mantissa() {
         return Err(Unknown::Invalid("borrow rate is absurdly high"));
     }
+    if current_block < market.accrual_block_number {
+        return Err(Unknown::Invalid("evaluation block precedes accrual block"));
+    }
     if current_block == market.accrual_block_number {
         return Ok(market.clone());
     }
+    accrue_at_rate(market, &borrow_rate, current_block)
+}
+
+// The source's arithmetic stage after the rate/cap and block-delta guards.
+// Kept separate so its boundary checks can be compared with a source oracle
+// supplied a controlled rate, independently of a particular rate model.
+fn accrue_at_rate(market: &Market, borrow_rate: &BigUint, current_block: u64) -> Result<Market> {
     let block_delta = u(current_block - market.accrual_block_number);
-    let simple_interest_factor = borrow_rate * block_delta;
-    let interest_accumulated = &simple_interest_factor * &market.total_borrows / u(EXP_SCALE);
-    let total_borrows_new = &interest_accumulated + &market.total_borrows;
-    let total_reserves_new = &market.reserve_factor_mantissa * &interest_accumulated / u(EXP_SCALE) + &market.total_reserves;
-    let borrow_index_new = &simple_interest_factor * &market.borrow_index / u(EXP_SCALE) + &market.borrow_index;
+    let simple_interest_factor = mul256(borrow_rate, &block_delta, "simple interest factor overflow")?;
+    let interest_accumulated = mul256(&simple_interest_factor, &market.total_borrows, "accumulated interest product overflow")? / u(EXP_SCALE);
+    let total_borrows_new = add256(&interest_accumulated, &market.total_borrows, "total borrows addition overflow")?;
+    let reserve_delta = mul256(&market.reserve_factor_mantissa, &interest_accumulated, "reserve interest product overflow")? / u(EXP_SCALE);
+    let total_reserves_new = add256(&reserve_delta, &market.total_reserves, "total reserves addition overflow")?;
+    let index_delta = mul256(&simple_interest_factor, &market.borrow_index, "borrow index product overflow")? / u(EXP_SCALE);
+    let borrow_index_new = add256(&index_delta, &market.borrow_index, "borrow index addition overflow")?;
     Ok(Market {
         total_borrows: total_borrows_new,
         total_reserves: total_reserves_new,
@@ -236,7 +280,7 @@ pub fn underlying_balance(shares: &BigUint, market: &Market, model: &JumpRateMod
 /// [`underlying_balance`] for any bound rate model and cToken revision.
 pub fn underlying_balance_with(shares: &BigUint, market: &Market, model: &RateModel, revision: CTokenRevision, current_block: u64) -> Result<BigUint> {
     let accrued = accrue_with(market, model, revision, current_block)?;
-    Ok(shares * accrued.exchange_rate_stored()? / u(EXP_SCALE))
+    Ok(mul256(shares, &accrued.exchange_rate_stored()?, "underlying balance product overflow")? / u(EXP_SCALE))
 }
 
 #[cfg(test)]

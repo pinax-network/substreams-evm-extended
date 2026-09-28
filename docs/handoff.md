@@ -49,6 +49,22 @@ with full-state undo snapshots, not a production sink or package qualification.
 See [initialization](initialization-and-completeness.md) and
 [conformance](../conformance/README.md) for supported metrics and limits.
 
+The Compound v2 host model now checks every uint256 arithmetic intermediate,
+including products later divided down and additions later reduced by reserves.
+Eight regressions reproduced the previous overflow acceptance. Five independent
+source-execution tests make 2,676 calls into controlled harnesses compiled from
+the pinned current CToken, 2019 CToken/WhitePaper and legacy jump-rate sources.
+They distinguish legacy returned errors and unchanged state from current
+reverts, and preserve revision-specific same-block behavior. The full isolated
+workspace run passed 769 tests. See the
+[oracle report](../conformance/fixtures/compound-v2-oracle/README.md) for exact
+harness substitutions, official compiler/source/artifact hashes and limits.
+Logs, earlier failures and an initial compiler build with unverified provenance
+remain under `out/compound-checked-20260928/` in the
+`protocol-invalidation-boundary` worktree; `source-04/` is the final official
+compiler regeneration. This is arithmetic evidence for #14/#16, not deployed
+runtime, holder, getter or package qualification.
+
 The [offline six-exclusion review](../erc20/balances/docs/bsc-exclusions-offline-2026-09-28.md)
 preserves the original TAKE/RADR/TOPS refused transactions and prepares only a
 TAKE guard-slot candidate. Exact complete source-capture hashes bind saved

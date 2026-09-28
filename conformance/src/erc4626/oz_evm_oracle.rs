@@ -7,7 +7,7 @@ use num_traits::ToPrimitive;
 
 const RUNTIME: &str = include_str!("../../fixtures/oz-v5-oracle.bin-runtime");
 
-fn decode(hex: &str) -> Vec<u8> {
+pub(crate) fn decode(hex: &str) -> Vec<u8> {
     let hex = hex.trim().as_bytes();
     assert_eq!(hex.len() % 2, 0);
     hex.chunks_exact(2)
@@ -15,7 +15,7 @@ fn decode(hex: &str) -> Vec<u8> {
         .collect()
 }
 
-fn word(value: &BigUint) -> [u8; 32] {
+pub(crate) fn word(value: &BigUint) -> [u8; 32] {
     let bytes = value.to_bytes_be();
     assert!(bytes.len() <= 32);
     let mut result = [0; 32];
@@ -25,7 +25,10 @@ fn word(value: &BigUint) -> [u8; 32] {
 
 /// Execute a pure getter with controlled storage. All arithmetic opcodes
 /// wrap at 256 bits; MULMOD retains its unbounded intermediate as in EVM.
-fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std::result::Result<Vec<u8>, Vec<u8>> {
+pub(crate) fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std::result::Result<Vec<u8>, Vec<u8>> {
+    // Each call has isolated state. Compound's source oracle additionally
+    // exercises SSTORE and event emission; no write escapes this invocation.
+    let mut storage = storage.to_vec();
     let modulus = BigUint::one() << 256u32;
     let mask = &modulus - BigUint::one();
     let mut stack: Vec<BigUint> = Vec::new();
@@ -120,6 +123,14 @@ fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std::result::Re
                 stack.push(BigUint::from_bytes_be(&bytes));
             }
             0x36 => stack.push(BigUint::from(calldata.len())),
+            0x39 => {
+                let target = stack.pop().unwrap().to_usize().unwrap();
+                let source = stack.pop().unwrap().to_usize().unwrap();
+                let length = stack.pop().unwrap().to_usize().unwrap();
+                for (i, byte) in memory[target..target + length].iter_mut().enumerate() {
+                    *byte = code.get(source + i).copied().unwrap_or(0);
+                }
+            }
             0x50 => {
                 stack.pop().unwrap();
             }
@@ -135,6 +146,11 @@ fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std::result::Re
             0x54 => {
                 let slot = stack.pop().unwrap().to_usize().unwrap();
                 stack.push(storage.get(slot).expect("unbound storage in oracle path").clone());
+            }
+            0x55 => {
+                let slot = stack.pop().unwrap().to_usize().unwrap();
+                let value = stack.pop().unwrap();
+                *storage.get_mut(slot).expect("unbound storage write in oracle path") = value;
             }
             0x56 | 0x57 => {
                 let target = stack.pop().unwrap().to_usize().unwrap();
@@ -154,12 +170,21 @@ fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std::result::Re
                 let end = stack.len() - 1;
                 stack.swap(end, end - usize::from(op - 0x8f));
             }
+            0xa0..=0xa4 => {
+                let offset = stack.pop().unwrap().to_usize().unwrap();
+                let length = stack.pop().unwrap().to_usize().unwrap();
+                let _data = &memory[offset..offset + length];
+                for _ in 0..op - 0xa0 {
+                    stack.pop().unwrap();
+                }
+            }
             0xf3 | 0xfd => {
                 let offset = stack.pop().unwrap().to_usize().unwrap();
                 let length = stack.pop().unwrap().to_usize().unwrap();
                 let output = memory[offset..offset + length].to_vec();
                 return if op == 0xf3 { Ok(output) } else { Err(output) };
             }
+            0xfe => return Err(Vec::new()), // Solidity 0.5 assert failure (INVALID)
             _ => panic!("unsupported oracle opcode 0x{op:02x} at {}", pc - 1),
         }
         assert!(stack.len() <= 1024);
@@ -287,7 +312,27 @@ fn oracle_vm_arithmetic_uses_evm_word_semantics() {
 #[test]
 #[should_panic(expected = "unsupported oracle opcode")]
 fn an_unsupported_opcode_is_a_harness_failure_not_a_solidity_revert() {
-    let _ = execute(&[0xfe], &[], &[]);
+    let _ = execute(&[0xff], &[], &[]); // SELFDESTRUCT is outside these harnesses
+}
+
+#[test]
+fn oracle_vm_storage_events_code_copy_and_legacy_assert_have_explicit_semantics() {
+    let storage = [BigUint::from(7u8)];
+    assert_eq!(
+        execute(&decode("602a60005560005460005260206000f3"), &[], &storage).unwrap(),
+        word(&BigUint::from(42u8))
+    );
+    assert_eq!(storage[0], BigUint::from(7u8), "oracle storage never escapes the call");
+    assert_eq!(execute(&decode("6006600c60003960066000f3deadbeef"), &[], &[]).unwrap(), decode("deadbeef0000"));
+    assert_eq!(
+        execute(&decode("60076011602260006000a260005260206000f3"), &[], &[]).unwrap(),
+        word(&BigUint::from(7u8))
+    );
+    assert_eq!(
+        execute(&[0xfe], &[], &[]),
+        Err(Vec::new()),
+        "legacy assert is INVALID, not an unsupported opcode"
+    );
 }
 
 #[test]
