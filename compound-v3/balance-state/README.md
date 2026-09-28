@@ -15,7 +15,7 @@ using the exact model in [`conformance::comet`](../../conformance/src/comet.rs).
 | `GlobalState` `COMET_BASE_SUPPLY_INDEX` / `COMET_BASE_BORROW_INDEX` | bits 0..64 and 64..128 of the indices word, one row each per written word | Comet storage, `indices_slot` |
 | `GlobalState` `COMET_TOTAL_SUPPLY_BASE` / `COMET_TOTAL_BORROW_BASE` / `COMET_LAST_ACCRUAL_TIME` / `COMET_PAUSE_FLAGS` | bits 0..104, 104..208, 208..248 and 248..256 of the totals word, one row each per written word | Comet storage, `totals_slot` |
 | `GlobalState` kinks, rate slopes, rate bases, scales | `QUALIFIED_CONSTANT` / `DECLARATION` rows of the bound implementation's immutables | parameters, cross-checked against the pinned constants |
-| `ModelEpoch` INVALIDATED | every persisted write to the implementation pointer, including an equal-value write and each step of an in-block excursion (`IMPLEMENTATION_POINTER_WRITE`); code change on the Comet or its implementation (`CODE_CHANGE`); each with evidence; the block's other writes are still decoded | persisted writes and code changes |
+| `ModelEpoch` INVALIDATED | every persisted write to the implementation pointer, including an equal-value write and each step of an in-block excursion (`IMPLEMENTATION_POINTER_WRITE`); code change on the Comet or its implementation (`CODE_CHANGE`); each with evidence; decoding ends at the earliest invalidation ordinal | persisted writes and code changes |
 | `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (`basis_carryover = true`, `global_carryover = false`: storage persists across an upgrade, rate immutables do not) | parameters |
 | `BlockClock` | exactly one per block | header |
 
@@ -78,6 +78,28 @@ excursion that restores the pointer within the block, as the
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
 
+Spec revision 3 decodes only the half-open interval from activation
+(inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
+before that cutoff still fail; writes at or after it are not decoded under
+the old model. Raw ordering and continuity checks still cover all owned
+storage writes. Every invalidation keeps its original evidence, including
+restored and equal-value guarded writes. Failed transactions and reverted
+frames cannot supply a cutoff.
+
+An invalidated market emits no holder basis or observed/derived end-of-block
+globals in that block: even a valid prefix cannot describe end-of-block
+state. Unaffected markets keep their rows; qualified declarations remain
+historical binding evidence. Counts match the emitted rows. A consumer keeps
+the market suspended, and a newer BOUND must discard retained basis after
+suspension even with compatible storage (`basis_carryover = true`); fresh
+observations or a verified checkpoint are required. See the
+[contract](../../docs/balance-state-contract.md) and the synthetic
+[projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
+
+This emission revision has offline synthetic validation only. Previously
+saved replay results and live package digests describe their original builds;
+they do not qualify this new build or its invalidation behavior.
+
 ## Fail-closed rules
 
 | Condition | Result |
@@ -88,7 +110,7 @@ temporary implementation that ran inside the block.
 | Overlapping slots (including a named slot equal to a configured one), non-decimal or inconsistent constants, `base_decimals > 18`, unknown parameter fields, producer versions outside 4 and 5, duplicate markets | parameters rejected |
 
 Reverted frames and failed transactions never contribute, per the shared
-[`common/persist`](../../common/persist) rules; no-op writes are not persisted.
+[`common/persist`](../../common/persist) rules; ordinary no-op balance writes are suppressed while guarded pointer noops invalidate.
 
 ## Validation
 

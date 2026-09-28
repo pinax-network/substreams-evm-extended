@@ -25,9 +25,8 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "erc4626_balance_state";
-/// 2: reviewed dynamic areas, the static aToken and OZ asset pointers as
-/// invalidating STORAGE_POINTER edges, and epoch metadata naming the underlying.
-pub const SPEC_REVISION: u32 = 2;
+/// 3: exclusive invalidation cutoff and no partial end-of-block state.
+pub const SPEC_REVISION: u32 = 3;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
@@ -623,6 +622,14 @@ fn reduce(mut changes: Vec<Change>) -> Result<Vec<Reduced>, Error> {
     }
     Ok(rows.into_values().collect())
 }
+/// Validate every owned storage record, then decode only the half-open valid
+/// interval. Callers suppress these partial rows when the epoch ends in-block.
+fn decode_rows(writes: Vec<Change>, cutoff: Option<u64>) -> Result<Vec<Reduced>, Error> {
+    let reduced = reduce(writes.clone())?;
+    let Some(cutoff) = cutoff else { return Ok(reduced) };
+    reduce(writes.into_iter().filter(|w| w.ordinal < cutoff).collect())
+}
+
 fn scope_of(scope: persist::Scope) -> pb::Scope {
     match scope {
         persist::Scope::SystemCall => pb::Scope::SystemCall,
@@ -842,6 +849,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         // Dependencies (a Pool, a Pot, an asset) can be shared by vaults with
         // different activation positions, so writes are selected per vault.
         for vault in &active {
+            let holder_start = events.holder_basis.len();
+            let global_start = events.global_state.len();
             let dependencies = vault.dependencies();
             let owns = |w: &Change| (w.address == vault.vault || dependencies.contains(&w.address)) && vault.active_at(block.number, w.ordinal);
             let mut writes: Vec<Change> = collected.writes.iter().filter(|w| owns(w)).cloned().collect();
@@ -854,7 +863,19 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     .filter(|w| owns(w) && vault.pointer_reason(&w.address, &w.key).is_some())
                     .cloned(),
             );
-            let reduced = reduce(writes.clone())?;
+            let cutoff = writes
+                .iter()
+                .filter(|w| vault.pointer_reason(&w.address, &w.key).is_some())
+                .map(|w| w.ordinal)
+                .chain(
+                    collected
+                        .codes
+                        .iter()
+                        .filter(|c| (c.address == vault.vault || dependencies.contains(&c.address)) && vault.active_at(block.number, c.ordinal))
+                        .map(|c| c.ordinal),
+                )
+                .min();
+            let reduced = decode_rows(writes.clone(), cutoff)?;
             // Keep each implementation transition as evidence, including an
             // upgrade followed by restoration before this block ends. Reducing
             // first would preserve the invalidation but erase the changed target.
@@ -1023,6 +1044,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                         _ => {}
                     }
                 }
+            }
+            // The prefix was validated, but it cannot become end-of-block
+            // state after the model has ceased to be qualified.
+            if cutoff.is_some() {
+                events.holder_basis.truncate(holder_start);
+                events.global_state.truncate(global_start);
             }
         }
         for c in &collected.codes {

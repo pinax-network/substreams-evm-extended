@@ -584,7 +584,9 @@ impl Ledger {
     /// and from the same package instance as earlier blocks. Epoch rows are
     /// applied in `(ordinal, kind)` order: `INVALIDATED`/`SUSPENDED` suspend
     /// the market, `BOUND` resumes it with a strictly newer epoch and, with
-    /// `basis_carryover == false`, drops the market's retained basis. Holder
+    /// `basis_carryover == false` or after any suspension, drops the market's
+    /// retained basis. A suspended epoch can have omitted state, so compatible
+    /// storage alone cannot establish continuity. Holder
     /// rows of an older epoch in the same block (effects before the
     /// successor's activation ordinal) are applied just before that `BOUND`,
     /// so they are carried over or dropped with the rest of the basis.
@@ -784,7 +786,10 @@ impl Ledger {
                             *done = true;
                         }
                     }
-                    if !epoch.basis_carryover {
+                    // Invalidation may omit the entire block's basis, and
+                    // effects after its cutoff are unknown. Even compatible
+                    // storage cannot carry stale values across that gap.
+                    if !epoch.basis_carryover || previous.is_some() {
                         let dropped: Vec<Key> = self
                             .entries
                             .keys()

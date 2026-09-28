@@ -358,7 +358,7 @@ fn activation_emits_the_binding_and_the_implementation_immutables() {
 }
 
 #[test]
-fn pointer_and_code_changes_invalidate_with_evidence_and_the_block_keeps_decoding() {
+fn pointer_and_code_changes_invalidate_with_evidence_and_omit_partial_state() {
     let m = market();
     let cfg = config();
     let mut b = block(10);
@@ -367,7 +367,7 @@ fn pointer_and_code_changes_invalidate_with_evidence_and_the_block_keeps_decodin
         .push(write(m.implementation_slot, word(&m.implementation).unwrap(), w(0xbeef), 11));
     b.transaction_traces = vec![tx(call)];
     let events = project(&b, &cfg).unwrap();
-    assert_eq!(events.holder_basis.len(), 1);
+    assert!(events.holder_basis.is_empty());
     assert_eq!(events.epochs.len(), 1);
     let e = &events.epochs[0];
     assert_eq!(
@@ -734,4 +734,36 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
     assert_eq!(project(&b, &cfg).unwrap().holder_basis.len(), 1);
     // The default activation ordinal 0 keeps the whole activation block.
     assert_eq!(config().markets[0].activation_ordinal, 0);
+}
+
+#[test]
+fn activation_and_invalidation_at_the_same_ordinal_leave_only_binding_evidence() {
+    let mut cfg = config();
+    let m = &mut cfg.markets[0];
+    m.activation_block = 10;
+    m.activation_ordinal = 100;
+    let mut call = user_basic_call(&[9; 20], principal_word(1, 0), principal_word(2, 0), 100);
+    call.storage_changes.extend([
+        write(m.totals_slot, w(1), w(2), 100),
+        write(m.implementation_slot, word(&m.implementation).unwrap(), w(0xbad), 100),
+        write(w(0xabcdef), w(0), w(1), 100),
+    ]);
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(call)];
+    let output = project(&b, &cfg).unwrap();
+    assert!(output.holder_basis.is_empty());
+    assert_eq!(output.epochs.len(), 2);
+    assert_eq!(output.epochs[0].kind, pb::EpochEventKind::Bound as i32);
+    assert_eq!(output.epochs[1].kind, pb::EpochEventKind::Invalidated as i32);
+    assert!(output
+        .global_state
+        .iter()
+        .all(|g| g.observation == pb::Observation::QualifiedConstant as i32 && g.ordinal == 100));
+    assert_eq!(output.global_state.len(), cfg.markets[0].immutables.len());
+    assert_eq!(output.clocks[0].holder_basis_count, 0);
+    assert_eq!(output.clocks[0].global_state_count as usize, output.global_state.len());
+    // One ordinal later, the unknown write is part of the valid prefix and
+    // must fail even though all of that prefix's EOB rows would be omitted.
+    b.transaction_traces[0].calls[0].storage_changes[2].ordinal = 101;
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("unresolved"));
 }

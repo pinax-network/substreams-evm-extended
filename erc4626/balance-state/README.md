@@ -126,6 +126,28 @@ excursion that restores the pointer within the block, as the
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
 
+Spec revision 3 decodes only the half-open interval from activation
+(inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
+before that cutoff still fail; writes at or after it are not decoded under
+the old model. Raw ordering and continuity checks still cover all owned
+storage writes. Every invalidation keeps its original evidence, including
+restored and equal-value guarded writes. Failed transactions and reverted
+frames cannot supply a cutoff.
+
+An invalidated market emits no holder basis or observed/derived end-of-block
+globals in that block: even a valid prefix cannot describe end-of-block
+state. Unaffected markets keep their rows; qualified declarations remain
+historical binding evidence. Counts match the emitted rows. A consumer keeps
+the market suspended, and a newer BOUND must discard retained basis after
+suspension even with compatible storage (`basis_carryover = true`); fresh
+observations or a verified checkpoint are required. See the
+[contract](../../docs/balance-state-contract.md) and the synthetic
+[projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
+
+This emission revision has offline synthetic validation only. Previously
+saved replay results and live package digests describe their original builds;
+they do not qualify this new build or its invalidation behavior.
+
 ## Live qualification (BSC static aToken, 2026-09-23)
 
 [`epochs/bsc-stata-usdt.json`](epochs/bsc-stata-usdt.json) binds the legacy
@@ -134,7 +156,7 @@ static aToken for BNB USDT `0x0471…3da6` to its real implementation
 37,302,378 over 33 samples), and starts the epoch at the Pool implementation
 install that `rate()` depends on, **block 101,087,794, ordinal 3347**
 ([binding](docs/evidence/epoch-binding-bsc-stata-2026-09-23.json)). The
-packed map (`spkg` sha256 `cb9dc6b2…`, wasm `b7d1055e…`) was streamed from
+historical 2026-09-23 packed map (`spkg` sha256 `cb9dc6b2…`, wasm `b7d1055e…`) was streamed from
 `bsc.substreams.pinax.network` over 2,064 blocks (the activation block, the
 2,000 contiguous blocks 114,858,030–114,860,029 and every block with a vault
 log between 114,857,790 and 123,557,790; the vault had none in the last

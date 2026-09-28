@@ -66,13 +66,36 @@ excursion that restores the pointer within the block, as the
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
 
+Spec revision 2 decodes only the half-open interval from activation
+(inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
+before that cutoff still fail; writes at or after it are not decoded under
+the old model. Raw ordering and continuity checks still cover all owned
+storage writes. Every invalidation keeps its original evidence, including
+restored and equal-value guarded writes. Failed transactions and reverted
+frames cannot supply a cutoff.
+
+An invalidated market emits no holder basis or observed/derived end-of-block
+globals in that block: even a valid prefix cannot describe end-of-block
+state. Unaffected markets keep their rows; qualified declarations remain
+historical binding evidence. Counts match the emitted rows. A consumer keeps
+the market suspended, and a newer BOUND must discard retained basis after
+suspension even with compatible storage (`basis_carryover = true`); fresh
+observations or a verified checkpoint are required. See the
+[contract](../../docs/balance-state-contract.md) and the synthetic
+[projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
+
+This emission revision has offline synthetic validation only. Previously
+saved replay results and live package digests describe their original builds;
+they do not qualify this new build or its invalidation behavior.
+
 ## Fail-closed rules
 
 | Condition | Result |
 | --- | --- |
 | Non-Extended block, `Block.ver` not listed (only 4 and 5 may be listed), incomplete transaction data | block fails |
-| Code change on the Pool, its implementation, an aToken or its implementation | `ModelEpoch` INVALIDATED (`CODE_CHANGE` for the aToken or its implementation, `DEPENDENCY_CODE_CHANGE` for the Pool side) with the new code hash as evidence; the block's other writes are still decoded |
-| Any persisted write to the Pool or aToken implementation pointer slot, including an equal-value write and each step of an in-block excursion that restores the bound implementation | `ModelEpoch` INVALIDATED per write (`DEPENDENCY_POINTER_WRITE` for every market active at that ordinal / `IMPLEMENTATION_POINTER_WRITE`) with the old and new words as evidence; the block's other writes are still decoded |
+| Duplicate aToken or underlying/reserve binding within the configured Pool, even with different activation positions | parameters rejected; a reserve has one market owner and therefore one invalidation cutoff |
+| Code change on the Pool, its implementation, an aToken or its implementation | `ModelEpoch` INVALIDATED (`CODE_CHANGE` for the aToken or its implementation, `DEPENDENCY_CODE_CHANGE` for the Pool side) with the new code hash as evidence; decoding ends at the earliest invalidation ordinal |
+| Any persisted write to the Pool or aToken implementation pointer slot, including an equal-value write and each step of an in-block excursion that restores the bound implementation | `ModelEpoch` INVALIDATED per write (`DEPENDENCY_POINTER_WRITE` for every market active at that ordinal / `IMPLEMENTATION_POINTER_WRITE`) with the old and new words as evidence; decoding ends at the earliest invalidation ordinal |
 | aToken write that is not `_userState` (verified preimage), `_totalSupply`, or a reviewed `other_slots` / `other_mapping_slots` entry | `unresolved storage for aToken … refusing incomplete balance state` |
 | Two writes to one key with equal ordinals, or a write whose old word differs from the previous new word | `ambiguous` / `discontinuous` |
 | Pool writes to `ReserveData` words other than 1 and 3 (configuration, variable-debt index and rate, addresses, treasury accrual, virtual balance) | recognized, not emitted |
@@ -134,7 +157,7 @@ solc 0.8.27 ([layout](../../docs/evidence/storage-layouts/aave-v3-origin@8305565
 `_reserves` 52 with `liquidityIndex`/`currentLiquidityRate` in word 1 and
 `lastUpdateTimestamp` at bits 128..168 of word 3.
 
-The packed map of this source (`spkg` sha256 `a6db4088…`, wasm `7611bbf1…`)
+The historical packed map from 2026-09-22 (`spkg` sha256 `a6db4088…`, wasm `7611bbf1…`)
 was streamed from `bsc.substreams.pinax.network` and every emitted row was
 checked with `aave-balance-state-tools live-parity` against RPC getters at
 the row's exact block hash ([report](docs/evidence/live-parity-bsc-2026-09-22-rev3.json);

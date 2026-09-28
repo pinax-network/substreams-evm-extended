@@ -15,6 +15,24 @@ restricted to the canonical HTTPS BSC Pinax RPC origin; custom providers need an
 explicit RPC key if they require authentication. See the
 [host verification instructions](../erc20/balances/README.md).
 
+The five protocol balance-state extractors now use an exclusive invalidation
+cutoff and omit partial end-of-block state for invalidated markets. Pre-cutoff
+unknown writes still fail, every guarded transition remains evidence, and
+unaffected markets keep their rows. The host consumer discards basis when
+rebinding after suspension, including when storage is compatible, because
+missing observations break continuity. Synthetic projector-to-consumer tests
+cover suspension, rebound, undo and replacement blocks. Aave's specification
+revision is now 2; Compound v2/v3, Lido and ERC-4626 are revision 3. Historical
+live evidence keeps its original package digests and does not qualify these
+newly built packages. See the [balance-state contract](balance-state-contract.md).
+
+Validation uses a separate Cargo target directory for each checkout. During
+this follow-up, a shared `CARGO_TARGET_DIR` reused protocol test binaries in a
+different worktree whose source had fewer tests. Those local runs were discarded
+as branch validation and replaced with fresh isolated builds; independent GitHub
+CI still gates every merge. Preserve the earlier logs as failed validation
+attempts, and do not share build output between worktrees.
+
 The subsequent [offline issue-audit remediation](audit-remediation-2026-09-21.md)
 tracks retention correctness, executed layout tests, ERC-4626 arithmetic and
 asset bindings, Aragon upgrade guards, execution receipt validation and a

@@ -24,6 +24,10 @@ description: How roadmap issues in pinax-network/substreams-evm-extended move fr
    `cargo fmt --all -- --check`, `cargo test --locked --workspace --lib --bins --tests`,
    `cargo clippy --locked --workspace --all-targets -- -D warnings`,
    `cargo check --locked --workspace --target wasm32-unknown-unknown`.
+   Keep Cargo build output local to each checkout. Do not share
+   `CARGO_TARGET_DIR` between worktrees: cached workspace binaries can be reused
+   against the wrong source. For isolated validation, use a fresh target under
+   that worktree's ignored `out/` directory and preserve the command logs.
    Clippy includes rustdoc lints (for example "link reference defined in list
    item" for `* [`Name`]:` in module docs). New dependencies need one unlocked
    `cargo test` so `Cargo.lock` is updated and committed.

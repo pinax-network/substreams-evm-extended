@@ -305,7 +305,9 @@ fn version_and_code_changes_invalidate_and_unknown_writes_fail_closed() {
         ..Default::default()
     })];
     let events = project(&b, &cfg).unwrap();
-    assert_eq!((events.global_state.len(), events.epochs.len()), (1, 1));
+    // The version write is evidence at the invalidation boundary, not state
+    // that remains qualified at the end of the block.
+    assert_eq!((events.global_state.len(), events.epochs.len()), (0, 1));
     assert_eq!(
         (events.epochs[0].reason, &events.epochs[0].evidence_previous_word),
         (pb::InvalidationReason::ContractVersionSet as i32, &w(3).to_vec())
@@ -668,7 +670,7 @@ fn every_resolution_write_invalidates_even_when_restored_or_rebound_to_expected(
         ..Default::default()
     })];
     let events = project(&b, &cfg).unwrap();
-    assert_eq!(events.global_state[0].value, "4");
+    assert!(events.global_state.is_empty());
     // Both writes are evidence: the excursion 4 -> 5 -> 4 is not hidden.
     let evidence: Vec<(u64, i32, Vec<u8>)> = events.epochs.iter().map(|x| (x.ordinal, x.reason, x.evidence_word.clone())).collect();
     assert_eq!(
@@ -1301,4 +1303,135 @@ fn report_logs_need_exactly_two_topics_and_a_receipt() {
     call.state_reverted = true;
     b.transaction_traces = vec![tx(call)];
     assert!(project(&b, &cfg).unwrap().global_state.is_empty());
+}
+
+#[test]
+fn invalidation_keeps_earlier_reports_but_never_partial_globals_or_derived_totals() {
+    let cfg = config();
+    let e = &cfg.epochs[0];
+    let mut call = shares_call(&[9; 20], 1, 2, 9);
+    call.storage_changes.extend([
+        write(e.total_and_external_shares_slot, packed(990, 200), packed(1000, 200), 10),
+        write(e.buffered_slot, packed(90, 50), packed(100, 50), 11),
+        write(e.cl_slot, packed(25, 20), packed(30, 20), 12),
+        write(e.contract_version_slot, w(4), w(5), 20),
+        write(w(0xabcdef), w(0), w(1), 20),
+    ]);
+    let mut t = tx(call);
+    let mut earlier = rebased_log(2, 19);
+    earlier.index = 7;
+    let mut malformed = rebased_log(1, 20);
+    malformed.data.clear();
+    t.receipt = Some(eth::TransactionReceipt {
+        logs: vec![earlier, malformed.clone(), rebased_log(3, 21)],
+        ..Default::default()
+    });
+    let mut b = block(10);
+    b.transaction_traces = vec![t];
+    let output = project(&b, &cfg).unwrap();
+    assert!(output.holder_basis.is_empty());
+    assert_eq!(output.epochs.len(), 1);
+    assert_eq!(output.global_state.len(), 4);
+    for row in &output.global_state {
+        assert_eq!(row.observation, pb::Observation::ObservedLog as i32);
+        assert_eq!(row.boundary, pb::Boundary::Change as i32);
+        assert_eq!((row.ordinal, row.first_ordinal, row.change_count, row.log_index), (19, 19, 1, 7));
+        assert_eq!((row.transaction_index, &row.transaction_hash), (9, &vec![7; 32]));
+        assert_eq!(row.storage_contract, e.steth);
+    }
+    assert_eq!(
+        (
+            output.clocks[0].holder_basis_count,
+            output.clocks[0].global_state_count,
+            output.clocks[0].epoch_count
+        ),
+        (0, 4, 1)
+    );
+    b.transaction_traces[0].calls[0].storage_changes.reverse();
+    b.transaction_traces[0].receipt.as_mut().unwrap().logs.reverse();
+    assert_eq!(project(&b, &cfg).unwrap(), output);
+    // Shape validation still applies inside the qualified interval.
+    malformed.ordinal = 18;
+    b.transaction_traces[0].receipt.as_mut().unwrap().logs.push(malformed);
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("malformed TokenRebased"));
+}
+
+#[test]
+fn post_cutoff_logs_do_not_require_old_model_receipts() {
+    let cfg = config();
+    let e = &cfg.epochs[0];
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        storage_changes: vec![write(e.contract_version_slot, w(4), w(5), 20)],
+        logs: vec![rebased_log(1, 20), rebased_log(1, 21)],
+        ..Default::default()
+    })];
+    assert_eq!(project(&b, &cfg).unwrap().epochs.len(), 1);
+    b.transaction_traces[0].calls[0].logs.push(rebased_log(2, 19));
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("no receipt"));
+}
+
+#[test]
+fn equal_value_version_and_retired_position_writes_end_the_epoch() {
+    let cfg = config();
+    let e = &cfg.epochs[0];
+    for (slot, value, reason) in [
+        (e.contract_version_slot, w(4), pb::InvalidationReason::ContractVersionSet),
+        (keccak(RETIRED_V3_POSITION_NAMES[0].as_bytes()), w(0), pb::InvalidationReason::StorageMigration),
+        (keccak(RETIRED_V3_POSITION_NAMES[1].as_bytes()), w(0), pb::InvalidationReason::StorageMigration),
+    ] {
+        let mut call = shares_call(&[9; 20], 1, 2, 10);
+        call.storage_changes.extend([write(slot, value, value, 20), write(w(0xabcdef), w(0), w(1), 20)]);
+        let mut b = block(10);
+        b.transaction_traces = vec![tx(call)];
+        let output = project(&b, &cfg).unwrap();
+        assert!(output.holder_basis.is_empty());
+        assert!(output.global_state.is_empty());
+        assert_eq!(output.epochs.len(), 1);
+        assert_eq!((output.epochs[0].reason, output.epochs[0].ordinal), (reason as i32, 20));
+        assert_eq!(output.epochs[0].evidence_previous_word, value);
+        assert_eq!(output.epochs[0].evidence_word, value);
+        b.transaction_traces[0].calls[0].state_reverted = true;
+        assert!(project(&b, &cfg).unwrap().epochs.is_empty());
+    }
+}
+
+#[test]
+fn shared_kernel_cutoffs_respect_each_markets_activation_including_equality() {
+    let mut raw: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+    let mut second = raw["epochs"][0].clone();
+    second["steth"] = format!("0x{}", hex::encode([0x88; 20])).into();
+    second["activation_block"] = 10.into();
+    second["activation_ordinal"] = 100.into();
+    raw["epochs"].as_array_mut().unwrap().push(second);
+    let cfg = parse(&raw.to_string()).unwrap();
+    let first = &cfg.epochs[0];
+    let second = &cfg.epochs[1];
+    let mut call = shares_call(&[9; 20], 1, 2, 101);
+    call.address = second.steth.clone();
+    call.storage_changes[0].address = second.steth.clone();
+    let mut kernel_write = write(first.aragon.app_base_slot, w(1), w(2), 99);
+    kernel_write.address = first.aragon.kernel.clone();
+    let mut b = block(10);
+    b.transaction_traces = vec![
+        tx(call),
+        tx(eth::Call {
+            storage_changes: vec![kernel_write],
+            ..Default::default()
+        }),
+    ];
+    let output = project(&b, &cfg).unwrap();
+    assert_eq!(output.holder_basis.len(), 1);
+    assert_eq!(output.holder_basis[0].market, second.steth);
+    let invalid: Vec<_> = output.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
+    assert_eq!(invalid.len(), 1);
+    assert_eq!(invalid[0].market, first.steth);
+    // At activation, BOUND is immediately followed by INVALIDATED. Its
+    // declarations remain historical binding evidence, not observed state.
+    b.transaction_traces[1].calls[0].storage_changes[0].ordinal = 100;
+    let output = project(&b, &cfg).unwrap();
+    assert!(output.holder_basis.is_empty());
+    assert_eq!(output.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).count(), 2);
+    assert!(output.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+    assert!(output.global_state.iter().filter(|g| g.market == second.steth).all(|g| g.ordinal == 100));
 }

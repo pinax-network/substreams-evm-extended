@@ -39,7 +39,8 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "compound_v3_balance_state";
-pub const SPEC_REVISION: u32 = 2;
+/// 3: exclusive invalidation cutoff and no partial end-of-block state.
+pub const SPEC_REVISION: u32 = 3;
 /// `CometCore.BASE_INDEX_SCALE`.
 pub const BASE_INDEX_SCALE: &str = "1000000000000000";
 /// `CometCore.FACTOR_SCALE`.
@@ -467,6 +468,14 @@ fn reduce(mut writes: Vec<Write>) -> Result<Vec<Reduced>, Error> {
     }
     Ok(rows.into_values().collect())
 }
+/// Validate every owned storage record, then decode only the half-open valid
+/// interval. Callers suppress these partial rows when the epoch ends in-block.
+fn decode_rows(writes: Vec<Write>, cutoff: Option<u64>) -> Result<Vec<Reduced>, Error> {
+    let reduced = reduce(writes.clone())?;
+    let Some(cutoff) = cutoff else { return Ok(reduced) };
+    reduce(writes.into_iter().filter(|w| w.ordinal < cutoff).collect())
+}
+
 fn scope_of(scope: persist::Scope) -> pb::Scope {
     match scope {
         persist::Scope::SystemCall => pb::Scope::SystemCall,
@@ -630,7 +639,27 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         // Validate continuity first, then evidence every pointer transition
         // individually: reducing X->Z->X to its end points would conceal a
         // temporary upgrade that ran within this block.
-        let reduced = reduce(relevant.clone())?;
+        let mut reduced = Vec::new();
+        let mut ended = BTreeSet::new();
+        for market in &active {
+            let writes: Vec<Write> = relevant.iter().filter(|w| w.address == market.comet).cloned().collect();
+            let cutoff = writes
+                .iter()
+                .filter(|w| w.key == market.implementation_slot)
+                .map(|w| w.ordinal)
+                .chain(
+                    collected
+                        .codes
+                        .iter()
+                        .filter(|c| (c.address == market.comet || c.address == market.implementation) && market.active_at(block.number, c.ordinal))
+                        .map(|c| c.ordinal),
+                )
+                .min();
+            if cutoff.is_some() {
+                ended.insert(market.comet.clone());
+            }
+            reduced.extend(decode_rows(writes, cutoff)?);
+        }
         for w in &relevant {
             let market = owner(w).unwrap();
             if w.key == market.implementation_slot {
@@ -709,6 +738,10 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 )));
             }
         }
+        // Valid pre-cutoff writes were checked above, but no state from a
+        // partial epoch can be advertised as an end-of-block observation.
+        events.holder_basis.retain(|h| !ended.contains(&h.market));
+        events.global_state.retain(|g| !ended.contains(&g.market));
         for c in &collected.codes {
             for market in active
                 .iter()
@@ -783,6 +816,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     observation: pb::Observation::QualifiedConstant as i32,
                     boundary: pb::Boundary::Declaration as i32,
                     scope: pb::Scope::Epoch as i32,
+                    ordinal: if kind == pb::EpochEventKind::Bound { market.activation_ordinal } else { 0 },
                     storage_contract: market.implementation.clone(),
                     ..Default::default()
                 });

@@ -113,6 +113,9 @@ fn all_rpc_commands_refuse_wrong_chain_before_data_requests_and_preserve_safe_re
                     other => panic!("identity request did not reach loopback server: {other:?}"),
                 }
             };
+            // macOS may inherit the listener's nonblocking mode on accepted
+            // sockets. Read the complete request with the bounded timeout.
+            socket.set_nonblocking(false).unwrap();
             socket.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
             let mut reader = BufReader::new(&mut socket);
             let mut length = 0;

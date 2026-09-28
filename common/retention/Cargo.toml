@@ -15,3 +15,12 @@ serde_json = "1"
 
 [dev-dependencies]
 hex = "0.4"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+aave-balance-state = { path = "../../aave/balance-state" }
+compound-v2-balance-state = { path = "../../compound-v2/balance-state" }
+compound-v3-balance-state = { path = "../../compound-v3/balance-state" }
+lido-balance-state = { path = "../../lido/balance-state" }
+erc4626-balance-state = { path = "../../erc4626/balance-state" }
+substreams-ethereum = { workspace = true }
+prost-types = { workspace = true }

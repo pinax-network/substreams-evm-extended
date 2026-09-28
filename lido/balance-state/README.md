@@ -28,7 +28,7 @@ unknown, not zero.
 | `GlobalState` `LIDO_TOTAL_POOLED_ETHER` (`DERIVED`) | `internalEther + externalShares × internalEther / internalShares`, only when all three words were written in the block and `internalShares > 0` | pure function of the rows above |
 | `GlobalState` `LIDO_CONTRACT_VERSION` | observed write of `keccak256("lido.Versioned.contractVersion")`, and the qualified value as a constant at BOUND / REAFFIRMED | stETH storage, parameters |
 | `GlobalState` `LIDO_REPORT_*` (`OBSERVED_LOG`) | `TokenRebased` `reportTimestamp`, `postTotalShares`, `postTotalEther`, `sharesMintedAsFees` from receipts of succeeded transactions | stETH logs |
-| `ModelEpoch` INVALIDATED | each persisted contract-version change inside the epoch (`CONTRACT_VERSION_SET`), including changes into the configured version; each Aragon resolution-pointer write (`IMPLEMENTATION_POINTER_WRITE` / `DEPENDENCY_POINTER_WRITE`), including equal-value writes; proxy or dependency code changes (`CODE_CHANGE` / `DEPENDENCY_CODE_CHANGE`), with evidence | persisted writes and code changes |
+| `ModelEpoch` INVALIDATED | each persisted contract-version write inside the epoch (`CONTRACT_VERSION_SET`), including changes into the configured version; each Aragon resolution-pointer write (`IMPLEMENTATION_POINTER_WRITE` / `DEPENDENCY_POINTER_WRITE`), including equal-value writes; proxy or dependency code changes (`CODE_CHANGE` / `DEPENDENCY_CODE_CHANGE`), with evidence | persisted writes and code changes |
 | `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat: Kernel, stETH implementation and Kernel implementation via storage pointers; Accounting declared | parameters |
 | `BlockClock` | exactly one per block | header |
 
@@ -99,7 +99,7 @@ install: that call writes the contract version 3 → 4 and wipes the retired v3
 positions `lido.Lido.clBalanceAndClValidators` and
 `lido.Lido.bufferedEtherAndDepositedValidators` (`Lido.sol:311-341`,
 function-local constants that no storage layout lists). Inside the epoch any
-persisted contract-version change invalidates (`CONTRACT_VERSION_SET`; an old
+persisted contract-version write invalidates (`CONTRACT_VERSION_SET`; an old
 word of 3 shows the epoch overlapped v3 storage) and a write to a retired v3
 position invalidates as `STORAGE_MIGRATION`, so an early activation yields
 evidence rather than a halted stream. The BOUND row carries the activation ordinal as its `ordinal`,
@@ -112,6 +112,34 @@ excursion that restores the pointer within the block, as the
 `BINDING_KIND_STORAGE_POINTER` contract in `proto/v1/balance_state.proto`
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
+
+Spec revision 3 decodes only the half-open interval from activation
+(inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
+before that cutoff still fail; writes at or after it are not decoded under
+the old model. Raw ordering and continuity checks still cover all owned
+storage writes. Every invalidation keeps its original evidence, including
+restored and equal-value guarded writes. Failed transactions and reverted
+frames cannot supply a cutoff.
+
+An invalidated market emits no holder basis or observed/derived end-of-block
+globals in that block: even a valid prefix cannot describe end-of-block
+state. Unaffected markets keep their rows; qualified declarations remain
+historical binding evidence. Counts match the emitted rows. A consumer keeps
+the market suspended, and a newer BOUND must discard retained basis after
+suspension even with compatible storage (`basis_carryover = true`); fresh
+observations or a verified checkpoint are required. See the
+[contract](../../docs/balance-state-contract.md) and the synthetic
+[projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
+
+`TokenRebased` log evidence is retained only before the cutoff, with its
+original ordinal, transaction and log metadata. Post-cutoff logs are neither
+shape-decoded nor required to have an old-model receipt; malformed reports
+inside the valid interval still fail. No derived pooled-ether state survives
+an invalidation. Equal-value version and retired-v3-slot writes invalidate too.
+
+This emission revision has offline synthetic validation only. Previously
+saved replay results and live package digests describe their original builds;
+they do not qualify this new build or its invalidation behavior.
 
 ## Fail-closed rules
 

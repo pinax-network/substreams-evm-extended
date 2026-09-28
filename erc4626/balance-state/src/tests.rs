@@ -1,5 +1,46 @@
 use super::*;
 
+#[test]
+fn activation_code_invalidation_omits_basis_and_globals_for_each_vault_model() {
+    for (mut cfg, index) in [(bsc(), 0), (mainnet(), 0), (mainnet(), 1)] {
+        let v = &mut cfg.vaults[index];
+        v.activation_block = 10;
+        v.activation_ordinal = 100;
+        let mut call = shares_call(v, &[9; 20], 1, 2, 100);
+        call.storage_changes.extend([
+            write(&v.vault, v.total_supply_slot, w(1_000), w(1_150), 100),
+            write(&v.vault, w(0xabcdef), w(0), w(1), 100),
+        ]);
+        call.code_changes = vec![eth::CodeChange {
+            address: v.vault.clone(),
+            old_hash: vec![1; 32],
+            new_hash: vec![2; 32],
+            ordinal: 100,
+            ..Default::default()
+        }];
+        let mut b = block(10);
+        b.transaction_traces = vec![tx(call)];
+        let output = project(&b, &cfg).unwrap();
+        assert!(output.holder_basis.is_empty());
+        assert!(output.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+        assert!(output
+            .global_state
+            .iter()
+            .filter(|g| g.market == cfg.vaults[index].vault)
+            .all(|g| g.ordinal == 100));
+        let epochs: Vec<_> = output.epochs.iter().filter(|e| e.market == cfg.vaults[index].vault).collect();
+        assert_eq!(epochs.len(), 2);
+        assert_eq!(
+            (epochs[0].kind, epochs[1].kind),
+            (pb::EpochEventKind::Bound as i32, pb::EpochEventKind::Invalidated as i32)
+        );
+        assert_eq!(output.clocks[0].holder_basis_count, 0);
+        assert_eq!(output.clocks[0].global_state_count as usize, output.global_state.len());
+        b.transaction_traces[0].calls[0].code_changes[0].ordinal = 101;
+        assert!(project(&b, &cfg).unwrap_err().to_string().contains("unresolved"));
+    }
+}
+
 const BSC: &str = include_str!("../tests/fixtures/bsc-stata-usdt-epoch.json");
 const MAINNET: &str = include_str!("../tests/fixtures/mainnet-sdai-and-oz-epochs.json");
 
@@ -1041,12 +1082,9 @@ fn an_openzeppelin_initializing_block_is_reviewed_and_rebinding_the_asset_invali
         ..Default::default()
     })];
     let events = project(&b, &cfg).unwrap();
-    // The metadata writes are reviewed, the supply is carried, and rebinding
-    // the asset invalidates the epoch with evidence instead of failing.
-    assert_eq!(
-        fields(&events, &oz.vault),
-        vec![(pb::StateField::Erc4626TotalSupply as i32, "0".into(), "1000".into(), 1)]
-    );
+    // Metadata and supply writes are validated, but the prefix's supply is
+    // not EOB state. Rebinding yields evidence instead of failing the block.
+    assert!(fields(&events, &oz.vault).is_empty());
     let invalidations: Vec<_> = events.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
     assert_eq!(invalidations.len(), 1);
     assert_eq!(
