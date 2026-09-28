@@ -17,5 +17,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `05-ERC_4626_vault_selection_for_a_first_sou.json` | EIP-4626 semantics, sDAI/Pot, OpenZeppelin virtual offset, Venus, Aave StataToken candidates | `erc4626/balance-state`, `conformance::erc4626` |
 | `06-Lido_stETH_on_Ethereum_mainnet__addresse.json` | Lido v4.0.1: addresses, storage positions, share math, TokenRebased, CL reporting | `lido/balance-state`, `conformance::lido` |
 | `07-Chain_identity_and_finality_for_BNB_Smar.json` | Chain ids and finality for BSC, Ethereum, Base, HyperEVM, Arc | `docs/extraction-coverage.md` |
+| `09-BSC_exclusion_candidates.json` | Saved TAKE/TOPS source/runtime reconstruction, TAKE maintainer pins and one unqualified guard-slot candidate; unresolved RADR/BNC4/sPro/swkeyDAO2 evidence | `erc20/balances`, issue #61 |
 
 Claims marked with a correction in a file supersede the corresponding claim.

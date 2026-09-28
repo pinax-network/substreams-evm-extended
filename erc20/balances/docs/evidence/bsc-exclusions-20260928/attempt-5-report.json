@@ -1,0 +1,69 @@
+{
+  "artifact_sha256": {
+    "cases.json": "72b1c4de708a81de0ce50049b78e5262db7290cb1513a92b06130404e7eb47ff",
+    "take-candidate-NOT-QUALIFIED.json": "cf33920889af712a5d4d9546360e0e13d3d68006c961a4c6e0961dc81e5aaadb",
+    "take-source.json": "5da9577087af6469c828f6ef5b9eef5a7ff368041a45a46aaa25d874087862c7",
+    "tops-source.json": "7a5f00230a1bd8db663d9c1b02cb4dc7f2521c0556a973cf2d55828b2c23078d",
+    "unresolved.json": "08865a00e9bceed141c6f86626d178c41f7b823b21d079e49b2eeb967e66bf07"
+  },
+  "baseline_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+  "blocks_inventory_sha256": "80dd087365e8e0457b7d397bef45ece8571b254c270282403d4a7e6e0425fe9f",
+  "candidate": "take-candidate-NOT-QUALIFIED.json",
+  "clocks_sha256": "241cd9fd6ba1b7ff8e0ca0dd823b7775d10879951e8ae6624583896f51d5cf54",
+  "emitted_rows_sha256": "61e2d4bd8945b726fcbbcae4324fa0686b57d140a1ae68b7a2260100fb2e3c93",
+  "emitted_zeros": 3198,
+  "failure": null,
+  "implementation_sha256": {
+    "src/layout.rs": "d37279b530553aa4a4f8a877ef045d0299da251692b002446f133c0853182445",
+    "src/lib.rs": "fbb985f16c159800f15e394fdb2be949848ab80b37c43b7c7aa56f9dbfc6ee0e",
+    "src/persist.rs": "ac4e8630e5e8ed49d0f0179924a4003a181f96a183251d360a49ca8217ec0749",
+    "tools/src/bin/review_bsc_exclusions.rs": "0ff697b3355d9b65fabacb1e1aba72fdc825c19ddab4e2134c64df5587979405"
+  },
+  "interval": {
+    "all_hashes_equal_saved_canonical_clocks": true,
+    "attempted_blocks": 1024,
+    "blocks": 1024,
+    "complete": true,
+    "requested_blocks": 1024,
+    "start": 123561000,
+    "stop_exclusive": 123562024
+  },
+  "limitations": [
+    "No fresh compiler, runtime, RPC, Firehose, packaged WASM, sink or holder qualification",
+    "TAKE candidate adds one source-bound guard word only; other five profiles remain excluded"
+  ],
+  "mode": "offline_saved_data_only",
+  "native_rows": 8436,
+  "network_requests": 0,
+  "qualified": false,
+  "reference_sha256": "0b9c49491f7ed4e698045aabc368bc668ff64cb3ff47618cef56897ecc5c7d30",
+  "refusals": [],
+  "retention": {
+    "cold_nonzero_reference_observations": 990,
+    "cold_reference_observations": 6586,
+    "initialization": "emitted rows only; no checkpoint or reference seeding",
+    "known_reference_matches": 8466,
+    "ledger": {
+      "blocks_applied": 1024,
+      "checkpoint_seeded_holders": 0,
+      "cold_unknown_lookups": 6586,
+      "deployment_seeded_holders": 0,
+      "domain": "Balances",
+      "emitted_rows": 8436,
+      "enumerated": [],
+      "first_block": 123561000,
+      "initialized_holders": 207,
+      "known_zero_holders": 107,
+      "last_block": 123562023,
+      "last_hash": "0x3dc58d8b291ebff103b55f1f7885ee3a7bbd7d6f4d35a10bb79007f0999c4ba9",
+      "observed_holders": 207,
+      "stream": null,
+      "suspended_markets": 0,
+      "undone_blocks": 0,
+      "unsupported_contracts": 0,
+      "unsupported_entries": 0
+    }
+  },
+  "rows_without_same_block_reference": 0,
+  "same_block_saved_rpc_matches": 8436
+}

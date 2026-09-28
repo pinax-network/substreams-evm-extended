@@ -1,0 +1,21 @@
+[
+  {
+    "balance_slot": "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace00",
+    "code_hash": "0x2b5c23057264b2b56cb20607c6f7e9abf8b7d659de7b4f42094ff993d421a54b",
+    "contract": "0xe747e54783ba3f77a8e5251a3cba19ebe9c0e197",
+    "other_mapping_slots": [
+      "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace01"
+    ],
+    "other_slots": [
+      "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace02",
+      "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace03",
+      "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace04",
+      "0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00"
+    ],
+    "proxy": {
+      "code_hash": "0x5f5b08388e6393a54c2f3666232213d298f6bee046ccf2c3631b99416bbe2f49",
+      "implementation": "0xa9709c4caf6e3fb5fd62b11b53b3f8b393c8927d",
+      "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+    }
+  }
+]

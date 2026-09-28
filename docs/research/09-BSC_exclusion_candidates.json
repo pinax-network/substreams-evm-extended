@@ -1,0 +1,52 @@
+{
+  "topic": "BSC issue 61: offline TAKE guard candidate and preserved exclusions",
+  "reviewed_at": "2026-09-28",
+  "qualified": false,
+  "facts": [
+    {
+      "key": "take-maintainer-source",
+      "value": "TokenImpl inherits ERC20PausableUpgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable and UUPSUpgradeable; no balanceOf override. mint and burn use nonReentrant.",
+      "source_url": "https://github.com/overtake-dev/take-token-repo/blob/7cfcaf7a2429a83612b92dc5fa2f42b551b600e9/bsc/src/TokenImpl.sol",
+      "source_pin": "overtake-dev/take-token-repo@7cfcaf7a2429a83612b92dc5fa2f42b551b600e9 bsc/src/TokenImpl.sol",
+      "sha256": "0b27fe000873cd8a143ccdaacdb02e097838150d922acfa8d5e01c9bf4a14ebd",
+      "note": "Independent raw GitHub content exactly matches src/TokenImpl.sol in the saved 23-file compiler bundle. Maintainer README identifies the TAKE proxy; README SHA256 992b38e3dd388c1ce5ed32dc7fca2f4bb8cb0a0b3ded2d9a809fbfbecf57409e."
+    },
+    {
+      "key": "take-balance-getter-invariance",
+      "value": "balanceOf reads only ERC20Storage._balances[account]; the guard word is not reachable from this inherited getter.",
+      "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/60b305a8f3ff0c7688f02ac470417b6bbf1c4d27/contracts/token/ERC20/ERC20Upgradeable.sol",
+      "source_pin": "OpenZeppelin/openzeppelin-contracts-upgradeable@60b305a8f3ff0c7688f02ac470417b6bbf1c4d27 contracts/token/ERC20/ERC20Upgradeable.sol",
+      "sha256": "88081920a6d72c9b610054d4765b3a048e61faca8d19591ac0f3aa8cc7f056d4",
+      "note": "The pin is the TAKE repository's bsc/lib/openzeppelin-contracts-upgradeable submodule commit. Exact content matches the saved compiler bundle. Role/pause/transfer-mode restrictions affect writes but do not override the getter."
+    },
+    {
+      "key": "take-guard-slot",
+      "value": "0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00",
+      "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/60b305a8f3ff0c7688f02ac470417b6bbf1c4d27/contracts/utils/ReentrancyGuardUpgradeable.sol",
+      "source_pin": "OpenZeppelin/openzeppelin-contracts-upgradeable@60b305a8f3ff0c7688f02ac470417b6bbf1c4d27 contracts/utils/ReentrancyGuardUpgradeable.sol",
+      "sha256": "11b45418823fd6e961d8db5cf5c2795b08f51f88a66f8e37a38fcd052ee711a4",
+      "note": "ERC-7201 slot derivation from openzeppelin.storage.ReentrancyGuard is checked in Rust. Normal modifier writes 1->2->1. The candidate permits valid-width metadata independently of its values; it does not validate guard transitions."
+    },
+    {
+      "key": "take-saved-source-runtime-binding",
+      "value": "0x5f5b08388e6393a54c2f3666232213d298f6bee046ccf2c3631b99416bbe2f49",
+      "source_url": "https://sourcify.dev/server/v2/contract/56/0xa9709c4caf6e3fb5fd62b11b53b3f8b393c8927d?fields=all",
+      "source_pin": "saved pending350-dependencies/0xa9709c4caf6e3fb5fd62b11b53b3f8b393c8927d-source.json sha256:7efd25c828749c928cfbaf8217ff07f0349e5657b8421cd5e620cafe7af0a202",
+      "note": "Secondary saved verification artifact, reinforced by the three independent primary files above. 23 source hashes checked; solc 0.8.29 saved compiled runtime reconstructs exact saved bound runtime using only immutable id650 at offsets 6776,6861,7308, length32, value the implementation address. No fresh compilation or current runtime claim."
+    },
+    {
+      "key": "tops-captured-path-only",
+      "value": "lpInfos mapping(address => LPInfo[]) at root31; LPInfo has three uint256 words. Captured refused key is element4 field0 for 0x28ebbb1c3003a30f9e627647862dd85aa4c165ce.",
+      "source_url": "https://sourcify.dev/server/v2/contract/56/0xcdf52c0b13c24f32f1d8d4ec6356203a1ef0826a?fields=all",
+      "source_pin": "saved ranks201-250-source-review/0xcdf52c0b13c24f32f1d8d4ec6356203a1ef0826a.json sha256:bed5d7155189f849140fce44c4971a526a139b40b1ac4cc7d83db48b057a4c1a",
+      "note": "Secondary saved compiler artifact and captured preimages explain the refusal. balanceOf reads root5 only; transfer calls expired-entry shift/pop cleanup. Saved runtime reconstructs hash 0xf4dc8abcac62d4707f5a839731c0e2b3dde17c643accf43299541c421ba0050b. No independent maintainer pin established, no new metadata permission or admission."
+    }
+  ],
+  "open_questions": [
+    "TAKE fresh runtime/dependency, refusal scan, canonical/direct RPC, packaged WASM and initialized-holder qualification remain explicitly live gated.",
+    "TOPS requires a reviewed mapping-to-struct-array rule and independent maintainer source; no arbitrary computed-slot allowlist.",
+    "RADR mapping21 source/getter invariance is unresolved. Saved source is unverified; public contract-address/source searches on 2026-09-28 found no maintainer repository.",
+    "BNC4 replacement beacon implementation and runtime semantics are not established by the old cached getter.",
+    "sPro and swkeyDAO2 changing divisors require qualified dependency transitions and holder-state rebuild semantics, not repinning."
+  ]
+}
