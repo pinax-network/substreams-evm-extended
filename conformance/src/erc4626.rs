@@ -21,7 +21,7 @@
 //! Share balances are the ERC-20 amount; these functions produce the
 //! underlying claim, a different metric. Missing input is an error, never 0.
 #[cfg(test)]
-mod oz_evm_oracle;
+pub(crate) mod oz_evm_oracle;
 
 use crate::aave;
 use crate::{Result, Unknown};

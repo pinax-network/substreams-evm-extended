@@ -18,5 +18,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `06-Lido_stETH_on_Ethereum_mainnet__addresse.json` | Lido v4.0.1: addresses, storage positions, share math, TokenRebased, CL reporting | `lido/balance-state`, `conformance::lido` |
 | `07-Chain_identity_and_finality_for_BNB_Smar.json` | Chain ids and finality for BSC, Ethereum, Base, HyperEVM, Arc | `docs/extraction-coverage.md` |
 | `09-BSC_exclusion_candidates.json` | Saved TAKE/TOPS source/runtime reconstruction, TAKE maintainer pins and one unqualified guard-slot candidate; unresolved RADR/BNC4/sPro/swkeyDAO2 evidence | `erc20/balances`, issue #61 |
+| `10-Compound_v2_checked_arithmetic.json` | Checked uint256 operation order and compiled pinned-source comparisons for current/2019 CToken, WhitePaper and legacy/current jump-rate arithmetic | `conformance::compound_v2`, issues #14/#16 |
 
 Claims marked with a correction in a file supersede the corresponding claim.
