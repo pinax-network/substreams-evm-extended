@@ -14,6 +14,8 @@ use std::{
 
 #[derive(Args)]
 pub struct RuntimeStatus {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     /// JSON array of caller-qualified token layouts; no built-in token list.
     #[arg(long)]
     pub layouts: PathBuf,
@@ -99,7 +101,7 @@ pub fn run(args: RuntimeStatus) -> Result<bool> {
         |report| {
             let text = fs::read_to_string(&args.layouts)?;
             report["layouts_sha256"] = json!(sha256(&args.layouts)?);
-            let rpc = HttpRpc::from_env();
+            let rpc = args.verification.connect(report)?;
             ensure_finalized(&rpc, stop)?;
             let partition = partition(&rpc, &text, args.start, stop)?;
             ensure!(!partition.kept.is_empty(), "no configured profile still matches");

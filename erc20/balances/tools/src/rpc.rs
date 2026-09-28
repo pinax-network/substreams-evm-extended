@@ -47,11 +47,10 @@ pub struct HttpRpc {
     key: Option<String>,
 }
 impl HttpRpc {
-    pub fn from_env() -> Self {
-        Self::new(
-            std::env::var("RPC_URL").unwrap_or_else(|_| "https://bsc.rpc.pinax.network".into()),
-            std::env::var("RPC_API_KEY").or_else(|_| std::env::var("SUBSTREAMS_API_KEY")).ok(),
-        )
+    pub fn from_env(network: &crate::network::Network) -> Result<Self> {
+        let url = crate::network::rpc_url_from_env(network)?;
+        let key = crate::network::rpc_key(&url, std::env::var("RPC_API_KEY").ok(), std::env::var("SUBSTREAMS_API_KEY").ok());
+        Ok(Self::new(url, key))
     }
     pub fn new(url: String, key: Option<String>) -> Self {
         Self {
@@ -144,7 +143,8 @@ pub fn batch_results(response: Value, count: usize) -> Result<Vec<Value>> {
         .collect()
 }
 pub fn ensure_finalized(rpc: &dyn Rpc, stop: u64) -> Result<()> {
-    ensure!(quantity(&rpc.call("eth_chainId", json!([]))?)? == U256::from(56), "BSC chain ID required");
+    // Entry points verify the configured chain before passing their RPC here.
+    ensure!(stop > 0, "positive exclusive stop required");
     let head = rpc.call("eth_getBlockByNumber", json!(["finalized", false]))?;
     ensure!(U256::from(stop - 1) <= quantity(&head["number"])?, "range is not finalized");
     Ok(())

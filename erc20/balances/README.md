@@ -319,10 +319,48 @@ JSON reports remain in each new output directory, including partial failures.
 Comparison exits zero only for bounded value and row-coverage parity. RPC audit
 exits zero only when all emitted values pass and at least one was checked.
 
-Use `--endpoint` for the Substreams endpoint. RPC uses `RPC_URL` (default
-`https://bsc.rpc.pinax.network`) with optional `RPC_API_KEY` or
-`SUBSTREAMS_API_KEY`. The Substreams CLI uses its normal authentication.
-Credentials remain in environment variables, not report fields.
+All RPC-facing host commands accept the same paired options:
+`--network <substreams-name> --expected-chain-id <decimal-id>`. This includes
+ranking, capture, comparison, audit, runtime status, discovery, holder coverage,
+source inspection, ranked inspection and RPC rechecks. Omitting **both** options
+deliberately preserves the historical `bsc` / `56` configuration; supplying only
+one is refused. Network identity is never inferred from an endpoint URL.
+
+Before data requests, each command checks `eth_chainId` against the configured
+ID. Reports record `network`, `expected_chain_id` and the observed `rpc_chain_id`;
+`chain_id` is recorded only after equality is verified. A wrong chain leaves an
+incomplete report and does not proceed to balance, runtime or capture work.
+Recorded chain identities in input rankings, surveys and source metadata must
+agree. Rankings must retain their chain ID, which historical rankings already
+recorded. Older survey/inspection reports without chain metadata still require
+their saved block hashes to match the selected canonical RPC; this does not
+retroactively qualify the old report for another chain.
+
+Use `--endpoint` for the Substreams or Firehose host and optional port. The BSC
+configuration retains its BSC endpoint defaults and RPC default
+`https://bsc.rpc.pinax.network`. Every other configuration requires an explicit
+`RPC_URL` and, for commands that capture streams/blocks, an explicit `--endpoint`.
+The selected network is also passed to the Substreams CLI. That CLI option is
+configuration, not evidence of the stream's chain: actual delivered clocks and
+captured block hashes must still match the chain-checked RPC.
+
+RPC authentication uses `RPC_API_KEY` when set. The historical fallback to
+`SUBSTREAMS_API_KEY` is restricted to the exact HTTPS BSC Pinax RPC origin
+(default port or explicit port 443, optional trailing slash). Custom RPC URLs
+require their own explicit `RPC_API_KEY` if authentication is needed. The
+Substreams CLI uses its normal authentication. Credentials remain in environment
+variables, never in network names, capture endpoint paths or report fields.
+
+For example, a future authorized Base runtime check would add
+`--network base --expected-chain-id 8453` and set `RPC_URL` to its independently
+chosen Base endpoint. This configuration work does **not** qualify Base,
+Ethereum, HyperEVM or Arc layouts, producers, packages or sinks, and does not
+resume their live checks under [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
+
+The offline `refusal-scan` accepts the same identity options, but its report uses
+`network_binding: caller_configured_offline_blocks_have_no_chain_id` and omits
+verified `chain_id`/`rpc_chain_id`. Extended block protobufs contain no chain ID;
+offline replay cannot authenticate a caller's network label.
 
 ## Native layout discovery
 

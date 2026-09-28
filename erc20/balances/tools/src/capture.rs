@@ -15,8 +15,12 @@ use std::{
 pub fn blocks(args: crate::cli::CaptureBlocks) -> Result<bool> {
     use crate::{data::*, rpc::*};
     ensure!((1..=512).contains(&args.blocks) && args.timeout > 0, "invalid capture bounds");
+    let network = args.verification.selected()?;
+    let endpoint = network.endpoint(args.endpoint.as_deref(), true)?;
     let heights = if let Some(path) = &args.ranking {
-        crate::ranking::sample_heights(&serde_json::from_slice(&std::fs::read(path)?)?, args.samples_per_token)?
+        let ranking: Value = serde_json::from_slice(&std::fs::read(path)?)?;
+        network.check_ranking(&ranking)?;
+        crate::ranking::sample_heights(&ranking, args.samples_per_token)?
     } else {
         let start = args.start.context("start or ranking required")?;
         ensure!(start > 0, "positive start required");
@@ -27,7 +31,7 @@ pub fn blocks(args: crate::cli::CaptureBlocks) -> Result<bool> {
         &args.output,
         json!({"status":"incomplete","requested_heights":heights,"captured":[]}),
         |report| {
-            let rpc = HttpRpc::from_env();
+            let rpc = args.verification.connect(report)?;
             ensure_finalized(&rpc, stop)?;
             let mut previous = None;
             for height in heights {
@@ -38,7 +42,7 @@ pub fn blocks(args: crate::cli::CaptureBlocks) -> Result<bool> {
                 command.args([
                     "tools",
                     "firehose-single-block-client",
-                    &args.endpoint,
+                    &endpoint,
                     &format!("{height}:{digest}"),
                     "--compression",
                     "gzip",
@@ -49,7 +53,7 @@ pub fn blocks(args: crate::cli::CaptureBlocks) -> Result<bool> {
                     "--bytes-encoding",
                     "hex",
                 ]);
-                if args.endpoint.ends_with(":80") || args.endpoint.starts_with("http://") {
+                if endpoint.ends_with(":80") || endpoint.starts_with("http://") {
                     command.arg("--plaintext");
                 }
                 command
@@ -114,7 +118,9 @@ fn run_command(mut command: Command, timeout: u64) -> Result<()> {
     }
 }
 
-pub fn stream(args: &Range, package: &Path, module: &str, output: &Path) -> Result<Value> {
+pub fn stream(args: &Range, package: &Path, module: &str, output: &Path, rpc: &dyn Rpc) -> Result<Value> {
+    let network = args.verification.selected()?;
+    let endpoint = network.endpoint(args.endpoint.as_deref(), false)?;
     ensure!(module == "map_events", "only map_events is supported");
     let params = if package == args.package {
         let layouts = std::fs::read_to_string(&args.layouts)?;
@@ -127,16 +133,19 @@ pub fn stream(args: &Range, package: &Path, module: &str, output: &Path) -> Resu
         &Stream {
             start: args.start,
             blocks: args.blocks,
-            endpoint: &args.endpoint,
+            endpoint: &endpoint,
+            network: &network,
             timeout: args.timeout,
             package,
             params: params.as_deref(),
         },
         output,
+        rpc,
     )
 }
 
 pub struct Stream<'a> {
+    pub network: &'a crate::network::Network,
     pub start: u64,
     pub blocks: u64,
     pub endpoint: &'a str,
@@ -145,7 +154,10 @@ pub struct Stream<'a> {
     pub params: Option<&'a str>,
 }
 
-pub fn stream_events(args: &Stream<'_>, output: &Path) -> Result<Value> {
+pub fn stream_events(args: &Stream<'_>, output: &Path, rpc: &dyn Rpc) -> Result<Value> {
+    let mut network_report = json!({});
+    args.network.verify_rpc(rpc, &mut network_report)?;
+    args.network.endpoint(Some(args.endpoint), false)?;
     let stop = args.start.checked_add(args.blocks).context("range overflow")?;
     let package_hash = sha256(args.package)?;
     let began = Instant::now();
@@ -159,11 +171,11 @@ pub fn stream_events(args: &Stream<'_>, output: &Path) -> Result<Value> {
     );
     let clocks_path = output.with_extension("clocks.txt");
     stream_format(args, &clocks_path, "clock")?;
-    let delivery = confirm_empty_outputs(&HttpRpc::from_env(), output, &clocks_path, args.start, stop, args.blocks)?;
+    let delivery = confirm_empty_outputs(rpc, output, &clocks_path, args.start, stop, args.blocks)?;
     ensure!(sha256(args.package)? == package_hash, "package changed during capture");
     let elapsed = began.elapsed().as_secs_f64();
     Ok(
-        json!({"seconds_including_startup":elapsed,"blocks_per_second_including_startup":args.blocks as f64/elapsed,"package_sha256":package_hash,"empty_output_delivery":delivery}),
+        json!({"seconds_including_startup":elapsed,"blocks_per_second_including_startup":args.blocks as f64/elapsed,"package_sha256":package_hash,"empty_output_delivery":delivery,"network_verification":network_report}),
     )
 }
 
@@ -248,7 +260,8 @@ pub fn verify_clocks(rpc: &dyn Rpc, clocks: &BTreeMap<u64, String>) -> Result<()
     Ok(())
 }
 
-fn stream_format(args: &Stream<'_>, output: &Path, format: &str) -> Result<()> {
+pub(crate) fn stream_command(args: &Stream<'_>, format: &str) -> Result<Command> {
+    args.network.endpoint(Some(args.endpoint), false)?;
     let stop = args.start.checked_add(args.blocks).context("range overflow")?;
     let module = "map_events";
     let package = args.package;
@@ -260,6 +273,8 @@ fn stream_format(args: &Stream<'_>, output: &Path, format: &str) -> Result<()> {
         &args.start.to_string(),
         "-t",
         &stop.to_string(),
+        "--network",
+        &args.network.name,
         "--final-blocks-only",
         "--max-retries",
         "0",
@@ -272,6 +287,12 @@ fn stream_format(args: &Stream<'_>, output: &Path, format: &str) -> Result<()> {
     if let Some(params) = args.params {
         command.arg("-p").arg(format!("map_events={params}"));
     }
+    Ok(command)
+}
+
+fn stream_format(args: &Stream<'_>, output: &Path, format: &str) -> Result<()> {
+    let module = "map_events";
+    let mut command = stream_command(args, format)?;
     let log = if format == "clock" {
         output.with_extension("clock-log")
     } else {

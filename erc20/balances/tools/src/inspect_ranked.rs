@@ -3,7 +3,7 @@ use crate::{
     cli::record_run,
     data::*,
     inspect::{self, Inspect},
-    rpc::{HttpRpc, Rpc},
+    rpc::Rpc,
 };
 use anyhow::{ensure, Result};
 use clap::Args;
@@ -17,6 +17,8 @@ use std::{
 
 #[derive(Args)]
 pub struct InspectRanked {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     /// Completed test-ranked report; its checks must remain beside the report.
     #[arg(long)]
     pub survey: PathBuf,
@@ -87,6 +89,7 @@ pub fn run(args: InspectRanked) -> Result<bool> {
         |report| {
             let survey: Value = serde_json::from_slice(&fs::read(&args.survey)?)?;
             ensure!(survey["investigation_complete"] == true, "completed survey required");
+            args.verification.selected()?.check_report(&survey)?;
             let checks = args.survey.parent().unwrap().join("rpc-checks.jsonl");
             ensure!(sha256(&checks)? == text(&survey["rpc_checks_sha256"])?, "survey checks digest differs");
             let selected = crate::survey::select_tokens(items(&survey, "tokens")?, &args.contracts)?;
@@ -95,7 +98,7 @@ pub fn run(args: InspectRanked) -> Result<bool> {
             for line in BufReader::new(fs::File::open(checks)?).lines() {
                 observe_probe(&mut probes, &contracts, serde_json::from_str(&line?)?)?;
             }
-            let rpc = HttpRpc::from_env();
+            let rpc = args.verification.connect(report)?;
             for token in selected {
                 let contract = text(&token["contract"])?;
                 let mut result = json!({"rank":token["rank"],"contract":contract,"symbol":token["symbol"],"status":"no_probe_evidence"});
@@ -104,6 +107,7 @@ pub fn run(args: InspectRanked) -> Result<bool> {
                     ensure!(rpc.header(block)?["hash"] == probe["hash"], "probe block is no longer canonical");
                     let output = args.output.join(&contract[2..]);
                     inspect::run(Inspect {
+                        verification: args.verification.clone(),
                         contract: contract.into(),
                         address: text(&probe["address"])?.into(),
                         balance_slot: slot.into(),

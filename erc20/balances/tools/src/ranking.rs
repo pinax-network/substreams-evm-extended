@@ -70,9 +70,11 @@ pub fn run(args: Rank) -> Result<bool> {
     );
     record_run(
         &args.output,
-        json!({"status":"incomplete","chain_id":56,"ranking":"emitted RPC balance rows descending; contract ascending breaks ties"}),
+        json!({"status":"incomplete","ranking":"emitted RPC balance rows descending; contract ascending breaks ties"}),
         |report| {
-            let rpc = HttpRpc::from_env();
+            let network = args.verification.selected()?;
+            let endpoint = network.endpoint(args.endpoint.as_deref(), false)?;
+            let rpc = args.verification.connect(report)?;
             let finalized = quantity(&rpc.call("eth_getBlockByNumber", json!(["finalized", false]))?["number"])?;
             ensure!(finalized <= u64::MAX.into(), "height overflow");
             let start = args.start.unwrap_or(finalized.low_u64().checked_sub(args.blocks + 32).context("head too low")?);
@@ -91,12 +93,14 @@ pub fn run(args: Rank) -> Result<bool> {
                 &Stream {
                     start,
                     blocks: args.blocks,
-                    endpoint: &args.endpoint,
+                    endpoint: &endpoint,
+                    network: &network,
                     timeout: args.timeout,
                     package: &args.reference,
                     params: None,
                 },
                 &path,
+                &rpc,
             )?;
             let events = read_stream(&path, start, stop, "map_events")?;
             let tokens = rank(&events)?;

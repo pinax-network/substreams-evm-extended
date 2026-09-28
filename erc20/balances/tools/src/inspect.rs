@@ -7,6 +7,8 @@ use std::{fs, path::PathBuf};
 
 #[derive(Args)]
 pub struct Inspect {
+    #[command(flatten)]
+    pub verification: crate::network::VerificationNetwork,
     #[arg(long)]
     pub contract: String,
     #[arg(long)]
@@ -83,7 +85,7 @@ pub fn run(args: Inspect) -> Result<bool> {
         &args.output,
         json!({"status":"incomplete","contract":contract,"address":address,"block":args.block,"balance_slot":slot}),
         |report| {
-            let rpc = HttpRpc::from_env();
+            let rpc = args.verification.connect(report)?;
             ensure_finalized(&rpc, args.block.checked_add(1).context("range overflow")?)?;
             let header = rpc.header(args.block)?;
             let hash = binary(&header["hash"], 32)?;
@@ -97,7 +99,7 @@ pub fn run(args: Inspect) -> Result<bool> {
             if let Some(path) = &args.source {
                 let source: Value = serde_json::from_slice(&fs::read(path)?)?;
                 ensure!(binary(&source["address"], 20)? == contract, "source contract differs");
-                ensure!(source["chainId"] == "56" || source["chainId"] == 56, "source chain differs");
+                args.verification.selected()?.check_source_chain(&source)?;
                 ensure!(
                     source["runtimeMatch"] == "match" || source["runtimeMatch"] == "exact_match",
                     "source runtime not verified"
@@ -109,7 +111,10 @@ pub fn run(args: Inspect) -> Result<bool> {
                 );
                 report["source_sha256"] = json!(sha256(path)?);
                 report["source_runtime_match"] = json!(true);
-                report["source_url"] = json!(format!("https://sourcify.dev/server/v2/contract/56/{contract}?fields=all"));
+                report["source_url"] = json!(format!(
+                    "https://sourcify.dev/server/v2/contract/{}/{contract}?fields=all",
+                    args.verification.selected()?.chain_id
+                ));
                 report["compilation"] = source["compilation"].clone();
                 report["source_storage_layout"] = source["storageLayout"].clone();
                 report["source_proxy_resolution"] = source["proxyResolution"].clone();
