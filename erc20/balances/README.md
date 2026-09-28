@@ -670,5 +670,8 @@ These controls are evidence for review, not automatic layout qualification.
 The [PTokenV2 Phase A operation proof](docs/ptoken-operation-proof.md) regenerates
 one exact captured runtime/creation with official solc 0.8.28 and checks 382
 synthetic constructor/ABI calls in a bounded host executor. It proves selected
-coupled role-operation behavior only: no candidate, enumerable ingestion support,
-chain qualification or baseline change is included.
+coupled role-operation behavior; the proof itself introduced no ingestion or
+baseline change. The separately opted-in [Phase B coupled candidate](docs/ptoken-coupled-role-candidate.md)
+requires the complete selected root-5/root-6 operation template with Extended 4/5
+frame evidence. It remains NOT-QUALIFIED, with real producer role-write visibility,
+initial coherence and runtime/package/holder gates separate from offline checks.

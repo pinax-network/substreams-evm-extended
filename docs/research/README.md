@@ -32,5 +32,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `21-Artx_role_candidate.json` | Complete proxy/implementation captures, exact dependency/source-set and constructor/self bindings, with membership-only narrowing and preserved upgrade guards | `erc20/balances`, issue #4 |
 | `22-PTokenV2_operation_proof.json` | Exact official-compiler runtime/creation reproduction and bounded constructor/ABI execution; coupled boolean/set ordering and rollback evidence, without a candidate or ingestion change | `erc20/balances` host tools, issue #4 |
 | `23-OFT_role_candidates.json` | Three complete Kgen/Deep captures, exact primary and vendored-source distinctions, saved constructor/immutable reconstruction and plain role paths with explicit proxy-history limits | `erc20/balances`, issue #4 |
+| `24-PToken_coupled_role_candidate.json` | Selected compiled boolean/set operation admission, strict linked roots and producer boundaries, adversarial projector controls and a separate unqualified candidate | `erc20/balances`, issue #4 |
 
 Claims marked with a correction in a file supersede the corresponding claim.

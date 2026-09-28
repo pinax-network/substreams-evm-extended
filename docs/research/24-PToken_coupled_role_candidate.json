@@ -1,0 +1,41 @@
+{
+  "topic": "PTokenV2 selected coupled role operation candidate, 2026-09-28; offline only and NOT-QUALIFIED",
+  "facts": [
+    {
+      "key": "frozen_source_execution_prerequisite",
+      "value": "The candidate binds the complete selected 21-source capture and fresh official solc 0.8.28 Cancun optimizer-10000 compiler output from Phase A. Its 382 calls contain 338 returns, 44 exact reverts and no accepted INVALID or harness failures. Twenty dependencies match independent OZ 5.4 source pins; the token public repository remains unresolved.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/blob/main/erc20/balances/docs/ptoken-operation-proof.md",
+      "source_pin": "Capture SHA256 14d5dcc50d8dd1b04fc6283e0d1fafad66fd7fe0bfafdff224a9ba6eda203f9c; complete runtime Keccak 0x60f53552d1ab18923098e47b0d7952ae7a4a48d8bece60b20d3d41734832c15c; compact transcripts SHA256 0dedf0a50e6cecd63a0a696337d7d79c109e08fe655ed2a41727c18192e1fbe0",
+      "note": "Historical Phase A evidence is not rewritten. This candidate does not recompile or make new chain calls."
+    },
+    {
+      "key": "exact_coupled_template",
+      "value": "The explicit ptoken_v2_solc_0_8_28_oz_5_4_0 mode requires membership root 5 and set root 6. Add and tail removal have four ordered stages; non-tail removal has six. Boolean mutation precedes the entire set operation; tail clear precedes length decrement. Only executed equal zero-address append/tail-clear stages may be absent. Moved-tail membership equal to one is a protected coherence constraint, never a permitted store or invented witness.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/blob/main/erc20/balances/docs/ptoken-coupled-role-candidate.md",
+      "note": "Identifier scope is the exact reviewed template, not universal OZ 5.4 support. Checked logical length growth is conservative admission, not an EVM overflow-revert claim."
+    },
+    {
+      "key": "producer_and_initial_state_limits",
+      "value": "Structural support accepts Extended versions 4 and 5 with positive actual root-call begin, exact 32-byte storage keys, verified mapping preimages and unique complete operations within one account/role/root pair/frame. Version 3 fallback is refused only for this mode. Both root namespaces are reserved and discovered, preventing isolated boolean, set or recognized equality fragments from bypassing validation. Legacy DSG serialization, operation order and fallback remain unchanged.",
+      "note": "Initial bool/position/array coherence and unused-tail-zero are assumptions. Actual PToken producer preimage/equality visibility and deployed role calls remain unqualified. There is no persistent role cache."
+    },
+    {
+      "key": "candidate_and_test_boundary",
+      "value": "Separate candidate removes only baseline root 5 width 2 and adds the coupled rule. No independent membership path is added. All balance, allowance, scalar and runtime/deployment fields remain identical; historical 431/425 fixtures are unchanged. Synthetic Extended projector controls translate frozen compiled operations, include all permissible equality subsets, and pair malformed role operations with valid balance writes to require atomic refusal.",
+      "source_pin": "Historical baseline SHA256 e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+      "note": "The 431-profile historical baseline and 425-profile qualification cohort remain unchanged. This is not a production promotion."
+    },
+    {
+      "key": "fresh_bounded_replay_and_offline_gates",
+      "value": "Complete saved BSC [122288006,122289030) replay passes 1,024 Extended version-5 blocks and 110,139 full-protobuf rows against unchanged current and historical baselines. PToken has 100 same-block canonical matches across 51 initialized observed holders, zero retained reference-only matches, 100 cold observations with zero reference values, and zero observed changing membership writes or validated coupled operations. Cold holders remain unknown and canonical values never seed state. Pinned locked offline formatting, 948 workspace tests across 61 suites, all-target Clippy and WASM checks pass on dba534f.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/blob/main/erc20/balances/docs/evidence/ptoken-coupled-role-candidate-20260928.json",
+      "source_pin": "Report SHA256 3ee78fc936687ca13cac347d94c37d9ca92817dcf6ff523c8f3f72c4766d7c00; 171-file source inventory SHA256 75c1e7785a3dc6d09d0ff152a8916f84d62ba68157e2f477d7493edd4830a766",
+      "note": "Counts cover only this interval and initialized observed-holder set. Zero observed role writes is not real producer role-write qualification. Phase A source execution remains a distinct prerequisite."
+    }
+  ],
+  "open_questions": [
+    "Independent primary token repository remains unresolved.",
+    "Real producer role-write visibility, coherent initial state, fresh authorized runtime/package and initialized-holder/final-state checks remain promotion gates.",
+    "Other issue #4 role cohorts remain outside this selected candidate."
+  ]
+}

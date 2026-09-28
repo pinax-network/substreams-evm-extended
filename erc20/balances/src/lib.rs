@@ -484,6 +484,8 @@ mod trade450_tests;
 mod typed450_tests;
 
 #[cfg(test)]
+mod ptoken_enumerable_tests;
+#[cfg(test)]
 mod ranks301_350_tests;
 #[cfg(test)]
 mod remaining_ranked_tests;
