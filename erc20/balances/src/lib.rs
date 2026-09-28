@@ -58,6 +58,14 @@ struct Changes {
     immutable_zero_contracts: BTreeSet<Vec<u8>>,
     address_list_contracts: BTreeSet<Vec<u8>>,
     address_list_noops: Vec<eth::StorageChange>,
+    invalid_storage_words: BTreeSet<Vec<u8>>,
+}
+impl Changes {
+    fn check_storage_words(&mut self, c: &eth::StorageChange) {
+        if c.key.len() > 32 || c.old_value.len() > 32 || c.new_value.len() > 32 {
+            self.invalid_storage_words.insert(c.address.clone());
+        }
+    }
 }
 struct CodeRecord {
     change: eth::CodeChange,
@@ -68,9 +76,11 @@ struct CodeRecord {
 impl persist::Sink for Changes {
     fn balance(&mut self, _: &eth::BalanceChange, _: persist::Ctx) {}
     fn storage(&mut self, c: &eth::StorageChange, _: persist::Ctx) {
+        self.check_storage_words(c);
         self.storage.push(c.clone());
     }
     fn storage_noop(&mut self, c: &eth::StorageChange, _: persist::Ctx) {
+        self.check_storage_words(c);
         // Even a no-op can contradict the reviewed no-balance-write invariant.
         // Ordinary layouts retain the existing no-op filtering behavior.
         if self.immutable_zero_contracts.contains(&c.address) {
@@ -190,6 +200,14 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
         ..Default::default()
     };
     persist::collect_block(block, &mut raw)?;
+    // Getter-independent metadata is still an EVM storage word. Validate all
+    // persisted records, including no-ops, before any metadata ignore rule.
+    require(
+        raw.invalid_storage_words
+            .iter()
+            .all(|address| !configured.contains_key(address) && !layouts.iter().any(|l| l.beacon_proxy.as_ref().is_some_and(|p| &p.beacon == address))),
+        "persisted configured storage word exceeds uint256",
+    )?;
     deployment::validate(block, layouts, &raw)?;
     require(
         !raw.codes.iter().any(|record| {

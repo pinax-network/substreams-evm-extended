@@ -33,6 +33,21 @@ as branch validation and replaced with fresh isolated builds; independent GitHub
 CI still gates every merge. Preserve the earlier logs as failed validation
 attempts, and do not share build output between worktrees.
 
+The [offline six-exclusion review](../erc20/balances/docs/bsc-exclusions-offline-2026-09-28.md)
+preserves the original TAKE/RADR/TOPS refused transactions and prepares only a
+TAKE guard-slot candidate. Exact complete source-capture hashes bind saved
+compiler/runtime reconstruction; this is not a new compiler or chain run.
+Across saved BSC [123561000, 123562024), all 8,436 emitted candidate rows match
+the immutable canonical reference. The emitted-only ledger initializes 207
+observed holders; 6,586 reference observations remain cold. The 431-profile
+baseline and qualified 425-profile set are unchanged, and all six exclusions
+remain open under #61. TOPS's nested array path is identified but unimplemented;
+RADR source and BNC4/sPro/swkeyDAO2 replacement dependencies remain unqualified.
+The associated production fix rejects oversized persisted storage keys and
+values, including no-ops, before configured-token or beacon metadata ignores.
+See the linked report for preserved failed attempts, isolated validation and
+the separate runtime, package and holder gates before candidate promotion.
+
 The subsequent [offline issue-audit remediation](audit-remediation-2026-09-21.md)
 tracks retention correctness, executed layout tests, ERC-4626 arithmetic and
 asset bindings, Aragon upgrade guards, execution receipt validation and a
