@@ -1,0 +1,295 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "out/point-bedrock-roles-20260928/replay-02/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "out/point-bedrock-roles-20260928/replay-02/candidate-combined-layouts.json",
+      "sha256": "9d8f030728e0fe98acb73493bb6da68b5c8b8a3f293d451ff9f88708a3791c29"
+    },
+    {
+      "path": "out/point-bedrock-roles-20260928/replay-02/replay-role-candidates.rs",
+      "sha256": "18ed03bba9e62a36c59c80d74d1667a3de600c7615615d4bebfc08a82655d1ab"
+    },
+    {
+      "path": "out/point-bedrock-roles-20260928/replay-02/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "out/point-bedrock-roles-20260928/replay-02/blocks.jsonl",
+      "sha256": "a9ce61e65961b4aca40ffc9ea2105fdca90a44b27987e0ec976de20c6882e01f"
+    },
+    {
+      "path": "out/point-bedrock-roles-20260928/replay-02/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "out/point-bedrock-roles-20260928/replay-02/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "out/point-bedrock-roles-20260928/replay-02/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "attempted_block": 122289029,
+  "candidate_matches_current_baseline_all_blocks": true,
+  "candidate_profiles": {
+    "0x826923122a8521be36358bdc53d3b4362b6f46e5": {
+      "cold_nonzero_reference_observations": 13,
+      "cold_reference_observations": 18,
+      "emitted_rows": 28,
+      "initialized_observed_holders": 11,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 28
+    },
+    "0xff7d6a96ae471bbcd7713af9cb1feeb16cf56b41": {
+      "cold_nonzero_reference_observations": 11,
+      "cold_reference_observations": 19,
+      "emitted_rows": 30,
+      "initialized_observed_holders": 18,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 30
+    }
+  },
+  "canonical_reference_interval_and_baseline_binding_verified": true,
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 100.345537125,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/point-bedrock-role-candidates/layouts.json",
+      "sha256": "3b95af6a2dd5f89fbf94ad77642dc07277eb50896a8cc33b19a20ecdde432573"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/point-bedrock-role-candidates/source-review.json",
+      "sha256": "6baa77e14e69ba42e16da4ce25259d0044b7eeb802419d4c7141d6ab7f8b3b0b"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_completed_block": 122289029,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 66265,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 110139,
+    "enumerated": [],
+    "first_block": 122288006,
+    "initialized_holders": 33591,
+    "known_zero_holders": 6197,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 33591,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "scope": "Two NOT-QUALIFIED Point/Bedrock membership paths applied to unchanged 431; saved native parity is not replacement package/runtime/live qualification. Point token primary repository remains unresolved. Canonical values never seed retained state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "4ce1cc626d975fb8859f3c251e38ec0a6a2cd69b1b3d04611f5b3601aeb45827",
+  "source_rechecks": [
+    {
+      "balance_root": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "chain_id": 56,
+      "compiler": "0.8.9+commit.e5eed63a",
+      "contract": "0x826923122a8521be36358bdc53d3b4362b6f46e5",
+      "fresh_compilation": false,
+      "name": "Point",
+      "qualified": false,
+      "role_admin_callsite": "none_beyond_declaration_in_complete_pinned_capture",
+      "role_admin_identifier_references": 1,
+      "role_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "runtime_hash": "0xa099dede5abb0391e457e8f49f4b61061005b3aea81cd5be261380d99b5659ec",
+      "runtime_reconstructed_from_saved_compiler_bytes": true,
+      "runtime_transformations": 0,
+      "source_capture_sha256": "379a18f2648c684062838d90735bc4bfee90187d62f15e64e18c5ce6b1f1ae88",
+      "source_files": [
+        {
+          "keccak256": "0x5b35d8e68aeaccc685239bd9dd79b9ba01a0357930f8a3307ab85511733d9724",
+          "path": "@openzeppelin/contracts/access/AccessControl.sol",
+          "sha256": "5af1771388b4fe634e0a566716e32c6d00a5372875099127b274d4cf8a94e9d2"
+        },
+        {
+          "keccak256": "0x59ce320a585d7e1f163cd70390a0ef2ff9cec832e2aa544293a00692465a7a57",
+          "path": "@openzeppelin/contracts/access/IAccessControl.sol",
+          "sha256": "d03c1257f2094da6c86efa7aa09c1c07ebd33dd31046480c5097bc2542140e45"
+        },
+        {
+          "keccak256": "0x24b04b8aacaaf1a4a0719117b29c9c3647b1f479c5ac2a60f5ff1bb6d839c238",
+          "path": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+          "sha256": "5031430cc2613c32736d598037d3075985a2a09e61592a013dbd09a5bc2041b8"
+        },
+        {
+          "keccak256": "0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b",
+          "path": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+          "sha256": "94f23e4af51a18c2269b355b8c7cf4db8003d075c9c541019eb8dcf4122864d5"
+        },
+        {
+          "keccak256": "0x0d19410453cda55960a818e02bd7c18952a5c8fe7a3036e81f0d599f34487a7b",
+          "path": "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol",
+          "sha256": "0344809a1044e11ece2401b4f7288f414ea41fa9d1dad24143c84b737c9fc02e"
+        },
+        {
+          "keccak256": "0x8de418a5503946cabe331f35fe242d3201a73f67f77aaeb7110acb1f30423aca",
+          "path": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+          "sha256": "af5c8a77965cc82c33b7ff844deb9826166689e55dc037a7f2f790d057811990"
+        },
+        {
+          "keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
+          "path": "@openzeppelin/contracts/utils/Context.sol",
+          "sha256": "1458c260d010a08e4c20a4a517882259a23a4baa0b5bd9add9fb6d6a1549814a"
+        },
+        {
+          "keccak256": "0xaf159a8b1923ad2a26d516089bceca9bdeaeacd04be50983ea00ba63070f08a3",
+          "path": "@openzeppelin/contracts/utils/Strings.sol",
+          "sha256": "34127ad0054df5963b0fd694c1b313d17e9114a2f426b85526d6d976210298ab"
+        },
+        {
+          "keccak256": "0xd10975de010d89fd1c78dc5e8a9a7e7f496198085c151648f20cba166b32582b",
+          "path": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
+          "sha256": "8806a632d7b656cadb8133ff8f2acae4405b3a64d8709d93b0fa6a216a8a6154"
+        },
+        {
+          "keccak256": "0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1",
+          "path": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
+          "sha256": "701e025d13ec6be09ae892eb029cd83b3064325801d73654847a5fb11c58b1e5"
+        },
+        {
+          "keccak256": "0x54512c50b219a122f422890601e4608b3573dc3d3c788ec7bce014d4fbbf5578",
+          "path": "contracts/Point.sol",
+          "sha256": "e0f00576653d1b1b1c14570ed5bc6846398b098133d4419ef1157d5738bfd28c"
+        }
+      ]
+    },
+    {
+      "balance_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "chain_id": 56,
+      "compiler": "0.8.17+commit.8df45f5f",
+      "contract": "0xff7d6a96ae471bbcd7713af9cb1feeb16cf56b41",
+      "fresh_compilation": false,
+      "name": "Bedrock",
+      "qualified": false,
+      "role_admin_callsite": "none_beyond_declaration_in_complete_pinned_capture",
+      "role_admin_identifier_references": 1,
+      "role_root": "0x0000000000000000000000000000000000000000000000000000000000000005",
+      "runtime_hash": "0xf5a9b1fe6edbc5caf0c7e395f1fca9d2bb67f7d232ca90e149507a8b842256c4",
+      "runtime_reconstructed_from_saved_compiler_bytes": true,
+      "runtime_transformations": 0,
+      "source_capture_sha256": "4a1d4290e378ee9bf416f83b60097b9bed9ac1c43a22e42137d3874d9c936c0a",
+      "source_files": [
+        {
+          "keccak256": "0x91eac296f96df22b8180af918d22e2a0105acdc5de54be4a855fcda73c208ae5",
+          "path": "contracts/BR.sol",
+          "sha256": "26c5594ad0f3265d4032cf3cf6aaea04c564804678d61e7e953cd6956b346da3"
+        },
+        {
+          "keccak256": "0x67e3daf189111d6d5b0464ed09cf9f0605a22c4b965a7fcecd707101faff008a",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/access/AccessControl.sol",
+          "sha256": "86908de632a9fbffc04a94fa27bd320c304a47072a85de02293e08f1724934fb"
+        },
+        {
+          "keccak256": "0x59ce320a585d7e1f163cd70390a0ef2ff9cec832e2aa544293a00692465a7a57",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/access/IAccessControl.sol",
+          "sha256": "d03c1257f2094da6c86efa7aa09c1c07ebd33dd31046480c5097bc2542140e45"
+        },
+        {
+          "keccak256": "0x4ffc0547c02ad22925310c585c0f166f8759e2648a09e9b489100c42f15dd98d",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/token/ERC20/ERC20.sol",
+          "sha256": "bce14c3fd3b1a668529e375f6b70ffdf9cef8c4e410ae99608be5964d98fa701"
+        },
+        {
+          "keccak256": "0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/token/ERC20/IERC20.sol",
+          "sha256": "94f23e4af51a18c2269b355b8c7cf4db8003d075c9c541019eb8dcf4122864d5"
+        },
+        {
+          "keccak256": "0x0d19410453cda55960a818e02bd7c18952a5c8fe7a3036e81f0d599f34487a7b",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/token/ERC20/extensions/ERC20Burnable.sol",
+          "sha256": "0344809a1044e11ece2401b4f7288f414ea41fa9d1dad24143c84b737c9fc02e"
+        },
+        {
+          "keccak256": "0x8de418a5503946cabe331f35fe242d3201a73f67f77aaeb7110acb1f30423aca",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+          "sha256": "af5c8a77965cc82c33b7ff844deb9826166689e55dc037a7f2f790d057811990"
+        },
+        {
+          "keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/utils/Context.sol",
+          "sha256": "1458c260d010a08e4c20a4a517882259a23a4baa0b5bd9add9fb6d6a1549814a"
+        },
+        {
+          "keccak256": "0xa4d1d62251f8574deb032a35fc948386a9b4de74b812d4f545a1ac120486b48a",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/utils/Strings.sol",
+          "sha256": "f81f11dca62dcd3e0895e680559676f4ba4f2e12a36bb0291d7ecbb6b983141f"
+        },
+        {
+          "keccak256": "0xd10975de010d89fd1c78dc5e8a9a7e7f496198085c151648f20cba166b32582b",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/utils/introspection/ERC165.sol",
+          "sha256": "8806a632d7b656cadb8133ff8f2acae4405b3a64d8709d93b0fa6a216a8a6154"
+        },
+        {
+          "keccak256": "0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/utils/introspection/IERC165.sol",
+          "sha256": "701e025d13ec6be09ae892eb029cd83b3064325801d73654847a5fb11c58b1e5"
+        },
+        {
+          "keccak256": "0xa1e8e83cd0087785df04ac79fb395d9f3684caeaf973d9e2c71caef723a3a5d6",
+          "path": "lib/OpenZeppelin/openzeppelin-contracts@4.8.3/contracts/utils/math/Math.sol",
+          "sha256": "8059d642ec219d0b9b62fbc76912079529cf494cac988abe5e371f1168b29b0f"
+        }
+      ]
+    }
+  ],
+  "start_inclusive": 122288006,
+  "status": "passed_offline_role_candidate_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0
+}

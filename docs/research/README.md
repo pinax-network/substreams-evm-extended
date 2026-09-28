@@ -24,5 +24,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `13-Comet_source_oracle.json` | Official-compiler execution of pinned rates, utilization, indices, supplied/debt getters and conversions, with timestamp and signed-width controls | `conformance::comet`, issues #15/#16 |
 | `14-Lido_source_oracle.json` | Pinned getter execution, unchecked product wrapping, checked total addition and raw-input preservation under extraction specification revision 4 | `conformance::lido`, `lido/balance-state`, issues #16/#23 |
 | `15-SavingsDai_source_oracle.json` | Pinned rpow/divup and vault conversion execution, full uint256 Pot timestamp retention and explicit revert/invalid-opcode controls | `conformance::erc4626`, `conformance::retained`, issues #7/#16 |
+| `16-Point_Bedrock_role_candidates.json` | Complete saved source/runtime binding, exact public source matches and Point's remaining token-source gap; separate membership-path candidates and bounded saved replay | `erc20/balances`, issue #4 |
 
 Claims marked with a correction in a file supersede the corresponding claim.

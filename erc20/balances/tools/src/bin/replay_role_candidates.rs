@@ -174,7 +174,13 @@ mod offline {
         }
         Ok(())
     }
-    fn source_inventory(root: &Path, burnmint: bool) -> Result<Value> {
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    enum Mode {
+        TokenCys,
+        Burnmint,
+        PointBedrock,
+    }
+    fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
         let mut paths = vec![
             repo.join("Cargo.toml"),
@@ -189,7 +195,11 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if burnmint {
+        if mode == Mode::PointBedrock {
+            for name in ["layouts.json", "source-review.json", "Point.json", "Bedrock.json", "primary-sources.json"] {
+                paths.push(root.join(erc20_balances_tools::point_bedrock_roles::FIXTURE).join(name));
+            }
+        } else if mode == Mode::Burnmint {
             for name in ["layouts.json", "source-capture.json", "primary-sources.json"] {
                 paths.push(root.join("tests/fixtures/burnmint-role-candidate").join(name));
             }
@@ -393,7 +403,7 @@ mod offline {
         Ok(counts)
     }
 
-    fn run(root: &Path, cache: &Path, output: &Path, burnmint: bool, report: &mut Value) -> Result<()> {
+    fn run(root: &Path, cache: &Path, output: &Path, mode: Mode, report: &mut Value) -> Result<()> {
         let started = Instant::now();
         fs::copy(root.join("tools/src/bin/replay_role_candidates.rs"), output.join("replay-role-candidates.rs"))?;
         let fixture = root.join("tests/fixtures/bsc-refined450-layouts.json");
@@ -414,12 +424,16 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if burnmint {
+        let candidate_path = root.join(if mode == Mode::PointBedrock {
+            "tests/fixtures/point-bedrock-role-candidates/layouts.json"
+        } else if mode == Mode::Burnmint {
             "tests/fixtures/burnmint-role-candidate/layouts.json"
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if burnmint {
+        let review_path = root.join(if mode == Mode::PointBedrock {
+            "tests/fixtures/point-bedrock-role-candidates/source-review.json"
+        } else if mode == Mode::Burnmint {
             "tests/fixtures/burnmint-role-candidate/primary-sources.json"
         } else {
             "tests/fixtures/role-path-candidates/source-review.json"
@@ -428,10 +442,25 @@ mod offline {
         let review = read(&review_path)?;
         let mut migrated: Value = serde_json::from_str(&baseline_text)?;
         ensure!(
-            candidates.as_array().context("candidate array")?.len() == if burnmint { 1 } else { 2 },
+            candidates.as_array().context("candidate array")?.len() == if mode == Mode::Burnmint { 1 } else { 2 },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if burnmint {
+        report["source_rechecks"] = if mode == Mode::PointBedrock {
+            use erc20_balances_tools::point_bedrock_roles as bound;
+            let mut captures = Vec::new();
+            for p in &bound::PROFILES {
+                let raw = fs::read(root.join(bound::FIXTURE).join(format!("{}.json", p.name)))?;
+                ensure!(
+                    raw == fs::read(cache.join(format!("out/ranks251-300-source-review/{}.json", p.contract)))?,
+                    "committed capture differs from original cache"
+                );
+                captures.push(bound::verify_capture(&raw, p)?);
+            }
+            ensure!(review == bound::review(&captures)?, "source review differs from verified complete captures");
+            bound::verify_primary(&captures, &read(&root.join(bound::FIXTURE).join("primary-sources.json"))?)?;
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            review["profiles"].clone()
+        } else if mode == Mode::Burnmint {
             use erc20_balances_tools::burnmint_role as bound;
             let raw = fs::read(root.join("tests/fixtures/burnmint-role-candidate/source-capture.json"))?;
             let original = fs::read(cache.join(format!("out/ranks201-250-source-review/{}.json", bound::CONTRACT)))?;
@@ -473,7 +502,7 @@ mod offline {
         let layouts = erc20_balances::layout::parse(&migrated.to_string()).map_err(|e| anyhow::anyhow!(e.to_string()))?;
         ensure!(layouts.len() == 431 && hr["configured_profiles"] == 431, "profile scope changed");
         let configured: BTreeSet<_> = layouts.iter().map(|l| l.contract.clone()).collect();
-        let before = source_inventory(root, burnmint)?;
+        let before = source_inventory(root, mode)?;
         write(&output.join("source-inputs.json"), &before)?;
         report["inputs"] = json!([
             &fixture,
@@ -694,7 +723,7 @@ mod offline {
         report["first_hash"] = hr["first_hash"].clone();
         report["first_parent_hash"] = hr["first_parent_hash"].clone();
         report["all_1024_clocks_equal_saved_canonical_bound_clocks"] = json!(true);
-        report["source_inputs_unchanged"] = json!(before == source_inventory(root, burnmint)?);
+        report["source_inputs_unchanged"] = json!(before == source_inventory(root, mode)?);
         report["artifacts"] = json!([
             "native-events.jsonl",
             "candidate-combined-layouts.json",
@@ -727,12 +756,13 @@ mod offline {
         let mut args = std::env::args().skip(1);
         let root = PathBuf::from(args.next().context("crate root required")?);
         let output = PathBuf::from(args.next().context("fresh output required")?);
-        let burnmint = match args.next().as_deref() {
-            None => false,
-            Some("--burnmint") => true,
-            _ => bail!("expected --burnmint <original package root>"),
+        let mode = match args.next().as_deref() {
+            None => Mode::TokenCys,
+            Some("--burnmint") => Mode::Burnmint,
+            Some("--point-bedrock") => Mode::PointBedrock,
+            _ => bail!("expected --burnmint or --point-bedrock, followed by <original package root>"),
         };
-        let cache = if burnmint {
+        let cache = if mode != Mode::TokenCys {
             PathBuf::from(args.next().context("original package root required")?)
         } else {
             root.clone()
@@ -740,10 +770,13 @@ mod offline {
         ensure!(args.next().is_none(), "unexpected arguments");
         fs::create_dir(&output).context("output must be fresh")?;
         let mut report = json!({"status":"incomplete","mode":"offline_saved_data_only","start_inclusive":START,"stop_exclusive":STOP,"network_requests":0,"new_rpc_balance_controls":0,"substreams_firehose_or_sink_commands":0,"comparison":"All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).","scope":"Two unqualified role-path candidates applied to an otherwise unchanged 431-profile baseline; native Rust replay, not a new WASM/package/live qualification. Historical output remains immutable. Canonical RPC capture is compared on overlap and on holders independently learned from native emissions; unknown cold holders are explicitly retained as unknown, with no hidden initial state."});
-        if burnmint {
+        if mode == Mode::Burnmint {
             report["scope"] = json!("One unqualified BurnMint exact role path applied to unchanged 431; full saved native parity, not package/runtime/live qualification. Canonical values never seed retained state.");
         }
-        if let Err(error) = run(&root, &cache, &output, burnmint, &mut report) {
+        if mode == Mode::PointBedrock {
+            report["scope"] = json!("Two NOT-QUALIFIED Point/Bedrock membership paths applied to unchanged 431; saved native parity is not replacement package/runtime/live qualification. Point token primary repository remains unresolved. Canonical values never seed retained state.");
+        }
+        if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");
             report["error"] = json!(format!("{error:#}"));
             write(&output.join("report.json"), &report)?;
