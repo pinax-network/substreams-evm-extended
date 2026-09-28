@@ -26,6 +26,13 @@ pub(crate) fn word(value: &BigUint) -> [u8; 32] {
 /// Execute a pure getter with controlled storage. All arithmetic opcodes
 /// wrap at 256 bits; MULMOD retains its unbounded intermediate as in EVM.
 pub(crate) fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std::result::Result<Vec<u8>, Vec<u8>> {
+    execute_at(code, calldata, storage, &BigUint::zero())
+}
+
+/// Comet's source reads TIMESTAMP before any principal-sign early return.
+/// Other fixtures retain the original zero-timestamp execution entrypoint.
+pub(crate) fn execute_at(code: &[u8], calldata: &[u8], storage: &[BigUint], timestamp: &BigUint) -> std::result::Result<Vec<u8>, Vec<u8>> {
+    assert!(timestamp.bits() <= 256, "timestamp outside EVM word");
     // Each call has isolated state. Compound's source oracle additionally
     // exercises SSTORE and event emission; no write escapes this invocation.
     let mut storage = storage.to_vec();
@@ -47,7 +54,7 @@ pub(crate) fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std:
         pc += 1;
         match op {
             0x00 => return Ok(Vec::new()),
-            0x01..=0x04 | 0x06 | 0x0a | 0x10..=0x12 | 0x14 | 0x16..=0x18 | 0x1b..=0x1c => {
+            0x01..=0x04 | 0x06 | 0x0a..=0x0b | 0x10..=0x14 | 0x16..=0x18 | 0x1b..=0x1c => {
                 let a = stack.pop().unwrap();
                 let b = stack.pop().unwrap();
                 let value = match op {
@@ -69,12 +76,35 @@ pub(crate) fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std:
                         }
                     }
                     0x0a => a.modpow(&b, &modulus),
+                    0x0b => {
+                        if a >= BigUint::from(31u8) {
+                            b
+                        } else {
+                            let sign_bit = a.to_u64().unwrap() * 8 + 7;
+                            let low_mask = (BigUint::one() << (sign_bit + 1)) - BigUint::one();
+                            if b.bit(sign_bit) {
+                                b | (&mask ^ low_mask)
+                            } else {
+                                b & low_mask
+                            }
+                        }
+                    }
                     0x10 => BigUint::from(u8::from(a < b)),
                     0x11 => BigUint::from(u8::from(a > b)),
-                    0x12 => {
+                    0x12 | 0x13 => {
                         let a_negative = a.bit(255);
                         let b_negative = b.bit(255);
-                        BigUint::from(u8::from(if a_negative == b_negative { a < b } else { a_negative }))
+                        BigUint::from(u8::from(if a_negative == b_negative {
+                            if op == 0x12 {
+                                a < b
+                            } else {
+                                a > b
+                            }
+                        } else if op == 0x12 {
+                            a_negative
+                        } else {
+                            b_negative
+                        }))
                     }
                     0x14 => BigUint::from(u8::from(a == b)),
                     0x16 => a & b,
@@ -123,6 +153,7 @@ pub(crate) fn execute(code: &[u8], calldata: &[u8], storage: &[BigUint]) -> std:
                 stack.push(BigUint::from_bytes_be(&bytes));
             }
             0x36 => stack.push(BigUint::from(calldata.len())),
+            0x42 => stack.push(timestamp.clone()),
             0x39 => {
                 let target = stack.pop().unwrap().to_usize().unwrap();
                 let source = stack.pop().unwrap().to_usize().unwrap();
@@ -209,6 +240,56 @@ fn oracle(vault: &OzVirtualOffset, amount: &BigUint, selector: &str) -> std::res
         assert_eq!(bytes.len(), 32);
         BigUint::from_bytes_be(&bytes)
     })
+}
+
+#[test]
+fn oracle_vm_signed_comparisons_and_extension_preserve_word_boundaries() {
+    let binary = |op, a: BigUint, b: BigUint| {
+        let mut code = vec![0x7f];
+        code.extend(word(&b));
+        code.push(0x7f);
+        code.extend(word(&a));
+        code.push(op);
+        code.extend(decode("60005260206000f3"));
+        BigUint::from_bytes_be(&execute(&code, &[], &[]).unwrap())
+    };
+    let max = max_uint256();
+    let minimum = BigUint::one() << 255u32;
+    for (a, b, less, greater) in [
+        (max.clone(), BigUint::zero(), 1u8, 0u8),
+        (minimum.clone(), max.clone(), 1, 0),
+        (&minimum - BigUint::one(), minimum.clone(), 0, 1),
+        (max.clone(), max.clone(), 0, 0),
+        (BigUint::zero(), BigUint::one(), 1, 0),
+    ] {
+        assert_eq!(binary(0x12, a.clone(), b.clone()), BigUint::from(less));
+        assert_eq!(binary(0x13, a, b), BigUint::from(greater));
+    }
+    for (byte, value, expected) in [
+        (0u8, BigUint::from(0x7fu8), BigUint::from(0x7fu8)),
+        (0, BigUint::from(0x80u8), &max - BigUint::from(127u8)),
+        (0, &max - BigUint::from(128u8), BigUint::from(127u8)),
+        (12, (BigUint::one() << 103u32) - BigUint::one(), (BigUint::one() << 103u32) - BigUint::one()),
+        (12, BigUint::one() << 103u32, (&max + BigUint::one()) - (BigUint::one() << 103u32)),
+        (31, minimum.clone(), minimum.clone()),
+        (32, minimum.clone(), minimum),
+    ] {
+        assert_eq!(binary(0x0b, BigUint::from(byte), value), expected);
+    }
+}
+
+#[test]
+fn oracle_vm_timestamp_is_explicit_and_unsupported_opcodes_stay_fatal() {
+    let code = decode("4260005260206000f3");
+    assert_eq!(execute(&code, &[], &[]).unwrap(), word(&BigUint::zero()));
+    for timestamp in [BigUint::one() << 40u32, max_uint256()] {
+        assert_eq!(execute_at(&code, &[], &[], &timestamp).unwrap(), word(&timestamp));
+    }
+    assert!(std::panic::catch_unwind(|| execute_at(&code, &[], &[], &(BigUint::one() << 256u32))).is_err());
+    assert!(
+        std::panic::catch_unwind(|| execute(&[0x20], &[], &[])).is_err(),
+        "KECCAK256 is outside this bounded interpreter"
+    );
 }
 
 #[test]

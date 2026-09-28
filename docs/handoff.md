@@ -80,6 +80,19 @@ remain under `out/compound-checked-20260928/` in the
 compiler regeneration. This is arithmetic evidence for #14/#16, not deployed
 runtime, holder, getter or package qualification.
 
+The [Comet source oracle](../conformance/fixtures/comet-oracle/README.md)
+adds 1,515 model comparisons and two ABI-width refusal controls against pinned
+compiled source. It preserves whole rate, utilization, both-index and getter
+functions, with controlled rate/principal storage and an explicit timestamp;
+constructors and holder mapping reads remain outside the harness. The official
+solc 0.8.15 binary, six source files, generated harness, selectors, packed layout
+and runtime are recorded. The bounded VM adds only TIMESTAMP, SIGNEXTEND and
+SGT, with direct controls and its original zero-clock entrypoint retained for
+the existing oracles. Logs/builds live under `out/comet-oracle-20260928/` in
+`network-verification-config`; `source-03/` is the final capture and earlier
+attempts remain preserved. No deployed runtime, Ethereum interval, initialized
+holder or package qualification is inferred from this arithmetic evidence.
+
 The [known-zero reference review](research/11-Known_zero_reference_inputs.json)
 removes numeric missing-state sentinels from Aave index and SavingsDai `chi`
 evaluation. The host ledger still rejects absent facts. A projected zero `chi`
