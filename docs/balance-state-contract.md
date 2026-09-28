@@ -91,6 +91,24 @@ evidence, and Lido report evidence remains only before the cutoff. Unaffected
 markets still emit complete end-of-block rows. Clock counts describe exactly
 the rows emitted, including these omissions; absence is never zero.
 
+The host retention consumers validate positive, ordered emitted observation
+spans against their epoch's activation, actual successor BOUND and any
+current-block invalidation cutoff. CHANGE rows identify one effect; a final
+global companion must cover its intermediate write positions. Constants match
+their declaration positions with no write count. This validation includes
+rows discarded by later selection. It does not qualify model metadata or
+enable multiple configured epochs in the projectors.
+
+The host consumer retains a narrow compatibility path for older producers:
+valid pre-cutoff prefixes may be quarantined or discarded by a successor,
+and later-block output of an already-suspended epoch remains unavailable.
+Neither can repair an observation gap. This does not relax the current
+producer omission rule above. Explicit host checkpoint descriptors instead
+preserve historical or neutral provenance at their independently qualified
+snapshot header; they are not claims of writes in that block. Reversed
+observation ranges are still refused, and normal application after a
+checkpoint uses emitted-block rules again.
+
 **Provenance.** Every fact row cites the contract whose storage holds the
 word, the 32-byte slot, the raw words before and after, and the decoded bit
 range, so a packed slot (Aave `liquidityIndex|currentLiquidityRate`, Comet

@@ -200,7 +200,8 @@ impl ProtocolLedger {
             interrupted: self.ledger.suspended.keys().cloned().collect(),
             ..Default::default()
         };
-        let applied = self.ledger.apply_state(&at, events)?;
+        let input = if checkpoint.is_some() { Input::Checkpoint } else { Input::Emitted };
+        let applied = self.ledger.apply_state_input(&at, events, input)?;
         self.state.globals.retain(|key, _| key.observation != state::Observation::Derived as i32);
 
         let mut epochs: Vec<_> = events.epochs.iter().collect();
@@ -411,7 +412,7 @@ impl ProtocolLedger {
             traversal.holders_done.insert(i);
         }
         let mut selected: BTreeMap<(GlobalKey, u32), &state::GlobalState> = BTreeMap::new();
-        let mut changes = BTreeSet::new();
+        let mut changes: BTreeMap<(GlobalKey, u32), Vec<u64>> = BTreeMap::new();
         for (i, row) in events.global_state.iter().enumerate() {
             if traversal.globals_done.contains(&i) || !select(&row.market, row.epoch) {
                 continue;
@@ -426,7 +427,7 @@ impl ProtocolLedger {
             let key = (GlobalKey::of(row), row.epoch);
             let log = row.observation == state::Observation::ObservedLog as i32;
             if row.boundary == state::Boundary::Change as i32 && !log {
-                changes.insert(key);
+                changes.entry(key).or_default().push(row.ordinal);
                 traversal.globals_done.insert(i);
                 continue;
             }
@@ -464,8 +465,17 @@ impl ProtocolLedger {
             selected.insert(key, row);
             traversal.globals_done.insert(i);
         }
-        if changes.iter().any(|key| !selected.contains_key(key)) {
-            return err("intermediate global changes require their final end-of-block row");
+        for (key, ordinals) in changes {
+            let Some(final_row) = selected.get(&key) else {
+                return err("intermediate global changes require their final end-of-block row");
+            };
+            if !matches!(origin, Origin::Checkpoint { .. })
+                && ordinals
+                    .iter()
+                    .any(|ordinal| *ordinal < final_row.first_ordinal || *ordinal > final_row.ordinal)
+            {
+                return err("final global range does not contain its intermediate effects");
+            }
         }
         for ((key, _), row) in selected {
             if let Some(old) = self.state.globals.get(&key) {

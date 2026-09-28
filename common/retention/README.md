@@ -47,9 +47,32 @@ IDs do not establish intervening epochs. A cold market with no declarations
 can adopt one row epoch. If its first declaration is `BOUND`, rows may instead
 identify one earlier cold predecessor for transition cleanup; all such holder
 and global rows must agree on that predecessor. This inference never replaces
-the final bound epoch or independently establishes a protocol model. These
-checks validate epoch identity; execution-ordinal interval validation and
-multi-epoch extractor configuration remain separate work.
+the final bound epoch or independently establishes a protocol model.
+
+Ordinary `apply` calls require positive ordered observation ordinals and a
+nonzero change count. The whole span must lie inside its epoch's inclusive
+activation and exclusive successor/invalidation boundaries in that block.
+`CHANGE` writes and logs name one ordinal and one effect; a retained final
+global row must contain its supplied intermediate effects. Every row is
+checked before selection or mutation, including older logs and intermediate
+rows that would be discarded. Qualified constants instead match a BOUND or
+REAFFIRMED declaration, with count 0 and first ordinal either 0 or that
+declaration's ordinal. `ProtocolLedger` still owns complete model validation;
+primitive position checks do not qualify model metadata or a deployment.
+
+For compatibility, an older producer's valid pre-cutoff prefix may remain
+quarantined or be dropped at the successor; it never revives an invalidated
+model. Later-block stateless output from an already-suspended epoch likewise
+remains unavailable and cannot carry across rebinding. Historical suspension
+ordinals are not execution positions in the new block. These consumer rules
+do not enable multi-epoch extractor configuration or change producer emission.
+
+Only the explicit checkpoint constructor uses snapshot-position rules:
+historical or neutral observation descriptors need not claim writes at the
+checkpoint block, but an intrinsically reversed supplied range is refused.
+It preserves their provenance instead of rewriting ordinals. Every subsequent
+ordinary `apply` resumes emitted-block validation; a heartbeat is never a
+checkpoint-validation exemption.
 
 Globals are keyed by market, field, mapping key and observation kind.
 Persisted writes and qualified constants are distinct from log evidence.
