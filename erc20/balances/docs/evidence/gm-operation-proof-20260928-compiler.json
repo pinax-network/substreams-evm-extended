@@ -1,0 +1,112 @@
+{
+  "compiled": [
+    {
+      "capture": "implementation",
+      "capture_sha256": "efecac4287c144c4ecdb00b2b614c327d001885f844dc4de5cd8577fea189de9",
+      "captured_runtime_keccak256": "0x85d44c72e84a34f0b4a3bceca35289b10bd0c5510c5a441466a755e903edc36a",
+      "compiler_input_sha256": "7edd01cfde8387b49dc475c750fbdc89b79588e555bea9e7f696035bd59f0d81",
+      "compiler_output_sha256": "efd8c1ea4803647451d7d7fdddd96614049bc26c35573d4811aac2745eca12bc",
+      "compiler_runtime_keccak256": "0x3b0f05e9d78da653300ec5c3a99c5b003eefdf2c306670226e0814a1b69976b8",
+      "creation_compiler_bytes": 8509,
+      "creation_match": null,
+      "creation_onchain_bytes": null,
+      "files": 20,
+      "fresh_metadata_raw_sha256": "3c7272e99fec60218ad9a5fb85cca41950ce99c9d80fca8ad7b220aaee6f33fd",
+      "runtime_bytes": 8271,
+      "runtime_transformation_values": {
+        "cborAuxdata": {
+          "1": "0xa26469706673582212203e5e4ba8bedc87e31107179160bb56f66f6455be28687114808cd197813a039964736f6c63430008100033"
+        }
+      },
+      "runtime_transformations": [
+        {
+          "id": "1",
+          "offset": 8218,
+          "reason": "cborAuxdata",
+          "type": "replace"
+        }
+      ],
+      "saved_metadata_raw_sha256": "3c7272e99fec60218ad9a5fb85cca41950ce99c9d80fca8ad7b220aaee6f33fd"
+    },
+    {
+      "capture": "proxy-a",
+      "capture_sha256": "a6d9e367268a5b32ff4ae287f31a55fde22474ffae66038034ad9d249e2fc3cd",
+      "captured_runtime_keccak256": "0x439923c85f956f038ae77871736f789e6d08d22257b6e5fdccfdc83924ecb4d0",
+      "compiler_input_sha256": "7afd0e5200dc49c9daaab7434f6be0058bab5d56f8392efc7737acae29444120",
+      "compiler_output_sha256": "f7e663f2aef9c04ce10a3aa7cc681a5874f3a66100c85328d3e8b7fa45cd984f",
+      "compiler_runtime_keccak256": "0x266c60304c24ca0ef8089623fed02a61e0922ee9e49d945ac15482d2a9fa5e1b",
+      "creation_compiler_bytes": 2278,
+      "creation_match": null,
+      "creation_onchain_bytes": null,
+      "files": 7,
+      "fresh_metadata_raw_sha256": "8e349b9da3d686f4718eb1c7849b1265efe418138484fe787342c7fae222c9bb",
+      "runtime_bytes": 824,
+      "runtime_transformation_values": {
+        "cborAuxdata": {
+          "1": "0xa26469706673582212207453d1b1eb7138522fe386df966e4953f05991bde0fb72ec6e91df1b77506a4464736f6c63430008100033"
+        }
+      },
+      "runtime_transformations": [
+        {
+          "id": "1",
+          "offset": 771,
+          "reason": "cborAuxdata",
+          "type": "replace"
+        }
+      ],
+      "saved_metadata_raw_sha256": "8e349b9da3d686f4718eb1c7849b1265efe418138484fe787342c7fae222c9bb"
+    },
+    {
+      "capture": "proxy-b",
+      "capture_sha256": "344951ae7b4b549511d73030672316a17f4bf311972d83fde72a05d821726cfe",
+      "captured_runtime_keccak256": "0x439923c85f956f038ae77871736f789e6d08d22257b6e5fdccfdc83924ecb4d0",
+      "compiler_input_sha256": "7afd0e5200dc49c9daaab7434f6be0058bab5d56f8392efc7737acae29444120",
+      "compiler_output_sha256": "f7e663f2aef9c04ce10a3aa7cc681a5874f3a66100c85328d3e8b7fa45cd984f",
+      "compiler_runtime_keccak256": "0x266c60304c24ca0ef8089623fed02a61e0922ee9e49d945ac15482d2a9fa5e1b",
+      "creation_compiler_bytes": 2278,
+      "creation_match": null,
+      "creation_onchain_bytes": null,
+      "files": 7,
+      "fresh_metadata_raw_sha256": "8e349b9da3d686f4718eb1c7849b1265efe418138484fe787342c7fae222c9bb",
+      "runtime_bytes": 824,
+      "runtime_transformation_values": {
+        "cborAuxdata": {
+          "1": "0xa26469706673582212207453d1b1eb7138522fe386df966e4953f05991bde0fb72ec6e91df1b77506a4464736f6c63430008100033"
+        }
+      },
+      "runtime_transformations": [
+        {
+          "id": "1",
+          "offset": 771,
+          "reason": "cborAuxdata",
+          "type": "replace"
+        }
+      ],
+      "saved_metadata_raw_sha256": "8e349b9da3d686f4718eb1c7849b1265efe418138484fe787342c7fae222c9bb"
+    }
+  ],
+  "compiler": "0.8.16+commit.07a7930e",
+  "compiler_arguments": [
+    "--standard-json"
+  ],
+  "compiler_keccak256": "0xf3dd3636e7bca007430e091bcacc2dd9b9af72edb838a0e0d77de9610169f7c3",
+  "compiler_manifest_sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af",
+  "compiler_manifest_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json",
+  "compiler_sha256": "7d471cb9bae9a7f29c7ebf402f7e16fa8226b17ba9ab68a88ce107114479dc4d",
+  "custom_gap": "Five BUSL-1.1 custom GM sources have no recovered exact independent public primary. The contextual rwa-contracts snapshot differs. Fifteen exact Ondo-vendored MIT dependencies are not asserted to be an exact upstream OZ release; seven unique proxy dependencies match the pinned upstream OZ snapshot.",
+  "custom_primary_gaps": 5,
+  "exact_ondo_vendored_dependencies": 15,
+  "fresh_public_source_requests_only": true,
+  "history_limit": "All three captures preserve match/runtimeMatch=match and null creationMatch/onchain creation/creation transformations. Exact CBOR-only runtime reconstruction is not whole compiler/captured byte equality or deployment qualification. Synthetic compiler creation returns compiler runtime, not the differing captured metadata. Beacon dispatch and external compliance/pause calls are not executed successfully.",
+  "license_inventory_sha256": "463d303aaac86efb91f2097021eb994749c43bd56f4de1acc536c76716f91f2e",
+  "network_chain_calls": 0,
+  "only_output_selection_added": true,
+  "original_settings_sources_unchanged": true,
+  "qualified": false,
+  "scope": "GM host-only operation proof; no proxy/delegatecall/deployment or ingestion qualification",
+  "source_inventory_sha256": "cb3c63c450dcaab117839717bf712836d7e326966f2e42162e86d9f8c4d05248",
+  "source_records": 34,
+  "status": "exact_source_compiler_regeneration_passed",
+  "unique_exact_upstream_proxy_dependencies": 7,
+  "unique_source_profiles": 27
+}

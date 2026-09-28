@@ -1,0 +1,247 @@
+{
+  "sources": [
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol",
+      "sha256": "3c7541d393428797902d84e3ca7700a4a84e9192fd46f2d22a1a27af1c375270"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
+      "sha256": "d8cbaaf0db5c76de63134366234f410a0a32e86285d2350be5b87f676a7a7b69"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/access/IAccessControlEnumerableUpgradeable.sol",
+      "sha256": "13be64aa740744e97988f32ccfaee5493a9623942e42b00b7c0eb85d26737d28"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol",
+      "sha256": "38c7d83dc6588581f3fd8e3de28a146028558f291db5258e9bf91d339123368a"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/proxy/Initializable.sol",
+      "sha256": "d4579aa29368dbbc92b4f9e99da6ea1c7b80b423549a5573eae2da3bbfc24045"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/token/ERC20/ERC20BurnableUpgradeable.sol",
+      "sha256": "b4ce588e07e5307b6cba7a5a35be9fc601edc93256af6fc530d2918ea712128e"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol",
+      "sha256": "86b29f416bb60ae5cb36ef740869e00c5184ffcc87d372ddbba5727a726bd4dd"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/token/ERC20/IERC20MetadataUpgradeable.sol",
+      "sha256": "5adbe2391af9c8b9acf962f12503c03639c3b89fa43d84801647c67866063a52"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+      "sha256": "7aaaff7f4d11cc403a84f16e52b1ab06e6dd501f3e5eab23acd4133d07561649"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+      "sha256": "049ef8101d205846014aaeee20be4279e6ce86356637d193230a4a85df354bbe"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol",
+      "sha256": "ed1f02979b63a784e725584fc3d5b0cf785377d7b35ed049597ab70c484702df"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/utils/ERC165Upgradeable.sol",
+      "sha256": "48037e80aa1db3a8050beaa863eb6dcd519336ff1036259c0b28b26b2d2c5f8f"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol",
+      "sha256": "4620be9e33af459559e94dd093f4691dbb1775dadbff777f40d620459bed3fd4"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/utils/IERC165Upgradeable.sol",
+      "sha256": "58143ca4d181729074cb0b8cd1495d3ac4c967506c5bf8dde1068f18316b83c8"
+    },
+    {
+      "capture": "implementation",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "contracts/external/openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol",
+      "sha256": "a47852511d98bd244ea470caf5778803211c5025ca7ad26ccb0962cc6e9ed1ac"
+    },
+    {
+      "capture": "implementation",
+      "license": "BUSL-1.1",
+      "original_first_line": "/**SPDX-License-Identifier: BUSL-1.1",
+      "path": "contracts/globalMarkets/GMToken.sol",
+      "sha256": "5104595ff16339576a3ff9bc6414fa747498edaaf9083fb561911239fc7b48ad"
+    },
+    {
+      "capture": "implementation",
+      "license": "BUSL-1.1",
+      "original_first_line": "// SPDX-License-Identifier: BUSL-1.1",
+      "path": "contracts/globalMarkets/gmTokenCompliance/IOndoComplianceGMView.sol",
+      "sha256": "3e59eaf632d47e43dbd8171341b037a05e7c63164e974a3e9e5dc9afd0fdec4b"
+    },
+    {
+      "capture": "implementation",
+      "license": "BUSL-1.1",
+      "original_first_line": "/**SPDX-License-Identifier: BUSL-1.1",
+      "path": "contracts/globalMarkets/gmTokenCompliance/OndoComplianceGMClientUpgradeable.sol",
+      "sha256": "f8e6d2052a139276c15f3ad0b982f6c2497d63a8421e5c074d1ec860a507cec9"
+    },
+    {
+      "capture": "implementation",
+      "license": "BUSL-1.1",
+      "original_first_line": "// SPDX-License-Identifier: BUSL-1.1",
+      "path": "contracts/globalMarkets/tokenPauseManager/ITokenPauseManager.sol",
+      "sha256": "19d0a4047598e5a1b75559982e816b9dcf52071990cd9802f7a9935df84e79e2"
+    },
+    {
+      "capture": "implementation",
+      "license": "BUSL-1.1",
+      "original_first_line": "// SPDX-License-Identifier: BUSL-1.1",
+      "path": "contracts/globalMarkets/tokenPauseManager/TokenPauseManagerClientUpgradeable.sol",
+      "sha256": "8248c4532f14b24a196339fa4ed3ac61c3e062ec1cb2da99a14cf459dec958dd"
+    },
+    {
+      "capture": "proxy-a",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
+      "sha256": "38728bce05e2b518d0ef66d514dbfcdee5555aeac2d57729480bf1409ee63630"
+    },
+    {
+      "capture": "proxy-a",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+      "sha256": "a137681e196c44eaf1b819384a9633aef5cee10954ff1301138557cab2169dac"
+    },
+    {
+      "capture": "proxy-a",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+      "sha256": "b3b79c95884570b4d01629e13985aea8a3c71bc37c257e1ea7fae9f23cffe8c4"
+    },
+    {
+      "capture": "proxy-a",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/proxy/beacon/BeaconProxy.sol",
+      "sha256": "96140d8378a174f30d2a36859f63c39b331a91e3f59b330d9516530f5eca85ed"
+    },
+    {
+      "capture": "proxy-a",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+      "sha256": "6afea1d83856ed8e0495fe78109f674f925cfdc79fe2e24e854b1237e742f011"
+    },
+    {
+      "capture": "proxy-a",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/utils/Address.sol",
+      "sha256": "1e0922f6c0bf6b1b8b4d480dcabb691b1359195a297bde6dc5172e79f3a1f826"
+    },
+    {
+      "capture": "proxy-a",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
+      "sha256": "7583bd6ad3fdd5160823f090beb6b1519f54436d73ea7b7b4051b5d0758d533d"
+    },
+    {
+      "capture": "proxy-b",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
+      "sha256": "38728bce05e2b518d0ef66d514dbfcdee5555aeac2d57729480bf1409ee63630"
+    },
+    {
+      "capture": "proxy-b",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+      "sha256": "a137681e196c44eaf1b819384a9633aef5cee10954ff1301138557cab2169dac"
+    },
+    {
+      "capture": "proxy-b",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+      "sha256": "b3b79c95884570b4d01629e13985aea8a3c71bc37c257e1ea7fae9f23cffe8c4"
+    },
+    {
+      "capture": "proxy-b",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/proxy/beacon/BeaconProxy.sol",
+      "sha256": "96140d8378a174f30d2a36859f63c39b331a91e3f59b330d9516530f5eca85ed"
+    },
+    {
+      "capture": "proxy-b",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+      "sha256": "6afea1d83856ed8e0495fe78109f674f925cfdc79fe2e24e854b1237e742f011"
+    },
+    {
+      "capture": "proxy-b",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/utils/Address.sol",
+      "sha256": "1e0922f6c0bf6b1b8b4d480dcabb691b1359195a297bde6dc5172e79f3a1f826"
+    },
+    {
+      "capture": "proxy-b",
+      "license": "MIT",
+      "original_first_line": "// SPDX-License-Identifier: MIT",
+      "path": "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
+      "sha256": "7583bd6ad3fdd5160823f090beb6b1519f54436d73ea7b7b4051b5d0758d533d"
+    }
+  ],
+  "upstream_proxy_license": {
+    "sha256": "8c21a3d62814a86c6e6db50768e5a885a1f586873628e9be79a93f4eb6c18820",
+    "url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/ecd2ca2cd7cac116f7a37d0e474bbb3d7d5e1c4d/LICENSE"
+  },
+  "vendor_and_custom_notice": "Original per-source MIT/BUSL-1.1 headers and compiler metadata retained; no exact custom-source public license artifact or separate vendor root license is claimed. The proxy upstream MIT text does not relabel custom or vendored sources."
+}

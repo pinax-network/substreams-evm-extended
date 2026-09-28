@@ -360,6 +360,25 @@ metadata and runtime/package/holder qualification remain separate requirements.
 Source builds, execution traces and failed attempts are preserved under
 `out/securities-operation-proof-20260928/` in `network-verification-config`.
 
+The separate [GMToken host proof](../erc20/balances/docs/gm-operation-proof.md)
+rebuilds the implementation and both proxy captures with official solc 0.8.16.
+Its 34 source records cover 27 unique source/path profiles: fifteen exact Ondo
+vendor dependencies, seven unique upstream proxy dependencies and five custom
+BUSL source bodies whose independent primary revisions remain unresolved.
+Compiler and captured runtimes differ only through their exact recorded CBOR
+substitutions. Both full implementation runtimes run the same local matrix;
+per-case traces, state and outcomes must match, and executed paths must avoid
+the substituted bytes. Synthetic compiler construction returns the compiler
+runtime, while all saved on-chain creation bindings remain null.
+Local initialization and role operations retain exact errors and rollback.
+They do not execute beacon dispatch or successful external pause/compliance
+calls. The latter compliance call is non-view and is never mocked as a static
+boolean. Source builds, full traces, the original creation-metadata failure and
+the malformed-initializer expectation failure remain under
+`out/gm-operation-proof-20260928/` in `bsc-exclusion-review`. No ingestion rule or
+candidate is added. Actual initial-state, producer, runtime/package/getter and
+holder qualification remain open.
+
 The host ledger now validates exact epoch membership for holder and global
 rows. A transition from epoch 1 to epoch 3 cannot introduce undeclared epoch 2
 or carry its unchecked value into the successor. Nonconsecutive IDs remain

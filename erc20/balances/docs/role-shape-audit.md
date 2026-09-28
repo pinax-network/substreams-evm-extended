@@ -102,6 +102,14 @@ gaps. Constructor execution uses synthetic state because saved on-chain
 creation and deployment evidence are absent. Successful external-client,
 initializer, transfer/UI and proxy/beacon paths are outside this proof. It
 adds no candidate or ingestion rule for the seventeen historical profiles.
+The separate [GMToken host proof](gm-operation-proof.md) binds three complete
+captures and the selected local role, initializer and raw-getter behavior.
+Fifteen exact Ondo-vendored dependencies and seven unique upstream proxy
+dependencies remain distinct; five custom primary-source gaps remain. Compiler
+and captured runtimes have exact bounded metadata substitutions, with separate
+execution matrices and no on-chain creation binding. Successful external
+compliance/pause calls and beacon dispatch remain excluded. No GM candidate or
+ingestion permission is added for its two profiles.
 Each needs its own reachability, initialization and dependency review before
 candidate migration. This classification concerns the configured role field;
 some contracts also contain separate enumerable or dynamic metadata that must
