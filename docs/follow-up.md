@@ -11,6 +11,12 @@ PRs #47–#62 added hardening and bounded BSC evidence.
 All 13 remaining issues have unmet acceptance criteria. A merged implementation,
 passing tests or a successful BSC sample does not complete their broader scope.
 
+The host reference models also distinguish explicitly known zero inputs from
+missing ledger facts. [Aave/sDAI source-branch regressions](research/11-Known_zero_reference_inputs.json)
+cover zero-valued conversions, required earlier failures and a corrected sDAI
+division panic, with synthetic idle-clock/undo controls under #7/#16. These
+checks do not establish deployment reachability or new live qualification.
+
 ## Open issues
 
 | Issue | Implemented or recorded evidence | Required before closure |

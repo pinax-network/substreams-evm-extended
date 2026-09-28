@@ -42,11 +42,12 @@ fn checked(v: BigUint) -> Result<BigUint> {
     }
 }
 fn div_up(x: &BigUint, y: &BigUint) -> Result<BigUint> {
-    if y.is_zero() {
-        return Err(Unknown::Invalid("division by zero"));
-    }
+    // SavingsDai._divup branches on x before evaluating the division.
     if x.is_zero() {
         return Ok(BigUint::zero());
+    }
+    if y.is_zero() {
+        return Err(Unknown::Invalid("division by zero"));
     }
     Ok((x - BigUint::one()) / y + BigUint::one())
 }
@@ -177,9 +178,6 @@ impl SavingsDai {
     /// The `chi` `convertToAssets` uses at `timestamp`: the stored one when
     /// no time passed since `rho`, else the drip projection.
     pub fn chi_at(&self, timestamp: u64) -> Result<BigUint> {
-        if self.chi.is_zero() {
-            return Err(Unknown::MissingInput("Pot chi"));
-        }
         if timestamp > self.rho {
             let growth = rpow(&self.dsr, timestamp - self.rho)?;
             Ok(checked(growth * &self.chi)? / ray())
@@ -193,11 +191,17 @@ impl SavingsDai {
     }
     /// `convertToShares` / `previewDeposit`: `assets * RAY / chi`.
     pub fn convert_to_shares(&self, assets: &BigUint, timestamp: u64) -> Result<BigUint> {
-        Ok(checked(assets * ray())? / self.chi_at(timestamp)?)
+        let chi = self.chi_at(timestamp)?;
+        let numerator = checked(assets * ray())?;
+        if chi.is_zero() {
+            return Err(Unknown::Invalid("division by zero"));
+        }
+        Ok(numerator / chi)
     }
     /// `previewWithdraw`: `_divup(assets * RAY, chi)`.
     pub fn preview_withdraw(&self, assets: &BigUint, timestamp: u64) -> Result<BigUint> {
-        div_up(&checked(assets * ray())?, &self.chi_at(timestamp)?)
+        let chi = self.chi_at(timestamp)?;
+        div_up(&checked(assets * ray())?, &chi)
     }
     /// `previewMint`: `_divup(shares * chi, RAY)`.
     pub fn preview_mint(&self, shares: &BigUint, timestamp: u64) -> Result<BigUint> {
@@ -382,10 +386,62 @@ mod tests {
         assert_eq!(growing.chi_at(999).unwrap(), ray());
         assert_eq!(growing.chi_at(1_003).unwrap(), ray() * 8u8);
         assert_eq!(growing.convert_to_assets(&n(3), 1_003).unwrap(), n(24));
-        assert_eq!(
-            SavingsDai { chi: n(0), rho: 0, dsr: ray() }.convert_to_assets(&n(1), 1),
-            Err(Unknown::MissingInput("Pot chi"))
-        );
+        assert_eq!(SavingsDai { chi: n(0), rho: 0, dsr: ray() }.convert_to_assets(&n(1), 1), Ok(n(0)));
+    }
+
+    #[test]
+    fn sdai_known_zero_chi_preserves_projection_and_conversion_branches() {
+        let zero = SavingsDai {
+            chi: n(0),
+            rho: 100,
+            dsr: ray(),
+        };
+        for timestamp in [99, 100, 101] {
+            assert_eq!(zero.chi_at(timestamp).unwrap(), n(0));
+            for amount in [n(0), n(10)] {
+                assert_eq!(zero.convert_to_assets(&amount, timestamp).unwrap(), n(0));
+                assert_eq!(zero.preview_mint(&amount, timestamp).unwrap(), n(0));
+                assert_eq!(zero.max_withdraw(&amount, timestamp).unwrap(), n(0));
+                assert_eq!(zero.convert_to_shares(&amount, timestamp), Err(Unknown::Invalid("division by zero")));
+            }
+            assert_eq!(zero.preview_withdraw(&n(0), timestamp).unwrap(), n(0));
+            assert_eq!(zero.preview_withdraw(&n(1), timestamp), Err(Unknown::Invalid("division by zero")));
+        }
+        // Even a zero final amount must execute the source's earlier rpow.
+        let overflowing = SavingsDai {
+            dsr: max_uint256(),
+            ..zero.clone()
+        };
+        assert_eq!(overflowing.preview_withdraw(&n(0), 100).unwrap(), n(0));
+        assert_eq!(overflowing.convert_to_assets(&n(0), 102), Err(Unknown::Invalid("uint256 overflow")));
+        assert_eq!(overflowing.preview_withdraw(&n(0), 102), Err(Unknown::Invalid("uint256 overflow")));
+        assert_eq!(overflowing.convert_to_shares(&n(0), 102), Err(Unknown::Invalid("uint256 overflow")));
+        assert_eq!(overflowing.preview_mint(&n(0), 102), Err(Unknown::Invalid("uint256 overflow")));
+        let product_overflow = SavingsDai {
+            chi: max_uint256(),
+            rho: 100,
+            dsr: ray() * 2u8,
+        };
+        assert_eq!(product_overflow.convert_to_assets(&n(0), 101), Err(Unknown::Invalid("uint256 overflow")));
+        assert_eq!(product_overflow.preview_withdraw(&n(0), 101), Err(Unknown::Invalid("uint256 overflow")));
+        assert_eq!(zero.convert_to_shares(&max_uint256(), 100), Err(Unknown::Invalid("uint256 overflow")));
+        assert_eq!(zero.preview_withdraw(&max_uint256(), 100), Err(Unknown::Invalid("uint256 overflow")));
+    }
+
+    #[test]
+    fn sdai_projected_zero_chi_returns_errors_without_panicking() {
+        let zero = SavingsDai {
+            chi: ray(),
+            rho: 100,
+            dsr: n(0),
+        };
+        assert_eq!(zero.chi_at(101).unwrap(), n(0));
+        for amount in [n(0), n(1)] {
+            assert_eq!(zero.convert_to_shares(&amount, 101), Err(Unknown::Invalid("division by zero")));
+        }
+        assert_eq!(zero.preview_withdraw(&n(0), 101).unwrap(), n(0));
+        assert_eq!(zero.preview_withdraw(&n(1), 101), Err(Unknown::Invalid("division by zero")));
+        assert_eq!(zero.convert_to_assets(&n(1), 101).unwrap(), n(0));
     }
 
     #[test]

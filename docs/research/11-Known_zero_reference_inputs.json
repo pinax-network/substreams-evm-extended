@@ -1,0 +1,37 @@
+{
+  "topic": "Explicit known-zero reference inputs versus missing retained facts, 2026-09-28",
+  "facts": [
+    {
+      "key": "aave_known_zero_index",
+      "value": "AToken balance evaluation calls normalized income before applying the selected ray multiplication. A numeric zero index is not a missing-input marker.",
+      "source_url": "https://github.com/aave-dao/aave-v3-origin/blob/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/libraries/logic/ReserveLogic.sol#L39-L54",
+      "source_pin": "aave-dao/aave-v3-origin@8305565ae342f1773c42cd2e4593f175fe5968a0",
+      "note": "AToken.sol lines 133-138, TokenMath.sol lines 66-71, WadRayMath.sol lines 64-83. Equal-time normalization returns the stored zero; a later time still executes linear interest and can fail before multiplying by zero. The host reference must preserve that execution order."
+    },
+    {
+      "key": "sdai_known_zero_chi",
+      "value": "SavingsDai resolves stored or projected chi before conversions. A known zero can produce zero assets; floor conversion to shares must reject a zero divisor, including when the asset amount is zero.",
+      "source_url": "https://github.com/sky-ecosystem/sdai/blob/665879762f8b5df5d234463f45d1d6a49bd4fbeb/src/SavingsDai.sol#L275-L285",
+      "source_pin": "sky-ecosystem/sdai@665879762f8b5df5d234463f45d1d6a49bd4fbeb",
+      "note": "PreviewMint lines 305-309 and previewWithdraw lines 321-325 resolve chi first too. Projection failures remain failures even if chi or the requested amount is zero. Previously chi=RAY, dsr=0, rho=100 and timestamp=101 produced numeric zero and caused a Rust BigUint division panic in convert_to_shares. It now returns Unknown::Invalid."
+    },
+    {
+      "key": "sdai_ceil_zero_numerator_order",
+      "value": "SavingsDai _divup returns zero when its numerator is zero before evaluating division. Thus previewWithdraw(0) returns zero with known chi zero after any required projection succeeds; a positive numerator with zero chi fails.",
+      "source_url": "https://github.com/sky-ecosystem/sdai/blob/665879762f8b5df5d234463f45d1d6a49bd4fbeb/src/SavingsDai.sol#L142-L146",
+      "source_pin": "sky-ecosystem/sdai@665879762f8b5df5d234463f45d1d6a49bd4fbeb",
+      "note": "The host helper is used only by SavingsDai. This branch order does not change other vault implementations' rounding helpers."
+    },
+    {
+      "key": "retained_state_boundary",
+      "value": "Complete explicit zero facts and positive or known-zero holder inputs evaluate through synthetic blocks 10-11 and undo. Removing the index, chi, dsr or rho fact remains MissingInput under the retained bridge's complete-input policy.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/blob/main/conformance/tests/retained.rs",
+      "source_pin": "repository regression tests for the pinned models above",
+      "note": "Synthetic exact checkpoints initialize one observed holder per case; no absent write is initialized as zero. Pure failures and the prior panic were reproduced in out/known-zero-reference-20260928/01-red-tests.log, with source hashes retained. An intermediate test ownership compile failure remains in 02-focused-tests.log."
+    }
+  ],
+  "open_questions": [
+    "These are source-branch regressions for explicitly supplied numbers, not evidence that zero indices or chi were observed or are reachable on a qualified deployment.",
+    "No new runtime, package, getter, initialized global-holder or live-chain qualification is supplied; historical evidence retains its original artifact and interval scope."
+  ]
+}

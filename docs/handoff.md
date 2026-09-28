@@ -80,6 +80,19 @@ remain under `out/compound-checked-20260928/` in the
 compiler regeneration. This is arithmetic evidence for #14/#16, not deployed
 runtime, holder, getter or package qualification.
 
+The [known-zero reference review](research/11-Known_zero_reference_inputs.json)
+removes numeric missing-state sentinels from Aave index and SavingsDai `chi`
+evaluation. The host ledger still rejects absent facts. A projected zero `chi`
+previously caused a Rust division panic; floor conversion now returns an
+explicit error, while SavingsDai's rounded-up helper preserves its source
+zero-numerator branch. Required normalization and projection errors still run
+before a zero result. Synthetic pure/retained regressions preserve those
+branches, idle clocks and undo for one explicitly initialized observed holder
+per case over blocks 10–11. Logs and reproduced failures are under
+`out/known-zero-reference-20260928/` in `protocol-invalidation-boundary`.
+This changes host reference evaluation only and makes no claim that these
+zero states were observed on-chain or qualify a deployment.
+
 The [offline six-exclusion review](../erc20/balances/docs/bsc-exclusions-offline-2026-09-28.md)
 preserves the original TAKE/RADR/TOPS refused transactions and prepares only a
 TAKE guard-slot candidate. Exact complete source-capture hashes bind saved
