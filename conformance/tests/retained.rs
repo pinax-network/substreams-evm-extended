@@ -333,6 +333,55 @@ fn known_zero_aave_index_is_distinct_from_a_missing_fact_through_idle_clocks() {
 }
 
 #[test]
+fn sdai_retains_full_uint256_rho_and_distinguishes_an_absent_fact() {
+    let epoch = model(ReferenceModel::SavingsDai);
+    let high_rho = "18446744073709551616"; // 2^64: valid uint256 Pot storage.
+    let initial = events(
+        10,
+        100,
+        vec![epoch.clone()],
+        vec![holder(&epoch, "1")],
+        vec![
+            global(&epoch, pb::StateField::MakerPotChi, RAY, RAY),
+            global(&epoch, pb::StateField::MakerPotDsr, RAY, RAY),
+            global(&epoch, pb::StateField::MakerPotRho, high_rho, "1"),
+        ],
+    );
+    let qualified = qualify(&initial, ReferenceModel::SavingsDai);
+    let mut state = seed(initial.clone());
+    assert_eq!(amount(&qualified, &state, Metric::SavingsDaiConvertToAssets), "1");
+    state.apply(&events(11, u64::MAX, vec![], vec![], vec![])).unwrap();
+    let evaluated = qualified.evaluate(&state, &HOLDER, Metric::SavingsDaiConvertToAssets).unwrap();
+    assert_eq!(evaluated.value.to_string(), "1");
+    assert!(evaluated
+        .globals
+        .iter()
+        .any(|fact| fact.row.field == pb::StateField::MakerPotRho as i32 && fact.row.value == high_rho));
+    state.undo(10).unwrap();
+    assert_eq!(amount(&qualified, &state, Metric::SavingsDaiConvertToAssets), "1");
+    let mut missing = initial.clone();
+    missing.global_state.pop();
+    missing.clocks[0].global_state_count -= 1;
+    assert!(matches!(
+        qualified.evaluate(&seed(missing), &HOLDER, Metric::SavingsDaiConvertToAssets),
+        Err(Unknown::MissingInput(_))
+    ));
+    let mut oversized = initial;
+    oversized.global_state[2].value = (num_bigint::BigUint::from(1u8) << 256u32).to_string();
+    let rejected = ProtocolLedger::from_checkpoint(
+        4,
+        Checkpoint {
+            events: oversized,
+            evidence: "synthetic invalid uint256 input".into(),
+        },
+    );
+    assert!(rejected
+        .expect_err("oversized input must fail checkpoint ingestion")
+        .to_string()
+        .contains("invalid global state value"));
+}
+
+#[test]
 fn known_zero_sdai_chi_is_distinct_from_missing_inputs_through_idle_clocks() {
     for shares in ["0", "1"] {
         let epoch = model(ReferenceModel::SavingsDai);

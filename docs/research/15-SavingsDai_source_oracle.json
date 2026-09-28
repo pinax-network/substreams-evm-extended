@@ -1,0 +1,37 @@
+{
+  "topic": "SavingsDai pinned source execution and full-width Pot rho, 2026-09-28",
+  "facts": [
+    {
+      "key": "whole_function_source_execution",
+      "value": "The host fixture extracts nine complete arithmetic, conversion, preview and maxWithdraw functions plus the original RAY constant. Only Pot scalar calls and one holder mapping read are replaced by controlled uint256 inputs; timestamp and checked/assembly arithmetic are unchanged.",
+      "source_url": "https://github.com/sky-ecosystem/sdai/blob/665879762f8b5df5d234463f45d1d6a49bd4fbeb/src/SavingsDai.sol",
+      "source_pin": "sky-ecosystem/sdai@665879762f8b5df5d234463f45d1d6a49bd4fbeb",
+      "note": "The upstream AGPL license and original notices accompany the derivative harness. No constructor, external Pot call, mapping lookup or mutating ERC4626 operation is executed."
+    },
+    {
+      "key": "official_compiler_provenance",
+      "value": "Official macOS amd64 Solidity 0.8.17+commit.8df45f5f SHA-256 is e40eef83c24d4c42b47f461b01748a6ca89f1e09e778995b71debfa0de99e12a. The builder verifies its exact entry in the immutable official release manifest.",
+      "source_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json",
+      "source_pin": "ethereum/solc-bin@16a99b8c26ed33a91796e209ff6797ee7baf2b0d",
+      "note": "Final source-01 capture under out/sdai-oracle-20260928 records source, license, as-run generator, compiler, manifest, harness, runtime, selector and layout hashes. Optimizer on, petersburg target, metadata hash disabled. Historical native compiler evidence is unchanged."
+    },
+    {
+      "key": "source_failure_and_input_domains",
+      "value": "4,155 comparisons cover rpow, divup and seven getter/conversion paths, including exact projection/product/division ordering. Empty REVERT from source assembly remains distinct from INVALID in the bounded VM.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/blob/main/conformance/src/erc4626/sdai_source_oracle.rs",
+      "source_pin": "repository host-only controls for SavingsDai@665879762f8b5df5d234463f45d1d6a49bd4fbeb",
+      "note": "Inputs fit uint256, clocks and direct exponents fit u64. The tests do not claim arbitrary-width BigUint parity or model exponents above u64. Exact success values and recognized full failure payloads are required; unsupported interpreter behavior cannot pass as source refusal."
+    },
+    {
+      "key": "rho_is_uint256",
+      "value": "PotLike.rho() returns uint256. A stored rho=2^64 with u64 clock100 selects stored chi rather than overflowing or requiring narrowing. The pure host model now keeps rho as BigUint, validates <=uint256, and narrows only a positive elapsed difference bounded by the evaluation clock.",
+      "source_url": "https://github.com/sky-ecosystem/sdai/blob/665879762f8b5df5d234463f45d1d6a49bd4fbeb/src/SavingsDai.sol",
+      "source_pin": "sky-ecosystem/sdai@665879762f8b5df5d234463f45d1d6a49bd4fbeb",
+      "note": "Pre-fix retained rejection is preserved in validation/high-rho-red.log. One synthetic observed holder over blocks10-11 verifies high-rho idle evaluation, provenance and undo. Missing rho stays Unknown; >uint256 is rejected by checkpoint ingestion and the pure model. Initial test compile/fixture expectation failures remain preserved separately."
+    }
+  ],
+  "open_questions": [
+    "Controlled source execution does not establish deployment reachability, constructor/immutable/dependency binding, captured Ethereum getters, initialized global holders or package qualification.",
+    "Remaining #7/#16 acceptance and any live checks require their separate evidence and authorization."
+  ]
+}

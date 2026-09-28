@@ -106,6 +106,21 @@ per case over blocks 10–11. Logs and reproduced failures are under
 This changes host reference evaluation only and makes no claim that these
 zero states were observed on-chain or qualify a deployment.
 
+The [SavingsDai source oracle](../conformance/fixtures/sdai-oracle/README.md)
+executes the pinned `_rpow`, `_divup`, conversions, previews and `maxWithdraw`
+with controlled Pot scalar inputs, a holder value and an explicit clock.
+It preserves their source arithmetic and branch order. A source-domain
+regression found that the retained bridge narrowed uint256 `Pot.rho` to u64:
+an observed value above the current clock should use stored `chi`, but was
+rejected. The pure model and bridge now preserve full uint256 `rho`, while
+the block clock remains u64. Missing facts remain unknown. The test-only VM
+now distinguishes return, revert and invalid-opcode exits; the modern entrypoint
+accepts empty source reverts but rejects invalid opcodes, while older oracle
+callers keep their existing behavior. Source/compiler artifacts, reproduced
+failures and isolated validation remain under `out/sdai-oracle-20260928/` in
+`network-verification-config`. These synthetic input and source-execution
+controls do not qualify Pot storage history, a deployed vault or a package.
+
 The [offline six-exclusion review](../erc20/balances/docs/bsc-exclusions-offline-2026-09-28.md)
 preserves the original TAKE/RADR/TOPS refused transactions and prepares only a
 TAKE guard-slot candidate. Exact complete source-capture hashes bind saved

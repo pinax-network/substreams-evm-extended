@@ -14,7 +14,7 @@ source of the epoch. Nothing here enters the WASM ingestion path.
 | `comet` | `mulFactor`, present and principal values (supply floors, borrow ceils), kinked supply and borrow rates from per-second immutables, stored-index utilization, `accruedInterestIndices`, `balanceOf` (positive principal only) and `borrowBalanceOf` (negative principal only) with int104/uint64/uint104 checks and the uint40 timestamp guard | compound-finance/comet `f766f51583c23acc33b2a7824654ef2029a96804` (`CometWithExtendedAssetList`, `CometCore`, `CometMath`, `CometStorage`) | constructor-scaling vectors; [compiled-source arithmetic oracle](fixtures/comet-oracle/README.md) with explicit inputs; no saved Ethereum blocks |
 | `compound_v2` | `exchangeRateStored` (initial rate when supply is zero), `CTokenRevision::{Current, Legacy2019}`, jump and per-year `WhitePaper2019` rate models, block-based `accrueInterest` with checked uint256 operations, truncating `Exp` arithmetic and revision-specific rate guards, stored versus projected underlying balance | compound-finance/compound-protocol: selected cUSDC/cETH `Legacy2019` at `f385d71983ae5c5799faae9b2dfea43e5cf75262`; cUSDC `LegacyJumpRateModelV2` at `4caf72a1f88335adc9cc06acf6f372241369ed01`; separate `Current` model at `a3214f67b73310d547e00fc578e8355911c9d376` | 2,676 bounded calls against [compiled pinned source harnesses](fixtures/compound-v2-oracle/README.md), including legacy errors and modern reverts; compiler-pinned layouts and synthetic vectors; no captured Ethereum getter or deployed runtime/package qualification |
 | `lido` | stETH contract version 4: `internalEther / internalShares` share rate with external shares, `getPooledEthByShares` / `getSharesByPooledEth` with the `2^128` argument guards, `getTotalPooledEther`, `TokenRebased` post-report ratio kept distinct from the getter | lidofinance/core `2da0f48f1a2a103a394dcf8760810fe9165697fb` (v4.0.1; `StETH`, `Lido`, `UnstructuredStorageExt`) | synthetic state only |
-| `erc4626` | per-implementation conversions: Aave static aToken `rayMulRoundDown/Up` on the reserve normalized income with paused-reserve `maxWithdraw`; Savings DAI `rpow` chi projection with `_divup`; OpenZeppelin v5 virtual-offset floor/ceil using full-precision `mulDiv` | bgd-labs/static-a-token-v3 `101f5d977889254ca2d2711b9582b45f832d10a0`; sky-ecosystem/sdai `665879762f8b5df5d234463f45d1d6a49bd4fbeb` + makerdao/dss `pot.sol`; OpenZeppelin `932fddf69a699a9a80fd2396fd1a2ab91cdda123` | OZ: 1,224 conversion/preview calls against [compiled pinned Solidity](fixtures/oz-v5-oracle.md), including full-precision intermediates and overflow reverts; static aToken: packaged BSC shares, `convertToAssets` and `rate()` controls ([live report](../erc4626/balance-state/docs/evidence/live-parity-bsc-stata-2026-09-23.json)); sDAI: synthetic state only |
+| `erc4626` | per-implementation conversions: Aave static aToken `rayMulRoundDown/Up` on the reserve normalized income with paused-reserve `maxWithdraw`; Savings DAI `rpow` chi projection with `_divup` and uint256 `rho`; OpenZeppelin v5 virtual-offset floor/ceil using full-precision `mulDiv` | bgd-labs/static-a-token-v3 `101f5d977889254ca2d2711b9582b45f832d10a0`; sky-ecosystem/sdai `665879762f8b5df5d234463f45d1d6a49bd4fbeb` + makerdao/dss `pot.sol`; OpenZeppelin `932fddf69a699a9a80fd2396fd1a2ab91cdda123` | OZ: 1,224 conversion/preview calls against [compiled pinned Solidity](fixtures/oz-v5-oracle.md), including full-precision intermediates and overflow reverts; static aToken: packaged BSC shares, `convertToAssets` and `rate()` controls ([live report](../erc4626/balance-state/docs/evidence/live-parity-bsc-stata-2026-09-23.json)); sDAI: 4,155 comparisons against [compiled pinned source](fixtures/sdai-oracle/README.md) with explicit Pot/holder inputs; no captured Ethereum getter |
 
 Metric names are kept distinct: an ERC-20 `balanceOf` (Aave: observable
 aToken amount; Compound v2: share count; Comet: supplied base balance), a
@@ -33,6 +33,16 @@ absent facts, including for a known-zero holder. These
 use synthetic explicit values and one initialized observed holder per case
 over blocks 10–11, with idle-clock and undo controls. They do not establish
 on-chain reachability or new deployment qualification.
+
+SavingsDai's `rho` retains its source uint256 domain in the pure model and
+retained adapter. Its public Rust field is BigUint; callers should construct
+it as an exact integer. Evaluation timestamps remain u64. A rho above the
+clock selects stored chi, while rho above uint256 is refused and absent rho
+remains unknown. The synthetic retained regression covers one initialized
+holder over blocks 10–11 with provenance and undo. The
+[source oracle](fixtures/sdai-oracle/README.md) separately compares legal
+uint256 inputs and u64 clocks/exponents; it does not establish parity for
+arbitrary-width BigUint inputs or qualify an actual Pot dependency.
 
 ## What is and is not established
 
@@ -71,8 +81,9 @@ on-chain reachability or new deployment qualification.
   `maxWithdraw` evaluator additionally requires reserve eligibility and
   underlying liquidity that the current adapter does not extract.
 - stETH ([#23](https://github.com/pinax-network/substreams-evm-extended/issues/23))
-  and sDAI still have synthetic arithmetic tests. Deployed sDAI and OZ epochs
-  remain unqualified. The retained-input controls below add offline evaluation
+  still has synthetic arithmetic tests. The sDAI compiled-source controls do
+  not qualify deployed epochs; deployed sDAI and OZ epochs remain unqualified.
+  The retained-input controls below add offline evaluation
   and undo coverage; remaining independent getters, deployed bindings and
   package qualification stay open under
   [#16](https://github.com/pinax-network/substreams-evm-extended/issues/16).

@@ -1,0 +1,17 @@
+pin: 665879762f8b5df5d234463f45d1d6a49bd4fbeb
+solc, the solidity compiler commandline interface
+Version: 0.8.17+commit.8df45f5f.Darwin.appleclang
+e40eef83c24d4c42b47f461b01748a6ca89f1e09e778995b71debfa0de99e12a  /Users/denis/.codex/worktrees/network-verification-config/substreams-evm-extended/out/sdai-oracle-20260928/solc-0.8.17-official
+
+compiler manifest: https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json
+22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af  out/sdai-oracle-20260928/source-01/solc-list.json
+0f3f19e2e28ea04e7c92e44703d05cc61680b0fee406a06eb77b9012072e4e6e  out/sdai-oracle-20260928/source-01/build_sdai_oracle.rs
+https://raw.githubusercontent.com/sky-ecosystem/sdai/665879762f8b5df5d234463f45d1d6a49bd4fbeb/LICENSE
+8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef  out/sdai-oracle-20260928/source-01/LICENSE
+https://raw.githubusercontent.com/sky-ecosystem/sdai/665879762f8b5df5d234463f45d1d6a49bd4fbeb/src/SavingsDai.sol
+e82b308d37ae26155e5722242f1a9d482d803385827508b21e476a15dcec7ef0  out/sdai-oracle-20260928/source-01/SavingsDai.sol
+compiler arguments: --bin-runtime --hashes --storage-layout --optimize --evm-version petersburg --metadata-hash none -o build Oracle.sol
+1191c60b5c7ef7ad20eda0a3c87ee1ecf65c600e3810ee44ff962668196f74c7  out/sdai-oracle-20260928/source-01/Oracle.sol
+d13c9dd21d7f69e2efa674a5678238549e35fb4a802f6694636ec5d4c55e3155  out/sdai-oracle-20260928/source-01/build/Oracle.bin-runtime
+36006e1e3e6d28b3070bdd2e832cf66246f47e61b1a36c5182df0e676c819618  out/sdai-oracle-20260928/source-01/build/Oracle.signatures
+3d6bf5a796c418e36af7342f999886e13be9defd0c94c0ca20a2a945b08de59b  out/sdai-oracle-20260928/source-01/build/Oracle_storage.json
