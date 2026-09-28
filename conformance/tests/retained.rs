@@ -60,6 +60,7 @@ fn model(reference: ReferenceModel) -> pb::ModelEpoch {
             "1",
             256,
         ),
+        ReferenceModel::CompoundV2Cusdc2019 | ReferenceModel::CompoundV2Ceth2019 | ReferenceModel::CometUsdc => panic!("use actual Compound projectors"),
     };
     pb::ModelEpoch {
         chain_id: 56,

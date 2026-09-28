@@ -6,11 +6,13 @@
 use crate::{aave, erc4626, lido, Result, Unknown};
 use evm_retention::protocol::{same_model, Fact, GlobalKey, ProtocolLedger};
 use evm_retention::Stream;
-use num_bigint::BigUint;
+use num_bigint::{BigInt, BigUint};
 use num_traits::ToPrimitive;
 use proto::pb::evm::balance_state::v1 as pb;
 use std::collections::BTreeMap;
 use tiny_keccak::{Hasher, Keccak};
+
+mod compound;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ReferenceModel {
@@ -19,6 +21,9 @@ pub enum ReferenceModel {
     SavingsDai,
     OzVirtualOffset,
     LidoV4,
+    CompoundV2Cusdc2019,
+    CompoundV2Ceth2019,
+    CometUsdc,
 }
 
 /// Names intentionally distinguish ERC-20 amounts, share basis and projected
@@ -33,6 +38,47 @@ pub enum Metric {
     SavingsDaiConvertToAssets,
     OzConvertToAssets,
     LidoBalanceOf,
+    CompoundV2ExchangeRateStored,
+    CompoundV2StoredUnderlying,
+    CompoundV2ProjectedUnderlying,
+    CometPrincipal,
+    CometStoredSupplyIndex,
+    CometProjectedSupplyIndex,
+    CometBalanceOf,
+}
+
+/// A principal can be negative; an observable amount, conversion or index
+/// cannot. The metric and units remain part of every returned evaluation.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum MetricValue {
+    Unsigned(BigUint),
+    SignedPrincipal(BigInt),
+}
+impl std::fmt::Display for MetricValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Unsigned(value) => value.fmt(f),
+            Self::SignedPrincipal(value) => value.fmt(f),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum MetricUnits {
+    /// Raw storage basis, without inferred display decimals.
+    RawBasis(pb::BasisKind),
+    /// Smallest units of the model's balance asset; empty contract is native.
+    Asset {
+        contract: Vec<u8>,
+        decimals: u32,
+    },
+    /// Raw underlying units per raw share, multiplied by this scale.
+    ConversionRate {
+        scale: &'static str,
+    },
+    Index {
+        scale: &'static str,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -100,7 +146,8 @@ pub struct RuntimeQualification {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Evaluation {
     pub metric: Metric,
-    pub value: BigUint,
+    pub value: MetricValue,
+    pub units: MetricUnits,
     pub clock: pb::BlockClock,
     pub model: pb::ModelEpoch,
     pub qualification_evidence: String,
@@ -172,6 +219,10 @@ impl QualifiedModel {
         if expected_deps != actual_deps {
             return Err(Unknown::Invalid("qualified dependency mismatch"));
         }
+        if self.is_compound() {
+            self.validate_compound()?;
+            return ledger.clock().ok_or(Unknown::MissingInput("canonical evaluation clock"));
+        }
         let (family, id, source, scale, basis, rounding) = match self.model {
             ReferenceModel::AaveAtoken(era) => (
                 pb::ModelFamily::AaveV3Atoken,
@@ -219,6 +270,7 @@ impl QualifiedModel {
                 pb::BasisKind::Shares,
                 pb::Rounding::Floor,
             ),
+            ReferenceModel::CompoundV2Cusdc2019 | ReferenceModel::CompoundV2Ceth2019 | ReferenceModel::CometUsdc => unreachable!(),
         };
         if self.epoch.family != family as i32
             || self.epoch.model_id != id
@@ -238,6 +290,7 @@ impl QualifiedModel {
             ReferenceModel::StaticAToken => revision == Some(2),
             ReferenceModel::LidoV4 => revision == Some(4),
             ReferenceModel::SavingsDai | ReferenceModel::OzVirtualOffset => true,
+            ReferenceModel::CompoundV2Cusdc2019 | ReferenceModel::CompoundV2Ceth2019 | ReferenceModel::CometUsdc => unreachable!(),
         };
         if !revision_matches {
             return Err(Unknown::Invalid("implementation revision does not match the arithmetic era"));
@@ -259,9 +312,20 @@ impl QualifiedModel {
 
     pub fn evaluate(&self, ledger: &ProtocolLedger, holder: &[u8], metric: Metric) -> Result<Evaluation> {
         let clock = self.validate(ledger)?.clone();
+        if self.is_compound() {
+            return self.evaluate_compound(ledger, holder, metric, clock);
+        }
         let mut result = Evaluation {
             metric,
-            value: BigUint::default(),
+            value: MetricValue::Unsigned(BigUint::default()),
+            units: match metric {
+                Metric::HolderBasis => MetricUnits::RawBasis(pb::BasisKind::try_from(self.epoch.basis_kind).map_err(|_| Unknown::Invalid("basis kind"))?),
+                Metric::StaticATokenRate => MetricUnits::ConversionRate { scale: RAY },
+                _ => MetricUnits::Asset {
+                    contract: self.epoch.balance_asset.clone(),
+                    decimals: self.epoch.balance_decimals,
+                },
+            },
             clock: clock.clone(),
             model: self.epoch.clone(),
             qualification_evidence: self.evidence.clone(),
@@ -299,7 +363,7 @@ impl QualifiedModel {
         let mut read = |field, scale, observation| self.read(ledger, field, scale, observation, &mut result.globals);
         let stored = pb::Observation::ObservedWrite;
         let shares = || basis.as_ref().ok_or(Unknown::MissingInput("holder basis"));
-        result.value = match (metric, self.model) {
+        result.value = MetricValue::Unsigned(match (metric, self.model) {
             (Metric::HolderBasis, _) => shares()?.clone(),
             (Metric::AaveBalanceOf, ReferenceModel::AaveAtoken(era)) => aave::balance_of(shares()?, &read_reserve(&mut read)?, clock.timestamp, era)?,
             (Metric::StaticATokenConvertToAssets | Metric::StaticATokenRate, ReferenceModel::StaticAToken) => {
@@ -345,7 +409,7 @@ impl QualifiedModel {
                 lido::balance_of(Some(shares()?), &model)?
             }
             _ => return Err(Unknown::Invalid("metric does not belong to the qualified model")),
-        };
+        });
         Ok(result)
     }
 

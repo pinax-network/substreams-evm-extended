@@ -334,6 +334,8 @@ name = "conformance"
 version = "0.1.0"
 dependencies = [
  "aave-balance-state",
+ "compound-v2-balance-state",
+ "compound-v3-balance-state",
  "evm-retention",
  "hex",
  "lido-balance-state",

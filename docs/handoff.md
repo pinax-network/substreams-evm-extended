@@ -36,8 +36,8 @@ attempts, and do not share build output between worktrees.
 The host-only `common/retention::protocol::ProtocolLedger` now retains original
 holder/global rows, complete clocks, epoch declarations and dependencies with
 atomic block application and bounded snapshot undo. `conformance::retained`
-evaluates Aave, static-aToken, sDAI, OZ virtual-offset and Lido stored inputs;
-Compound v2 and Comet retained adapters remain open. Qualification is explicit:
+evaluates Aave, static-aToken, sDAI, OZ virtual-offset, Lido, selected 2019
+cUSDC/cETH and USDC Comet inputs. Qualification is explicit:
 the caller supplies exact stream/model/storage bindings and external runtime
 hash evidence at the model's BOUND or checkpoint origin. The library validates
 that binding but does not fetch or establish its chain truth. Missing inputs
@@ -48,6 +48,21 @@ with synthetic holder/bootstrap inputs. This is a host reference implementation
 with full-state undo snapshots, not a production sink or package qualification.
 See [initialization](initialization-and-completeness.md) and
 [conformance](../conformance/README.md) for supported metrics and limits.
+
+The Compound adapters keep raw shares/signed principal, stored conversions,
+projected claims and index values distinct, with explicit result units. Actual
+projectors feed synthetic blocks 10–13 through donation-only cash changes,
+idle accrual, signed-principal transitions, missing inputs, invalidation and
+undo. Comet projection checks the source's uint40 timestamp limit and accepts
+an explicitly observed zero index; absence remains unknown. The cETH WhitePaper
+constructor-set storage values need independent attestation as well as code
+identity. A changed parameter digest is rejected by the old ledger: switching
+streams requires a separately qualified checkpoint and new ledger, not an
+assumed same-stream successor. These tests use synthetic runtime attestations
+and initialized observed holders; they supply no Ethereum qualification.
+Validation logs are under `out/compound-retention-20260928/` in the
+`network-verification-config` worktree, including the reproduced zero-index
+failure and its regression. No extractor, protobuf or package changes.
 
 The Compound v2 host model now checks every uint256 arithmetic intermediate,
 including products later divided down and additions later reduced by reserves.
