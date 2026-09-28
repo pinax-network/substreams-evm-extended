@@ -1,0 +1,38 @@
+{
+  "topic": "FHE and B2Token exact role-path candidates, 2026-09-28; offline only and NOT-QUALIFIED",
+  "facts": [
+    {
+      "key": "fhe_primary_source_and_duplicate_legacy_root",
+      "value": "The complete FHE capture has 25 source files: the other-evm token and 24 OpenZeppelin v5.2.0 dependencies match immutable primary pins exactly. Roles occupy root 5, balances root 0. The baseline contains role 5 in both other_mapping_slots and width-two other_mapping_words, so both entries must be removed before adding the exact membership path.",
+      "source_url": "https://raw.githubusercontent.com/mind-network/mind-token-contracts/e3b9112918304a7a00d210609eec34d5390ef2a1/contracts/other-evm/FHE.sol",
+      "source_pin": "mind-network/mind-token-contracts@e3b9112918304a7a00d210609eec34d5390ef2a1 contracts/other-evm/FHE.sol; OpenZeppelin/openzeppelin-contracts@acd4ff74de833399287ed6b31b4debf6b2b35527 contracts/",
+      "note": "Complete original capture SHA256 a71797c05722783295bb7dc0dc5a13956e1bb6eb5295b4c11766e693d81f4ecf. The separate Ethereum FHE source is not substituted. Existing ccipAdmin scalar 9, allowance 1, nonce 8 and other scalar rules remain unchanged."
+    },
+    {
+      "key": "b2_exact_primary_revision",
+      "value": "The complete B2Token capture has 26 source files: the token at the exact recorded revision and 25 OpenZeppelin v5.0.2 dependencies match byte for byte. Roles occupy root 9, balances root 0. The candidate removes only the legacy role width-two entry; pause 8, allowance 1, nonce 7 and all other fields remain unchanged.",
+      "source_url": "https://raw.githubusercontent.com/b2network/b2-token-contract/8369fb6537f85ad746cef56ae616b5cb581c2c0b/contracts/B2Token.sol",
+      "source_pin": "b2network/b2-token-contract@8369fb6537f85ad746cef56ae616b5cb581c2c0b contracts/B2Token.sol; OpenZeppelin/openzeppelin-contracts@dbb6104ce834628e473d2173bbc9d47f81a9eec3 contracts/",
+      "note": "Complete original capture SHA256 c468c616cfc867dab05817ab1af80e31b05575265eb1aaf7c5125dbe7ec6eb99. The distinct 72dc2b060eb986b3fc591bde55a685354a3cbcd4 main variant is rejected. No source normalization or import relocation is permitted for any of the 51 primary files."
+    },
+    {
+      "key": "immutable_runtime_reconstruction",
+      "value": "FHE requires exactly seven and B2 exactly eight 32-byte immutable substitutions. The verifier recomputes chain 56, exact contract, name/version hashes, ShortStrings, standard EIP712 domain separator and B2 cap 210000000*10^18; requires exact ID/start/length/value/transformation sets, original zero placeholders, bounded nonoverlapping ranges and untouched CBOR; then compares the entire runtime bytes/hash.",
+      "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/acd4ff74de833399287ed6b31b4debf6b2b35527/contracts/utils/cryptography/EIP712.sol",
+      "source_pin": "OZ EIP712/ShortStrings at acd4ff74de833399287ed6b31b4debf6b2b35527 and dbb6104ce834628e473d2173bbc9d47f81a9eec3; B2 ERC20Capped and exact token at 8369fb6537f85ad746cef56ae616b5cb581c2c0b; complete raw captures",
+      "note": "FHE solc 0.8.24+e11b9ed9 runtime 10188 bytes/hash 0x652b7c5764581dd0fac2d759383df2c06101f0b7edf7f4194737f5b392dcc20b; B2 solc 0.8.22+4fc1097e runtime 10457/hash 0xb616979feee87559683543b45de4e46f31244303ab158bb343f1759a5f1ce5ab. Exact immutable IDs, offsets and values are recorded in source-review.json. This rechecks saved compiler output, not fresh compilation/current deployment, and does not relax Point/Bedrock's no-transformation verifier."
+    },
+    {
+      "key": "role_admin_and_getter_scope",
+      "value": "Both concrete tokens inherit direct ERC20 balanceOf and ordinary OZ5 AccessControl. RoleData.hasRole is address-to-bool at offset 0 and adminRole bytes32 at outer offset 1. Constructors grant default-admin membership; public grant/revoke and caller-confirmed renounce write membership. Complete concrete-source review finds no initializer or _setRoleAdmin callsite beyond its unused internal declaration.",
+      "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/acd4ff74de833399287ed6b31b4debf6b2b35527/contracts/access/AccessControl.sol",
+      "source_pin": "AccessControl/ERC20 at OZ commits acd4ff74de833399287ed6b31b4debf6b2b35527 and dbb6104ce834628e473d2173bbc9d47f81a9eec3, plus the exact FHE/B2 token pins above",
+      "note": "Source-derived Extended-record tests exercise membership/key-shape rules, scalar/nonce/allowance preservation and simultaneous balance writes, not executed authorization or boolean-value checks. FHE ccipAdmin and B2 paused state are distinct from role admin storage. Runtime binding does not establish current admin/role ownership."
+    }
+  ],
+  "open_questions": [
+    "Candidates remain NOT-QUALIFIED: fresh authorized runtime, actual replacement-package output/RPC, initialized-holder/final-state and actual role-write visibility controls remain promotion gates.",
+    "Saved-window counts apply only to the measured interval and initialized observed-holder set; no canonical values may seed or repair retained state.",
+    "Remaining legacy role cohorts and unresolved-source cases are outside this two-profile candidate; issue #4 stays open."
+  ]
+}

@@ -179,6 +179,7 @@ mod offline {
         TokenCys,
         Burnmint,
         PointBedrock,
+        FheB2,
     }
     fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
@@ -195,7 +196,11 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::PointBedrock {
+        if mode == Mode::FheB2 {
+            for name in ["layouts.json", "source-review.json", "FHE.json", "B2Token.json", "primary-sources.json"] {
+                paths.push(root.join(erc20_balances_tools::fhe_b2_roles::FIXTURE).join(name));
+            }
+        } else if mode == Mode::PointBedrock {
             for name in ["layouts.json", "source-review.json", "Point.json", "Bedrock.json", "primary-sources.json"] {
                 paths.push(root.join(erc20_balances_tools::point_bedrock_roles::FIXTURE).join(name));
             }
@@ -424,14 +429,18 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if mode == Mode::PointBedrock {
+        let candidate_path = root.join(if mode == Mode::FheB2 {
+            "tests/fixtures/fhe-b2-role-candidates/layouts.json"
+        } else if mode == Mode::PointBedrock {
             "tests/fixtures/point-bedrock-role-candidates/layouts.json"
         } else if mode == Mode::Burnmint {
             "tests/fixtures/burnmint-role-candidate/layouts.json"
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if mode == Mode::PointBedrock {
+        let review_path = root.join(if mode == Mode::FheB2 {
+            "tests/fixtures/fhe-b2-role-candidates/source-review.json"
+        } else if mode == Mode::PointBedrock {
             "tests/fixtures/point-bedrock-role-candidates/source-review.json"
         } else if mode == Mode::Burnmint {
             "tests/fixtures/burnmint-role-candidate/primary-sources.json"
@@ -445,7 +454,19 @@ mod offline {
             candidates.as_array().context("candidate array")?.len() == if mode == Mode::Burnmint { 1 } else { 2 },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if mode == Mode::PointBedrock {
+        report["source_rechecks"] = if mode == Mode::FheB2 {
+            use erc20_balances_tools::fhe_b2_roles as bound;
+            let mut captures = Vec::new();
+            for p in &bound::PROFILES {
+                let raw = fs::read(root.join(bound::FIXTURE).join(format!("{}.json", p.name)))?;
+                ensure!(raw == fs::read(cache.join(p.cache))?, "committed capture differs from original cache");
+                captures.push(bound::verify_capture(&raw, p)?);
+            }
+            ensure!(review == bound::review(&captures)?, "source review differs from complete verified captures");
+            bound::verify_primary(&captures, &read(&root.join(bound::FIXTURE).join("primary-sources.json"))?)?;
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            review["profiles"].clone()
+        } else if mode == Mode::PointBedrock {
             use erc20_balances_tools::point_bedrock_roles as bound;
             let mut captures = Vec::new();
             for p in &bound::PROFILES {
@@ -495,6 +516,20 @@ mod offline {
                     .is_none(),
                 "candidate retains broad role root"
             );
+            // Only FHE originally had this role root in BOTH legacy lists.
+            // Its source-bound candidate verifier above requires removing both.
+            if mode == Mode::FheB2 && candidate["contract"] == erc20_balances_tools::fhe_b2_roles::PROFILES[0].contract {
+                let broad = restored["other_mapping_slots"].as_array_mut().context("FHE legacy mapping list")?;
+                ensure!(
+                    broad.as_slice()
+                        == [
+                            json!(erc20_balances_tools::fhe_b2_roles::root(1)),
+                            json!(erc20_balances_tools::fhe_b2_roles::root(8))
+                        ],
+                    "FHE unrelated legacy mappings changed"
+                );
+                broad.insert(1, json!(root));
+            }
             ensure!(restored == *original, "candidate changes unrelated baseline fields");
             *original = candidate.clone();
         }
@@ -760,7 +795,8 @@ mod offline {
             None => Mode::TokenCys,
             Some("--burnmint") => Mode::Burnmint,
             Some("--point-bedrock") => Mode::PointBedrock,
-            _ => bail!("expected --burnmint or --point-bedrock, followed by <original package root>"),
+            Some("--fhe-b2") => Mode::FheB2,
+            _ => bail!("expected --burnmint, --point-bedrock or --fhe-b2, followed by <original package root>"),
         };
         let cache = if mode != Mode::TokenCys {
             PathBuf::from(args.next().context("original package root required")?)
@@ -775,6 +811,9 @@ mod offline {
         }
         if mode == Mode::PointBedrock {
             report["scope"] = json!("Two NOT-QUALIFIED Point/Bedrock membership paths applied to unchanged 431; saved native parity is not replacement package/runtime/live qualification. Point token primary repository remains unresolved. Canonical values never seed retained state.");
+        }
+        if mode == Mode::FheB2 {
+            report["scope"]=json!("Two NOT-QUALIFIED FHE/B2Token exact membership paths applied to unchanged 431; exact saved immutable reconstruction and native parity are not replacement package/runtime/live qualification. Canonical values never seed retained state.");
         }
         if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");
