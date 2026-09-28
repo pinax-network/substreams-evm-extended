@@ -1,5 +1,11 @@
 # Session handoff (2026-09-21): roadmap state, evidence, and how to continue
 
+**Current issue status (2026-09-28):** use [Follow-up work](follow-up.md).
+The earlier remediation is merged in #46, subsequent hardening/BSC evidence
+is merged through #62, and 13 issues remain open for explicit acceptance gaps.
+The dated checkpoints below preserve historical counts and artifact locations;
+they are not the current issue-status list.
+
 The subsequent [offline issue-audit remediation](audit-remediation-2026-09-21.md)
 tracks retention correctness, executed layout tests, ERC-4626 arithmetic and
 asset bindings, Aragon upgrade guards, execution receipt validation and a
@@ -225,10 +231,12 @@ changed the `common/retention` host API: `seed_checkpoint` and
    epoch for the same market, so `basis_carryover` cannot be exercised inside
    one parameter set, and the retention ledger binds the parameter hash;
    supporting successor epochs means accepting several `(market, epoch)`
-   entries with increasing activation in every package; (b) only
-   `compound-v2` stops decoding after an in-block invalidation; the siblings
-   still fail a block whose upgrade writes unknown storage after the pointer
-   write; (c) `aave/balance-state` was not part of this review.
+   entries with increasing activation in every package; (b) `compound-v2`
+   and, since #54, `aave/balance-state` stop decoding after an in-block
+   invalidation; the other siblings can still fail a block whose upgrade
+   writes unknown storage after the pointer write; (c) `aave/balance-state`
+   was not part of this independent review; #54 subsequently added live
+   checks and fixes.
 3. **Done 2026-09-21:** solc storage layouts for every pinned contract are
    committed under `docs/evidence/storage-layouts/` with a `tests/storage_layout.rs`
    per package ([provenance](storage-layout-provenance.md)). The USDC FiatToken

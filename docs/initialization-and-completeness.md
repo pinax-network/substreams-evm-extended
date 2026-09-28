@@ -87,9 +87,11 @@ with synthetic rows, and by saved-data replays where noted:
 - **Exact identities.** Every applied block carries number, hash and parent
   hash. A block whose number is not `last + 1` is a gap and a block whose
   parent hash differs from the retained hash is a fork; both are refused. The
-  maps emit exactly one `BlockClock` per block for this purpose and the
-  `evm.balance_state.v1` number, hash and parent hash must match the applied
-  block.
+  balance-state maps emit exactly one `evm.balance_state.v1.BlockClock` per
+  block for this purpose; its number, hash and parent hash must match the
+  applied block. Canonical `evm.balances.v1.Events` has no embedded clock:
+  its consumer supplies identities from the stream or qualified block
+  headers, including blocks with no output rows.
 - **Atomic application.** Every holder, global and epoch row is validated
   (known enum values, `END_OF_BLOCK` holder rows, a sign only for a signed
   principal, exact decimals, the stream's chain, the market's epoch sequence)
@@ -110,10 +112,11 @@ with synthetic rows, and by saved-data replays where noted:
   published state is complete for a block only when every row of that block
   and every earlier block since the initialization origin is stored, and the
   stored clock chain is unbroken from the origin to that block. Partial
-  publication of a block is not a state: consumers check the clock chain and
-  each block's `BlockClock` row counts against the rows stored for it, and
-  `apply_state` refuses a block whose counts differ. A balance-state ledger
-  also binds the stream identity of its first block (chain, package, package
+  publication of a block is not a state: consumers check the clock chain.
+  For balance-state output, they also check each block's `BlockClock` row
+  counts against the rows stored for it, and `apply_state` refuses a block
+  whose counts differ. A balance-state ledger also binds the stream identity
+  of its first block (chain, package, package
   version, spec revision, parameters SHA-256) and refuses a block from a
   different stream; a changed package or parameter set starts a new ledger
   from a checkpoint.

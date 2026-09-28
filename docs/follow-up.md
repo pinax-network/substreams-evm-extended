@@ -1,60 +1,76 @@
 # Follow-up work
 
-The completed migration, exact typed mapping-path source and opt-in enumerable
-role-set validator are on `main`.
-The historical SPKGs and qualification evidence retain their original scope;
-they do not establish parity for the newer source. No new token was qualified
-by the latest offline APD/DSG replay.
+Status reviewed on **2026-09-28**, against main at
+`5dca3393d8ea75f9032ff4faf2a14a3b6c6137a5`, GitHub acceptance lists, latest
+issue comments and merged evidence. There were **13 open issues and no open
+pull requests** when this review began. The earlier
+[offline remediation](audit-remediation-2026-09-21.md) already landed in
+[PR #46](https://github.com/pinax-network/substreams-evm-extended/pull/46);
+PRs #47–#62 added hardening and bounded BSC evidence.
 
-| Work | GitHub issue | Effort |
+All 13 remaining issues have unmet acceptance criteria. A merged implementation,
+passing tests or a successful BSC sample does not complete their broader scope.
+
+## Open issues
+
+| Issue | Implemented or recorded evidence | Required before closure |
 | --- | --- | --- |
-| Source-bound enumerable role-set support, including DSG | [#2](https://github.com/pinax-network/substreams-evm-extended/issues/2) | High |
-| APD/DSG controls, packaged parity and initialized holders | [#3](https://github.com/pinax-network/substreams-evm-extended/issues/3) | Medium |
-| Migration of legacy role profiles to exact paths | [#4](https://github.com/pinax-network/substreams-evm-extended/issues/4) | High |
-| Remaining 19 sampled BSC candidates | [#5](https://github.com/pinax-network/substreams-evm-extended/issues/5) | High |
-| New versioned package and native sink qualification | [#6](https://github.com/pinax-network/substreams-evm-extended/issues/6) | Medium |
-| Cold-start initialization and holder completeness ([spec](initialization-and-completeness.md), [`common/retention`](../common/retention/src/lib.rs)) | [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7) | High |
-| Ethereum, Base, HyperEVM and Arc | [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8) | High |
+| [#2 DSG enumerable sets](https://github.com/pinax-network/substreams-evm-extended/issues/2) | Source-bound operation validator and adversarial regressions; #62 adds actual DSG grants/revocations/renouncements, tail/self-swap observations and sparse package execution. | Zero-address member observation, continuous runtime/initial-set qualification, package/RPC balance and initialized-holder parity. The role-operation sample emits no balances. |
+| [#3 APD/DSG qualification](https://github.com/pinax-network/substreams-evm-extended/issues/3) | Typed allowance paths, restored-allowance regression and DSG enumerable operations. [Saved review](../erc20/balances/docs/typed450-offline-review.md) preserves balance comparisons and cold gaps. | Independent balance-versus-metadata controls, packaged balance parity across delivered clocks, initialized holders/final state and negative binding controls. Neither token belongs to #60's historical 431-profile cohort. |
+| [#4 Legacy role paths](https://github.com/pinax-network/substreams-evm-extended/issues/4) | Separate Token/CYS candidates, source/runtime review, adversarial tests and [complete saved replay](../erc20/balances/docs/role-path-candidates.md) landed in #46. | Remaining per-profile reachability/path review and migration; retain unresolved source cases; qualify replacement layouts before promotion. No role-membership write occurs for the two candidates in their replay interval. |
+| [#5 Remaining 19 candidates](https://github.com/pinax-network/substreams-evm-extended/issues/5) | Saved token-specific diagnostics, calculated/reflection models and partial APD/DSG work. | Source/runtime and dependency initialization, exact arithmetic and affected-holder behavior, then package/holder qualification per candidate. These original 19 are separate from the six regressions in #61. |
+| [#7 Initialization/completeness](https://github.com/pinax-network/substreams-evm-extended/issues/7) | [Host ledger/spec](initialization-and-completeness.md), atomic application, exact checkpoint identity and undo; #58 adds a native BSC checkpoint replay. | Native sink publication/clock-chain verification and live BlockUndoSignal handling. Known observed holders remain distinct from global enumeration; protocol-global evaluation is tracked under #16. |
+| [#8 Additional networks](https://github.com/pinax-network/substreams-evm-extended/issues/8) | Chain/asset/producer requirements and source research. | Replace the ERC-20 verifier's hardcoded BSC chain ID with explicit configuration, then independently bind and qualify Ethereum, Base, HyperEVM and Arc: Extended semantics, fork effects, runtime/package/getter controls, holders, clocks and native identities/aliases. BSC evidence does not transfer. |
+| [#14 Compound v2](https://github.com/pinax-network/substreams-evm-extended/issues/14) | Share/cash/IRM extraction, compiler layouts, synthetic tests and #52's 2019 cUSDC/cETH layout and rate-model corrections. | Actual deployed runtime/source and dependency binding, real USDC implementation/activation, captured Ethereum replay and package/getter controls; initialized state, successor epochs and undo conformance. |
+| [#15 Compound III](https://github.com/pinax-network/substreams-evm-extended/issues/15) | Principal/market extraction, compiler layouts, exact arithmetic and adversarial tests. | Replace implementation/activation placeholders; capture Ethereum inputs and packaged/getter controls. Stop old-epoch decoding after invalidation; exercise successor epochs and retained-state replay/undo. |
+| [#16 Conformance](https://github.com/pinax-network/substreams-evm-extended/issues/16) | Five Rust model families, pinned OZ source execution, captured Aave evidence and BSC static-aToken conversion controls. | Independent oracles for remaining models and end-to-end initialized holder/global/clock/epoch evaluation, including idle blocks, invalidations and fork undo. Separate package qualification and cold/unsupported observations. |
+| [#17 Native balances](https://github.com/pinax-network/substreams-evm-extended/issues/17) | One-map reducer, saved controls, producer/fork matrix and #55's bounded BSC package/getter checks. | Remaining lifecycle/reward/fork reasons, Base failed-deposit persistence and per-network native identity/alias controls under #8. BSC success does not satisfy the full matrix. |
+| [#21 Roadmap](https://github.com/pinax-network/substreams-evm-extended/issues/21) | Packages/shared contracts exist; #11/#12/#13/#18/#19/#20/#22/#24 are closed. | Complete #14/#15/#16/#17/#23 and shared #7/#8 gates. Preserve extraction, evaluated balances and downstream interpretation as separate responsibilities. |
+| [#23 stETH](https://github.com/pinax-network/substreams-evm-extended/issues/23) | Shares/global inputs, Aragon guards, exact internal-share conversion and #51's independent-review fixes. | Actual runtime/activation/dependency qualification, captured Ethereum rebase/share/fee/burn/external-share cases and package/getter parity. Post-invalidation decoding and successor-epoch/undo conformance remain offline follow-ups. |
+| [#61 Six BSC exclusions](https://github.com/pinax-network/substreams-evm-extended/issues/61) | #60 preserves runtime/dependency mismatches and unknown-write refusals. | Review BNC4's beacon, sPro/swkeyDAO2 divisor changes and TAKE/RADR/TOPS refused writes. Preserve original refusal regressions; requalify separate replacements with fresh runtime, package, RPC and holder controls. |
 
-The [extraction roadmap](https://github.com/pinax-network/substreams-evm-extended/issues/21)
-adds focused balance-state and execution-fact packages. Its requirements are
-recorded in [extraction coverage](extraction-coverage.md).
+## Completed issue records
 
-| Work | GitHub issue | Effort |
-| --- | --- | --- |
-| Chain, asset and action coverage requirements | [#11](https://github.com/pinax-network/substreams-evm-extended/issues/11) | Low |
-| Versioned holder/global balance-state contract ([contract](balance-state-contract.md)) | [#12](https://github.com/pinax-network/substreams-evm-extended/issues/12) | Medium |
-| Aave aToken basis and reserve inputs ([`aave/balance-state`](../aave/balance-state/README.md)) | [#13](https://github.com/pinax-network/substreams-evm-extended/issues/13) | High |
-| Compound v2 shares and exchange-rate dependencies ([`compound-v2/balance-state`](../compound-v2/balance-state/README.md)) | [#14](https://github.com/pinax-network/substreams-evm-extended/issues/14) | High |
-| Compound III principal and market inputs ([`compound-v3/balance-state`](../compound-v3/balance-state/README.md)) | [#15](https://github.com/pinax-network/substreams-evm-extended/issues/15) | High |
-| Rust conformance models for time-dependent balances ([`conformance`](../conformance/README.md)) | [#16](https://github.com/pinax-network/substreams-evm-extended/issues/16) | High |
-| Native balances package (`native/balances`) | [#17](https://github.com/pinax-network/substreams-evm-extended/issues/17) | High |
-| EVM call trees and persisted execution facts ([`evm/executions`](../evm/executions/README.md)) | [#18](https://github.com/pinax-network/substreams-evm-extended/issues/18) | High |
-| Standard ERC-20 transfer and approval evidence ([`erc20/events`](../erc20/events/README.md)) | [#19](https://github.com/pinax-network/substreams-evm-extended/issues/19) | Medium |
-| Aave lending-action evidence adapter ([`aave/actions`](../aave/actions/README.md)) | [#20](https://github.com/pinax-network/substreams-evm-extended/issues/20) | Medium |
-| Non-Transfer ERC-20 balance regression coverage | [#22](https://github.com/pinax-network/substreams-evm-extended/issues/22) | Medium |
-| stETH shares and global rebase state ([`lido/balance-state`](../lido/balance-state/README.md)) | [#23](https://github.com/pinax-network/substreams-evm-extended/issues/23) | High |
-| ERC-4626 shares and conversion state | [#24](https://github.com/pinax-network/substreams-evm-extended/issues/24) | High |
+These issues are already closed on GitHub. Their evidence retains its recorded
+package, runtime, interval and holder scope.
 
-The matching GitHub labels estimate the full remaining scope, not urgency or
-readiness. Low is reserved for small localized changes; none of these current
-issues fits that category. Medium work uses established validation paths;
-High work includes substantial implementation, uncertain semantics or broad
-qualification. Dependencies and the live-testing pause are separate constraints.
+| Issues | Delivered scope |
+| --- | --- |
+| [#6](https://github.com/pinax-network/substreams-evm-extended/issues/6) | Current ERC-20 package and native sink checks in #60, using 425 admitted profiles; six exclusions remain under #61. |
+| [#11](https://github.com/pinax-network/substreams-evm-extended/issues/11), [#12](https://github.com/pinax-network/substreams-evm-extended/issues/12) | Coverage requirements and versioned holder/global balance-state contract. |
+| [#13](https://github.com/pinax-network/substreams-evm-extended/issues/13) | Selected BSC Aave aToken epoch and package/getter controls in #54. |
+| [#18](https://github.com/pinax-network/substreams-evm-extended/issues/18), [#19](https://github.com/pinax-network/substreams-evm-extended/issues/19) | Execution facts and standard ERC-20 event evidence; further producer/network controls remain in #8. |
+| [#20](https://github.com/pinax-network/substreams-evm-extended/issues/20) | Selected Aave lending-action adapter, compiled ABI provenance and BSC receipt-log comparison in #56. |
+| [#22](https://github.com/pinax-network/substreams-evm-extended/issues/22) | Non-Transfer ERC-20 balance regression coverage. |
+| [#24](https://github.com/pinax-network/substreams-evm-extended/issues/24) | Selected BSC static-aToken conversion package in #57. Ethereum sDAI/OZ declarations and withdrawal-limit extraction are not thereby qualified. |
 
-Live Substreams, Firehose, RPC and native sink testing is paused until explicitly
-resumed. Offline source review, Rust tests and saved-data analysis remain
-available. Creating these issues or merging the source does not resume live
-tests or deploy an ingestion service.
+## Evidence and execution boundaries
 
-The [APD/DSG review](../erc20/balances/docs/typed450-offline-review.md)
-records 25 emitted balances matching saved canonical RPC output and 33 cold
-unknown observations across all 1,024 cached blocks. The
-[DSG runtime investigation](../erc20/balances/docs/evidence/dsg-enumerable/)
-preserves synthetic ordering evidence. The opt-in
-[enumerable rule](../erc20/balances/docs/enumerable-role-sets.md) implements
-source-level operation checks; this evidence is not producer-visibility or
-token qualification, and issue #2 remains open for those checks.
+The [current ERC-20 package report](../erc20/balances/docs/live-package-bsc-2026-09-23.md)
+covers BSC **[123561000, 123562024)**, 425 admitted profiles and 88,534
+initialized observed holders. It does not cover APD/DSG or the six excluded
+profiles, enumerate all holders or qualify replacement layouts.
 
-Session state, open review findings and the ordered next steps are kept in
-[`handoff.md`](handoff.md); procedures are in [`../skills/`](../skills/README.md).
+The Token/CYS candidate replay remains BSC **[122288006, 122289030)**:
+110,139 rows equal the historical/current baseline, with 69 initialized
+observed holders for those two candidates and no actual role-membership writes.
+The historical 431-profile fixture remains unchanged and still uses legacy
+role rules; candidate fixtures do not silently replace it.
+
+BSC live work was separately resumed and recorded on 2026-09-22/23. Older
+blanket pause statements describe the earlier phase; they do not erase those
+reports. This review ran only offline checks and did not authorize or start
+new RPC, Firehose, Substreams or sink work. Other-network qualification and
+the explicit dex/pool-state live hold remain separate gates. Preserve all
+historical artifacts and failed attempts.
+
+Use the acceptance lists above for issue closure, the
+[extraction coverage](extraction-coverage.md) for model boundaries and
+[handoff](handoff.md) for historical artifact locations. The
+[issue workflow](../skills/roadmap-issue-workflow/SKILL.md) describes delivery.
+
+The review checkout passed pinned Rust 1.88 formatting, **697 workspace tests**
+(678 library/binary and 19 integration), all-target Clippy with warnings denied
+and the locked WASM workspace check. All Cargo validation used offline mode;
+logs are in `out/issue-review-20260928/`. These checks validate the checkout,
+not new chain/runtime qualification.

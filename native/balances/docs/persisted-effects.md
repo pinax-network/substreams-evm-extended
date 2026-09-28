@@ -2,9 +2,10 @@
 
 This page is the chain / producer / fork / reason matrix required by
 [#17](https://github.com/pinax-network/substreams-evm-extended/issues/17). It
-records what the saved data establishes, what the code handles by pinned rule
-without a fixture, and what stays unqualified. Nothing here is a fresh live
-measurement: live Substreams, Firehose, RPC and sink usage remains paused.
+records what the saved data and recorded BSC runs establish, what the code
+handles by pinned rule without a fixture, and what stays unqualified. The
+2026-09-23 live reports retain their bounded scope; this document does not
+authorize new Substreams, Firehose, RPC or sink runs.
 
 ## Scopes
 
@@ -136,10 +137,27 @@ accounts without a change are unknown.
 
 ## Remaining gates
 
-- Build a versioned SPKG, record source/WASM/package digests and compare actual
-  packaged output with these saved controls, then with same-block-hash
-  `eth_getBalance` controls, after live usage is explicitly resumed. Extra
-  unchanged RPC candidates are accounted separately from state-derived rows.
-- Initialization, exact checkpoints, reorg/undo completeness and the
-  complete-block clock contract: [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7).
-- Per-network fixtures and asset identity: [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
+The BSC version-5 package `fbb46fc7…` completed packaged/same-block-hash
+qualification in [#55](https://github.com/pinax-network/substreams-evm-extended/pull/55):
+[saved controls](evidence/live-parity-bsc-2026-09-23-saved-controls.json)
+cover [122288006, 122289030), and the
+[live report](evidence/live-parity-bsc-2026-09-23-live.json) covers emitted
+accounts in [123548070, 123553070), with 200,344 matching RPC comparisons.
+The interval includes one empty-output block; emitted rows do not enumerate
+all native accounts or establish their initialization.
+
+The [exact checkpoint report](evidence/live-retention-checkpoint-bsc-2026-09-23.json)
+then initializes 14,172 tracked accounts at block 123548069 and applies
+[123548070, 123548370), with 56,688 matching comparisons across four
+checkpoints. Accounts outside that tracked set remain unknown.
+
+- Verify native-sink publication and its complete clock chain, and exercise
+  live `BlockUndoSignal` handling under
+  [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7).
+  The checkpoint run used final blocks; it does not qualify live reorgs.
+- Qualify the unobserved genesis, reward, DAO, withdrawal, lifecycle and
+  chain-specific fee/mint/burn cases in the matrices above under
+  [#17](https://github.com/pinax-network/substreams-evm-extended/issues/17).
+- Add per-network producer/fork fixtures, package controls and asset identity
+  under [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
+  The recorded BSC results do not qualify other networks or package digests.
