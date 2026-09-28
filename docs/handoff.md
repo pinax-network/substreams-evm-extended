@@ -324,6 +324,24 @@ The candidate remains NOT-QUALIFIED: source provenance, real initial-set
 coherence, actual producer visibility and runtime/package/getter/holder gates
 remain open. Historical cohorts and Phase A evidence are unchanged.
 
+The separate [BTR host operation proof](../erc20/balances/docs/btr-operation-proof.md)
+reconstructs both saved implementation and proxy artifacts using official solc
+0.8.24 and the complete original inputs. Thirty implementation dependencies and
+eight proxy dependencies match their pinned primary sources; the custom
+UNLICENSED token source remains an explicit independent-provenance gap. Five
+UUPS self-address sites and the independently encoded proxy initializer append
+bind the complete saved bytecode without metadata replacement. Local execution
+uses explicit installed self-code sizes, keeping implementation bytes distinct
+from the synthetic proxy account's code. It does not execute proxy dispatch.
+The operation matrix separates coherent role changes, four incoherent
+boolean/index controls, wrapper authorization, direct whitelist operations,
+initialization and rollback. This host proof adds no production candidate;
+thirteen of 33 boolean-role profiles still have separate candidates. The
+whitelist's existing length/index permissions do not admit its array operations.
+Fresh attempts, full traces and failed attempts remain under
+`out/btr-operation-proof-20260928/` in `bsc-exclusion-review`. Actual initial state,
+runtime/package/getter/holder qualification and producer visibility remain open.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and

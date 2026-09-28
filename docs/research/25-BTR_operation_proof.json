@@ -1,0 +1,84 @@
+{
+  "id": 25,
+  "title": "BTR coupled roles and standalone whitelist operation proof (Phase A only)",
+  "issue": 4,
+  "status": "host-only proof; NOT-QUALIFIED; no ingestion or candidate change",
+  "implementation": "0xc8b5a0c5453c15157328b6cc1f1452be032a41f1",
+  "proxy": "0xfed13d0c40790220fbde712987079eda1ed75c51",
+  "captures": [
+    {
+      "profile": "implementation",
+      "sha256": "b45110e73361a6bdaf50181ec265b0c9cc00cab6dbafbe1c76f1262a57139b21",
+      "sources": 31,
+      "exact_primary_dependencies": 30,
+      "primary_repository": "OpenZeppelin/openzeppelin-contracts-upgradeable",
+      "primary_revision": "3d4c0d5741b131c231e558d7a6213392ab3672a5",
+      "fresh_compiler_output_sha256": "c72916720a301b5eedf94f100b9c7cca4e35000eb77a252d5af68e1d7c53fcec",
+      "runtime_bytes": 15308,
+      "runtime_keccak256": "0x44d6248ac6cfc67512326547ee54cf5e5d5a5573d4d65a8e94b29cb2f8e42949",
+      "creation_compiler_bytes": 15595,
+      "constructor_append_bytes": 0,
+      "immutable": "UUPS __self ID 1168, five 32-byte sites 3275/3408/3939/4072/4302, exactly the implementation address"
+    },
+    {
+      "profile": "proxy",
+      "sha256": "9c9fcd09b032a0ac632041217f5ce4000a20492c555e30e5ca5896fb14b6b320",
+      "sources": 8,
+      "exact_primary_dependencies": 8,
+      "primary_repository": "OpenZeppelin/openzeppelin-contracts",
+      "primary_revision": "acd4ff74de833399287ed6b31b4debf6b2b35527",
+      "fresh_compiler_output_sha256": "6d93cd857f4bf15d98f3ed89bbfa154bf399957cd1f0df406ac4bc94f6b98a05",
+      "runtime_bytes": 183,
+      "runtime_keccak256": "0xbd576604a6f2b4dac58ff676c3912bd2ef37d52f93640e2d20c8d47de43d3418",
+      "creation_compiler_bytes": 1047,
+      "constructor_append_bytes": 416,
+      "immutable": "none",
+      "constructor_binding": "Independently encoded implementation and ABI bytes: initialize(string,string,address,address,uint256), BTR token, BTR, captured owner and pauser, quota 500000000000000000000000000"
+    }
+  ],
+  "raw_match_labels": "exact_match for match/runtimeMatch/creationMatch in both captures",
+  "compiler": "0.8.24+commit.e11b9ed9",
+  "compiler_sha256": "cc2d44c706905ccc382f484625dff61d741e0c24232d226f139a6835fc644f3f",
+  "compiler_keccak256": "0xf8c5313dfe054e7f3c208905ee6bb4097a1c7a1dd360050f90fab4b182ac1c24",
+  "compiler_manifest_revision": "16a99b8c26ed33a91796e209ff6797ee7baf2b0d",
+  "settings": "Original Paris, optimizer enabled 1000, IPFS metadata, no via-IR, empty libraries/remappings; only outputSelection added",
+  "primary_token_gap": "Exact UNLICENSED contracts/BTRToken.sol primary revision is unresolved. Official bitlayer-contracts basic/BTR.sol is a different non-upgradeable distribution token. Captured token SHA256 f6b70c8e72aa4519db417da71e4b827e216ddf5f3eaa2867d428d8db026c42aa is preserved without normalization.",
+  "distinct_public_token": {
+    "url": "https://github.com/bitlayer-org/bitlayer-contracts/blob/079b0082af96ce14ea1d7b45e73a92d2466ac667/contracts/basic/BTR.sol",
+    "sha256": "93ad02c278878627ee87266570ac9da71021deba7bfa2a7189ae162b08cdd140",
+    "status": "Different GPL-3.0 non-upgradeable distribution token; not normalized or accepted as the captured token's primary source"
+  },
+  "source_semantics": [
+    "Role boolean/admin root 101 and enumerable set root 151; parent bool/log conditional, but inherited OZ 4 add/remove is always invoked afterward",
+    "Standalone whitelist length 555 and position mapping 556; setWhitelister is PAUSER-only, despite its owner comment",
+    "setMinter/setBurner are default-admin-only and all three wrappers emit their own event even when state is unchanged",
+    "Only initialization sets PAUSER_ROLE self-admin; initialization also writes parent state and performs a late mint-quota check",
+    "All four deliberately incoherent boolean/index combinations are separate source controls, not admitted states"
+  ],
+  "extcodesize_reference": {
+    "url": "https://github.com/ethereum/go-ethereum/blob/36b2371c59cd91a9b1da062b3e382f05a6d8687e/core/vm/instructions.go#L341",
+    "sha256": "ce0db58b41368a18df9b31e40f8f2bbc796ea627dccbb21fd5c6f9ccae3a0610",
+    "scope": "EXTCODESIZE uses selected low-160-bit account code size; CODESIZE uses current execution bytes. No geth runtime dependency added."
+  },
+  "contexts": "Implementation constructor: installed self size 0; direct implementation runtime: 15308; synthetic proxy address/storage executing implementation runtime: 183. The immutable __self remains the implementation address.",
+  "evidence": "../../erc20/balances/docs/btr-operation-proof.md",
+  "synthetic_calls": 910,
+  "returned_calls": 836,
+  "reverted_calls": 74,
+  "accepted_invalid_or_harness_failures": 0,
+  "compiler_attempt": "out/btr-operation-proof-20260928/source-02",
+  "operation_attempt": "out/btr-operation-proof-20260928/operations-03",
+  "source_inventory_sha256": "8af0d88a60988332b2023e3d5ef90e446b24e7c0b0c31da7793516cc4d512b07",
+  "reports": [
+    "../../erc20/balances/docs/evidence/btr-operation-proof-20260928-compiler.json",
+    "../../erc20/balances/docs/evidence/btr-operation-proof-20260928.json"
+  ],
+  "measured_prefixes": "Constructor: one lock store and one log. Successful initializer: 21 exact stores and five logs; zero-owner/pauser failure: nine parent stores and no logs; quota failure: 19 stores and four logs. Complete topics/data and interleaving are asserted and failures roll back.",
+  "limits": [
+    "No actual proxy dispatcher, delegatecall, UUPS upgrade, permit/ecrecover, external account/call execution, gas/refund/fork-cost qualification",
+    "Unknown account EXTCODESIZE and unsupported opcodes are HarnessFailure, never Solidity refusal",
+    "Synthetic prestate including initial boolean/index/array coherence and unused-tail zeros does not establish deployed state",
+    "No production parser/schema/dependency/protobuf change, candidate layout, baseline edit, chain call or canonical saved-block replay",
+    "PToken and DSG ingestion rules are unchanged; future BTR admission needs a separate complete coupled-operation rule and qualification"
+  ]
+}

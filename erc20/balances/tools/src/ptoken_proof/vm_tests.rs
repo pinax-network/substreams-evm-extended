@@ -3,6 +3,37 @@ use primitive_types::U256;
 fn run(hex: &str) -> Execution {
     execute(&hex::decode(hex).unwrap(), &[], 0x11.into(), 0x22.into(), &State::new())
 }
+#[test]
+fn explicit_self_code_size_distinguishes_constructor_implementation_and_proxy_context() {
+    let code = hex::decode("303b5f5260205ff3").unwrap();
+    for size in [0, 15308, 183] {
+        let e = execute_with_self_code_size(&code, &[], 1.into(), 2.into(), &State::new(), Some(size));
+        assert_eq!(returned(e), word(size.into()));
+    }
+    assert!(matches!(execute(&code, &[], 1.into(), 2.into(), &State::new()).exit, Exit::HarnessFailure(_)));
+    // EXTCODESIZE interprets the operand as a 160-bit address.
+    let mut high = vec![0x7f];
+    high.extend(word((U256::one() << 255) + U256::from(2)));
+    high.extend(hex::decode("3b5f5260205ff3").unwrap());
+    assert_eq!(
+        returned(execute_with_self_code_size(&high, &[], 1.into(), 2.into(), &State::new(), Some(183))),
+        word(183.into())
+    );
+}
+#[test]
+fn explicit_self_context_never_invents_external_accounts_and_preserves_failure_rollback() {
+    let prestate = State::from([(7.into(), 9.into())]);
+    for opcode in [0x3b, 0x3c, 0x46, 0xf1, 0xf4, 0xfa] {
+        // Attempt a storage write before an unknown account query or unsupported opcode.
+        let mut code = hex::decode("60016007556003").unwrap();
+        code.push(opcode);
+        let e = execute_with_self_code_size(&code, &[], 1.into(), 2.into(), &prestate, Some(183));
+        assert!(matches!(e.exit, Exit::HarnessFailure(_)), "opcode {opcode:02x}");
+        assert_eq!(e.writes.len(), 1);
+        assert_eq!(e.committed, prestate);
+        assert!(e.committed_logs.is_empty());
+    }
+}
 fn returned(e: Execution) -> Vec<u8> {
     match e.exit {
         Exit::Return(data) => data,
