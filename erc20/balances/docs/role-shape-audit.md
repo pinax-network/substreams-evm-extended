@@ -94,6 +94,14 @@ proxy sources and distinguishes coupled role transitions from the separate
 whitelist set. No BTR ingestion rule or candidate is added, so the candidate
 count remains thirteen. The custom token's independent primary source and
 actual initialization remain unresolved.
+The separate [SecuritiesToken host proof](securities-operation-proof.md) binds
+the selected OZ 5.3 namespaced role/set behavior and raw ERC-20 getters.
+Twenty-three of 31 captured sources have exact independent matches; three
+differing BEP bodies and five unresolved token/client sources retain explicit
+gaps. Constructor execution uses synthetic state because saved on-chain
+creation and deployment evidence are absent. Successful external-client,
+initializer, transfer/UI and proxy/beacon paths are outside this proof. It
+adds no candidate or ingestion rule for the seventeen historical profiles.
 Each needs its own reachability, initialization and dependency review before
 candidate migration. This classification concerns the configured role field;
 some contracts also contain separate enumerable or dynamic metadata that must
