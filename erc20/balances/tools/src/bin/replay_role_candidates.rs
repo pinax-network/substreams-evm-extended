@@ -181,6 +181,7 @@ mod offline {
         PointBedrock,
         FheB2,
         Bas,
+        Tagger,
     }
     fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
@@ -197,7 +198,11 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::Bas {
+        if mode == Mode::Tagger {
+            for name in ["layouts.json", "source-review.json", "TaggerToken.json"] {
+                paths.push(root.join(erc20_balances_tools::tagger_role::FIXTURE).join(name));
+            }
+        } else if mode == Mode::Bas {
             for name in ["layouts.json", "source-review.json", "source-capture.json", "primary-sources.json"] {
                 paths.push(root.join(erc20_balances_tools::bas_role::FIXTURE).join(name));
             }
@@ -434,6 +439,53 @@ mod offline {
             .count() as u64
     }
 
+    // Tagger's public owner setter accepts arbitrary bytes32 role keys. This
+    // counts source-shaped persisted storage writes, not executed authorization.
+    fn tagger_admin_writes(block: &eth::Block) -> Result<u64> {
+        use erc20_balances_tools::tagger_role as bound;
+        let address = hex::decode(&bound::CONTRACT[2..])?;
+        let root = hex::decode(&bound::root(6)[2..])?;
+        let mut images = BTreeMap::new();
+        let mut admin_words = BTreeSet::new();
+        for call in block.system_calls.iter().chain(block.transaction_traces.iter().flat_map(|tx| &tx.calls)) {
+            for (key, image) in &call.keccak_preimages {
+                let key = hex::decode(key.trim_start_matches("0x"))?;
+                let image = hex::decode(image.trim_start_matches("0x"))?;
+                ensure!(erc20_balances::hash(&image).as_slice() == key, "invalid Tagger admin preimage");
+                if let Some(previous) = images.insert(key.clone(), image.clone()) {
+                    ensure!(previous == image, "conflicting Tagger admin preimage");
+                }
+                if image.len() == 64 && image[32..] == root {
+                    // Solidity storage offsets use wrapping uint256 addition.
+                    let mut admin = key;
+                    for byte in admin.iter_mut().rev() {
+                        let (next, carry) = byte.overflowing_add(1);
+                        *byte = next;
+                        if !carry {
+                            break;
+                        }
+                    }
+                    admin_words.insert(admin);
+                }
+            }
+        }
+        Ok(block
+            .system_calls
+            .iter()
+            .chain(
+                block
+                    .transaction_traces
+                    .iter()
+                    .filter(|tx| tx.status() == eth::TransactionTraceStatus::Succeeded)
+                    .flat_map(|tx| &tx.calls),
+            )
+            .filter(|call| !call.state_reverted)
+            .flat_map(|call| &call.storage_changes)
+            .filter(|w| w.address == address && admin_words.contains(&w.key) && w.old_value.len() <= 32 && w.new_value.len() <= 32)
+            .filter(|w| !w.old_value.iter().skip_while(|b| **b == 0).eq(w.new_value.iter().skip_while(|b| **b == 0)))
+            .count() as u64)
+    }
+
     fn run(root: &Path, cache: &Path, output: &Path, mode: Mode, report: &mut Value) -> Result<()> {
         let started = Instant::now();
         fs::copy(root.join("tools/src/bin/replay_role_candidates.rs"), output.join("replay-role-candidates.rs"))?;
@@ -455,7 +507,9 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if mode == Mode::Bas {
+        let candidate_path = root.join(if mode == Mode::Tagger {
+            "tests/fixtures/tagger-role-candidate/layouts.json"
+        } else if mode == Mode::Bas {
             "tests/fixtures/bas-role-candidate/layouts.json"
         } else if mode == Mode::FheB2 {
             "tests/fixtures/fhe-b2-role-candidates/layouts.json"
@@ -466,7 +520,9 @@ mod offline {
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if mode == Mode::Bas {
+        let review_path = root.join(if mode == Mode::Tagger {
+            "tests/fixtures/tagger-role-candidate/source-review.json"
+        } else if mode == Mode::Bas {
             "tests/fixtures/bas-role-candidate/source-review.json"
         } else if mode == Mode::FheB2 {
             "tests/fixtures/fhe-b2-role-candidates/source-review.json"
@@ -481,10 +537,21 @@ mod offline {
         let review = read(&review_path)?;
         let mut migrated: Value = serde_json::from_str(&baseline_text)?;
         ensure!(
-            candidates.as_array().context("candidate array")?.len() == if matches!(mode, Mode::Burnmint | Mode::Bas) { 1 } else { 2 },
+            candidates.as_array().context("candidate array")?.len() == if matches!(mode, Mode::Burnmint | Mode::Bas | Mode::Tagger) { 1 } else { 2 },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if mode == Mode::Bas {
+        report["source_rechecks"] = if mode == Mode::Tagger {
+            use erc20_balances_tools::tagger_role as bound;
+            let raw = fs::read(root.join(bound::FIXTURE).join("TaggerToken.json"))?;
+            ensure!(
+                raw == fs::read(cache.join(bound::CACHE))?,
+                "committed Tagger capture differs from original cache"
+            );
+            let capture = bound::verify_capture(&raw)?;
+            ensure!(review == bound::review(&capture)?, "Tagger review differs from complete capture");
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([review.clone()])
+        } else if mode == Mode::Bas {
             use erc20_balances_tools::bas_role as bound;
             let raw = fs::read(root.join(bound::FIXTURE).join("source-capture.json"))?;
             ensure!(
@@ -543,10 +610,21 @@ mod offline {
                 .find(|v| v["contract"] == candidate["contract"])
                 .context("candidate absent from baseline")?;
             let path = candidate["other_mapping_paths"].as_array().context("typed paths")?;
-            ensure!(
-                path.len() == 1 && path[0]["key_types"] == json!(["bytes32", "address"]) && path[0]["offset"] == 0 && path[0]["words"] == 1,
-                "candidate path changed"
-            );
+            if mode == Mode::Tagger {
+                ensure!(
+                    candidate["other_mapping_paths"]
+                        == json!([
+                            {"root":erc20_balances_tools::tagger_role::root(6),"key_types":["bytes32"],"offset":1,"words":1},
+                            {"root":erc20_balances_tools::tagger_role::root(6),"key_types":["bytes32","address"],"offset":0,"words":1}
+                        ]),
+                    "only Tagger's exact admin and membership paths"
+                );
+            } else {
+                ensure!(
+                    path.len() == 1 && path[0]["key_types"] == json!(["bytes32", "address"]) && path[0]["offset"] == 0 && path[0]["words"] == 1,
+                    "candidate path changed"
+                );
+            }
             let root = path[0]["root"].as_str().context("candidate root")?;
             let mut restored = candidate.clone();
             restored.as_object_mut().unwrap().remove("other_mapping_paths");
@@ -647,6 +725,13 @@ mod offline {
                     .unwrap()
                     .entry("persisted_fixed_pauser_admin_writes")
                     .or_default() += bas_admin_writes(&block);
+            }
+            if mode == Mode::Tagger {
+                *selected_counts
+                    .get_mut(erc20_balances_tools::tagger_role::CONTRACT)
+                    .unwrap()
+                    .entry("persisted_outer_role_admin_writes")
+                    .or_default() += tagger_admin_writes(&block)?;
             }
             let mut actual = erc20_balances::project(&block, &layouts).map_err(|e| anyhow::anyhow!("native map failed at {height}: {e}"))?;
             normalize(&mut actual)?;
@@ -853,7 +938,8 @@ mod offline {
             Some("--point-bedrock") => Mode::PointBedrock,
             Some("--fhe-b2") => Mode::FheB2,
             Some("--bas") => Mode::Bas,
-            _ => bail!("expected --burnmint, --point-bedrock, --fhe-b2 or --bas, followed by <original package root>"),
+            Some("--tagger") => Mode::Tagger,
+            _ => bail!("expected --burnmint, --point-bedrock, --fhe-b2, --bas or --tagger, followed by <original package root>"),
         };
         let cache = if mode != Mode::TokenCys {
             PathBuf::from(args.next().context("original package root required")?)
@@ -875,6 +961,9 @@ mod offline {
         if mode == Mode::Bas {
             report["scope"] = json!("One NOT-QUALIFIED BAS exact membership path plus one fixed PAUSER admin word applied to historical431; exact saved source/runtime/constructor reconstruction and native parity do not qualify deployment, current admin or replacement package. Public token source gap remains unresolved. Canonical values never seed retained state.");
         }
+        if mode == Mode::Tagger {
+            report["scope"] = json!("One NOT-QUALIFIED Tagger exact outer-admin and membership candidate applied to unchanged 431; saved CBOR-only reconstruction and native parity do not qualify deployment, current owner or replacement package. Independent token/dependency source pins for the flattened capture remain unresolved. Canonical values never seed retained state.");
+        }
         if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");
             report["error"] = json!(format!("{error:#}"));
@@ -889,6 +978,105 @@ mod offline {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn tagger_arbitrary_admin_count_requires_exact_preimage_offset_and_persistence() {
+            use erc20_balances_tools::tagger_role as bound;
+            let address = hex::decode(&bound::CONTRACT[2..]).unwrap();
+            let root = hex::decode(&bound::root(6)[2..]).unwrap();
+            let candidates: Value = serde_json::from_str(include_str!("../../../tests/fixtures/tagger-role-candidate/layouts.json")).unwrap();
+            for role in [
+                [0; 32],
+                erc20_balances::hash(b"ROLE_DEPLOYER"),
+                erc20_balances::hash(b"ROLE_OPERATOR"),
+                [0xff; 32],
+            ] {
+                let image = [role.as_slice(), root.as_slice()].concat();
+                let outer = erc20_balances::hash(&image);
+                let admin = primitive_types::U256::from_big_endian(&outer).overflowing_add(primitive_types::U256::one()).0;
+                let mut admin_key = [0; 32];
+                admin.to_big_endian(&mut admin_key);
+                let call = eth::Call {
+                    keccak_preimages: [(hex::encode(outer), hex::encode(&image))].into_iter().collect(),
+                    storage_changes: vec![eth::StorageChange {
+                        address: address.clone(),
+                        key: admin_key.to_vec(),
+                        old_value: vec![0],
+                        new_value: vec![0xff; 32],
+                        ordinal: 1,
+                    }],
+                    ..Default::default()
+                };
+                let mut block = eth::Block {
+                    system_calls: vec![call.clone()],
+                    transaction_traces: vec![eth::TransactionTrace {
+                        status: eth::TransactionTraceStatus::Succeeded as i32,
+                        calls: vec![call],
+                        ..Default::default()
+                    }],
+                    ..Default::default()
+                };
+                assert_eq!(tagger_admin_writes(&block).unwrap(), 2);
+                assert_eq!(membership_writes(&block, &candidates).unwrap()[bound::CONTRACT], 0);
+                block.system_calls.clear();
+                assert_eq!(tagger_admin_writes(&block).unwrap(), 1);
+                for field in [
+                    "outer",
+                    "plus2",
+                    "address",
+                    "noop",
+                    "failed",
+                    "reverted",
+                    "missing",
+                    "wide_old",
+                    "wide_new",
+                    "wrong_root",
+                ] {
+                    let mut b = block.clone();
+                    let tx = &mut b.transaction_traces[0];
+                    match field {
+                        "outer" => tx.calls[0].storage_changes[0].key = outer.to_vec(),
+                        "plus2" => {
+                            let mut key = [0; 32];
+                            admin.overflowing_add(primitive_types::U256::one()).0.to_big_endian(&mut key);
+                            tx.calls[0].storage_changes[0].key = key.to_vec();
+                        }
+                        "address" => tx.calls[0].storage_changes[0].address[0] ^= 1,
+                        "noop" => tx.calls[0].storage_changes[0].old_value = vec![0xff; 32],
+                        "failed" => tx.status = eth::TransactionTraceStatus::Failed as i32,
+                        "reverted" => tx.calls[0].state_reverted = true,
+                        "missing" => tx.calls[0].keccak_preimages.clear(),
+                        "wide_old" => tx.calls[0].storage_changes[0].old_value = vec![0; 33],
+                        "wide_new" => tx.calls[0].storage_changes[0].new_value = vec![1; 33],
+                        _ => {
+                            let mut changed = image.clone();
+                            changed[63] = 7;
+                            tx.calls[0].keccak_preimages = [(hex::encode(erc20_balances::hash(&changed)), hex::encode(changed))].into_iter().collect();
+                        }
+                    }
+                    assert_eq!(tagger_admin_writes(&b).unwrap(), 0, "{field}");
+                }
+                let mut bad = block.clone();
+                bad.transaction_traces[0].calls[0]
+                    .keccak_preimages
+                    .insert(hex::encode(outer), hex::encode([0; 64]));
+                assert!(tagger_admin_writes(&bad).is_err());
+                // A real membership chain must be counted only as membership.
+                let mut member = [0; 32];
+                member[12..].fill(0x33);
+                let inner = [member.as_slice(), outer.as_slice()].concat();
+                let key = erc20_balances::hash(&inner);
+                block.transaction_traces[0].calls[0]
+                    .keccak_preimages
+                    .insert(hex::encode(key), hex::encode(inner));
+                block.transaction_traces[0].calls[0].storage_changes[0].key = key.to_vec();
+                block.transaction_traces[0].calls[0].storage_changes[0].new_value = vec![1];
+                assert_eq!(tagger_admin_writes(&block).unwrap(), 0);
+                assert_eq!(membership_writes(&block, &candidates).unwrap()[bound::CONTRACT], 1);
+                block.transaction_traces[0].calls[0].storage_changes[0].old_value = vec![0, 1];
+                assert_eq!(membership_writes(&block, &candidates).unwrap()[bound::CONTRACT], 0);
+            }
+        }
 
         #[test]
         fn bas_fixed_admin_count_requires_exact_contract_slot_and_persisted_change() {

@@ -242,6 +242,22 @@ validation and replay artifacts are under `out/bas-role-20260928/` in
 `bsc-exclusion-review`; `source-03/` preserves the final preparation source.
 The candidate remains NOT-QUALIFIED, and both published cohorts are unchanged.
 
+The separate [Tagger role candidate](../erc20/balances/docs/tagger-role-candidate.md)
+preserves the source's owner-authorized arbitrary-role admin setter through
+an exact outer `[bytes32]` path at offset 1, alongside root 6's nested
+membership path. Owner bypass of membership checks and self-only renouncement
+remain source facts; the mapper validates storage shapes, not authorization.
+Every other metadata field and both historical cohorts remain unchanged.
+The complete flattened capture binds compiler input/output, layout and full
+runtime/creation bytes. Only one exact 53-byte CBOR replacement per bytecode
+array is permitted, including an unchanged creation suffix; no immutable,
+link or constructor-argument substitution is allowed. The original `match`
+labels remain intact. An independent public token pin and separately verified
+upstream dependency files remain unresolved. Final preparation and validation
+artifacts are under `out/tagger-role-20260928/` in
+`network-verification-config`; historical package evidence does not qualify
+this candidate or establish actual admin/member operation visibility.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and

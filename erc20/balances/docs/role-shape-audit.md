@@ -61,7 +61,7 @@ published baseline and the other reviewed profiles remain unchanged.
 ## Candidate progress
 
 The original inventory and its evidence above remain historical. Separate
-**NOT-QUALIFIED** fixtures now cover eight of its 33 boolean-role profiles;
+**NOT-QUALIFIED** fixtures now cover nine of its 33 boolean-role profiles;
 they do not replace the original 431-profile baseline or qualified 425 cohort.
 Each linked report records its complete saved interval, initialized observed
 holders, cold gaps, source bindings and regression controls. Synthetic write
@@ -74,9 +74,10 @@ shapes do not establish executed authorization or real producer visibility.
 | [Point / Bedrock](point-bedrock-role-candidates.md) | Exact membership at roots 0 / 5; Bedrock freeze fields retained. | Twenty-three captured files; Point's independent token repository remains unresolved. |
 | [FHE / B2Token](fhe-b2-role-candidates.md) | Exact membership at roots 5 / 9; both broad FHE permissions removed. | All 51 files match exact primary pins; 15 immutable words are independently recomputed. |
 | [BAS](bas-role-candidate.md) | Exact root-6 membership plus only the fixed PAUSER admin word. | Thirteen exact dependencies; six public token revisions do not match the captured token. Constructor binding does not admit creation or attest current admin state. |
+| [Tagger](tagger-role-candidate.md) | Exact root-6 membership and arbitrary outer admin at offset 1, preserving the owner-accessible setter. | One flattened captured source with exact bounded CBOR substitutions; independent token and upstream dependency pins remain unresolved. |
 
-The remaining 25 boolean-role profiles are SecuritiesToken (17), BTRToken,
-DeepTokenOFT, TaggerToken, ArtxToken, KgenOFT, PTokenV2 and GMToken (2).
+The remaining 24 boolean-role profiles are SecuritiesToken (17), BTRToken,
+DeepTokenOFT, ArtxToken, KgenOFT, PTokenV2 and GMToken (2).
 Each needs its own reachability, initialization and dependency review before
 candidate migration. This classification concerns the configured role field;
 some contracts also contain separate enumerable or dynamic metadata that must
