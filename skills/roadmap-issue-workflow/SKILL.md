@@ -7,8 +7,12 @@ description: How roadmap issues in pinax-network/substreams-evm-extended move fr
 
 1. **Read the issue** (`gh issue view N`) and split its acceptance list into
    offline items (Rust code, tests, saved-block replays, pinned-source
-   research, docs) and live-gated items (RPC, Firehose, SPKG, sink). Every
-   roadmap issue says live use is paused; do not start live items.
+   research, docs, local package build/inspection) and live-gated items
+   (RPC, Firehose, streamed-package and sink checks). Read the latest comments
+   and evidence as well as the original issue body: BSC work was separately
+   resumed in September 2026, while other-network and pool-state gates remain.
+   Historical reports do not authorize a new live run; honor the current
+   session's scope and explicit holds.
 2. **Branch from a fresh main** (`git checkout main && git pull`) with a short
    kebab-case branch name. Another agent commits on `codex/*` branches; pull
    before branching and never rebase their work.
@@ -17,8 +21,8 @@ description: How roadmap issues in pinax-network/substreams-evm-extended move fr
    the WASM path (`#[cfg(target_arch = "wasm32")] mod handler` for maps,
    `#![cfg(not(target_arch = "wasm32"))]` for host crates).
 4. **Validate** exactly what CI runs:
-   `cargo fmt --all -- --check`, `cargo test --workspace --lib --bins`,
-   `cargo clippy --workspace --all-targets -- -D warnings`,
+   `cargo fmt --all -- --check`, `cargo test --locked --workspace --lib --bins --tests`,
+   `cargo clippy --locked --workspace --all-targets -- -D warnings`,
    `cargo check --locked --workspace --target wasm32-unknown-unknown`.
    Clippy includes rustdoc lints (for example "link reference defined in list
    item" for `* [`Name`]:` in module docs). New dependencies need one unlocked

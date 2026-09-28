@@ -157,9 +157,10 @@ Extended EVM extraction).
 
 A protocol brand is not a runtime identifier. Each selection below names the
 deployment identity read from an official registry at a pinned commit and the
-source revision whose semantics the reference models will follow. The
-deployed runtime code hash and the activation block of each implementation
-must still be bound from chain data before qualification.
+source revision whose semantics the reference models follow. Qualification
+requires deployed runtime identities and activation positions from chain
+data. The BSC Aave and static-aToken epochs below have recorded bindings and
+bounded packaged-output checks; the remaining selections are unqualified.
 
 ### Aave V3 (issue #13, actions #20)
 
@@ -170,10 +171,18 @@ Address book `bgd-labs/aave-address-book@4e13aa197ca74e84c7e878bc752e519c260d6f3
 | BSC | `0x6807dc923806fE8Fd134338EABCA509979a7e0cB` | `0x5e2B0FcC5b9734C7Ec0A03401ee9e6805F783B6d` | `0x7e199Fc666368d95B9EaEfA7D2d8081AcAb74134` | USDT `0xa9251ca9DE909CB71783723713B21E4233fbf1B1` (underlying `0x55d398326f99059fF775485246999027B3197955`), USDC `0x00901a076785e0906d1028c7d6372d247bec7d61` (underlying `0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d`) | 18 and 18 on BSC |
 | Ethereum (Core market) | `0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2` | `0x728a138A4823392C2EFA55e028d434F526fE03CF` | `0xadC45Df3cf1584624C97338BEF33363BF5b97AdA` | USDC `0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c` (underlying `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48`), USDT `0x23878914EFE38d27C4D67Ab83ed1b93A74D4086a` (underlying `0xdAC17F958D2ee523a2206206994597C13D831ec7`) | 6 and 6 |
 
-- **First epoch**: BSC USDT and USDC aTokens under the v3.7 implementation
-  (aToken revision 5), because BSC is the only network with saved Extended
-  evidence. Ethereum Core follows under #8. Lido and EtherFi Ethereum markets
-  are separate Pools and are not selected.
+- **Qualified BSC epoch (#13, PR #54)**: USDT and USDC aTokens under the
+  v3.7 implementation (aToken revision 5), starting at block **101,087,794,
+  ordinal 3347**, after the Pool implementation install. The
+  [epoch parameters](../aave/balance-state/epochs/bsc-aave-v3.json) and
+  [runtime binding evidence](../aave/balance-state/docs/evidence/epoch-binding-bsc-2026-09-22.json)
+  accompany [packaged-output parity](../aave/balance-state/docs/evidence/live-parity-bsc-2026-09-22-rev3.json)
+  over 2,060 delivered blocks, including 123,449,757–123,451,756 and selected
+  historical blocks: 103/103 scaled and evaluated holder balances matched,
+  for 28 holders written in those blocks. This does not qualify unobserved
+  holders or untested intervals, or establish source-build bytecode equality. Ethereum
+  Core follows under #8. Lido and EtherFi Ethereum markets are separate
+  Pools and are not selected.
 - **Getter**: `balanceOf(user) = scaledBalance.rayMulFloor(POOL.getReserveNormalizedIncome(asset))`
   since v3.5 (`TokenMath.getATokenBalance`); `getNormalizedIncome` returns the
   stored `liquidityIndex` when `lastUpdateTimestamp == block.timestamp`, else
@@ -188,9 +197,10 @@ Address book `bgd-labs/aave-address-book@4e13aa197ca74e84c7e878bc752e519c260d6f3
   eras for non-AAVE aTokens.
 - **Reserve storage** (`DataTypes.ReserveData`): `liquidityIndex` and
   `currentLiquidityRate` share one slot; `lastUpdateTimestamp` (uint40) is
-  packed with `deficit`, `id` and `liquidationGracePeriodUntil`. Slot offsets
-  are inferred from declaration order and must be confirmed against a
-  compiler layout dump.
+  packed with `deficit`, `id` and `liquidationGracePeriodUntil`. The pinned
+  source's slots and member offsets are
+  [compiler-verified with solc 0.8.27](evidence/storage-layouts/aave-v3-origin@8305565a.json)
+  and checked by [storage-layout tests](../aave/balance-state/tests/storage_layout.rs).
 - **Actions (#20)**: `Supply`, `Withdraw`, `Borrow`, `Repay`, `LiquidationCall`,
   `FlashLoan` on the Pool proxy (topic0 values in §4); `user`/`initiator`/
   `liquidator` are unindexed in several events and must be decoded from data.
@@ -236,12 +246,24 @@ Comptroller/Unitroller `0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B`; Timelock `0
 Ethereum mainnet, `docs.lido.fi/deployed-contracts` (protocol version v4.0.1) and `lidofinance/core` tag v4.0.1 (`2da0f48f1a2a103a394dcf8760810fe9165697fb`).
 
 - stETH/Lido proxy `0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84`; implementation listed `0x028271E30a695c0527A0C50cA30603feD004cDb0`; wstETH `0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0`; WithdrawalQueueERC721 proxy `0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1` (deploy record implementation `0xE42C659Dc09109566720EA8b2De186c2Be7D94D9`); Accounting proxy `0x23ED611be0e1a820978875C0122F92260804cdDf`; VaultHub proxy `0x1d201BE093d847f6446530Efb0E8Fb426d176709`.
-- **Epoch**: Lido contract version 4 (V3 stVaults with external shares are live; `ContractVersionSet(uint256)` logs mark upgrade boundaries). `balanceOf = shares[holder] × totalPooledEther / totalShares`; since V3 `totalShares` occupies the low 128 bits of `keccak256("lido.StETH.totalAndExternalShares")` with external shares in the high 128 bits, and the pre-V3 slot `keccak256("lido.StETH.totalShares")` is zeroed at migration. `totalPooledEther = internalEther + externalShares × internalEther / internalShares`, so the share rate is unchanged by external shares. CL balances reach the execution layer only through `Accounting.handleOracleReport` (`CLBalancesUpdated`, `TokenRebased`), so every passive balance is piecewise-constant between reports.
+- **Selected epoch**: Lido contract version 4, with deployment and activation
+  qualification still outstanding under #23. The getter is
+  `balanceOf = floor(shares[holder] × internalEther / internalShares)`, where
+  `internalShares = totalShares − externalShares`. Since V3 `totalShares`
+  occupies the low 128 bits of `keccak256("lido.StETH.totalAndExternalShares")`
+  with external shares in the high 128 bits, and the pre-V3 slot
+  `keccak256("lido.StETH.totalShares")` is zeroed at migration.
+  `totalPooledEther = internalEther + floor(externalShares × internalEther / internalShares)`
+  is a separate getter value: substituting its already-truncated ratio
+  `totalPooledEther / totalShares` can change the observable holder balance
+  ([exact reference model](../conformance/src/lido.rs)). CL balances reach
+  the execution layer through accounting reports; unchanged holders are
+  evaluated from retained shares and the latest global inputs.
 - wstETH conversion, withdrawal-request NFTs and validator balances are separate models.
 
 ### ERC-4626 (issue #24)
 
-- **First BSC candidate**: the legacy Aave static aToken for BNB USDT
+- **Qualified BSC vault (#24, PR #57)**: the legacy Aave static aToken for BNB USDT
   `0x0471D185cc7Be61E154277cAB2396cD397663da6` (`stataBnbUSDT`, address-book
   key `USDT_STATIC_A_TOKEN`, created by `LEGACY_STATIC_A_TOKEN_FACTORY`
   `0x326aB0868bD279382Be2DF5E228Cb8AF38649AB4`; the address book registers no
@@ -254,6 +276,15 @@ Ethereum mainnet, `docs.lido.fi/deployed-contracts` (protocol version v4.0.1) an
   The current `StataTokenV2` (`ERC4626StataTokenUpgradeable`, aave-v3-origin
   pin above) uses the numerically identical conversion but is a different
   runtime; the adapter binds to the deployed implementation.
+  The [bound epoch](../erc4626/balance-state/epochs/bsc-stata-usdt.json)
+  starts at **101,087,794 / 3347**, with vault implementation
+  `0x1d69c48a35ddD241e72a31DB0E637676d89fC553` (revision 2).
+  [Packaged-output parity](../erc4626/balance-state/docs/evidence/live-parity-bsc-stata-2026-09-23.json)
+  covers 2,064 delivered blocks, including 114,858,030–114,860,029 and selected
+  historical blocks: 162/162 shares, `convertToAssets` and `rate()` checks
+  matched for 11 holders written in those blocks. `maxWithdraw` / `maxRedeem`
+  limits and rewards were not checked; other vaults and intervals remain
+  unqualified.
 - **Cross-chain reference**: Savings DAI `0x83f20f44975d03b1b09e64809b757c47f942beea` (Ethereum; `sky-ecosystem/sdai`, deployed commit `665879762f8b5df5d234463f45d1d6a49bd4fbeb`): `convertToAssets = shares × chi′ / RAY` with `chi′ = rpow(dsr, now − rho) × chi / RAY` from `MCD_POT` `0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7`; `previewRedeem == convertToAssets`; `previewWithdraw` rounds up.
 - OpenZeppelin ERC4626 (v5.0.0) derived vaults use the virtual-offset formula
   `shares × (totalAssets + 1) / (totalSupply + 10^offset)`; Venus ERC4626 on
@@ -315,19 +346,23 @@ that will close it.
 5. Base: whether a nonzero operator fee is configured since Isthmus, Jovian
    semantics, and producer fixtures showing where a failed deposit's mint is
    recorded (#8, #17).
-6. Aave: activation blocks and code hashes of aToken revisions 4 and 5 and of
-   the Pool implementation on BSC and Ethereum; compiler storage-layout dump
-   for `ReserveData`; the live implementation behind the legacy BNB static
-   aToken proxy at the chosen epoch (#13, #24).
-7. Compound v2: implementation and interest-rate model in force for cDAI and
-   cUSDC at the chosen epoch; slot-level layout of the 2019 cUSDC runtime
-   (#14).
-8. Comet: storage slot indices behind the transparent proxy; which proxies
-   run legacy `Comet` versus `CometWithExtendedAssetList`; current
-   immutables (#15).
-9. Lido: mainnet enactment blocks of contract versions 2, 3 and 4; the
-   `shares` mapping slot against a compiled layout; whether every report
-   emits `TokenRebased` (#23).
+6. Aave: runtime and activation binding for Ethereum Core and additional
+   revisions/markets (#8). The selected BSC revision-5 aTokens, Pool and
+   legacy static-aToken epoch are bound and have bounded packaged-output
+   parity (#13/#24, PRs #54/#57); the pinned `ReserveData` layout is compiled.
+   Their evidence does not establish source-build bytecode equality or
+   qualify other epochs.
+7. Compound v2: deployed runtime/source equality, actual USDC implementation
+   and activation positions, and the interest-rate model in force at the
+   chosen epoch (#14). The selected 2019 cUSDC/cETH source layouts are
+   compiler-verified; that does not bind deployed bytecode.
+8. Comet: actual implementation/runtime and immutable bindings and activation
+   positions (#15). Pinned source storage slots are compiler-verified; the
+   configured deployment epoch still contains placeholders.
+9. Lido: the selected version-4 runtime/Aragon resolution identities,
+   activation after migration, and captured getter/package parity (#23).
+   The `shares` mapping slot is already checked against the pinned solc
+   0.4.24 AST-derived layout; this does not bind the deployed runtime.
 10. Permit2 and WETH addresses on BSC, Base, HyperEVM and Arc; whether
     `SignatureTransfer` emits any Permit2-level log (#19).
 11. Whether `REASON_REWARD_BLOB_FEE` can appear inside a failed BSC blob

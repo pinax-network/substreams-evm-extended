@@ -28,14 +28,16 @@ unknown, not zero.
 | `GlobalState` `LIDO_TOTAL_POOLED_ETHER` (`DERIVED`) | `internalEther + externalShares × internalEther / internalShares`, only when all three words were written in the block and `internalShares > 0` | pure function of the rows above |
 | `GlobalState` `LIDO_CONTRACT_VERSION` | observed write of `keccak256("lido.Versioned.contractVersion")`, and the qualified value as a constant at BOUND / REAFFIRMED | stETH storage, parameters |
 | `GlobalState` `LIDO_REPORT_*` (`OBSERVED_LOG`) | `TokenRebased` `reportTimestamp`, `postTotalShares`, `postTotalEther`, `sharesMintedAsFees` from receipts of succeeded transactions | stETH logs |
-| `ModelEpoch` INVALIDATED | each contract-version transition to an unqualified value (`CONTRACT_VERSION_SET`); each Aragon resolution-pointer transition (`IMPLEMENTATION_POINTER_WRITE` / `DEPENDENCY_POINTER_WRITE`); proxy or dependency code changes (`CODE_CHANGE` / `DEPENDENCY_CODE_CHANGE`), with evidence | persisted writes and code changes |
+| `ModelEpoch` INVALIDATED | each persisted contract-version change inside the epoch (`CONTRACT_VERSION_SET`), including changes into the configured version; each Aragon resolution-pointer write (`IMPLEMENTATION_POINTER_WRITE` / `DEPENDENCY_POINTER_WRITE`), including equal-value writes; proxy or dependency code changes (`CODE_CHANGE` / `DEPENDENCY_CODE_CHANGE`), with evidence | persisted writes and code changes |
 | `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat: Kernel, stETH implementation and Kernel implementation via storage pointers; Accounting declared | parameters |
 | `BlockClock` | exactly one per block | header |
 
-Since contract version 3 the share rate is `internalEther / internalShares`,
-not `totalPooledEther / totalShares`; the two are equal as rationals but not
-as truncated integers, so the consumer must use the getter's form. The
-pre-V3 slot `keccak256("lido.StETH.totalShares")` is zeroed at migration and
+Since contract version 3 the getter is
+`floor(shares × internalEther / internalShares)`, where
+`internalShares = totalShares − externalShares`. The separate
+`totalPooledEther` getter already truncates its external-share contribution;
+using `totalPooledEther / totalShares` can therefore change the holder balance.
+The pre-V3 slot `keccak256("lido.StETH.totalShares")` is zeroed at migration and
 is **not** a reviewed slot of this epoch: a write to it fails the block, which
 is the intended behaviour for an epoch that does not cover that version.
 
@@ -97,7 +99,7 @@ install: that call writes the contract version 3 → 4 and wipes the retired v3
 positions `lido.Lido.clBalanceAndClValidators` and
 `lido.Lido.bufferedEtherAndDepositedValidators` (`Lido.sol:311-341`,
 function-local constants that no storage layout lists). Inside the epoch any
-persisted contract-version write invalidates (`CONTRACT_VERSION_SET`; an old
+persisted contract-version change invalidates (`CONTRACT_VERSION_SET`; an old
 word of 3 shows the epoch overlapped v3 storage) and a write to a retired v3
 position invalidates as `STORAGE_MIGRATION`, so an early activation yields
 evidence rather than a halted stream. The BOUND row carries the activation ordinal as its `ordinal`,
