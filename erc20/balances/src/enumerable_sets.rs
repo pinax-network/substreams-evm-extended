@@ -1,10 +1,14 @@
-//! Exact observed-write witnesses for the reviewed OZ 3.4.2 address EnumerableSet.
+//! Exact observed-write witnesses for legacy DSG/OZ3.4.2 and the separately
+//! opted-in PTokenV2 solc0.8.28/OZ5.4 coupled membership/set template.
 //!
 //! The caller binds the runtime and an outer mapping(bytes32 => RoleData) root.
 //! This rule grants event permissions, never an array range or an inferred key.
 //! Its block-local constraints do not reconstruct untouched historical members.
 //! The qualified runtime must establish the empty-unused-tail invariant; a zero
 //! member remains valid. Unknown no-op keys retain the mapper's ordinary policy.
+//! Checked logical growth is a conservative admission restriction: the selected
+//! PToken compiler actually wraps a maximum-length push outside coherent state.
+use crate::layout::EnumerableSemantics;
 use crate::{eth, hash, require, word, VerifiedLayout};
 use std::collections::{BTreeMap, BTreeSet};
 use substreams::errors::Error;
@@ -92,12 +96,15 @@ struct Role {
     account: Vec<u8>,
     array: Word,
     index: Word,
+    membership: Option<Word>,
+    complete_roots: bool,
 }
 
 #[derive(Clone, Copy)]
 enum Namespace {
     Head(usize),
     Index(usize, Word),
+    Membership(usize, Word),
     Forbidden,
 }
 
@@ -112,10 +119,27 @@ struct Operation {
     role: usize,
     head: usize,
     observed: Vec<usize>,
-    logical: Vec<Slot>,
+    logical: Vec<Stage>,
+    // Source-implied coherence only. These are not SSTORE stages or permissions.
+    constraints: Vec<Slot>,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum StageKind {
+    Length,
+    Element,
+    Position,
+    Membership,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct Stage {
+    slot: Slot,
+    kind: StageKind,
+}
+fn stages<const N: usize>(slots: [Slot; N], kinds: [StageKind; N]) -> Vec<Stage> {
+    slots.into_iter().zip(kinds).map(|(slot, kind)| Stage { slot, kind }).collect()
 }
 
-fn collect(block: &eth::Block, accounts: &BTreeSet<Vec<u8>>) -> Result<Collected, Error> {
+fn collect(block: &eth::Block, accounts: &BTreeSet<Vec<u8>>, coupled_accounts: &BTreeSet<Vec<u8>>) -> Result<Collected, Error> {
     let mut frames = Vec::new();
     let mut events = Vec::new();
     let mut ordinals = BTreeSet::new();
@@ -135,6 +159,10 @@ fn collect(block: &eth::Block, accounts: &BTreeSet<Vec<u8>>) -> Result<Collected
                 if !accounts.contains(&row.address) {
                     continue;
                 }
+                require(
+                    !coupled_accounts.contains(&row.address) || row.key.len() == 32,
+                    "coupled enumerable storage key must be exactly32 bytes",
+                )?;
                 require(
                     row.ordinal > 0 && ordinals.insert(row.ordinal),
                     "enumerable-set storage ordinal is missing or duplicated",
@@ -195,6 +223,10 @@ fn protected_roots(layout: &VerifiedLayout) -> BTreeSet<Word> {
     roots.extend(layout.other_mapping_paths.iter().map(|path| path.root));
     roots.extend(&layout.address_lists);
     roots.extend(layout.enumerable_address_sets.iter().map(|set| set.root));
+    roots.extend(layout.enumerable_address_sets.iter().filter_map(|set| match set.semantics {
+        EnumerableSemantics::PToken { membership_root } => Some(membership_root),
+        EnumerableSemantics::Oz342 => None,
+    }));
     roots.extend(layout.proxy.as_ref().map(|proxy| proxy.implementation_slot));
     roots.extend(layout.beacon_proxy.as_ref().map(|proxy| proxy.beacon_slot));
     roots.extend(layout.zero_balance.as_ref().and_then(|rule| rule.storage_slot));
@@ -241,24 +273,54 @@ fn namespaces(
             }
         }
         for set in &layout.enumerable_address_sets {
-            for (head, _) in by_parent.get(&set.root).into_iter().flatten() {
-                // The complete bytes32 outer key needs no padding restriction.
+            let membership_root = match set.semantics {
+                EnumerableSemantics::Oz342 => None,
+                EnumerableSemantics::PToken { membership_root } => Some(membership_root),
+            };
+            // Either side discovers the role. Derived counterparts identify
+            // fragments but never replace a missing permission preimage.
+            let mut outer = BTreeSet::new();
+            outer.extend(by_parent.get(&set.root).into_iter().flatten().map(|(_, r)| *r));
+            if let Some(root) = membership_root {
+                outer.extend(by_parent.get(&root).into_iter().flatten().map(|(_, r)| *r));
+            }
+            for role_key in outer {
+                let head = mapping(role_key, set.root);
+                let membership = membership_root.map(|root| mapping(role_key, root));
+                let complete_roots = preimages.contains_key(&head) && membership.is_none_or(|base| preimages.contains_key(&base));
                 let id = roles.len();
-                let index = plus(*head, ONE);
+                let index = plus(head, ONE);
                 let role = Role {
                     account: layout.contract.clone(),
-                    array: hash(head),
+                    array: hash(&head),
                     index,
+                    membership,
+                    complete_roots,
                 };
                 for (key, name) in [
-                    (*head, Namespace::Head(id)),
+                    (head, Namespace::Head(id)),
                     (index, Namespace::Forbidden),
                     (plus(index, ONE), Namespace::Forbidden),
                 ] {
                     require(names.insert((role.account.clone(), key), name).is_none(), "ambiguous enumerable-set namespace")?;
                 }
+                if let Some(base) = membership {
+                    for key in [base, plus(base, ONE), plus(plus(base, ONE), ONE)] {
+                        require(
+                            names.insert((role.account.clone(), key), Namespace::Forbidden).is_none(),
+                            "ambiguous membership namespace",
+                        )?;
+                    }
+                    for (key, member) in by_parent.get(&base).into_iter().flatten() {
+                        let name = if member[..12] == [0; 12] {
+                            Namespace::Membership(id, *member)
+                        } else {
+                            Namespace::Forbidden
+                        };
+                        require(names.insert((role.account.clone(), *key), name).is_none(), "ambiguous membership leaf")?;
+                    }
+                }
                 for (key, member) in by_parent.get(&index).into_iter().flatten() {
-                    // A dirty address preimage is recognized but never permitted.
                     let name = if member[..12] == [0; 12] {
                         Namespace::Index(id, *member)
                     } else {
@@ -285,19 +347,19 @@ fn member(event: &Event, role: usize, names: &BTreeMap<Key, Namespace>) -> Optio
 
 // The tiny matcher can omit only independently derived equal assignments. Two
 // embeddings of the same observed zero no-op are equivalent, not ambiguous.
-fn matches(logical: &[Slot], observed: &[usize], events: &[Event]) -> bool {
+fn matches(logical: &[Stage], observed: &[usize], events: &[Event]) -> bool {
     match logical.split_first() {
         None => observed.is_empty(),
         Some((first, rest)) => {
-            (first.old == first.new && matches(rest, observed, events))
+            (first.slot.old == first.slot.new && matches(rest, observed, events))
                 || observed
                     .split_first()
-                    .is_some_and(|(id, remaining)| events[*id].slot == *first && matches(rest, remaining, events))
+                    .is_some_and(|(id, remaining)| events[*id].slot == first.slot && matches(rest, remaining, events))
         }
     }
 }
 
-fn candidates(
+fn legacy_candidates(
     role_id: usize,
     head: usize,
     position: usize,
@@ -309,7 +371,7 @@ fn candidates(
     let role = &roles[role_id];
     let header = events[head].slot;
     let mut found = Vec::new();
-    let mut insert = |logical: Vec<Slot>, start: usize, end: usize| {
+    let mut insert = |logical: Vec<Stage>, start: usize, end: usize| {
         let observed = &sequence[start..=end];
         if matches(&logical, observed, events) {
             let candidate = Operation {
@@ -317,6 +379,7 @@ fn candidates(
                 head,
                 observed: observed.to_vec(),
                 logical,
+                constraints: vec![],
             };
             if !found.contains(&candidate) {
                 found.push(candidate);
@@ -332,15 +395,18 @@ fn candidates(
                 continue;
             }
             insert(
-                vec![
-                    header,
-                    Slot {
-                        key: plus(role.array, header.old),
-                        old: ZERO,
-                        new: address,
-                    },
-                    last.slot,
-                ],
+                stages(
+                    [
+                        header,
+                        Slot {
+                            key: plus(role.array, header.old),
+                            old: ZERO,
+                            new: address,
+                        },
+                        last.slot,
+                    ],
+                    [StageKind::Length, StageKind::Element, StageKind::Position],
+                ),
                 position,
                 end,
             );
@@ -370,25 +436,34 @@ fn candidates(
             }
         }
         for tail in tails {
-            let logical = vec![
-                Slot {
-                    key: plus(role.array, decrement(p).unwrap()),
-                    old: address,
-                    new: tail,
-                },
-                Slot {
-                    key: mapping(tail, role.index),
-                    old: header.old,
-                    new: p,
-                },
-                Slot {
-                    key: plus(role.array, header.new),
-                    old: tail,
-                    new: ZERO,
-                },
-                header,
-                last.slot,
-            ];
+            let logical = stages(
+                [
+                    Slot {
+                        key: plus(role.array, decrement(p).unwrap()),
+                        old: address,
+                        new: tail,
+                    },
+                    Slot {
+                        key: mapping(tail, role.index),
+                        old: header.old,
+                        new: p,
+                    },
+                    Slot {
+                        key: plus(role.array, header.new),
+                        old: tail,
+                        new: ZERO,
+                    },
+                    header,
+                    last.slot,
+                ],
+                [
+                    StageKind::Element,
+                    StageKind::Position,
+                    StageKind::Element,
+                    StageKind::Length,
+                    StageKind::Position,
+                ],
+            );
             for start in position.saturating_sub(3)..=position {
                 insert(logical.clone(), start, position + 1);
             }
@@ -405,6 +480,157 @@ fn candidates(
                 && candidate.observed.iter().all(|id| other.observed.contains(id))
         })
     });
+    found
+}
+
+// Exact selected PToken compiler template. Membership precedes every set
+// mutation. No standalone bool/index/length fragment can supply permission.
+fn coupled_candidates(
+    role_id: usize,
+    head: usize,
+    position: usize,
+    sequence: &[usize],
+    events: &[Event],
+    roles: &[Role],
+    names: &BTreeMap<Key, Namespace>,
+) -> Vec<Operation> {
+    let role = &roles[role_id];
+    if !role.complete_roots {
+        return vec![];
+    }
+    let base = role.membership.unwrap();
+    let header = events[head].slot;
+    let mut found = vec![];
+    let membership = |address: Word| {
+        let key = mapping(address, base);
+        matches!(names.get(&(role.account.clone(),key)),Some(Namespace::Membership(owner,member)) if *owner==role_id && *member==address).then_some(key)
+    };
+    let mut insert = |logical: Vec<Stage>, constraints: Vec<Slot>, start: usize, end: usize| {
+        let observed = &sequence[start..=end];
+        if matches(&logical, observed, events) {
+            let op = Operation {
+                role: role_id,
+                head,
+                observed: observed.to_vec(),
+                logical,
+                constraints,
+            };
+            if !found.contains(&op) {
+                found.push(op);
+            }
+        }
+    };
+    if increment(header.old) == Some(header.new) {
+        let Some(start) = position.checked_sub(1) else { return found };
+        for end in position + 1..=(position + 2).min(sequence.len().saturating_sub(1)) {
+            let last = &events[sequence[end]];
+            let Some(address) = member(last, role_id, names) else { continue };
+            let Some(key) = membership(address) else { continue };
+            if last.slot.old != ZERO || last.slot.new != header.new {
+                continue;
+            }
+            insert(
+                stages(
+                    [
+                        Slot { key, old: ZERO, new: ONE },
+                        header,
+                        Slot {
+                            key: plus(role.array, header.old),
+                            old: ZERO,
+                            new: address,
+                        },
+                        last.slot,
+                    ],
+                    [StageKind::Membership, StageKind::Length, StageKind::Element, StageKind::Position],
+                ),
+                vec![],
+                start,
+                end,
+            );
+        }
+    } else if decrement(header.old) == Some(header.new) {
+        let Some(&last_id) = sequence.get(position + 1) else { return found };
+        let last = &events[last_id];
+        let Some(address) = member(last, role_id, names) else { return found };
+        let Some(key) = membership(address) else { return found };
+        let p = last.slot.old;
+        if p == ZERO || p > header.old || last.slot.new != ZERO {
+            return found;
+        }
+        let boolean = Slot { key, old: ONE, new: ZERO };
+        if p == header.old {
+            let logical = stages(
+                [
+                    boolean,
+                    Slot {
+                        key: plus(role.array, header.new),
+                        old: address,
+                        new: ZERO,
+                    },
+                    header,
+                    last.slot,
+                ],
+                [StageKind::Membership, StageKind::Element, StageKind::Length, StageKind::Position],
+            );
+            for start in position.saturating_sub(2)..position {
+                insert(logical.clone(), vec![], start, position + 1);
+            }
+        } else {
+            let mut tails = BTreeSet::new();
+            for &id in &sequence[position.saturating_sub(4)..position] {
+                let moved = &events[id];
+                if moved.slot.old == header.old && moved.slot.new == p {
+                    if let Some(tail) = member(moved, role_id, names) {
+                        if tail != address {
+                            tails.insert(tail);
+                        }
+                    }
+                }
+            }
+            for tail in tails {
+                let logical = stages(
+                    [
+                        boolean,
+                        Slot {
+                            key: plus(role.array, decrement(p).unwrap()),
+                            old: address,
+                            new: tail,
+                        },
+                        Slot {
+                            key: mapping(tail, role.index),
+                            old: header.old,
+                            new: p,
+                        },
+                        Slot {
+                            key: plus(role.array, header.new),
+                            old: tail,
+                            new: ZERO,
+                        },
+                        header,
+                        last.slot,
+                    ],
+                    [
+                        StageKind::Membership,
+                        StageKind::Element,
+                        StageKind::Position,
+                        StageKind::Element,
+                        StageKind::Length,
+                        StageKind::Position,
+                    ],
+                );
+                // The source never reads or writes M(t). Derive its invariant
+                // only as a coherence constraint; require no invented preimage.
+                let constraints = vec![Slot {
+                    key: mapping(tail, base),
+                    old: ONE,
+                    new: ONE,
+                }];
+                for start in position.saturating_sub(4)..position {
+                    insert(logical.clone(), constraints.clone(), start, position + 1);
+                }
+            }
+        }
+    }
     found
 }
 
@@ -540,7 +766,26 @@ pub(crate) fn validate(
     if accounts.is_empty() {
         return Ok(BTreeSet::new());
     }
-    let collected = collect(block, &accounts)?;
+    if layouts.iter().any(|l| {
+        l.enumerable_address_sets
+            .iter()
+            .any(|s| matches!(s.semantics, EnumerableSemantics::PToken { .. }))
+    }) {
+        require(
+            matches!(block.ver, 4 | 5),
+            "selected PToken enumerable template requires Extended producer version4 or5",
+        )?;
+    }
+    let coupled_accounts = layouts
+        .iter()
+        .filter(|l| {
+            l.enumerable_address_sets
+                .iter()
+                .any(|s| matches!(s.semantics, EnumerableSemantics::PToken { .. }))
+        })
+        .map(|l| l.contract.clone())
+        .collect();
+    let collected = collect(block, &accounts, &coupled_accounts)?;
     let events = &collected.events;
     let Namespaces { roles, names, protected } = namespaces(layouts, preimages, balance_candidates)?;
     let mut sequences = BTreeMap::<(usize, Vec<u8>), Vec<usize>>::new();
@@ -566,7 +811,11 @@ pub(crate) fn validate(
             let Some(Namespace::Head(role)) = names.get(&(event.account.clone(), event.slot.key)) else {
                 continue;
             };
-            let mut possible = candidates(*role, id, position, sequence, events, &roles, &names);
+            let mut possible = if roles[*role].membership.is_some() {
+                coupled_candidates(*role, id, position, sequence, events, &roles, &names)
+            } else {
+                legacy_candidates(*role, id, position, sequence, events, &roles, &names)
+            };
             require(possible.len() == 1, "enumerable-set length lacks a unique complete operation")?;
             let operation = possible.pop().unwrap();
             for &observed in &operation.observed {
@@ -575,12 +824,13 @@ pub(crate) fn validate(
                 // consume another role's known head or membership namespace.
                 if let Some(name) = names.get(&(event.account.clone(), events[observed].slot.key)) {
                     require(
-                        matches!(name, Namespace::Head(owner) | Namespace::Index(owner, _) if *owner == *role),
+                        matches!(name, Namespace::Head(owner) | Namespace::Index(owner, _) | Namespace::Membership(owner, _) if *owner == *role),
                         "enumerable-set operation aliases another namespace",
                     )?;
                 }
             }
-            for (position, logical) in operation.logical.iter().enumerate() {
+            for stage in &operation.logical {
+                let logical = &stage.slot;
                 let key = (event.account.clone(), logical.key);
                 require(
                     !protected.contains(&key),
@@ -589,11 +839,7 @@ pub(crate) fn validate(
                 // Inferred equal stores get the same alias checks as observed
                 // stores. Array positions must not overlap any known role field,
                 // even for the same role and even if the no-op was omitted.
-                let element = match operation.logical.len() {
-                    3 => position == 1,
-                    5 => position == 0 || position == 2,
-                    _ => unreachable!(),
-                };
+                let element = stage.kind == StageKind::Element;
                 if element {
                     require(!names.contains_key(&key), "enumerable-set element aliases a role namespace")?;
                 }
@@ -601,7 +847,41 @@ pub(crate) fn validate(
                     require(owner == *role, "enumerable-set operations alias another role's storage")?;
                 }
             }
+            for constraint in &operation.constraints {
+                let key = (event.account.clone(), constraint.key);
+                require(!protected.contains(&key), "coherence key aliases protected storage")?;
+                require(
+                    operation.logical.iter().all(|s| s.slot.key != constraint.key),
+                    "operation writes its moved-member coherence key",
+                )?;
+                if let Some(name) = names.get(&key) {
+                    require(
+                        matches!(name,Namespace::Membership(owner,_) if *owner==*role),
+                        "coherence key aliases another namespace",
+                    )?;
+                }
+                if let Some(owner) = operation_keys.insert(key, *role) {
+                    require(owner == *role, "coherence key aliases another role")?;
+                }
+            }
             operations.push(operation);
+        }
+    }
+    let coherence_keys: BTreeSet<_> = operations
+        .iter()
+        .flat_map(|op| {
+            let account = &roles[op.role].account;
+            op.constraints.iter().map(move |slot| (account.clone(), slot.key))
+        })
+        .collect();
+    for operation in &operations {
+        for stage in &operation.logical {
+            if stage.kind == StageKind::Element {
+                require(
+                    !coherence_keys.contains(&(roles[operation.role].account.clone(), stage.slot.key)),
+                    "array element aliases a derived membership coherence key",
+                )?;
+            }
         }
     }
     for (id, event) in events.iter().enumerate() {
@@ -619,8 +899,11 @@ pub(crate) fn validate(
     for id in chronological {
         let event = &events[id];
         if let Some(operation) = starts.get(&id) {
-            for &logical in &operation.logical {
-                constrain(&mut known, &event.account, logical)?;
+            for &constraint in &operation.constraints {
+                constrain(&mut known, &event.account, constraint)?;
+            }
+            for stage in &operation.logical {
+                constrain(&mut known, &event.account, stage.slot)?;
             }
         } else if !consumed.contains(&id) {
             constrain(&mut known, &event.account, event.slot)?;

@@ -63,12 +63,26 @@ pub struct EnumerableAddressSet {
     pub root: String,
     /// Currently exactly one bytes32 role key; no inferred mapping shape.
     pub key_types: Vec<String>,
-    /// Explicit source/write-order contract, currently only `oz_3_4_2`.
+    /// Explicit source/write-order contract; each mode is independently qualified.
     pub semantics: String,
+    /// Required only for the selected coupled PToken template. Explicit null is
+    /// invalid, so legacy documents cannot silently carry an ignored field.
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "non_null_membership_root")]
+    pub membership_root: Option<String>,
+}
+fn non_null_membership_root<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Option<String>, D::Error> {
+    String::deserialize(deserializer).map(Some)
+}
+pub const PTOKEN_ENUMERABLE_SEMANTICS: &str = "ptoken_v2_solc_0_8_28_oz_5_4_0";
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum EnumerableSemantics {
+    Oz342,
+    PToken { membership_root: [u8; 32] },
 }
 #[derive(Clone, Debug)]
 pub struct VerifiedEnumerableAddressSet {
     pub(crate) root: [u8; 32],
+    pub(crate) semantics: EnumerableSemantics,
 }
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -627,11 +641,34 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
             }
             let mut enumerable_address_sets = Vec::new();
             for set in layout.enumerable_address_sets {
-                require(set.semantics == "oz_3_4_2", "unsupported enumerable-address-set semantics")?;
                 require(set.key_types == ["bytes32"], "enumerable-address-set requires exactly one bytes32 role key")?;
                 let root = word(&set.root)?;
                 require(reserved.insert(root), "enumerable-address-set root overlaps another configured field")?;
-                enumerable_address_sets.push(VerifiedEnumerableAddressSet { root });
+                let semantics = match set.semantics.as_str() {
+                    "oz_3_4_2" => {
+                        require(set.membership_root.is_none(), "legacy enumerable semantics cannot specify membership_root")?;
+                        EnumerableSemantics::Oz342
+                    }
+                    PTOKEN_ENUMERABLE_SEMANTICS => {
+                        let membership_root = word(
+                            set.membership_root
+                                .as_deref()
+                                .ok_or_else(|| Error::msg("coupled enumerable semantics requires membership_root"))?,
+                        )?;
+                        let mut expected_set = [0; 32];
+                        expected_set[31] = 6;
+                        let mut expected_membership = [0; 32];
+                        expected_membership[31] = 5;
+                        require(
+                            root == expected_set && membership_root == expected_membership,
+                            "selected PToken template requires set root6 and membership root5",
+                        )?;
+                        require(reserved.insert(membership_root), "enumerable membership root overlaps another configured field")?;
+                        EnumerableSemantics::PToken { membership_root }
+                    }
+                    _ => return Err(Error::msg("unsupported enumerable-address-set semantics")),
+                };
+                enumerable_address_sets.push(VerifiedEnumerableAddressSet { root, semantics });
             }
             let other_mapping_paths = crate::mapping_paths::parse(layout.other_mapping_paths, &reserved)?;
             Ok(VerifiedLayout {

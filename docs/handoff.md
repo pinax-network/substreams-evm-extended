@@ -287,13 +287,13 @@ All 26 immutable sites and complete constructor appends are independently
 reconstructed from saved evidence. Deep's proxy constructor targets an older
 implementation with an opaque initializer; a matching nonce-one ProxyAdmin
 derivation does not establish its CREATE history. The later implementation
-guard and creation refusals for all three bound addresses remain. Preparation, failed attempts and
-validation are retained under `out/oft-role-candidates-20260928/` in
+guard and creation refusals for all three bound addresses remain. Preparation,
+failed attempts and validation are retained under `out/oft-role-candidates-20260928/` in
 `bsc-exclusion-review`. Both candidates remain NOT-QUALIFIED, with actual
 runtime/package/holder and producer role-operation gates outstanding.
 
 The host-only [PToken operation proof](../erc20/balances/docs/ptoken-operation-proof.md)
-is a prerequisite for a future coupled-role rule, not another profile candidate.
+is the source-execution prerequisite for the subsequent coupled-role rule.
 Official solc 0.8.28 reproduces the complete saved runtime and creation bytes
 with original settings and only an output-selection addition. Twenty pinned
 OpenZeppelin files match exactly; the token's independent primary source remains
@@ -302,12 +302,27 @@ against synthetic state, preserving ordered stores, logs, Keccak inputs,
 source locations and attempted effects on rollback. It distinguishes coherent
 role operations from malformed-prestate controls, including wrapping maximum
 array length. Selected tail removal clears the array cell before decreasing
-length and has no DSG-style self-swap stores. No production validator, profile
-or historical evidence changes here. A subsequent rule must link both roots
-within a complete same-frame operation and receive its own adversarial tests,
-candidate replay and producer/runtime/package qualification. Failed attempts
-and full traces remain under `out/ptoken-coupled-role-20260928/` in
+length and has no DSG-style self-swap stores. The Phase A proof itself added
+no production validator or profile. Failed attempts and full traces remain
+under `out/ptoken-coupled-role-20260928/` in
 `network-verification-config`.
+
+The subsequent [PToken coupled candidate](../erc20/balances/docs/ptoken-coupled-role-candidate.md)
+links root-5 membership and the root-6 set under an explicit selected-runtime
+semantics value. Both roots are reserved; complete ordered same-frame operations
+must consume every recognized record. Only source-proven zero-member equality
+stores may be omitted. Moved-tail membership is a coherence constraint, never
+an extra write permission. Observed and inferred stages retain alias, barrier
+and block-local continuity checks. Logical length overflow is conservatively
+refused, without claiming the compiled malformed-state push reverts.
+The mode requires Extended v4/v5 and positive actual call boundaries; DSG's
+legacy semantics and v3 fallback remain separate. Its candidate removes the
+independent boolean allowance while preserving balance, metadata, runtime and
+creation guards. Validation and saved replay are retained separately under
+`out/ptoken-coupled-validator-20260928/` in `network-verification-config`.
+The candidate remains NOT-QUALIFIED: source provenance, real initial-set
+coherence, actual producer visibility and runtime/package/getter/holder gates
+remain open. Historical cohorts and Phase A evidence are unchanged.
 
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
