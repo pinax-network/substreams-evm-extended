@@ -274,6 +274,23 @@ active. Preparation, failed attempts and validation artifacts are under
 `out/artx-role-20260928/` in `bsc-exclusion-review`; the candidate and both
 unchanged historical cohorts retain their separate qualification boundaries.
 
+The host-only [PToken operation proof](../erc20/balances/docs/ptoken-operation-proof.md)
+is a prerequisite for a future coupled-role rule, not another profile candidate.
+Official solc 0.8.28 reproduces the complete saved runtime and creation bytes
+with original settings and only an output-selection addition. Twenty pinned
+OpenZeppelin files match exactly; the token's independent primary source remains
+unresolved. The bounded Rust executor checks constructor and ABI operations
+against synthetic state, preserving ordered stores, logs, Keccak inputs,
+source locations and attempted effects on rollback. It distinguishes coherent
+role operations from malformed-prestate controls, including wrapping maximum
+array length. Selected tail removal clears the array cell before decreasing
+length and has no DSG-style self-swap stores. No production validator, profile
+or historical evidence changes here. A subsequent rule must link both roots
+within a complete same-frame operation and receive its own adversarial tests,
+candidate replay and producer/runtime/package qualification. Failed attempts
+and full traces remain under `out/ptoken-coupled-role-20260928/` in
+`network-verification-config`.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and

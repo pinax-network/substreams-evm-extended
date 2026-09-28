@@ -30,5 +30,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `19-BAS_role_candidate.json` | Exact captured runtime/constructor binding, fixed PAUSER admin location and membership candidate, with thirteen exact dependencies and an explicit token-source gap | `erc20/balances`, issue #4 |
 | `20-Tagger_role_candidate.json` | Exact flattened capture and bounded metadata reconstruction; arbitrary outer admin and nested membership paths preserve owner-reachable writes, with an explicit independent-source gap | `erc20/balances`, issue #4 |
 | `21-Artx_role_candidate.json` | Complete proxy/implementation captures, exact dependency/source-set and constructor/self bindings, with membership-only narrowing and preserved upgrade guards | `erc20/balances`, issue #4 |
+| `22-PTokenV2_operation_proof.json` | Exact official-compiler runtime/creation reproduction and bounded constructor/ABI execution; coupled boolean/set ordering and rollback evidence, without a candidate or ingestion change | `erc20/balances` host tools, issue #4 |
 
 Claims marked with a correction in a file supersede the corresponding claim.

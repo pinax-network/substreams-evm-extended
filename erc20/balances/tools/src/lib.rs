@@ -18,6 +18,7 @@ pub mod og_model;
 pub mod package;
 pub mod point_bedrock_roles;
 pub mod probe;
+pub mod ptoken_proof;
 pub mod ranking;
 pub mod recheck;
 pub mod reflection;

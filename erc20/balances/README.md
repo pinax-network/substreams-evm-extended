@@ -662,3 +662,9 @@ the artifact address and runtime to historical RPC and checks each literal
 source's hash. `--zero-dependency-slot <32-byte-hex>` also probes the scalar
 dependency with zero, 17 and uint256 max while controlling the holder word.
 These controls are evidence for review, not automatic layout qualification.
+
+The [PTokenV2 Phase A operation proof](docs/ptoken-operation-proof.md) regenerates
+one exact captured runtime/creation with official solc 0.8.28 and checks 382
+synthetic constructor/ABI calls in a bounded host executor. It proves selected
+coupled role-operation behavior only: no candidate, enumerable ingestion support,
+chain qualification or baseline change is included.
