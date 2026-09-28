@@ -274,6 +274,24 @@ active. Preparation, failed attempts and validation artifacts are under
 `out/artx-role-20260928/` in `bsc-exclusion-review`; the candidate and both
 unchanged historical cohorts retain their separate qualification boundaries.
 
+The separate [Kgen/Deep candidates](../erc20/balances/docs/oft-role-candidates.md)
+narrow only the plain role namespaces: root 10 membership for Kgen, and
+ERC-7201 membership plus three fixed initializer admin words for Deep.
+Kgen's forwarder-array and both tokens' long option bytes retain their existing
+handling; role-path permission does not establish authorization or initializer
+context. Three complete captures preserve 133 source entries, including 123
+exact direct upstream matches and one exact Kgen vendored interface. Kgen's
+public token differs in whitespace; Deep retains seven custom-source gaps and
+a nonmatching upstream interface. These differences are never normalized away.
+All 26 immutable sites and complete constructor appends are independently
+reconstructed from saved evidence. Deep's proxy constructor targets an older
+implementation with an opaque initializer; a matching nonce-one ProxyAdmin
+derivation does not establish its CREATE history. The later implementation
+guard and creation refusals for all three bound addresses remain. Preparation, failed attempts and
+validation are retained under `out/oft-role-candidates-20260928/` in
+`bsc-exclusion-review`. Both candidates remain NOT-QUALIFIED, with actual
+runtime/package/holder and producer role-operation gates outstanding.
+
 The host-only [PToken operation proof](../erc20/balances/docs/ptoken-operation-proof.md)
 is a prerequisite for a future coupled-role rule, not another profile candidate.
 Official solc 0.8.28 reproduces the complete saved runtime and creation bytes

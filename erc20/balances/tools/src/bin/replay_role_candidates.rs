@@ -183,6 +183,7 @@ mod offline {
         Bas,
         Tagger,
         Artx,
+        Oft,
     }
     fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
@@ -199,7 +200,19 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::Artx {
+        if mode == Mode::Oft {
+            for name in [
+                "layouts.json",
+                "source-review.json",
+                "kgen.json",
+                "deep.json",
+                "proxy.json",
+                "primary-sources.json",
+                "vendored-input.json",
+            ] {
+                paths.push(root.join(erc20_balances_tools::oft_roles::FIXTURE).join(name));
+            }
+        } else if mode == Mode::Artx {
             for name in [
                 "layouts.json",
                 "source-review.json",
@@ -450,6 +463,29 @@ mod offline {
             .count() as u64
     }
 
+    // Exact Deep initializer-derived locations only. This measures persisted
+    // writes; it does not prove initializer context, values or authorization.
+    fn deep_admin_writes(block: &eth::Block) -> u64 {
+        use erc20_balances_tools::oft_roles as bound;
+        let address = hex::decode(&bound::DEEP[2..]).unwrap();
+        let keys: BTreeSet<_> = bound::admin_words().iter().map(|key| hex::decode(&key[2..]).unwrap()).collect();
+        block
+            .system_calls
+            .iter()
+            .chain(
+                block
+                    .transaction_traces
+                    .iter()
+                    .filter(|tx| tx.status() == eth::TransactionTraceStatus::Succeeded)
+                    .flat_map(|tx| &tx.calls),
+            )
+            .filter(|call| !call.state_reverted)
+            .flat_map(|call| &call.storage_changes)
+            .filter(|w| w.address == address && keys.contains(&w.key) && w.old_value.len() <= 32 && w.new_value.len() <= 32)
+            .filter(|w| !w.old_value.iter().skip_while(|b| **b == 0).eq(w.new_value.iter().skip_while(|b| **b == 0)))
+            .count() as u64
+    }
+
     // Tagger's public owner setter accepts arbitrary bytes32 role keys. This
     // counts source-shaped persisted storage writes, not executed authorization.
     fn tagger_admin_writes(block: &eth::Block) -> Result<u64> {
@@ -518,7 +554,9 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if mode == Mode::Artx {
+        let candidate_path = root.join(if mode == Mode::Oft {
+            "tests/fixtures/oft-role-candidates/layouts.json"
+        } else if mode == Mode::Artx {
             "tests/fixtures/artx-role-candidate/layouts.json"
         } else if mode == Mode::Tagger {
             "tests/fixtures/tagger-role-candidate/layouts.json"
@@ -533,7 +571,9 @@ mod offline {
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if mode == Mode::Artx {
+        let review_path = root.join(if mode == Mode::Oft {
+            "tests/fixtures/oft-role-candidates/source-review.json"
+        } else if mode == Mode::Artx {
             "tests/fixtures/artx-role-candidate/source-review.json"
         } else if mode == Mode::Tagger {
             "tests/fixtures/tagger-role-candidate/source-review.json"
@@ -560,7 +600,23 @@ mod offline {
                 },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if mode == Mode::Artx {
+        report["source_rechecks"] = if mode == Mode::Oft {
+            use erc20_balances_tools::oft_roles as bound;
+            let mut captures = Vec::new();
+            for p in &bound::CAPTURES {
+                let raw = fs::read(root.join(bound::FIXTURE).join(format!("{}.json", p.label)))?;
+                ensure!(raw == fs::read(cache.join(p.cache))?, "committed OFT capture differs from original cache");
+                captures.push(bound::verify_capture(&raw, p)?);
+            }
+            ensure!(review == bound::review(&captures)?, "OFT review differs from complete captures");
+            bound::verify_primary(
+                &captures,
+                &read(&root.join(bound::FIXTURE).join("primary-sources.json"))?,
+                &fs::read(root.join(bound::FIXTURE).join("vendored-input.json"))?,
+            )?;
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([review])
+        } else if mode == Mode::Artx {
             use erc20_balances_tools::artx_role as bound;
             let mut captures = Vec::new();
             for p in &bound::CAPTURES {
@@ -667,6 +723,15 @@ mod offline {
                     "only the appended fixed BAS admin word may be removed"
                 );
             }
+            if mode == Mode::Oft && candidate["contract"] == erc20_balances_tools::oft_roles::DEEP {
+                let slots = restored["other_slots"].as_array_mut().context("Deep scalar slots")?;
+                for word in erc20_balances_tools::oft_roles::admin_words().iter().rev() {
+                    ensure!(
+                        slots.pop() == Some(json!(word)),
+                        "only the three appended Deep fixed admin words may be removed"
+                    );
+                }
+            }
             ensure!(
                 restored["other_mapping_words"]
                     .as_object_mut()
@@ -757,6 +822,13 @@ mod offline {
                     .unwrap()
                     .entry("persisted_fixed_pauser_admin_writes")
                     .or_default() += bas_admin_writes(&block);
+            }
+            if mode == Mode::Oft {
+                *selected_counts
+                    .get_mut(erc20_balances_tools::oft_roles::DEEP)
+                    .unwrap()
+                    .entry("persisted_fixed_role_admin_writes")
+                    .or_default() += deep_admin_writes(&block);
             }
             if mode == Mode::Tagger {
                 *selected_counts
@@ -972,7 +1044,8 @@ mod offline {
             Some("--bas") => Mode::Bas,
             Some("--tagger") => Mode::Tagger,
             Some("--artx") => Mode::Artx,
-            _ => bail!("expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger or --artx, followed by <original package root>"),
+            Some("--oft") => Mode::Oft,
+            _ => bail!("expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx or --oft, followed by <original package root>"),
         };
         let cache = if mode != Mode::TokenCys {
             PathBuf::from(args.next().context("original package root required")?)
@@ -1000,6 +1073,9 @@ mod offline {
         if mode == Mode::Artx {
             report["scope"] = json!("One NOT-QUALIFIED Artx proxy membership path applied to historical431; exact saved proxy/implementation/compiler/constructor bindings and native parity are not current pointer/owner, deployment or replacement-package qualification. Public token source gap remains unresolved. Zero initial supply and canonical values never seed retained state.");
         }
+        if mode == Mode::Oft {
+            report["scope"] = json!("Two NOT-QUALIFIED Kgen/Deep exact plain-role membership paths plus three fixed Deep admin words applied to unchanged historical431. Full saved capture/compiler/constructor/runtime reconstruction and native parity do not qualify deployed role calls, initializer history, current proxy state or replacement packages. Public source gaps and independent forwarder-array/long-bytes limitations remain; creation is refused. Canonical values never seed retained state.");
+        }
         if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");
             report["error"] = json!(format!("{error:#}"));
@@ -1014,6 +1090,59 @@ mod offline {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn deep_admin_count_requires_three_fixed_locations_and_persisted_well_formed_change() {
+            use erc20_balances_tools::oft_roles as bound;
+            let call = eth::Call {
+                storage_changes: bound::admin_words()
+                    .iter()
+                    .enumerate()
+                    .map(|(i, key)| eth::StorageChange {
+                        address: hex::decode(&bound::DEEP[2..]).unwrap(),
+                        key: hex::decode(&key[2..]).unwrap(),
+                        old_value: vec![0],
+                        new_value: vec![1],
+                        ordinal: i as u64 + 1,
+                    })
+                    .collect(),
+                ..Default::default()
+            };
+            let mut block = eth::Block {
+                system_calls: vec![call.clone()],
+                transaction_traces: vec![eth::TransactionTrace {
+                    status: eth::TransactionTraceStatus::Succeeded as i32,
+                    calls: vec![call],
+                    ..Default::default()
+                }],
+                ..Default::default()
+            };
+            assert_eq!(deep_admin_writes(&block), 6);
+            block.system_calls[0].state_reverted = true;
+            assert_eq!(deep_admin_writes(&block), 3);
+            for field in ["key", "address", "kgen", "noop", "failed", "reverted", "long_old", "long_new"] {
+                let mut b = block.clone();
+                let tx = &mut b.transaction_traces[0];
+                for w in &mut tx.calls[0].storage_changes {
+                    match field {
+                        "key" => w.key[0] ^= 1,
+                        "address" => w.address[0] ^= 1,
+                        "kgen" => w.address = hex::decode(&bound::KGEN[2..]).unwrap(),
+                        "noop" => w.old_value = vec![0, 1],
+                        "long_old" => w.old_value = vec![0; 33],
+                        "long_new" => w.new_value = vec![0; 33],
+                        _ => (),
+                    }
+                }
+                if field == "failed" {
+                    tx.status = eth::TransactionTraceStatus::Failed as i32;
+                }
+                if field == "reverted" {
+                    tx.calls[0].state_reverted = true;
+                }
+                assert_eq!(deep_admin_writes(&b), 0, "{field}");
+            }
+        }
 
         #[test]
         fn tagger_arbitrary_admin_count_requires_exact_preimage_offset_and_persistence() {

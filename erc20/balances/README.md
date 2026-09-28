@@ -88,6 +88,10 @@ reconstruction and an explicit independent primary-source gap.
 The separate [Artx candidate](docs/artx-role-candidate.md) binds both proxy
 and implementation captures and changes only membership, preserving upgrade
 guards and the unresolved token-source pin.
+The separate [Kgen/Deep OFT candidates](docs/oft-role-candidates.md) narrow
+plain-role membership and admit only Deep's three source-derived fixed admin
+words. They retain proxy/creation guards and unsupported forwarder-array and
+long-bytes metadata writes, with explicit primary-source and initializer gaps.
 
 `enumerable_address_sets` separately validates complete correlated role-member
 array/index operations, with event-level permissions and no persistent set

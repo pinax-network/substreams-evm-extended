@@ -1,0 +1,38 @@
+{
+  "topic": "Kgen/Deep plain-role candidates, 2026-09-28; offline only and NOT-QUALIFIED",
+  "facts": [
+    {
+      "key": "complete_three_capture_bindings",
+      "value": "Rust pins all three raw captures before parsing and verifies 55 Kgen, 66 Deep implementation and 12 proxy sources against complete compiler inputs, source IDs, metadata Keccaks, ABI/docs/layout/settings and complete saved bytecode. Independent immutable and constructor ABI reconstruction retains original labels and all source bytes.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/tree/main/erc20/balances/tests/fixtures/oft-role-candidates",
+      "source_pin": "Kgen e71ba802e1b6158d14ee38e47c793fb7ef025a484f9a3221a95a70a9bd0190df; Deep 3f2b8fa6fcf517c932f4793951a3aba6ff4567ef0c23c6dd989c33d0ba102a7e; proxy 41fbd48e0c4d9dd498b6c3c5b6239e98caa2c9df1d1d3d575bb473f93a094c48",
+      "note": "Saved compiler reconstruction is not fresh compilation or live deployment/runtime qualification. Historical 431 and qualified 425 remain unchanged."
+    },
+    {
+      "key": "primary_matches_vendor_and_unresolved_gaps",
+      "value": "123 per-capture entries match direct upstream bytes, plus one exact Kgen vendored IMessageLibManager snapshot. The public Kgen token differs in whitespace without normalization; Deep retains seven custom primary gaps and a nonmatching upstream interface. These distinctions are stored with complete fetched bodies and immutable URLs.",
+      "source_url": "https://github.com/kgen-protocol/smartcontracts/tree/5fc4a4250ff7039e68ee06b83ac1376ed779546b",
+      "source_pin": "OZ c64a1edb67b6e3f4a15cca8909c9482ad33a02b0; OZ upgradeable e725abddf1e01cf05ace496e950fc8e243cc7cab; LayerZero devtools 7af2d6e17c9ea84468dda803c380fc52c5548e68; protocol 9c741e7f9790639537b1710a203bcdfd73b0b9ac",
+      "note": "The whole vendored input SHA-256 is 5adf0df4ff9f8d5ffc81de036930455d23ce9ed7fc7904f4943844a799600c48; only the exact interface is bound, not its different token source."
+    },
+    {
+      "key": "bounded_role_reachability_and_separate_metadata",
+      "value": "Kgen changes only root 10 to exact bytes32/address membership. Deep changes only its ERC-7201 membership and three fixed initializer admin locations for ADMIN_ROLE, GUARDIAN_ROLE and BANLIST_OPERATOR_ROLE. Public role operations have no coupled enumeration or metadata hooks. Kgen forwarder-array elements and both profiles' long option bytes remain unsupported.",
+      "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts-upgradeable/e725abddf1e01cf05ace496e950fc8e243cc7cab/contracts/access/AccessControlUpgradeable.sol",
+      "source_pin": "Deep role root 0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800; complete captured Kgen/Deep custom bodies",
+      "note": "Location/key-shape permissions are not authorization, boolean-value, initializer-context or actual producer-operation proof. All balance, scalar, mapping, runtime, pointer and deployment guards are preserved."
+    },
+    {
+      "key": "deep_old_constructor_history_limit",
+      "value": "The proxy's independent 288-byte append targets older implementation 0x563fe7f145f39e31cd7138193df6fe03f5b14253 and preserves the opaque 132-byte initializer. RLP(proxy, nonce 1) matches the captured ProxyAdmin immutable, but the ERC1967Proxy base can delegatecall the old initializer before ProxyAdmin creation. Its CREATE behavior and initialization semantics remain unverified.",
+      "source_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/c64a1edb67b6e3f4a15cca8909c9482ad33a02b0/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
+      "source_pin": "Proxy runtime 0xd880cb6fa8a18faabeb57bb1cb2b1900371f7338c8c3c3f7add63574dad08e3c; bound proxy 0x9b6a1d4fa5d90e5f2d34130053978d14cd301d58",
+      "note": "Do not interpret this initializer as the later 0x76ec4be0109305fb4543f1d1a8a515ac3bcabd60 implementation. The candidate keeps that later pointer/runtime guard, refuses creation and seeds no holders."
+    }
+  ],
+  "open_questions": [
+    "Kgen exact public token bytes, Deep custom primary sources and its exact upstream protocol interface remain unresolved.",
+    "Old Deep initializer semantics, CREATE history and deployment/current proxy qualification remain unverified.",
+    "Fresh authorized runtime/dependency controls, actual replacement-package/getter parity, initialized-holder/final-state checks and actual producer role operations remain promotion gates; issue 4 stays open."
+  ]
+}

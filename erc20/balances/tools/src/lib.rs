@@ -14,6 +14,7 @@ pub mod inspect;
 pub mod inspect_ranked;
 pub mod lbp_rewards;
 pub mod network;
+pub mod oft_roles;
 pub mod og_model;
 pub mod package;
 pub mod point_bedrock_roles;
