@@ -41,6 +41,16 @@ suspended, subsequent same-epoch rows cannot be evaluated, and their previous
 values are not compared with stale pre-gap values. Other markets can advance.
 An incompatible holder interpretation or changed dependency heartbeat fails.
 
+Holder and global rows must name the market's known prior epoch or an epoch
+explicitly declared in the block. Nonconsecutive `BOUND` IDs are valid; skipped
+IDs do not establish intervening epochs. A cold market with no declarations
+can adopt one row epoch. If its first declaration is `BOUND`, rows may instead
+identify one earlier cold predecessor for transition cleanup; all such holder
+and global rows must agree on that predecessor. This inference never replaces
+the final bound epoch or independently establishes a protocol model. These
+checks validate epoch identity; execution-ordinal interval validation and
+multi-epoch extractor configuration remain separate work.
+
 Globals are keyed by market, field, mapping key and observation kind.
 Persisted writes and qualified constants are distinct from log evidence.
 Storage `CHANGE` rows require a final end-of-block companion; log `CHANGE`

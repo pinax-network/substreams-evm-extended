@@ -896,6 +896,140 @@ fn suspended_observation_gaps_do_not_block_other_markets() {
 }
 
 #[test]
+fn phantom_epoch_holder_cannot_bypass_retained_continuity() {
+    phantom_epoch_cannot_bypass_retained_continuity(false);
+}
+
+#[test]
+fn phantom_epoch_global_cannot_bypass_retained_continuity() {
+    phantom_epoch_cannot_bypass_retained_continuity(true);
+}
+
+fn phantom_epoch_cannot_bypass_retained_continuity(global_only: bool) {
+    let (mut initial, _) = aave_initial("7");
+    initial.dependencies.push(pb::Dependency {
+        chain_id: 56,
+        market: MARKET.to_vec(),
+        epoch: 1,
+        kind: pb::EpochEventKind::Bound as i32,
+        role: pb::DependencyRole::Pool as i32,
+        contract: vec![2; 20],
+        depth: 1,
+        binding: pb::BindingKind::CodeHash as i32,
+        code_hash: vec![99; 32],
+        activation_block: 10,
+        source_pin: "synthetic dependency fixture".into(),
+        ..Default::default()
+    });
+    counts(&mut initial);
+    let first = qualify(&initial, ReferenceModel::AaveAtoken(Era::Floor));
+    let mut state = seed(initial);
+    // Establish an undo snapshot too, so rejection covers both journals.
+    state.apply(&events(11, 100, vec![], vec![], vec![])).unwrap();
+    let before = format!("{state:#?}");
+    let mut next = first.epoch.clone();
+    next.epoch = 3;
+    next.activation_block = 12;
+    next.activation_ordinal = 30;
+    next.ordinal = 30;
+    let mut phantom_holder = holder(&first.epoch, "9");
+    phantom_holder.epoch = 2;
+    phantom_holder.previous_value = "42".into();
+    let mut phantom_global = global(&first.epoch, pb::StateField::AaveLiquidityIndex, "2000000000000000000000000000", RAY);
+    phantom_global.epoch = 2;
+    phantom_global.previous_value = "42".into();
+    let mut transition = events(
+        12,
+        100,
+        vec![next.clone()],
+        if global_only { vec![] } else { vec![phantom_holder] },
+        if global_only { vec![phantom_global] } else { vec![] },
+    );
+    transition.dependencies = first.dependencies.clone();
+    transition.dependencies[0].epoch = 3;
+    transition.dependencies[0].activation_block = 12;
+    counts(&mut transition);
+    assert!(state.apply(&transition).unwrap_err().to_string().contains("outside the epochs"));
+    // Debug includes every private fact/model/dependency and both journals.
+    assert_eq!(format!("{state:#?}"), before);
+    assert_eq!(amount(&first, &state, Metric::AaveBalanceOf), "7");
+
+    // Naming the actual predecessor fixes membership, but must still enforce
+    // its previous value instead of bypassing continuity through epoch 2.
+    if global_only {
+        transition.global_state[0].epoch = 1;
+    } else {
+        transition.holder_basis[0].epoch = 1;
+    }
+    assert!(state.apply(&transition).is_err());
+    assert_eq!(format!("{state:#?}"), before);
+    if global_only {
+        transition.global_state[0].previous_value = RAY.into();
+    } else {
+        transition.holder_basis[0].previous_value = "7".into();
+    }
+    state.apply(&transition).unwrap();
+    let mut qualified = first.clone();
+    qualified.epoch = next;
+    qualified.dependencies = transition.dependencies.clone();
+    qualified.runtime.as_mut().unwrap().at = transition.clocks[0].clone();
+    assert_eq!(amount(&qualified, &state, Metric::AaveBalanceOf), if global_only { "14" } else { "9" });
+    state.undo(11).unwrap();
+    assert_eq!(amount(&first, &state, Metric::AaveBalanceOf), "7");
+    state.apply(&transition).unwrap();
+    state.undo(10).unwrap();
+    assert_eq!(amount(&first, &state, Metric::AaveBalanceOf), "7");
+}
+
+#[test]
+fn cold_protocol_predecessor_cleanup_preserves_the_final_declared_epoch() {
+    for explicitly_declared in [false, true] {
+        let (initial, first) = aave_initial("7");
+        let mut next = first.epoch.clone();
+        next.epoch = 3;
+        next.activation_ordinal = 30;
+        next.ordinal = 30;
+        next.basis_carryover = false;
+        next.global_carryover = false;
+        let mut current = holder(&next, "9");
+        current.first_ordinal = 40;
+        current.ordinal = 40;
+        let mut globals = initial.global_state.clone();
+        for row in &mut globals {
+            row.epoch = 3;
+            row.first_ordinal = 41;
+            row.ordinal = 41;
+        }
+        let mut declarations = vec![next];
+        if explicitly_declared {
+            declarations.push(first.epoch.clone());
+        }
+        let mut transition = events(10, 100, declarations, vec![holder(&first.epoch, "7"), current], globals);
+        transition.global_state.extend(initial.global_state);
+        counts(&mut transition);
+        let mut state = ProtocolLedger::new(4);
+        let before = format!("{state:#?}");
+        let mut malformed = transition.clone();
+        let mut phantom = holder(&first.epoch, "42");
+        phantom.epoch = 2;
+        malformed.holder_basis.push(phantom);
+        counts(&mut malformed);
+        assert!(state.apply(&malformed).is_err());
+        assert_eq!(format!("{state:#?}"), before);
+        state.apply(&transition).unwrap();
+        assert_eq!(state.model(&MARKET).unwrap().effective_epoch, 3);
+        assert_eq!(state.holder(&MARKET, &HOLDER).unwrap().row.epoch, 3);
+        assert_eq!(state.holder(&MARKET, &HOLDER).unwrap().row.value, "9");
+        let index = GlobalKey::new(&MARKET, pb::StateField::AaveLiquidityIndex, &[], pb::Observation::ObservedWrite);
+        assert_eq!(state.global(&index).unwrap().row.epoch, 3);
+        state.undo(9).unwrap();
+        assert_eq!(state.model(&MARKET), Err(Unavailable::Unbound));
+        state.apply(&transition).unwrap();
+        assert_eq!(state.holder(&MARKET, &HOLDER).unwrap().row.value, "9");
+    }
+}
+
+#[test]
 fn predecessor_rows_before_uninterrupted_bound_must_match_retained_values() {
     let (initial, first) = aave_initial("7");
     let mut state = seed(initial);

@@ -526,6 +526,151 @@ fn epoch_rows_and_holder_rows_must_follow_the_market_epoch_sequence() {
 }
 
 #[test]
+fn epoch_membership_rejects_phantom_holder_between_known_epochs() {
+    let mut ledger = state_ledger(4);
+    ledger
+        .apply_state(&clock(10), &state_events(10, vec![bound(2, 1, 0, false)], vec![basis(2, 1, "7")]))
+        .unwrap();
+    let before = ledger.clone();
+    let mut phantom = basis_in(2, 2, 1, "9");
+    phantom.previous_value = "42".into();
+    let malformed = state_events(11, vec![bound(2, 3, 30, true)], vec![phantom]);
+    assert!(ledger.apply_state(&clock(11), &malformed).is_err());
+    assert_unchanged(&ledger, &before);
+}
+
+#[test]
+fn epoch_membership_rejects_phantom_global_between_known_epochs() {
+    let mut ledger = state_ledger(4);
+    ledger
+        .apply_state(&clock(10), &state_events(10, vec![bound(2, 1, 0, false)], vec![basis(2, 1, "7")]))
+        .unwrap();
+    let before = ledger.clone();
+    let mut phantom = global(2, "9");
+    phantom.epoch = 2;
+    phantom.previous_value = "42".into();
+    let malformed = with_globals(state_events(11, vec![bound(2, 3, 30, true)], vec![]), vec![phantom]);
+    assert!(ledger.apply_state(&clock(11), &malformed).is_err());
+    assert_unchanged(&ledger, &before);
+}
+
+#[test]
+fn epoch_membership_rejects_phantoms_after_a_cold_epoch_is_declared() {
+    for first in [
+        bound(2, 1, 10, false),
+        invalidated(2, 1, 10),
+        epoch_row(2, 1, state::EpochEventKind::Reaffirmed, 10, false),
+    ] {
+        for global_only in [false, true] {
+            let mut ledger = state_ledger(4);
+            let before = ledger.clone();
+            let mut malformed = state_events(10, vec![first.clone(), bound(2, 3, 30, true)], vec![]);
+            if global_only {
+                let mut phantom = global(2, "9");
+                phantom.epoch = 2;
+                malformed = with_globals(malformed, vec![phantom]);
+            } else {
+                malformed.holder_basis.push(basis_in(2, 2, 1, "9"));
+                malformed.clocks[0].holder_basis_count = 1;
+            }
+            assert!(ledger.apply_state(&clock(10), &malformed).is_err(), "{malformed:?}");
+            assert_unchanged(&ledger, &before);
+        }
+    }
+}
+
+#[test]
+fn epoch_membership_requires_one_inferred_cold_predecessor_across_tables() {
+    for reversed in [false, true] {
+        for tables in 0..3 {
+            let mut ledger = state_ledger(4);
+            let before = ledger.clone();
+            let ids = if reversed { [2, 1] } else { [1, 2] };
+            let mut malformed = state_events(10, vec![bound(2, 3, 30, false)], vec![]);
+            for (i, epoch) in ids.into_iter().enumerate() {
+                if tables == 0 || (tables == 2 && i == 0) {
+                    malformed.holder_basis.push(basis_in(epoch, 2, i as u8 + 1, "9"));
+                } else {
+                    let mut row = global(2, "9");
+                    row.epoch = epoch;
+                    malformed.global_state.push(row);
+                }
+            }
+            malformed.clocks[0].holder_basis_count = malformed.holder_basis.len() as u32;
+            malformed.clocks[0].global_state_count = malformed.global_state.len() as u32;
+            assert!(ledger.apply_state(&clock(10), &malformed).is_err(), "{malformed:?}");
+            assert_unchanged(&ledger, &before);
+        }
+    }
+}
+
+#[test]
+fn epoch_membership_preserves_real_nonconsecutive_epochs_and_undo() {
+    for already_known in [false, true] {
+        for reversed in [false, true] {
+            let mut ledger = state_ledger(4);
+            ledger
+                .apply_state(
+                    &clock(10),
+                    &state_events(10, if already_known { vec![bound(2, 1, 0, false)] } else { vec![] }, vec![]),
+                )
+                .unwrap();
+            let mut epochs = vec![bound(2, 3, 30, true)];
+            if !already_known {
+                epochs.push(bound(2, 1, 10, false));
+            }
+            let mut holders = vec![basis_in(1, 2, 1, "7"), basis_in(3, 2, 2, "9")];
+            let mut globals = vec![global(2, "7"), state::GlobalState { epoch: 3, ..global(2, "9") }];
+            if reversed {
+                epochs.reverse();
+                holders.reverse();
+                globals.reverse();
+            }
+            let transition = with_globals(state_events(11, epochs, holders), globals);
+            ledger.apply_state(&clock(11), &transition).unwrap();
+            assert_eq!(ledger.epoch(&[2; 20]), Some(3));
+            assert_eq!(known(&ledger, &key(2, 1)).as_deref(), Some("7"));
+            assert_eq!(known(&ledger, &key(2, 2)).as_deref(), Some("9"));
+            ledger.undo(10).unwrap();
+            assert_eq!(ledger.epoch(&[2; 20]), already_known.then_some(1));
+            assert!(ledger.entries().is_empty());
+            ledger.apply_state(&clock(11), &transition).unwrap();
+            assert_eq!(ledger.epoch(&[2; 20]), Some(3));
+        }
+    }
+}
+
+#[test]
+fn epoch_membership_cold_predecessor_does_not_replace_the_final_bound() {
+    for reversed in [false, true] {
+        let mut ledger = state_ledger(4);
+        let mut holders = vec![basis_in(1, 2, 1, "7"), basis_in(3, 2, 2, "9")];
+        let mut globals = vec![global(2, "7"), state::GlobalState { epoch: 3, ..global(2, "9") }];
+        if reversed {
+            holders.reverse();
+            globals.reverse();
+        }
+        let transition = with_globals(state_events(10, vec![bound(2, 3, 30, false)], holders), globals);
+        ledger.apply_state(&clock(10), &transition).unwrap();
+        assert_eq!(ledger.epoch(&[2; 20]), Some(3));
+        assert_eq!(known(&ledger, &key(2, 1)), None);
+        assert_eq!(known(&ledger, &key(2, 2)).as_deref(), Some("9"));
+        ledger.undo(9).unwrap();
+        assert_eq!(ledger.epoch(&[2; 20]), None);
+        assert!(ledger.entries().is_empty());
+    }
+    // With no declarations, one epoch is still adopted across both tables.
+    let mut ledger = state_ledger(4);
+    ledger
+        .apply_state(
+            &clock(10),
+            &with_globals(state_events(10, vec![], vec![basis(2, 1, "7")]), vec![global(2, "9")]),
+        )
+        .unwrap();
+    assert_eq!(ledger.epoch(&[2; 20]), Some(1));
+}
+
+#[test]
 fn an_activation_block_applies_the_previous_epochs_rows_before_the_new_binding_in_any_input_order() {
     for carryover in [false, true] {
         for reversed in [false, true] {
