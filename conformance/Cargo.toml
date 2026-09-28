@@ -20,6 +20,8 @@ tiny-keccak = { version = "2.0", features = ["keccak"] }
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 aave-balance-state = { path = "../aave/balance-state" }
 lido-balance-state = { path = "../lido/balance-state" }
+compound-v2-balance-state = { path = "../compound-v2/balance-state" }
+compound-v3-balance-state = { path = "../compound-v3/balance-state" }
 substreams-ethereum = { workspace = true }
 prost = { workspace = true }
 prost-types = { workspace = true }

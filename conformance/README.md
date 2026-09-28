@@ -11,8 +11,8 @@ source of the epoch. Nothing here enters the WASM ingestion path.
 | Module | Metrics | Pinned source | Oracles |
 | --- | --- | --- | --- |
 | `aave` | `rayMul` (half-up), `rayMulFloor`, `rayMulCeil`, `rayDiv`, `calculateLinearInterest`, `getNormalizedIncome`, `balanceOf` per rounding era (aToken revision ≤3 half-up, ≥4 floor), next liquidity index | aave-dao/aave-v3-origin `8305565ae342f1773c42cd2e4593f175fe5968a0` (`WadRayMath`, `MathUtils`, `ReserveLogic`, `TokenMath`) | captured BNB Pool reserve-index updates ([saved replay](../aave/balance-state/docs/evidence/replay-bsc-v5.json)); revision-5 packaged output and same-block-hash `balanceOf` / `scaledBalanceOf` controls ([live report](../aave/balance-state/docs/evidence/live-parity-bsc-2026-09-22-rev3.json)) |
-| `comet` | `mulFactor`, present and principal values (supply floors, borrow ceils), kinked supply and borrow rates from per-second immutables, stored-index utilization, `accruedInterestIndices`, `balanceOf` (positive principal only) and `borrowBalanceOf` (negative principal only) with int104/uint64/uint104 checks | compound-finance/comet `f766f51583c23acc33b2a7824654ef2029a96804` (`CometWithExtendedAssetList`, `CometCore`, `CometMath`, `CometStorage`) | constructor scaling of the mainnet cUSDCv3 genesis rates; synthetic state only, no saved Ethereum blocks |
-| `compound_v2` | `exchangeRateStored` (initial rate when supply is zero), `CTokenRevision::{Current, Legacy2019}`, jump and per-year `WhitePaper2019` rate models, block-based `accrueInterest` with truncating `Exp` arithmetic and revision-specific rate guards, stored versus projected underlying balance | compound-finance/compound-protocol: selected cUSDC/cETH `Legacy2019` at `f385d71983ae5c5799faae9b2dfea43e5cf75262`; cUSDC `LegacyJumpRateModelV2` at `4caf72a1f88335adc9cc06acf6f372241369ed01`; separate `Current` model at `a3214f67b73310d547e00fc578e8355911c9d376` | compiler-pinned layouts and synthetic arithmetic vectors computed outside the crate ([scope](../compound-v2/balance-state/README.md)); no captured Ethereum getter or deployed runtime/package qualification |
+| `comet` | `mulFactor`, present and principal values (supply floors, borrow ceils), kinked supply and borrow rates from per-second immutables, stored-index utilization, `accruedInterestIndices`, `balanceOf` (positive principal only) and `borrowBalanceOf` (negative principal only) with int104/uint64/uint104 checks and the uint40 timestamp guard | compound-finance/comet `f766f51583c23acc33b2a7824654ef2029a96804` (`CometWithExtendedAssetList`, `CometCore`, `CometMath`, `CometStorage`) | constructor scaling of the mainnet cUSDCv3 genesis rates; synthetic state only, no saved Ethereum blocks |
+| `compound_v2` | `exchangeRateStored` (initial rate when supply is zero), `CTokenRevision::{Current, Legacy2019}`, jump and per-year `WhitePaper2019` rate models, block-based `accrueInterest` with checked uint256 operations, truncating `Exp` arithmetic and revision-specific rate guards, stored versus projected underlying balance | compound-finance/compound-protocol: selected cUSDC/cETH `Legacy2019` at `f385d71983ae5c5799faae9b2dfea43e5cf75262`; cUSDC `LegacyJumpRateModelV2` at `4caf72a1f88335adc9cc06acf6f372241369ed01`; separate `Current` model at `a3214f67b73310d547e00fc578e8355911c9d376` | 2,676 bounded calls against [compiled pinned source harnesses](fixtures/compound-v2-oracle/README.md), including legacy errors and modern reverts; compiler-pinned layouts and synthetic vectors; no captured Ethereum getter or deployed runtime/package qualification |
 | `lido` | stETH contract version 4: `internalEther / internalShares` share rate with external shares, `getPooledEthByShares` / `getSharesByPooledEth` with the `2^128` argument guards, `getTotalPooledEther`, `TokenRebased` post-report ratio kept distinct from the getter | lidofinance/core `2da0f48f1a2a103a394dcf8760810fe9165697fb` (v4.0.1; `StETH`, `Lido`, `UnstructuredStorageExt`) | synthetic state only |
 | `erc4626` | per-implementation conversions: Aave static aToken `rayMulRoundDown/Up` on the reserve normalized income with paused-reserve `maxWithdraw`; Savings DAI `rpow` chi projection with `_divup`; OpenZeppelin v5 virtual-offset floor/ceil using full-precision `mulDiv` | bgd-labs/static-a-token-v3 `101f5d977889254ca2d2711b9582b45f832d10a0`; sky-ecosystem/sdai `665879762f8b5df5d234463f45d1d6a49bd4fbeb` + makerdao/dss `pot.sol`; OpenZeppelin `932fddf69a699a9a80fd2396fd1a2ab91cdda123` | OZ: 1,224 conversion/preview calls against [compiled pinned Solidity](fixtures/oz-v5-oracle.md), including full-precision intermediates and overflow reverts; static aToken: packaged BSC shares, `convertToAssets` and `rate()` controls ([live report](../erc4626/balance-state/docs/evidence/live-parity-bsc-stata-2026-09-23.json)); sDAI: synthetic state only |
 
@@ -35,7 +35,7 @@ none replaces `evm.balances.v1.Balance.amount`.
 - Compound v2 selects the 2019 cUSDC/cETH rate cap of `5e14`, checked before
   the block delta, separately from the `Current` cap of `5e12`. cUSDC uses
   the legacy jump model; cETH uses `WhitePaper2019` per-year rates. Compiler
-  layouts and independently computed synthetic vectors do not establish
+  layouts, compiled-source arithmetic controls and synthetic vectors do not establish
   deployed runtime equality. Neither Compound v2 nor Comet has a captured
   Ethereum getter oracle or packaged qualification yet. Those controls need
   Ethereum Extended data under
@@ -65,8 +65,10 @@ none replaces `evm.balances.v1.Balance.amount`.
 [`retained`](src/retained.rs) connects the arithmetic to the host-only
 [`ProtocolLedger`](../common/retention/README.md). It exposes distinct metrics
 for holder basis, Aave `balanceOf`, static-aToken conversion/rate, sDAI and OZ
-conversion, and Lido `balanceOf`. Comet and Compound v2 retain their pure
-reference APIs; a retained-state bridge for those models is not supplied here.
+conversion, Lido `balanceOf`, the selected 2019 cUSDC/cETH conversions and
+USDC Comet supplied-balance inputs. Compound adapters are deliberately limited
+to the committed mainnet profiles and their pinned source/layout families;
+their deployment/runtime placeholders do not become qualified by this API.
 Withdrawal limits, debt evaluation and reward accounting are also outside
 this bridge. Lido logs remain inspectable evidence, never a report-time
 holder balance calculated from end-of-block shares.
@@ -81,6 +83,41 @@ library does not fetch code or validate a header against a network. Results
 preserve the runtime attestation and consumed facts for review. An empty
 holder/global/model binding remains `Unknown`, never inferred zero.
 
+`Evaluation.value` is tagged `MetricValue::Unsigned` or
+`MetricValue::SignedPrincipal`, with explicit `MetricUnits`. Raw shares,
+scaled basis and signed principal have no inferred display decimals. In
+particular, a cToken's `ModelEpoch.balance_decimals` describes its underlying,
+not its shares. Asset conversions preserve underlying/native units and
+decimals; exchange rates and indices expose their exact scale.
+
+| Selected retained model | Metrics and required inputs |
+| --- | --- |
+| 2019 cUSDC, `compound-v2/ctoken-2019/exchange-rate-stored`, legacy jump IRM | Raw shares; `CompoundV2ExchangeRateStored` (1e18 mantissa); `CompoundV2StoredUnderlying`; `CompoundV2ProjectedUnderlying` at the evaluation **block number**. Cash is USDC slot-9 mapping state keyed by cUSDC, low 255 bits. The underlying, its depth-2 implementation and the slot-7 IRM pointer require independent binding. |
+| 2019 cETH, same cToken model, WhitePaper2019 IRM | The same distinct metrics, with native cash at the cETH address and **no storage slot**. Per-year rate parameters and `blocksPerYear` are explicit runtime-bound constants; they are not interchangeable with jump-model per-block rates. |
+| USDC Comet, `comet/base-supply-index` | `CometPrincipal` returns signed int104; `CometStoredSupplyIndex` and `CometProjectedSupplyIndex` expose 1e15 indices; `CometBalanceOf` returns supplied base units at the evaluation **timestamp**. Both supply and borrow indices execute before selecting the principal-sign branch. Negative principal is not an unsigned holder basis or a debt result. |
+
+Exchange-rate/index metrics require no holder. Conversion/projection metrics
+require the adapter's complete initialized market input set, including on
+zero-holder and equal-clock cases; no absent input is filled with zero.
+The cToken bridge uses the 2019 revision and selected IRM, not the modern
+delegator/cDAI model. The Comet timestamp guard rejects `timestamp >= 2^40`
+before equal-time or principal-sign branches, matching the pinned
+[`getNowInternal`](https://github.com/compound-finance/comet/blob/f766f51583c23acc33b2a7824654ef2029a96804/contracts/CometWithExtendedAssetList.sol#L221).
+The pure Comet API enforces this guard as well.
+An explicitly initialized zero supply index remains a numeric zero; missing
+state is detected by retained fact lookup, never by a zero-value sentinel.
+
+Parameter changes create a different stream identity. The old ledger refuses
+the next stream; a separately qualified, exactly identified checkpoint starts
+a new ledger with explicitly supplied holder/global/model state. This is not
+automatic carryover or a multi-epoch production parameter migration.
+
+The WhitePaper2019 rate parameters are constructor-set **storage**, not
+immutables encoded in runtime bytecode. Caller qualification must therefore
+attest the selected constructor/storage values and parameters digest as well
+as source and code hashes. Runtime-code equality by itself cannot prove those
+constant values. The projector's declaration is not independent evidence.
+
 The [retained-state tests](tests/retained.rs) exercise unchanged Aave holders
 through idle clocks and global-only updates, checkpoints, epoch carryover,
 suspension gaps, partial-block refusals, explicit constants, OZ donations,
@@ -93,6 +130,21 @@ inputs and that block's timestamp. Its holder and checkpoint are synthetic;
 it is not an independently verified parent snapshot or holder getter check.
 All other lifecycle controls are synthetic. These tests establish no new
 deployed runtime, SPKG, live reorg, sink or global-holder qualification.
+
+The [Compound retained tests](tests/retained_compound.rs) pass the actual v2
+and Comet projectors' output from synthetic Extended blocks through retention
+and evaluation. They cover only synthetic blocks **10–13**, the explicitly
+initialized cUSDC/cETH holder plus known-zero holder and Comet positive,
+negative and zero principal holders. Controls cover donation-only/native cash,
+idle clocks, globals-only updates, sign crossing, the zero-supply initial-rate
+branch, the 2019 same-block rate cap, both-index failure, uint40 timestamp,
+missing/malformed inputs, reverted writes, partial delivery, invalidation,
+undo/replacement and separately attested checkpoint rebinding. Runtime hashes,
+checkpoints and holder inputs in these tests are synthetic. They are not an
+independent Solidity oracle, captured Ethereum replay or live getter/package
+qualification. Compound v2's separately recorded compiled-source arithmetic
+oracle remains available; an independent Comet execution/getter oracle and
+deployment/package checks remain separate gates under #14, #15 and #16.
 
 ```sh
 cargo test --offline --locked -p conformance --lib --tests

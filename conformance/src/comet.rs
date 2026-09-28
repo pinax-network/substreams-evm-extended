@@ -138,6 +138,12 @@ impl Market {
     /// `accruedInterestIndices(timeElapsed)`: stored indices projected to the
     /// evaluation clock.
     pub fn accrued_indices(&self, now: u64) -> Result<(u64, u64)> {
+        // Every timestamp-projected getter calls getNowInternal() before
+        // subtracting lastAccrualTime or taking the equal-time branch.
+        // CometWithExtendedAssetList.sol:221-223 at the pinned revision.
+        if now >= (1 << 40) {
+            return Err(Unknown::Invalid("Comet timestamp exceeds uint40"));
+        }
         if now < self.last_accrual_time {
             return Err(Unknown::Invalid("evaluation clock precedes last accrual"));
         }
@@ -167,9 +173,6 @@ impl Market {
 pub fn balance_of(principal: &BigInt, market: &Market, now: u64) -> Result<BigUint> {
     if !fits_int104(principal) {
         return Err(Unknown::Invalid("principal outside int104"));
-    }
-    if market.base_supply_index == 0 {
-        return Err(Unknown::MissingInput("base supply index"));
     }
     let (supply_index, _) = market.accrued_indices(now)?;
     if principal.sign() != Sign::Plus {
@@ -225,6 +228,43 @@ mod tests {
             (m.rates.borrow_slope_low, m.rates.borrow_slope_high, m.rates.borrow_base),
             (1_109_842_719, 7_927_447_995, 475_646_879)
         );
+    }
+
+    #[test]
+    fn timestamp_guard_precedes_equal_time_and_principal_sign_branches() {
+        let limit = 1u64 << 40;
+        let valid = Market {
+            last_accrual_time: limit - 1,
+            ..market()
+        };
+        assert_eq!(valid.accrued_indices(limit - 1).unwrap(), (valid.base_supply_index, valid.base_borrow_index));
+        for last_accrual_time in [limit - 1, limit, limit + 1] {
+            let state = Market { last_accrual_time, ..market() };
+            let expected = Err(Unknown::Invalid("Comet timestamp exceeds uint40"));
+            assert_eq!(state.accrued_indices(limit), expected);
+            for principal in [-1, 0, 1] {
+                assert_eq!(balance_of(&BigInt::from(principal), &state, limit), expected.clone().map(|_| BigUint::zero()));
+                assert_eq!(
+                    borrow_balance_of(&BigInt::from(principal), &state, limit),
+                    expected.clone().map(|_| BigUint::zero())
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn known_zero_supply_index_is_a_value_and_does_not_hide_timestamp_failure() {
+        let state = Market {
+            base_supply_index: 0,
+            ..market()
+        };
+        for principal in [-1, 0, 1] {
+            assert_eq!(balance_of(&BigInt::from(principal), &state, state.last_accrual_time), Ok(BigUint::zero()));
+            assert_eq!(
+                balance_of(&BigInt::from(principal), &state, 1 << 40),
+                Err(Unknown::Invalid("Comet timestamp exceeds uint40"))
+            );
+        }
     }
 
     #[test]
@@ -338,13 +378,11 @@ mod tests {
         let int104_min_plus_one = int104_min + BigInt::one();
         assert!(borrow_balance_of(&int104_min_plus_one, &m, m.last_accrual_time).is_ok());
         assert_eq!(balance_of(&BigInt::zero(), &m, m.last_accrual_time).unwrap(), BigUint::zero());
-        let uninitialized = Market {
+        // A numeric zero is explicit state, not an initialization sentinel.
+        let zero_index = Market {
             base_supply_index: 0,
             ..market()
         };
-        assert_eq!(
-            balance_of(&principal, &uninitialized, m.last_accrual_time),
-            Err(Unknown::MissingInput("base supply index"))
-        );
+        assert_eq!(balance_of(&principal, &zero_index, m.last_accrual_time), Ok(BigUint::zero()));
     }
 }

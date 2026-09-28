@@ -71,7 +71,19 @@ an arbitrary evidence string or empty emitted runtime hashes cannot establish
 it automatically. No RPC or header verification is performed by this API.
 
 Returned evaluations preserve the metric, evaluation clock, model, runtime
-attestation and every consumed holder/global fact. Missing inputs return
+attestation and every consumed holder/global fact. Tagged values distinguish
+unsigned results from signed Comet principal; explicit units distinguish raw
+basis, asset amounts, conversion mantissas and indices. Raw cToken shares
+never inherit the underlying asset's decimals.
+
+A parameter digest change is a different stream and is refused by `apply`.
+A caller can establish a separate ledger from a newly qualified checkpoint
+whose explicit state and runtime attestation bind that new identity. Neither
+the checkpoint API nor compatible storage automatically proves cross-stream
+observation continuity. The Compound conformance controls exercise this with
+synthetic snapshots only.
+
+Missing inputs return
 `Unknown`, including missing globals for a known-zero holder. Read the
 [conformance scope](../../conformance/README.md) and
 [initialization contract](../../docs/initialization-and-completeness.md) for
