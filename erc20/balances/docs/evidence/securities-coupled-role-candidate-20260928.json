@@ -1,0 +1,361 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "out/securities-coupled-validator-20260928/replay-01/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "out/securities-coupled-validator-20260928/replay-01/candidate-combined-layouts.json",
+      "sha256": "a769ba5e56b55c75696e37b0a23392eed25f2032e74e44c03d8030f54d1a3937"
+    },
+    {
+      "path": "out/securities-coupled-validator-20260928/replay-01/replay-role-candidates.rs",
+      "sha256": "c183c7a8de29b652ae7063184e52ce41e8189ff2e009d247ca1fd46ff20e2952"
+    },
+    {
+      "path": "out/securities-coupled-validator-20260928/replay-01/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "out/securities-coupled-validator-20260928/replay-01/blocks.jsonl",
+      "sha256": "d416b4e1cc58ff50d30888b2861a14e5e98c0e5969d35137d8e90d4047b436f4"
+    },
+    {
+      "path": "out/securities-coupled-validator-20260928/replay-01/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "out/securities-coupled-validator-20260928/replay-01/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "out/securities-coupled-validator-20260928/replay-01/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "attempted_block": 122289029,
+  "candidate_matches_current_baseline_all_blocks": true,
+  "candidate_profiles": {
+    "0x02fca66c1d1afb4e2a7884261eb00f63598a7436": {
+      "cold_nonzero_reference_observations": 162,
+      "cold_reference_observations": 323,
+      "emitted_rows": 424,
+      "initialized_observed_holders": 89,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "retained_reference_matches": 1,
+      "same_block_reference_matches": 424,
+      "validated_coupled_role_operations": 0
+    },
+    "0x205812cdbed920aff76c6580abd681a46d11efc7": {
+      "cold_nonzero_reference_observations": 201,
+      "cold_reference_observations": 370,
+      "emitted_rows": 595,
+      "initialized_observed_holders": 155,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "retained_reference_matches": 10,
+      "same_block_reference_matches": 595,
+      "validated_coupled_role_operations": 0
+    },
+    "0x3ee4df61bd4f867e349beae8bfe07bc31b4850fb": {
+      "cold_nonzero_reference_observations": 0,
+      "cold_reference_observations": 14,
+      "emitted_rows": 19,
+      "initialized_observed_holders": 14,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 19,
+      "validated_coupled_role_operations": 0
+    },
+    "0x3f53de71c126bdabae20f9cd64848d317f6c3238": {
+      "cold_nonzero_reference_observations": 101,
+      "cold_reference_observations": 163,
+      "emitted_rows": 239,
+      "initialized_observed_holders": 71,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "retained_reference_matches": 2,
+      "same_block_reference_matches": 239,
+      "validated_coupled_role_operations": 0
+    },
+    "0x431a3bee82e2ca41e49895cbece5bb0f76a89b7a": {
+      "cold_nonzero_reference_observations": 76,
+      "cold_reference_observations": 103,
+      "emitted_rows": 153,
+      "initialized_observed_holders": 25,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 153,
+      "validated_coupled_role_operations": 0
+    },
+    "0x46ceefda28dd7207059ed19b0acdc026955bb15c": {
+      "cold_nonzero_reference_observations": 51,
+      "cold_reference_observations": 100,
+      "emitted_rows": 172,
+      "initialized_observed_holders": 38,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 172,
+      "validated_coupled_role_operations": 0
+    },
+    "0x4902c5ebc598265ed2212b559b042de8a5eeec3f": {
+      "cold_nonzero_reference_observations": 4,
+      "cold_reference_observations": 114,
+      "emitted_rows": 157,
+      "initialized_observed_holders": 63,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "retained_reference_matches": 4,
+      "same_block_reference_matches": 157,
+      "validated_coupled_role_operations": 0
+    },
+    "0x4af1d41cd9dd950dca43984b43aaa2a8702714ac": {
+      "cold_nonzero_reference_observations": 0,
+      "cold_reference_observations": 64,
+      "emitted_rows": 77,
+      "initialized_observed_holders": 19,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "retained_reference_matches": 4,
+      "same_block_reference_matches": 77,
+      "validated_coupled_role_operations": 0
+    },
+    "0x4ef9d3062c7f6eba4aae4990c5036598c6eff4ec": {
+      "cold_nonzero_reference_observations": 1,
+      "cold_reference_observations": 26,
+      "emitted_rows": 43,
+      "initialized_observed_holders": 26,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 43,
+      "validated_coupled_role_operations": 0
+    },
+    "0x5b1910eaad6450e50f816082aa078c41f10c292f": {
+      "cold_nonzero_reference_observations": 6,
+      "cold_reference_observations": 14,
+      "emitted_rows": 17,
+      "initialized_observed_holders": 10,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 17,
+      "validated_coupled_role_operations": 0
+    },
+    "0x7138b48df7d98d7e3cc221bfe7192d0a178182d8": {
+      "cold_nonzero_reference_observations": 23,
+      "cold_reference_observations": 38,
+      "emitted_rows": 51,
+      "initialized_observed_holders": 27,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 51,
+      "validated_coupled_role_operations": 0
+    },
+    "0xa394dcea3fd3847fd793afbfd163e2e3858b7c65": {
+      "cold_nonzero_reference_observations": 0,
+      "cold_reference_observations": 11,
+      "emitted_rows": 18,
+      "initialized_observed_holders": 13,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 18,
+      "validated_coupled_role_operations": 0
+    },
+    "0xbe9d156892e55e7154bcd3cb0fea677f9d3103e1": {
+      "cold_nonzero_reference_observations": 47,
+      "cold_reference_observations": 68,
+      "emitted_rows": 103,
+      "initialized_observed_holders": 66,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 103,
+      "validated_coupled_role_operations": 0
+    },
+    "0xca750ef65f295bbecd685abf54e82caf297bdb61": {
+      "cold_nonzero_reference_observations": 0,
+      "cold_reference_observations": 28,
+      "emitted_rows": 39,
+      "initialized_observed_holders": 19,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 39,
+      "validated_coupled_role_operations": 0
+    },
+    "0xd97d097a89113fa59b76c572e5b2eb647e8eefaf": {
+      "cold_nonzero_reference_observations": 0,
+      "cold_reference_observations": 32,
+      "emitted_rows": 41,
+      "initialized_observed_holders": 18,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "retained_reference_matches": 1,
+      "same_block_reference_matches": 41,
+      "validated_coupled_role_operations": 0
+    },
+    "0xe28cd11c99af2df76bb8ada4cd0ef3904378280f": {
+      "cold_nonzero_reference_observations": 1,
+      "cold_reference_observations": 17,
+      "emitted_rows": 29,
+      "initialized_observed_holders": 13,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "retained_reference_matches": 2,
+      "same_block_reference_matches": 29,
+      "validated_coupled_role_operations": 0
+    },
+    "0xf2ec508422174ee564de98187db9359d318afb6b": {
+      "cold_nonzero_reference_observations": 0,
+      "cold_reference_observations": 22,
+      "emitted_rows": 40,
+      "initialized_observed_holders": 19,
+      "persisted_fixed_issuer_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "retained_reference_matches": 2,
+      "same_block_reference_matches": 40,
+      "validated_coupled_role_operations": 0
+    }
+  },
+  "canonical_reference_interval_and_baseline_binding_verified": true,
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "completed_block_producer_versions": {
+    "5": 1024
+  },
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 110.538779625,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/securities-coupled-role-candidate/layouts.json",
+      "sha256": "294e76e948a0d30d489b3bb5e4ac5ab8ebe6e123c54b1066b7290f2a3ce87ea5"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/securities-coupled-role-candidate/source-review.json",
+      "sha256": "0adf0956a4836c4e4091f21870baffb9494e0f339a68f6316abc12fe0a4fe52c"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_completed_block": 122289029,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 66265,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 110139,
+    "enumerated": [],
+    "first_block": 122288006,
+    "initialized_holders": 33591,
+    "known_zero_holders": 6197,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 33591,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "scope": "Seventeen NOT-QUALIFIED SecuritiesToken proxy candidates replace only their broad namespaced role permission with the exact selected solc0.8.24/OZ5.3 coupled template and one explicit zero-only ISSUER admin word. Historical431 remains unchanged. Extended4/5 with real frames is required. Saved parity is not initial coherence, initializer/client/proxy history, producer role visibility, runtime/package or live qualification. Eight primary source gaps and absent on-chain creation/deployment evidence remain. Canonical values never seed state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "25b279d498cbf8bc08465784a006b8e0b407c17fe819ace64a373f4dc51c51c7",
+  "source_rechecks": [
+    {
+      "baseline_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+      "capture_sha256": "fd44489fbc3e55ef5669b0a90246f32cd8b248079aa1cd58c5af2288a27daef2",
+      "chain_id": 56,
+      "compiler": "0.8.24+commit.e11b9ed9",
+      "compiler_output_sha256": "0b44f0b9acc0d1f33aa3bc5af37e6d12bf64ed46909568ae73b4fd4d3cf4b739",
+      "compiler_report_sha256": "d142396867d2fd13b51185046e5232a75685f8cd8a0daf8b1ad0cf3e1708020c",
+      "differing_primary_files": 3,
+      "equal_stages": "only source-executed zero-address append/tail clear may be omitted",
+      "exact_primary_files": 23,
+      "excluded_path_controls": 8,
+      "fixed_admin": {
+        "new_value": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "role": "0x114e74f6ea3bd819998f78687bfcb11b140da08e9b7d222fa9c1f1ba1f2aa122",
+        "scope": "initializer-only exact scalar; no arbitrary admin path, independent membership or initializer qualification",
+        "slot": "0xecfb03a241cc67499591701273c9840824101e710aea92d3ca0339671f5c64c1"
+      },
+      "implementation": "0xcfed6c4679297ea4889f8183bc057b4a86c64e46",
+      "initial_role_set_coherence_and_unused_tail_zero": "qualification assumption",
+      "logical_length_growth": "checked conservative admission restriction; malformed source max-length push wraps",
+      "membership_root": "0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800",
+      "onchain_creation_and_deployment": "absent; successful initializer/client/proxy execution remains unproven",
+      "primary_sources_sha256": "8e6e998a596f5323cd9166ff2247c2997edfe561986c1723bc05992d99ceff99",
+      "producer_structure": {
+        "actual_positive_root_begin_required": true,
+        "actual_role_write_visibility": "unqualified",
+        "v3_fallback": false,
+        "versions": [
+          4,
+          5
+        ]
+      },
+      "profiles": 17,
+      "proof_report_sha256": "16c390c746cd886a2a3f0880bc36b0ec7f6d1b0349f81462ad4c13ef329fc0f2",
+      "proof_transcripts_sha256": "77e77db3ae6b2113343ad3869c701a2fb80f783a3ebdeb87b2ae2f2bffc8399d",
+      "qualified": false,
+      "raw_metadata": {
+        "fresh_sha256": "c49c374e44cc250b2d11f362d3b48c5687ba46114d8fd2d2374d91b01189db9b",
+        "parsed_equal": true,
+        "raw_equal": false,
+        "saved_sha256": "44f85de3053c3bcbe52f78c3cbd7ed520c5ec965fd74d4ab642d88894848f3b6"
+      },
+      "runtime_bytes": 10836,
+      "runtime_keccak256": "0x060dc28d4dd8d9bb8a381d4009bccbac129ce743a10b3d8aa0ffef5034b50544",
+      "runtime_transformations": 0,
+      "semantics": "securities_token_solc_0_8_24_oz_5_3_0",
+      "set_root": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+      "source_files": 31,
+      "source_gap": "Eight captured custom sources have no exact independent primary body: three BEP-677 counterparts differ, and five SecuritiesToken/compliance/pause sources have no recovered public revision. The full original captured source is compiled without normalization or substitution. These gaps, null on-chain creation/deployment evidence, and proxy/beacon history remain unqualified.",
+      "synthetic_calls": 831,
+      "unrecovered_primary_files": 5
+    }
+  ],
+  "start_inclusive": 122288006,
+  "status": "passed_offline_role_candidate_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0
+}

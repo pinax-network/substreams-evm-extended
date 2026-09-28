@@ -61,7 +61,7 @@ published baseline and the other reviewed profiles remain unchanged.
 ## Candidate progress
 
 The original inventory and its evidence above remain historical. Separate
-**NOT-QUALIFIED** fixtures now cover thirteen of its 33 boolean-role profiles;
+**NOT-QUALIFIED** fixtures now cover thirty of its 33 boolean-role profiles;
 they do not replace the original 431-profile baseline or qualified 425 cohort.
 Each linked report records its complete saved interval, initialized observed
 holders, cold gaps, source bindings and regression controls. Synthetic write
@@ -78,6 +78,7 @@ shapes do not establish executed authorization or real producer visibility.
 | [Artx](artx-role-candidate.md) | Exact root-151 membership; proxy and implementation runtime/pointer guards retained. | Both complete captures preserve 35 input files and 34 exact dependency matches; independent token source remains unresolved. Constructor reconstruction does not initialize holder state. |
 | [Kgen / Deep](oft-role-candidates.md) | Exact root-10 / ERC-7201 membership; Deep retains only three fixed initializer admin words. Unrelated metadata and proxy guards remain. | Three complete captures preserve 133 source entries: 123 direct upstream matches and one exact Kgen vendored interface. Kgen's token mismatch, Deep's seven custom-source gaps and nonmatching upstream interface remain explicit. Deep's older proxy initializer remains unqualified. |
 | [PTokenV2](ptoken-coupled-role-candidate.md) | Source-selected complete operations couple root-5 membership to the root-6 enumerable set. Independent boolean permission is removed; Extended v4/v5 and actual frame boundaries are required. | The compiled operation proof binds the selected solc 0.8.28/OZ 5.4 template. Exact token-source provenance, initial-set coherence and actual producer visibility remain unqualified. |
+| [SecuritiesToken (17)](securities-coupled-role-candidate.md) | Exact namespaced membership/set operations for the selected solc 0.8.24/OZ 5.3 build; only the fixed ISSUER admin scalar may be written to zero. All other profile fields and guards are retained. | Eight explicit primary-source gaps, absent deployment/creation evidence and unqualified initializer/client/proxy execution. Saved replay does not establish role-operation visibility or coherent initial state. |
 
 The prerequisite [PToken operation proof](ptoken-operation-proof.md) executes its
 compiled boolean/set transitions and rollback controls against synthetic state.
@@ -86,13 +87,12 @@ and candidate listed above. Source execution and synthetic Extended records
 do not qualify producer visibility or initial state. The selected write-order
 template is not a universal OpenZeppelin enumerable-set rule.
 
-The remaining 20 boolean-role profiles are SecuritiesToken (17), BTRToken
-and GMToken (2).
+The remaining three boolean-role profiles are BTRToken and GMToken (2).
 The [BTR host operation proof](btr-operation-proof.md) is a prerequisite for
 its future migration. It binds the selected OZ 4.9.3 implementation and OZ 5.2
 proxy sources and distinguishes coupled role transitions from the separate
 whitelist set. No BTR ingestion rule or candidate is added, so the candidate
-count remains thirteen. The custom token's independent primary source and
+count remains thirty. The custom token's independent primary source and
 actual initialization remain unresolved.
 The separate [SecuritiesToken host proof](securities-operation-proof.md) binds
 the selected OZ 5.3 namespaced role/set behavior and raw ERC-20 getters.
@@ -101,7 +101,11 @@ differing BEP bodies and five unresolved token/client sources retain explicit
 gaps. Constructor execution uses synthetic state because saved on-chain
 creation and deployment evidence are absent. Successful external-client,
 initializer, transfer/UI and proxy/beacon paths are outside this proof. It
-adds no candidate or ingestion rule for the seventeen historical profiles.
+adds no candidate by itself. The separate [coupled candidate](securities-coupled-role-candidate.md)
+now covers the seventeen profiles with their exact source-selected operation
+rule and fixed zero-only ISSUER admin word, preserving proxy/beacon/runtime
+guards and unrelated metadata. Initial coherence, actual producer visibility
+and replacement qualification remain open.
 The separate [GMToken host proof](gm-operation-proof.md) binds three complete
 captures and the selected local role, initializer and raw-getter behavior.
 Fifteen exact Ondo-vendored dependencies and seven unique upstream proxy

@@ -335,8 +335,7 @@ uses explicit installed self-code sizes, keeping implementation bytes distinct
 from the synthetic proxy account's code. It does not execute proxy dispatch.
 The operation matrix separates coherent role changes, four incoherent
 boolean/index controls, wrapper authorization, direct whitelist operations,
-initialization and rollback. This host proof adds no production candidate;
-thirteen of 33 boolean-role profiles still have separate candidates. The
+initialization and rollback. This host proof adds no BTR production candidate. The
 whitelist's existing length/index permissions do not admit its array operations.
 Fresh attempts, full traces and failed attempts remain under
 `out/btr-operation-proof-20260928/` in `bsc-exclusion-review`. Actual initial state,
@@ -353,12 +352,31 @@ fields are absent; constructor execution is synthetic only.
 The local matrix exercises namespaced roles, enumerable-set ordering, raw
 ERC-20 getters and rollback. Unsupported initializer/client/transfer/UI paths
 remain explicit harness failures; no external-call or clock behavior is
-fabricated. This host proof adds no ingestion permission or candidate, so the
-seventeen SecuritiesToken profiles remain among the twenty unmigrated
-boolean-role profiles. Proxy/beacon traversal, real initial state, dynamic
+fabricated. That host proof adds no ingestion permission by itself. Proxy/beacon traversal, real initial state, dynamic
 metadata and runtime/package/holder qualification remain separate requirements.
 Source builds, execution traces and failed attempts are preserved under
 `out/securities-operation-proof-20260928/` in `network-verification-config`.
+
+The separate [SecuritiesToken coupled candidate](../erc20/balances/docs/securities-coupled-role-candidate.md)
+adds source-selected solc 0.8.24/OZ 5.3 operation admission for seventeen
+otherwise identical historical profiles. It replaces broad membership width
+with complete same-frame boolean/set operations. The one source-fixed ISSUER
+admin word becomes an explicit scalar permission restricted to a zero new
+value; it remains protected from aliases and acts as a barrier between stages.
+Every proxy, beacon, implementation, balance, allowance and unrelated metadata
+field is preserved. Historical finite metadata permissions do not grant new
+dynamic-string payloads. Extended v4/v5 and actual positive frame boundaries
+remain required; the independent DSG and PToken modes retain their own scope.
+Source-derived projector tests cover complete operations, optional equality
+stores, malformed/incomplete changes, cross-frame/account/role fragments,
+coherence, aliases and dependency guards. Saved canonical replay checks balance
+parity separately from role-operation visibility and never seeds cold holders
+from reference values. Fresh evidence and failed attempts are under
+`out/securities-coupled-validator-20260928/` in `network-verification-config`.
+The candidate is NOT-QUALIFIED. Thirty of 33 boolean-role profiles now have
+separate candidates; BTR and two GM profiles remain. Actual coherent initial
+state, initializer/client/proxy history, producer role witnesses, independent
+source gaps and runtime/package/getter/holder qualification remain open.
 
 The separate [GMToken host proof](../erc20/balances/docs/gm-operation-proof.md)
 rebuilds the implementation and both proxy captures with official solc 0.8.16.

@@ -185,6 +185,7 @@ mod offline {
         Artx,
         Oft,
         PToken,
+        Securities,
     }
     fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
@@ -201,7 +202,27 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::PToken {
+        if mode == Mode::Securities {
+            use erc20_balances_tools::securities_role as bound;
+            for name in ["layouts.json", "source-review.json"] {
+                paths.push(root.join(bound::FIXTURE).join(name));
+            }
+            for entry in fs::read_dir(root.join(bound::PROOF_FIXTURE))? {
+                let path = entry?.path();
+                if path.is_file() {
+                    paths.push(path);
+                }
+            }
+            for name in [
+                "docs/evidence/securities-operation-proof-20260928.json",
+                "docs/evidence/securities-operation-proof-20260928-transcripts.json",
+                "docs/evidence/securities-operation-proof-20260928-compiler.json",
+                "tests/securities_coupled_operations.rs",
+                "tools/tests/securities_role_candidate.rs",
+            ] {
+                paths.push(root.join(name));
+            }
+        } else if mode == Mode::PToken {
             for name in ["layouts.json", "source-review.json"] {
                 paths.push(root.join(erc20_balances_tools::ptoken_role::FIXTURE).join(name));
             }
@@ -466,6 +487,37 @@ mod offline {
         Ok(counts)
     }
 
+    // Count only changed persisted writes to the exact source-derived scalar.
+    // Called after successful projection; this is not initializer execution proof.
+    fn securities_admin_writes(block: &eth::Block, candidates: &Value) -> Result<BTreeMap<String, u64>> {
+        let key = hex::decode(&erc20_balances_tools::securities_role::ADMIN_SLOT[2..])?;
+        candidates
+            .as_array()
+            .context("Securities candidates")?
+            .iter()
+            .map(|candidate| {
+                let contract = candidate["contract"].as_str().context("Securities contract")?;
+                let address = decode_hex(&candidate["contract"])?;
+                let count = block
+                    .system_calls
+                    .iter()
+                    .chain(
+                        block
+                            .transaction_traces
+                            .iter()
+                            .filter(|tx| tx.status() == eth::TransactionTraceStatus::Succeeded)
+                            .flat_map(|tx| &tx.calls),
+                    )
+                    .filter(|call| !call.state_reverted)
+                    .flat_map(|call| &call.storage_changes)
+                    .filter(|w| w.address == address && w.key == key && w.old_value.len() <= 32 && w.new_value.len() <= 32)
+                    .filter(|w| w.new_value.iter().all(|b| *b == 0) && w.old_value.iter().any(|b| *b != 0))
+                    .count() as u64;
+                Ok((contract.to_owned(), count))
+            })
+            .collect()
+    }
+
     fn bas_admin_writes(block: &eth::Block) -> u64 {
         use erc20_balances_tools::bas_role as bound;
         let address = hex::decode(&bound::CONTRACT[2..]).unwrap();
@@ -578,7 +630,9 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if mode == Mode::PToken {
+        let candidate_path = root.join(if mode == Mode::Securities {
+            "tests/fixtures/securities-coupled-role-candidate/layouts.json"
+        } else if mode == Mode::PToken {
             "tests/fixtures/ptoken-coupled-role-candidate/layouts.json"
         } else if mode == Mode::Oft {
             "tests/fixtures/oft-role-candidates/layouts.json"
@@ -597,7 +651,9 @@ mod offline {
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if mode == Mode::PToken {
+        let review_path = root.join(if mode == Mode::Securities {
+            "tests/fixtures/securities-coupled-role-candidate/source-review.json"
+        } else if mode == Mode::PToken {
             "tests/fixtures/ptoken-coupled-role-candidate/source-review.json"
         } else if mode == Mode::Oft {
             "tests/fixtures/oft-role-candidates/source-review.json"
@@ -621,14 +677,34 @@ mod offline {
         let mut migrated: Value = serde_json::from_str(&baseline_text)?;
         ensure!(
             candidates.as_array().context("candidate array")?.len()
-                == if matches!(mode, Mode::Burnmint | Mode::Bas | Mode::Tagger | Mode::Artx | Mode::PToken) {
+                == if mode == Mode::Securities {
+                    17
+                } else if matches!(mode, Mode::Burnmint | Mode::Bas | Mode::Tagger | Mode::Artx | Mode::PToken) {
                     1
                 } else {
                     2
                 },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if mode == Mode::PToken {
+        report["source_rechecks"] = if mode == Mode::Securities {
+            use erc20_balances_tools::securities_role as bound;
+            let raw = fs::read(root.join(bound::PROOF_FIXTURE).join("capture.json"))?;
+            ensure!(raw == fs::read(cache.join(bound::CACHE))?, "Securities capture differs from original cache");
+            ensure!(
+                review
+                    == bound::review(
+                        &raw,
+                        &fs::read(root.join(bound::PROOF_FIXTURE).join("compiler-output.json"))?,
+                        &fs::read(root.join("docs/evidence/securities-operation-proof-20260928-transcripts.json"))?,
+                        &fs::read(root.join("docs/evidence/securities-operation-proof-20260928.json"))?,
+                        &fs::read(root.join(bound::PROOF_FIXTURE).join("primary-sources.json"))?,
+                        &fs::read(root.join("docs/evidence/securities-operation-proof-20260928-compiler.json"))?,
+                    )?,
+                "Securities review differs from complete frozen proof"
+            );
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([review])
+        } else if mode == Mode::PToken {
             use erc20_balances_tools::ptoken_role as bound;
             let raw = fs::read(root.join(bound::PROOF_FIXTURE).join("capture.json"))?;
             ensure!(raw == fs::read(cache.join(bound::CACHE))?, "PToken capture differs from original cache");
@@ -742,6 +818,29 @@ mod offline {
                 .iter_mut()
                 .find(|v| v["contract"] == candidate["contract"])
                 .context("candidate absent from baseline")?;
+            if mode == Mode::Securities {
+                use erc20_balances_tools::securities_role as bound;
+                let mut restored = candidate.clone();
+                ensure!(
+                    restored.as_object_mut().unwrap().remove("enumerable_address_sets").is_some(),
+                    "Securities coupled rule missing"
+                );
+                ensure!(
+                    restored["other_mapping_words"]
+                        .as_object_mut()
+                        .context("Securities legacy words")?
+                        .insert(bound::MEMBERSHIP_ROOT.to_owned(), json!(2))
+                        .is_none(),
+                    "Securities broad membership retained"
+                );
+                ensure!(
+                    restored["other_slots"].as_array_mut().context("Securities scalar slots")?.pop() == Some(json!(bound::ADMIN_SLOT)),
+                    "only exact appended ISSUER admin word"
+                );
+                ensure!(restored == *original, "Securities candidate changed unrelated fields");
+                *original = candidate.clone();
+                continue;
+            }
             if mode == Mode::PToken {
                 // Full exact-rule verification ran above. Restore only the removed
                 // legacy membership permission, then compare every baseline field.
@@ -874,8 +973,11 @@ mod offline {
                 "cached block/clock identity mismatch at {height}"
             );
             ensure!(block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32, "non-Extended block");
-            if mode == Mode::PToken {
-                ensure!(matches!(block.ver, 4 | 5), "PToken replay requires reviewed Extended version4/5 at {height}");
+            if matches!(mode, Mode::PToken | Mode::Securities) {
+                ensure!(
+                    matches!(block.ver, 4 | 5),
+                    "selected coupled replay requires reviewed Extended version4/5 at {height}"
+                );
             }
             prior = hash.clone();
             for (contract, count) in membership_writes(&block, &candidates)? {
@@ -907,12 +1009,22 @@ mod offline {
                     .or_default() += tagger_admin_writes(&block)?;
             }
             let mut actual = erc20_balances::project(&block, &layouts).map_err(|e| anyhow::anyhow!("native map failed at {height}: {e}"))?;
-            if mode == Mode::PToken {
+            if matches!(mode, Mode::PToken | Mode::Securities) {
                 // Each changing boolean belongs to exactly one complete operation
                 // only after the coupled projector succeeds. This is not a claim
                 // that a captured producer exposes operations absent from this window.
-                let selected = selected_counts.get_mut(erc20_balances_tools::ptoken_role::CONTRACT).unwrap();
-                selected.insert("validated_coupled_role_operations", selected["persisted_role_membership_writes"]);
+                for selected in selected_counts.values_mut() {
+                    selected.insert("validated_coupled_role_operations", selected["persisted_role_membership_writes"]);
+                }
+            }
+            if mode == Mode::Securities {
+                for (contract, count) in securities_admin_writes(&block, &candidates)? {
+                    *selected_counts
+                        .get_mut(&contract)
+                        .unwrap()
+                        .entry("persisted_fixed_issuer_admin_writes")
+                        .or_default() += count;
+                }
             }
             normalize(&mut actual)?;
             let mut baseline_actual = erc20_balances::project(&block, &baseline).map_err(|e| anyhow::anyhow!("baseline map failed at {height}: {e}"))?;
@@ -1124,7 +1236,10 @@ mod offline {
             Some("--artx") => Mode::Artx,
             Some("--oft") => Mode::Oft,
             Some("--ptoken") => Mode::PToken,
-            _ => bail!("expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft or --ptoken, followed by <original package root>"),
+            Some("--securities") => Mode::Securities,
+            _ => bail!(
+                "expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft, --ptoken or --securities, followed by <original package root>"
+            ),
         };
         let cache = if mode != Mode::TokenCys {
             PathBuf::from(args.next().context("original package root required")?)
@@ -1158,6 +1273,9 @@ mod offline {
         if mode == Mode::PToken {
             report["scope"] = json!("One NOT-QUALIFIED PToken coupled root5/root6 candidate applied to historical431; exact compiled operation proof and complete saved replay are not runtime/package, initial coherent state or real producer role-write qualification. The template is selected-build specific, requires Extended4/5 and positive actual root-call begin; v3 fallback is refused. Public token source gap remains. Canonical values never seed state.");
         }
+        if mode == Mode::Securities {
+            report["scope"] = json!("Seventeen NOT-QUALIFIED SecuritiesToken proxy candidates replace only their broad namespaced role permission with the exact selected solc0.8.24/OZ5.3 coupled template and one explicit zero-only ISSUER admin word. Historical431 remains unchanged. Extended4/5 with real frames is required. Saved parity is not initial coherence, initializer/client/proxy history, producer role visibility, runtime/package or live qualification. Eight primary source gaps and absent on-chain creation/deployment evidence remain. Canonical values never seed state.");
+        }
         if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");
             report["error"] = json!(format!("{error:#}"));
@@ -1172,6 +1290,134 @@ mod offline {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn securities_counters_separate_complete_operations_from_fixed_admin_writes() {
+            use erc20_balances_tools::securities_role as bound;
+            let candidates: Value = serde_json::from_str(include_str!("../../../tests/fixtures/securities-coupled-role-candidate/layouts.json")).unwrap();
+            let cases: Value = serde_json::from_str(include_str!("../../../docs/evidence/securities-operation-proof-20260928-transcripts.json")).unwrap();
+            let layouts = erc20_balances::layout::parse(&candidates.to_string()).unwrap();
+            for profile in candidates.as_array().unwrap() {
+                let contract = profile["contract"].as_str().unwrap();
+                let address = decode_hex(&profile["contract"]).unwrap();
+                for (name, expected) in [
+                    ("grant_empty", 1),
+                    ("grant_zero_empty", 1),
+                    ("revoke_middle", 1),
+                    ("revoke_zero_sole", 1),
+                    ("grant_duplicate", 0),
+                ] {
+                    let c = cases.as_array().unwrap().iter().find(|c| c["name"] == name).unwrap();
+                    let call = eth::Call {
+                        address: address.clone(),
+                        begin_ordinal: 1,
+                        end_ordinal: 2000,
+                        keccak_preimages: c["execution"]["keccaks"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|k| {
+                                (
+                                    k["output"].as_str().unwrap().trim_start_matches("0x").to_owned(),
+                                    k["input"].as_str().unwrap().to_owned(),
+                                )
+                            })
+                            .collect(),
+                        storage_changes: c["execution"]["writes"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|w| eth::StorageChange {
+                                address: address.clone(),
+                                key: decode_hex(&w["key"]).unwrap(),
+                                old_value: decode_hex(&w["old"]).unwrap(),
+                                new_value: decode_hex(&w["new"]).unwrap(),
+                                ordinal: w["step"].as_u64().unwrap() + 10,
+                            })
+                            .collect(),
+                        ..Default::default()
+                    };
+                    let mut b = eth::Block {
+                        ver: 5,
+                        number: 122288046,
+                        hash: vec![7; 32],
+                        header: Some(eth::BlockHeader {
+                            number: 122288046,
+                            parent_hash: vec![6; 32],
+                            state_root: vec![8; 32],
+                            ..Default::default()
+                        }),
+                        detail_level: eth::block::DetailLevel::DetaillevelExtended as i32,
+                        transaction_traces: vec![eth::TransactionTrace {
+                            status: eth::TransactionTraceStatus::Succeeded as i32,
+                            begin_ordinal: 1,
+                            end_ordinal: 2000,
+                            calls: vec![call],
+                            ..Default::default()
+                        }],
+                        ..Default::default()
+                    };
+                    erc20_balances::project(&b, &layouts).unwrap();
+                    assert_eq!(membership_writes(&b, &candidates).unwrap()[contract], expected);
+                    assert_eq!(securities_admin_writes(&b, &candidates).unwrap()[contract], 0);
+                    for mutation in ["missing", "failed", "reverted", "address", "noop", "wide_old", "wide_new", "short_key"] {
+                        let mut changed = b.clone();
+                        let tx = &mut changed.transaction_traces[0];
+                        match mutation {
+                            "missing" => tx.calls[0].keccak_preimages.clear(),
+                            "failed" => tx.status = eth::TransactionTraceStatus::Failed as i32,
+                            "reverted" => tx.calls[0].state_reverted = true,
+                            _ => {
+                                for w in &mut tx.calls[0].storage_changes {
+                                    match mutation {
+                                        "address" => w.address = vec![0; 20],
+                                        "noop" => w.new_value = w.old_value.clone(),
+                                        "wide_old" => w.old_value = vec![0; 33],
+                                        "wide_new" => w.new_value = vec![1; 33],
+                                        "short_key" => {
+                                            w.key.pop();
+                                        }
+                                        _ => unreachable!(),
+                                    }
+                                }
+                            }
+                        }
+                        assert_eq!(membership_writes(&changed, &candidates).unwrap()[contract], 0, "{name}/{mutation}");
+                    }
+                    b.transaction_traces[0].calls[0].storage_changes.push(eth::StorageChange {
+                        address: address.clone(),
+                        key: hex::decode(&bound::ADMIN_SLOT[2..]).unwrap(),
+                        old_value: vec![1],
+                        new_value: vec![0],
+                        ordinal: 1500,
+                    });
+                    erc20_balances::project(&b, &layouts).unwrap();
+                    assert_eq!(membership_writes(&b, &candidates).unwrap()[contract], expected);
+                    assert_eq!(securities_admin_writes(&b, &candidates).unwrap()[contract], 1);
+                    for mutation in ["failed", "reverted", "address", "key", "noop", "nonzero", "wide_old", "wide_new"] {
+                        let mut changed = b.clone();
+                        let tx = &mut changed.transaction_traces[0];
+                        match mutation {
+                            "failed" => tx.status = eth::TransactionTraceStatus::Failed as i32,
+                            "reverted" => tx.calls[0].state_reverted = true,
+                            _ => {
+                                let w = tx.calls[0].storage_changes.last_mut().unwrap();
+                                match mutation {
+                                    "address" => w.address = vec![0; 20],
+                                    "key" => w.key[0] ^= 1,
+                                    "noop" => w.old_value = vec![0],
+                                    "nonzero" => w.new_value = vec![1],
+                                    "wide_old" => w.old_value = vec![1; 33],
+                                    "wide_new" => w.new_value = vec![0; 33],
+                                    _ => unreachable!(),
+                                }
+                            }
+                        }
+                        assert_eq!(securities_admin_writes(&changed, &candidates).unwrap()[contract], 0, "{mutation}");
+                    }
+                }
+            }
+        }
 
         #[test]
         fn ptoken_membership_counter_uses_frozen_operations_and_exact_persisted_witnesses() {

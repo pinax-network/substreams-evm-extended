@@ -65,7 +65,7 @@ pub struct EnumerableAddressSet {
     pub key_types: Vec<String>,
     /// Explicit source/write-order contract; each mode is independently qualified.
     pub semantics: String,
-    /// Required only for the selected coupled PToken template. Explicit null is
+    /// Required for the selected coupled templates. Explicit null is
     /// invalid, so legacy documents cannot silently carry an ignored field.
     #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "non_null_membership_root")]
     pub membership_root: Option<String>,
@@ -74,10 +74,29 @@ fn non_null_membership_root<'de, D: serde::Deserializer<'de>>(deserializer: D) -
     String::deserialize(deserializer).map(Some)
 }
 pub const PTOKEN_ENUMERABLE_SEMANTICS: &str = "ptoken_v2_solc_0_8_28_oz_5_4_0";
+pub const SECURITIES_ENUMERABLE_SEMANTICS: &str = "securities_token_solc_0_8_24_oz_5_3_0";
+pub const SECURITIES_MEMBERSHIP_ROOT: &str = "0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800";
+pub const SECURITIES_SET_ROOT: &str = "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000";
+pub const SECURITIES_ISSUER_ADMIN_SLOT: &str = "0xecfb03a241cc67499591701273c9840824101e710aea92d3ca0339671f5c64c1";
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum EnumerableSemantics {
     Oz342,
     PToken { membership_root: [u8; 32] },
+    Securities { membership_root: [u8; 32], issuer_admin_slot: [u8; 32] },
+}
+impl EnumerableSemantics {
+    pub(crate) fn membership_root(self) -> Option<[u8; 32]> {
+        match self {
+            Self::Oz342 => None,
+            Self::PToken { membership_root } | Self::Securities { membership_root, .. } => Some(membership_root),
+        }
+    }
+    pub(crate) fn fixed_admin_slot(self) -> Option<[u8; 32]> {
+        match self {
+            Self::Securities { issuer_admin_slot, .. } => Some(issuer_admin_slot),
+            _ => None,
+        }
+    }
 }
 #[derive(Clone, Debug)]
 pub struct VerifiedEnumerableAddressSet {
@@ -665,6 +684,27 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
                         )?;
                         require(reserved.insert(membership_root), "enumerable membership root overlaps another configured field")?;
                         EnumerableSemantics::PToken { membership_root }
+                    }
+                    SECURITIES_ENUMERABLE_SEMANTICS => {
+                        let membership_root = word(
+                            set.membership_root
+                                .as_deref()
+                                .ok_or_else(|| Error::msg("coupled enumerable semantics requires membership_root"))?,
+                        )?;
+                        require(
+                            root == word(SECURITIES_SET_ROOT)? && membership_root == word(SECURITIES_MEMBERSHIP_ROOT)?,
+                            "selected Securities template requires exact namespaced membership/set roots",
+                        )?;
+                        let issuer_admin_slot = word(SECURITIES_ISSUER_ADMIN_SLOT)?;
+                        require(
+                            other_slots.contains(&issuer_admin_slot),
+                            "selected Securities template requires explicit fixed ISSUER admin scalar",
+                        )?;
+                        require(reserved.insert(membership_root), "enumerable membership root overlaps another configured field")?;
+                        EnumerableSemantics::Securities {
+                            membership_root,
+                            issuer_admin_slot,
+                        }
                     }
                     _ => return Err(Error::msg("unsupported enumerable-address-set semantics")),
                 };

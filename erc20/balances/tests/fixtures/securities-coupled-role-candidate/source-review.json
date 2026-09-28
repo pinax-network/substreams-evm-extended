@@ -1,0 +1,52 @@
+{
+  "baseline_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+  "capture_sha256": "fd44489fbc3e55ef5669b0a90246f32cd8b248079aa1cd58c5af2288a27daef2",
+  "chain_id": 56,
+  "compiler": "0.8.24+commit.e11b9ed9",
+  "compiler_output_sha256": "0b44f0b9acc0d1f33aa3bc5af37e6d12bf64ed46909568ae73b4fd4d3cf4b739",
+  "compiler_report_sha256": "d142396867d2fd13b51185046e5232a75685f8cd8a0daf8b1ad0cf3e1708020c",
+  "differing_primary_files": 3,
+  "equal_stages": "only source-executed zero-address append/tail clear may be omitted",
+  "exact_primary_files": 23,
+  "excluded_path_controls": 8,
+  "fixed_admin": {
+    "new_value": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "role": "0x114e74f6ea3bd819998f78687bfcb11b140da08e9b7d222fa9c1f1ba1f2aa122",
+    "scope": "initializer-only exact scalar; no arbitrary admin path, independent membership or initializer qualification",
+    "slot": "0xecfb03a241cc67499591701273c9840824101e710aea92d3ca0339671f5c64c1"
+  },
+  "implementation": "0xcfed6c4679297ea4889f8183bc057b4a86c64e46",
+  "initial_role_set_coherence_and_unused_tail_zero": "qualification assumption",
+  "logical_length_growth": "checked conservative admission restriction; malformed source max-length push wraps",
+  "membership_root": "0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800",
+  "onchain_creation_and_deployment": "absent; successful initializer/client/proxy execution remains unproven",
+  "primary_sources_sha256": "8e6e998a596f5323cd9166ff2247c2997edfe561986c1723bc05992d99ceff99",
+  "producer_structure": {
+    "actual_positive_root_begin_required": true,
+    "actual_role_write_visibility": "unqualified",
+    "v3_fallback": false,
+    "versions": [
+      4,
+      5
+    ]
+  },
+  "profiles": 17,
+  "proof_report_sha256": "16c390c746cd886a2a3f0880bc36b0ec7f6d1b0349f81462ad4c13ef329fc0f2",
+  "proof_transcripts_sha256": "77e77db3ae6b2113343ad3869c701a2fb80f783a3ebdeb87b2ae2f2bffc8399d",
+  "qualified": false,
+  "raw_metadata": {
+    "fresh_sha256": "c49c374e44cc250b2d11f362d3b48c5687ba46114d8fd2d2374d91b01189db9b",
+    "parsed_equal": true,
+    "raw_equal": false,
+    "saved_sha256": "44f85de3053c3bcbe52f78c3cbd7ed520c5ec965fd74d4ab642d88894848f3b6"
+  },
+  "runtime_bytes": 10836,
+  "runtime_keccak256": "0x060dc28d4dd8d9bb8a381d4009bccbac129ce743a10b3d8aa0ffef5034b50544",
+  "runtime_transformations": 0,
+  "semantics": "securities_token_solc_0_8_24_oz_5_3_0",
+  "set_root": "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000",
+  "source_files": 31,
+  "source_gap": "Eight captured custom sources have no exact independent primary body: three BEP-677 counterparts differ, and five SecuritiesToken/compliance/pause sources have no recovered public revision. The full original captured source is compiled without normalization or substitution. These gaps, null on-chain creation/deployment evidence, and proxy/beacon history remain unqualified.",
+  "synthetic_calls": 831,
+  "unrecovered_primary_files": 5
+}

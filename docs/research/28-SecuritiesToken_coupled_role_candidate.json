@@ -1,0 +1,60 @@
+{
+  "title": "SecuritiesToken selected-build coupled role candidates",
+  "issue": 4,
+  "qualified": false,
+  "mode": "offline_saved_data_only",
+  "candidate_profiles": 17,
+  "baseline_profiles_unchanged": 431,
+  "historical_qualification_cohort_unchanged": 425,
+  "semantics": "securities_token_solc_0_8_24_oz_5_3_0",
+  "focused_document": "erc20/balances/docs/securities-coupled-role-candidate.md",
+  "prerequisite": "docs/research/26-SecuritiesToken_operation_proof.json",
+  "candidate_fixture": "erc20/balances/tests/fixtures/securities-coupled-role-candidate/layouts.json",
+  "source_review": "erc20/balances/tests/fixtures/securities-coupled-role-candidate/source-review.json",
+  "change": "Remove implicit width-two membership permission; add exact coupled root pair and explicit fixed ISSUER admin scalar constrained to new value zero. Preserve every unrelated baseline field.",
+  "producer_boundary": "Extended4/5 with positive actual root begin; v3 refused for this mode. Actual role-operation visibility remains unqualified.",
+  "logical_growth": "Checked admission restriction; selected source maximum-length push wraps rather than reverting.",
+  "source_classification": {
+    "exact_primary": 23,
+    "pinned_different": 3,
+    "unrecovered": 5
+  },
+  "creation_and_deployment": "On-chain evidence null; compiler creation equality and synthetic constructor remain distinct.",
+  "replay": {
+    "status": "passed_offline_role_candidate_replay",
+    "start_inclusive": 122288006,
+    "stop_exclusive": 122289030,
+    "blocks": 1024,
+    "extended_producer_version": 5,
+    "unchanged_baseline_rows": 110139,
+    "candidate_same_block_matches": 2217,
+    "candidate_retained_matches": 26,
+    "candidate_initialized_token_holder_pairs": 685,
+    "candidate_cold_observations": 1507,
+    "candidate_cold_nonzero_observations": 673,
+    "candidate_role_membership_writes": 0,
+    "candidate_validated_role_operations": 0,
+    "candidate_fixed_issuer_admin_writes": 0,
+    "report": "erc20/balances/docs/evidence/securities-coupled-role-candidate-20260928.json",
+    "source_inventory": "erc20/balances/docs/evidence/securities-coupled-role-candidate-20260928-source-inputs.json"
+  },
+  "remaining_gates": [
+    "initial role/set coherence and initializer history",
+    "runtime/proxy/beacon history",
+    "real producer role-write and preimage visibility",
+    "replacement package and getter parity",
+    "initialized observed-holder scope does not establish global-holder support",
+    "external clients and timed UI behavior",
+    "eight independent primary-source gaps"
+  ],
+  "validation": {
+    "toolchain": "1.88",
+    "offline": true,
+    "workspace_tests": 1031,
+    "test_suites": 76,
+    "nonempty_test_suites": 53,
+    "format": "passed",
+    "clippy_all_targets_warnings_denied": "passed",
+    "wasm_workspace": "passed"
+  }
+}

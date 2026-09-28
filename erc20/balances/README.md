@@ -688,8 +688,16 @@ The [SecuritiesToken Phase A proof](docs/securities-operation-proof.md) binds al
 runtime, with 23 literal primary matches and eight explicit source gaps. It
 targets local namespaced role operations and raw ERC20 getters in synthetic
 accounts. On-chain creation/deployment evidence is absent; initializer, external
-client, transfer and timed UI success paths remain excluded. No SecuritiesToken
-ingestion rule, candidate or seventeen-profile qualification is added.
+client, transfer and timed UI success paths remain excluded. That proof does not
+qualify the seventeen deployed proxy profiles.
+
+The separate [SecuritiesToken coupled candidates](docs/securities-coupled-role-candidate.md)
+add an explicitly selected solc0.8.24/OZ5.3 operation template for those seventeen
+configurations. They remove independent broad membership permission and preserve
+only the exact initializer-derived ISSUER admin word with a zero-only new value.
+Source-derived projector controls and the saved canonical replay remain distinct
+from real producer visibility, coherent initial state and package qualification;
+the immutable 431 baseline and historical 425 cohort are unchanged.
 
 The [GMToken Phase A proof](docs/gm-operation-proof.md) binds three complete
 captures to official solc 0.8.16, preserving 15 exact Ondo-vendored dependencies,
