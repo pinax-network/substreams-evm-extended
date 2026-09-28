@@ -1,0 +1,17 @@
+{
+  "name": "openzeppelin-contracts-upgradeable",
+  "path": "lib/openzeppelin-contracts-upgradeable",
+  "sha": "fa525310e45f91eb20a6d3baa2644be8e0adba31",
+  "size": 0,
+  "url": "https://api.github.com/repos/aave-dao/solidity-utils/contents/lib/openzeppelin-contracts-upgradeable?ref=21dafc37b032aafac64fefb1a54d8be2ce137429",
+  "html_url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/tree/fa525310e45f91eb20a6d3baa2644be8e0adba31",
+  "git_url": "https://api.github.com/repos/OpenZeppelin/openzeppelin-contracts-upgradeable/git/trees/fa525310e45f91eb20a6d3baa2644be8e0adba31",
+  "download_url": null,
+  "type": "submodule",
+  "submodule_git_url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable",
+  "_links": {
+    "self": "https://api.github.com/repos/aave-dao/solidity-utils/contents/lib/openzeppelin-contracts-upgradeable?ref=21dafc37b032aafac64fefb1a54d8be2ce137429",
+    "git": "https://api.github.com/repos/OpenZeppelin/openzeppelin-contracts-upgradeable/git/trees/fa525310e45f91eb20a6d3baa2644be8e0adba31",
+    "html": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/tree/fa525310e45f91eb20a6d3baa2644be8e0adba31"
+  }
+}
