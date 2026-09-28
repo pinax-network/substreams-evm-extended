@@ -24,6 +24,8 @@
 pub(crate) mod oz_evm_oracle;
 #[cfg(test)]
 mod sdai_source_oracle;
+#[cfg(test)]
+mod static_source_oracle;
 
 use crate::aave;
 use crate::{Result, Unknown};
@@ -78,18 +80,24 @@ pub fn ray_mul_round_up(a: &BigUint, b: &BigUint) -> Result<BigUint> {
 }
 /// `rayDivRoundDown(a, b)`: `a * RAY / b`.
 pub fn ray_div_round_down(a: &BigUint, b: &BigUint) -> Result<BigUint> {
+    let numerator = checked(a * ray())?;
     if b.is_zero() {
         return Err(Unknown::Invalid("division by zero"));
     }
-    Ok(checked(a * ray())? / b)
+    Ok(numerator / b)
 }
 /// `rayDivRoundUp(a, b)`: `((a * RAY) + b - 1) / b`, with the same
 /// left-to-right checked arithmetic as `ray_mul_round_up`.
 pub fn ray_div_round_up(a: &BigUint, b: &BigUint) -> Result<BigUint> {
+    let sum = checked(checked(a * ray())? + b)?;
+    if sum.is_zero() {
+        return Err(Unknown::Invalid("uint256 underflow"));
+    }
+    let numerator = sum - BigUint::one();
     if b.is_zero() {
         return Err(Unknown::Invalid("division by zero"));
     }
-    Ok((checked(checked(a * ray())? + b)? - BigUint::one()) / b)
+    Ok(numerator / b)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -292,6 +300,23 @@ mod tests {
     }
     fn ray_n(v: u128) -> BigUint {
         n(v) * ray()
+    }
+
+    #[test]
+    fn static_division_checks_numerator_before_zero_denominator() {
+        for divide in [ray_div_round_down, ray_div_round_up] {
+            assert_eq!(divide(&max_uint256(), &n(0)), Err(Unknown::Invalid("uint256 overflow")));
+            assert_eq!(divide(&n(1), &n(0)), Err(Unknown::Invalid("division by zero")));
+        }
+    }
+
+    #[test]
+    fn static_round_up_checks_subtraction_before_zero_denominator() {
+        assert_eq!(ray_div_round_up(&n(0), &n(0)), Err(Unknown::Invalid("uint256 underflow")));
+        assert_eq!(ray_div_round_down(&n(0), &n(0)), Err(Unknown::Invalid("division by zero")));
+        // The multiplication helpers intentionally short-circuit known zero.
+        assert_eq!(ray_mul_round_down(&max_uint256(), &n(0)).unwrap(), n(0));
+        assert_eq!(ray_mul_round_up(&n(0), &max_uint256()).unwrap(), n(0));
     }
 
     #[test]

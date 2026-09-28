@@ -136,6 +136,23 @@ failures and isolated validation remain under `out/sdai-oracle-20260928/` in
 `network-verification-config`. These synthetic input and source-execution
 controls do not qualify Pot storage history, a deployed vault or a package.
 
+The [Aave/static-aToken source oracles](../conformance/fixtures/aave-static-oracle/README.md)
+add 5,103 compiled comparisons across the selected current Floor and v3.4
+HalfUp Aave getters, reserve normalization/liquidity updates and static-token
+conversion, preview and withdrawal-limit paths. The stored index now checks
+the source's uint128 cast while read-only normalization remains uint256.
+Static division now evaluates checked numerator multiplication, addition and
+subtraction before division, preserving exact overflow/underflow failure order.
+Both pinned aToken bases use uint120 holder storage; controlled reserve inputs
+use uint128 lanes and uint40 timestamps. Full source, licenses, official solc
+0.8.27 provenance and the SafeCast dependency Gitlinks are retained. The Paris
+compiler target is explicit. These harnesses substitute external/holder reads
+and keep the debt cache zero; they do not execute full reserve updates or
+qualify deployed Pool dependencies, package output or initialized checkpoints.
+The final regeneration and preserved red tests/earlier attempts are under
+`out/aave-static-oracles-20260928/source-04/` and its parent in
+`bsc-exclusion-review`. No production extractor or VM change is involved.
+
 The [offline six-exclusion review](../erc20/balances/docs/bsc-exclusions-offline-2026-09-28.md)
 preserves the original TAKE/RADR/TOPS refused transactions and prepares only a
 TAKE guard-slot candidate. Exact complete source-capture hashes bind saved
@@ -237,7 +254,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `erc4626/balance-state` | `evm.balance_state.v1` | #24 | **live 2026-09-23 (BSC static aToken)**: 162/162 shares, `convertToAssets` and `rate()` via conformance, 297 reserve words, 63 supplies over 2,064 blocks ([evidence](../erc4626/balance-state/docs/evidence/live-parity-bsc-stata-2026-09-23.json)); sDAI and OZ epochs are Ethereum placeholders (#8) | **compiler-verified** (StaticATokenLM 0.8.20, SavingsDai 0.8.17, Pot 0.6.12, OZ constants) |
 | `common/persist` | library | – | shared copy of `erc20/balances` persistence rules; fixtures reused | – |
 | `common/retention` | host library | #7 open | atomic application, exact checkpoint/stream identity, undo and retained protocol-input evaluation; synthetic lifecycle controls and separately bounded BSC evidence ([spec](initialization-and-completeness.md)) | – |
-| `conformance` | host library | #16 open | Aave has a captured-block index oracle; Compound v2, Comet, Lido, OZ and SavingsDai have compiled pinned-source controls with explicit harness limits ([details](../conformance/README.md)); deployment/package qualification remains separate | – |
+| `conformance` | host library | #16 open | Aave/static-aToken, Compound v2, Comet, Lido, OZ and SavingsDai have compiled pinned-source controls with explicit harness limits, alongside the captured Aave index oracle ([details](../conformance/README.md)); deployment/package qualification remains separate | – |
 | `dex/pool-state` | `dex` protos | (other agent, PR #40) | see its README | – |
 
 The initial implementation pass merged PRs #25–#39 and #40, followed by

@@ -1,0 +1,107 @@
+Aave current 8305565ae342f1773c42cd2e4593f175fe5968a0
+Aave v3.4 HalfUp d7a64127dbecb944a73670fbe6fba136329d9e15
+StaticATokenLM 101f5d977889254ca2d2711b9582b45f832d10a0
+SafeCast 69c8def5f222ff96f2b5beff05dfba996368aa79
+solc, the solidity compiler commandline interface
+Version: 0.8.27+commit.40a35a09.Darwin.appleclang
+8c406fa5cab9bd0a175da02c652072f814c3d06205a2fd6d92bc152599a6aabb  /Users/denis/.codex/worktrees/bsc-exclusion-review/substreams-evm-extended/out/aave-static-oracles-20260928/solc-0.8.27
+bb33ff8d98c87db11e6882d92b6d488f06e2fe9fff47391601bd29817bd81024  out/aave-static-oracles-20260928/source-04/build_aave_static_oracles.rs
+https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json
+22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af  out/aave-static-oracles-20260928/source-04/solc-list.json
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/libraries/math/WadRayMath.sol
+5155df4a005cb2e2901ae6752b3a30d57eb900eb91d2cd1bad0b9e12837c0d41  out/aave-static-oracles-20260928/source-04/sources/current/src/contracts/protocol/libraries/math/WadRayMath.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/libraries/math/MathUtils.sol
+92f6bc251d3ffb59eb2b338ae0a96da56016e2d37799b3587a34c943e39fa7b4  out/aave-static-oracles-20260928/source-04/sources/current/src/contracts/protocol/libraries/math/MathUtils.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/libraries/types/DataTypes.sol
+fe0d923f73941f9dd674bbad4533379e2451fd04518bcd7bb6b3c14e57c49db1  out/aave-static-oracles-20260928/source-04/sources/current/src/contracts/protocol/libraries/types/DataTypes.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/libraries/logic/ReserveLogic.sol
+1c32cb87bbc151310f151b9a3636086ecf6adfdc78610f4bf5b69e3299221d1a  out/aave-static-oracles-20260928/source-04/sources/current/src/contracts/protocol/libraries/logic/ReserveLogic.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/tokenization/AToken.sol
+513164270664a93dc7714a95f32fe9388a34b19650ca46af71e356b22c9cc439  out/aave-static-oracles-20260928/source-04/sources/current/src/contracts/protocol/tokenization/AToken.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/tokenization/base/IncentivizedERC20.sol
+3f919aca784381b2384c8ab3eb49a42fa7576b302b93b22ee5c3164fdfba0cef  out/aave-static-oracles-20260928/source-04/sources/current/src/contracts/protocol/tokenization/base/IncentivizedERC20.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/LICENSE
+e1d4497339ffc807e4fefcf6b36e23b44b876b83512b611e0d765c7fd0ad8655  out/aave-static-oracles-20260928/source-04/sources/current/LICENSE
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/foundry.toml
+5a79925f50698d97241c20700579b8afe4ac46d2bddc9d1af32df7254e64863e  out/aave-static-oracles-20260928/source-04/sources/current/foundry.toml
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/remappings.txt
+ca95ee19c17e0be607c169a5136855afde4303effd18f1f3a8d6703ad52b32fd  out/aave-static-oracles-20260928/source-04/sources/current/remappings.txt
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/.gitmodules
+9454c843aa778bf8485d0edf002e2f234f608946d9a8a7d4ffe420696930b0aa  out/aave-static-oracles-20260928/source-04/sources/current/.gitmodules
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/src/contracts/protocol/libraries/math/WadRayMath.sol
+fae5b995ec613cc213050c99ea6352c9c18ceebba106d03b1726cfa8f1f0124e  out/aave-static-oracles-20260928/source-04/sources/half-up/src/contracts/protocol/libraries/math/WadRayMath.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/src/contracts/protocol/libraries/math/MathUtils.sol
+ad7048ccd2e92e9f53f2c66b403855da1c07e5cbbed278889fc4cf8d67b4edc1  out/aave-static-oracles-20260928/source-04/sources/half-up/src/contracts/protocol/libraries/math/MathUtils.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/src/contracts/protocol/libraries/types/DataTypes.sol
+d695df657ee49461f73042640ec69c9fc585bbf9dd0ec39a6a152096b056c9e9  out/aave-static-oracles-20260928/source-04/sources/half-up/src/contracts/protocol/libraries/types/DataTypes.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/src/contracts/protocol/libraries/logic/ReserveLogic.sol
+122419472f8498ee635a91475731427b8156b3adcfc411888445856788baf4a2  out/aave-static-oracles-20260928/source-04/sources/half-up/src/contracts/protocol/libraries/logic/ReserveLogic.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/src/contracts/protocol/tokenization/AToken.sol
+04947f0e8ad0e5a684e367c7214debbb077791ca6b4759a29a37ec1ba12d8e20  out/aave-static-oracles-20260928/source-04/sources/half-up/src/contracts/protocol/tokenization/AToken.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/src/contracts/protocol/tokenization/base/IncentivizedERC20.sol
+03e92f77b681d29e6d789bc3ec3a77c55c90c7f95e3a6d1bf0442063e85af454  out/aave-static-oracles-20260928/source-04/sources/half-up/src/contracts/protocol/tokenization/base/IncentivizedERC20.sol
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/LICENSE
+18c69f7466441dfa0d4649bfe8e080461cfcf16f2f31b3caa8bcf41b8551e3fd  out/aave-static-oracles-20260928/source-04/sources/half-up/LICENSE
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/foundry.toml
+cf032787997030ab66cda9649cc8fcdfe9989d6d645be2c7c45226fa1b7aa8db  out/aave-static-oracles-20260928/source-04/sources/half-up/foundry.toml
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/remappings.txt
+ca95ee19c17e0be607c169a5136855afde4303effd18f1f3a8d6703ad52b32fd  out/aave-static-oracles-20260928/source-04/sources/half-up/remappings.txt
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/.gitmodules
+3cb2a6e6b03faa701d619bf99722e1d2251ae727b5b47de64a4c72fa375efcf0  out/aave-static-oracles-20260928/source-04/sources/half-up/.gitmodules
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/.gitmodules
+9454c843aa778bf8485d0edf002e2f234f608946d9a8a7d4ffe420696930b0aa  out/aave-static-oracles-20260928/source-04/dependency-proof/aave-solidity-utils.gitmodules
+https://api.github.com/repos/aave-dao/aave-v3-origin/contents/lib/solidity-utils?ref=8305565ae342f1773c42cd2e4593f175fe5968a0
+3ac180b236134fbd868237bdfadcaf99aca18a53e4f103210dc0adfaf0e8e97a  out/aave-static-oracles-20260928/source-04/dependency-proof/aave-solidity-utils.json
+https://raw.githubusercontent.com/aave-dao/solidity-utils/21dafc37b032aafac64fefb1a54d8be2ce137429/.gitmodules
+6efb760c2cf11e86c2192187f11a3b44e6e503d3979acb18f3fef02de65be4d7  out/aave-static-oracles-20260928/source-04/dependency-proof/utils-oz-upgradeable.gitmodules
+https://api.github.com/repos/aave-dao/solidity-utils/contents/lib/openzeppelin-contracts-upgradeable?ref=21dafc37b032aafac64fefb1a54d8be2ce137429
+ea743003887eb2b47fb7e4a7f11c2750c0847da62df74851e6fb6ceb8977822b  out/aave-static-oracles-20260928/source-04/dependency-proof/utils-oz-upgradeable.json
+https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts-upgradeable/fa525310e45f91eb20a6d3baa2644be8e0adba31/.gitmodules
+11780fca33d851af626a01fca6454018bb5a1a3b694fcb4a8aae6361858a712a  out/aave-static-oracles-20260928/source-04/dependency-proof/upgradeable-oz.gitmodules
+https://api.github.com/repos/OpenZeppelin/openzeppelin-contracts-upgradeable/contents/lib/openzeppelin-contracts?ref=fa525310e45f91eb20a6d3baa2644be8e0adba31
+8eff72d27c4e6d923b3f25069c0c1c1c13cba150a4a45c1333c8d163ed0825eb  out/aave-static-oracles-20260928/source-04/dependency-proof/upgradeable-oz.json
+https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/libraries/helpers/TokenMath.sol
+11ef1a7ea98b3fe23ff54a0de7b70e53a637ec40d74a7babcf3db89476d3c859  out/aave-static-oracles-20260928/source-04/sources/current/src/contracts/protocol/libraries/helpers/TokenMath.sol
+https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/69c8def5f222ff96f2b5beff05dfba996368aa79/contracts/utils/math/SafeCast.sol
+9769274bf53f26a7c7896c526ea1980dc9bea5bf5c2a5fd04870008c4afc1de9  out/aave-static-oracles-20260928/source-04/sources/oz/contracts/utils/math/SafeCast.sol
+https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/69c8def5f222ff96f2b5beff05dfba996368aa79/LICENSE
+8b3fddff3cff904ab9bd7c48a9288fb08ab4f47b179c07af6df7886b12cb04d6  out/aave-static-oracles-20260928/source-04/sources/oz/LICENSE
+https://raw.githubusercontent.com/bgd-labs/static-a-token-v3/101f5d977889254ca2d2711b9582b45f832d10a0/src/StaticATokenLM.sol
+e9b4f0dd4812c6a5a140073009d5cc6c1486106fffe783b7018855e0b8cda22a  out/aave-static-oracles-20260928/source-04/sources/static/src/StaticATokenLM.sol
+https://raw.githubusercontent.com/bgd-labs/static-a-token-v3/101f5d977889254ca2d2711b9582b45f832d10a0/src/RayMathExplicitRounding.sol
+f6dc18dd1586f58866806124404f88f31ad0165fa29f93ca36c5012bb137e517  out/aave-static-oracles-20260928/source-04/sources/static/src/RayMathExplicitRounding.sol
+https://raw.githubusercontent.com/bgd-labs/static-a-token-v3/101f5d977889254ca2d2711b9582b45f832d10a0/src/ERC20.sol
+970f12632fb6f44c10c39a8e7951a4c06e875d8d07ac39fdc683e4f19e6b8b89  out/aave-static-oracles-20260928/source-04/sources/static/src/ERC20.sol
+https://raw.githubusercontent.com/bgd-labs/static-a-token-v3/101f5d977889254ca2d2711b9582b45f832d10a0/LICENSE
+89a56f27966d48afc7139903ba6a4bd9854d8413b3ff0ef9092f2402c596a12e  out/aave-static-oracles-20260928/source-04/sources/static/LICENSE
+https://raw.githubusercontent.com/bgd-labs/static-a-token-v3/101f5d977889254ca2d2711b9582b45f832d10a0/foundry.toml
+f620e0c3fe9727176a82a5308771e6bdbdb10776ce6cc2dd4b41feb203041669  out/aave-static-oracles-20260928/source-04/sources/static/foundry.toml
+Whole libraries/types are unmodified. Harness imports point to their original relative trees. Public wrappers and controlled state declarations are new.
+Aave _updateIndexes is complete, but debt cache inputs are zero; no updateState/treasury/debt-path claim.
+Static configuration booleans/liquidity/holder are supplied facts; no external calls or actual mapping/config decoding.
+Oracle uses official 0.8.27 with explicit Paris target; current Aave foundry configuration specifies Shanghai. No deployed compiler/runtime claim.
+substitute 1x "override(IncentivizedERC20, IERC20)" -> ""
+substitute 1x "super.balanceOf(user)" -> "boundShares"
+substitute 1x "POOL.getReserveNormalizedIncome(_underlyingAsset)" -> "getNormalizedIncome(boundReserve)"
+substitute 1x "override(IncentivizedERC20, IERC20)" -> ""
+substitute 1x "super.balanceOf(user)" -> "boundShares"
+substitute 1x "POOL.getReserveNormalizedIncome(_underlyingAsset)" -> "getNormalizedIncome(boundReserve)"
+substitute 1x "POOL.getReserveNormalizedIncome(_aTokenUnderlying)" -> "getNormalizedIncome(boundReserve)"
+substitute 1x "POOL.getReserveData(cachedATokenUnderlying)" -> "boundReserve"
+substitute 1x "ReserveConfiguration.getActive(reserveData.configuration)" -> "boundActive"
+substitute 1x "ReserveConfiguration.getPaused(reserveData.configuration)" -> "boundPaused"
+substitute 1x "IERC20(cachedATokenUnderlying).balanceOf(reserveData.aTokenAddress)" -> "boundLiquidity"
+substitute 1x "balanceOf[owner]" -> "boundShares"
+compiler arguments: --bin-runtime --hashes --storage-layout --optimize --optimize-runs 200 --evm-version paris --metadata-hash none -o build AaveOracle.sol HalfUpOracle.sol StaticOracle.sol
+9aee39be507e6018a914ee87898e55b2f21aae866993d828d520d4785347bb6a  out/aave-static-oracles-20260928/source-04/AaveOracle.sol
+c8c73ff6df1f2b317ff3be38db28008c13747a6fad2c4d53a4bc7afe02233272  out/aave-static-oracles-20260928/source-04/HalfUpOracle.sol
+28e302f87de639588569ce376d476fce603a2b874fc3c8462b1054eda919cd8f  out/aave-static-oracles-20260928/source-04/StaticOracle.sol
+878c6e5f1eb4d0a177f522264018c88199ebb1796689106689fc6487a72ecbe6  out/aave-static-oracles-20260928/source-04/build/AaveOracle.bin-runtime
+e4a21dcf6d996b8a0a670dda12e2bfb998249093dcd453fe91d5d75d8ac00bb6  out/aave-static-oracles-20260928/source-04/build/AaveOracle.signatures
+274c89cc1d02f95a42f7749657aa54bd613e4003a5fdfc78ca63e2eff579b995  out/aave-static-oracles-20260928/source-04/build/AaveOracle_storage.json
+613f698885238152abe1cf02338ab06300d00feef3593a16513d1e38eefa212f  out/aave-static-oracles-20260928/source-04/build/HalfUpOracle.bin-runtime
+df15720e966ceef5ebff4497b577fe23cb466e4c04d2085c054b0dd6475bc8e3  out/aave-static-oracles-20260928/source-04/build/HalfUpOracle.signatures
+9391925571eb63f140593ac5270f515c6b2e5427bac8d6e5969c08ce3a6441b1  out/aave-static-oracles-20260928/source-04/build/HalfUpOracle_storage.json
+3bde357f29950a0882684f26b92512f954a1a55fb69c224243c135a3e0f29b28  out/aave-static-oracles-20260928/source-04/build/StaticOracle.bin-runtime
+2df1cfea1e285297bfd57dd735b87ad8dace05692af1abe4d3009a26c51cd258  out/aave-static-oracles-20260928/source-04/build/StaticOracle.signatures
+3de8094dbd08f1977216ad585a7f4cb4e28626f1ed8cd5b50363711fa949e300  out/aave-static-oracles-20260928/source-04/build/StaticOracle_storage.json

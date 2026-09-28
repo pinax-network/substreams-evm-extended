@@ -1,0 +1,38 @@
+{
+  "topic": "Aave and static-aToken compiled source oracles and arithmetic corrections, 2026-09-28",
+  "facts": [
+    {
+      "key": "stored_liquidity_index_has_a_checked_uint128_cast",
+      "value": "Current ReserveLogic._updateIndexes assigns the half-up accrued liquidity index through SafeCast.toUint128; getNormalizedIncome returns the wider uint256 projection without that narrowing.",
+      "source_url": "https://raw.githubusercontent.com/aave-dao/aave-v3-origin/8305565ae342f1773c42cd2e4593f175fe5968a0/src/contracts/protocol/libraries/logic/ReserveLogic.sol",
+      "source_pin": "aave-dao/aave-v3-origin@8305565ae342f1773c42cd2e4593f175fe5968a0 ReserveLogic.sol:39-54,211-243; OpenZeppelin/openzeppelin-contracts@69c8def5f222ff96f2b5beff05dfba996368aa79 SafeCast.sol",
+      "note": "With index 2^128-1, rate RAY and one year elapsed, source projection succeeds with 2^129-2 but stored update gives the exact SafeCast custom error. Both stored fields fit uint128. Debt cache inputs are zero in the harness; outer updateState/treasury are outside scope."
+    },
+    {
+      "key": "static_division_evaluates_checked_numerator_before_division",
+      "value": "rayDivRoundDown computes a*RAY before division; rayDivRoundUp computes a*RAY, adds b and subtracts 1 before division. At zero denominator the first failure can be checked overflow or underflow instead of division by zero. Multiplication helpers explicitly return zero if either operand is zero.",
+      "source_url": "https://raw.githubusercontent.com/bgd-labs/static-a-token-v3/101f5d977889254ca2d2711b9582b45f832d10a0/src/RayMathExplicitRounding.sol",
+      "source_pin": "bgd-labs/static-a-token-v3@101f5d977889254ca2d2711b9582b45f832d10a0 src/RayMathExplicitRounding.sol:17-37",
+      "note": "Compiled source controls distinguish Panic 0x11 from Panic 0x12. The host now follows that failure order and checks subtraction before a BigUint underflow."
+    },
+    {
+      "key": "pinned_half_up_getter_and_holder_width",
+      "value": "The selected v3.4.0 AToken.balanceOf uses half-up rayMul; its IncentivizedERC20 stores the holder basis as uint120, as does the selected current source. This is a specific older getter pin, not every historical revision.",
+      "source_url": "https://raw.githubusercontent.com/aave-dao/aave-v3-origin/d7a64127dbecb944a73670fbe6fba136329d9e15/src/contracts/protocol/tokenization/base/IncentivizedERC20.sol",
+      "source_pin": "aave-dao/aave-v3-origin@d7a64127dbecb944a73670fbe6fba136329d9e15 IncentivizedERC20.sol:47-50,116-118 and AToken.sol:105-109",
+      "note": "Both full base sources are preserved and asserted in the generator. Oracle adapters enforce uint120 holder inputs, uint128 reserve lanes and uint40 stored timestamps; pure helper operands and static shares remain uint256."
+    },
+    {
+      "key": "official_compiler_and_exact_dependency_provenance",
+      "value": "The official macOS amd64 solc 0.8.27+commit.40a35a09 binary has SHA256 8c406fa5cab9bd0a175da02c652072f814c3d06205a2fd6d92bc152599a6aabb. The oracle explicitly compiles for Paris instead of current Aave's Shanghai setting.",
+      "source_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json",
+      "source_pin": "ethereum/solc-bin@16a99b8c26ed33a91796e209ff6797ee7baf2b0d; Aave SafeCast chain solidity-utils@21dafc37b032aafac64fefb1a54d8be2ce137429 -> OZ-upgradeable@fa525310e45f91eb20a6d3baa2644be8e0adba31 -> OZ@69c8def5f222ff96f2b5beff05dfba996368aa79",
+      "note": "Whole original arithmetic/type libraries, license notices, dependency Gitlinks, exact extracted function substitutions, as-run generator, compiler flags and all generated hashes are retained. 5,103 source executions include exact success/error payload controls. No deployed compiler/runtime claim."
+    }
+  ],
+  "open_questions": [
+    "Actual deployment/runtime/Pool dependency binding and reachability of extreme valid-width states remain unverified by source execution.",
+    "The harness does not execute mapping lookups, external calls, debt, treasury, full reserve updates, rewards, supply caps or deposit/withdraw transitions.",
+    "Current packaged output, initialized checkpoints, unobserved holders and dependency truth remain separately qualified; existing historical BSC reports are not extended."
+  ]
+}

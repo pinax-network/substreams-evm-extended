@@ -11,6 +11,9 @@ use num_bigint::BigUint;
 use num_integer::Integer;
 use num_traits::{One, Zero};
 
+#[cfg(test)]
+pub(crate) mod source_oracle;
+
 pub fn ray() -> BigUint {
     BigUint::from(10u8).pow(27)
 }
@@ -121,7 +124,13 @@ pub fn next_liquidity_index(reserve: &Reserve, current_timestamp: u64) -> Result
         return Ok(reserve.liquidity_index.clone());
     }
     let interest = linear_interest(&reserve.current_liquidity_rate, reserve.last_update_timestamp, current_timestamp)?;
-    ray_mul(&interest, &reserve.liquidity_index)
+    let next = ray_mul(&interest, &reserve.liquidity_index)?;
+    // _updateIndexes narrows the stored result with SafeCast.toUint128;
+    // getNormalizedIncome intentionally keeps its wider uint256 projection.
+    if next.bits() > 128 {
+        return Err(Unknown::Invalid("liquidity index uint128 overflow"));
+    }
+    Ok(next)
 }
 
 pub fn one() -> BigUint {
@@ -213,6 +222,40 @@ mod tests {
                 assert_eq!(balance_of(&shares, &reserve, 3, era), Err(Unknown::Invalid("linear interest overflow")));
             }
         }
+    }
+
+    #[test]
+    fn stored_index_checks_uint128_while_projection_can_be_wider() {
+        let limit = BigUint::one() << 128u32;
+        let reserve = Reserve {
+            liquidity_index: &limit - BigUint::one(),
+            current_liquidity_rate: ray(),
+            last_update_timestamp: 0,
+        };
+        assert_eq!(reserve.normalized_income(SECONDS_PER_YEAR).unwrap(), &limit * 2u8 - 2u8);
+        assert_eq!(
+            next_liquidity_index(&reserve, SECONDS_PER_YEAR),
+            Err(Unknown::Invalid("liquidity index uint128 overflow"))
+        );
+        let below = Reserve {
+            liquidity_index: &limit / 2u8 - 1u8,
+            ..reserve.clone()
+        };
+        assert_eq!(next_liquidity_index(&below, SECONDS_PER_YEAR).unwrap(), &limit - 2u8);
+        let at = Reserve {
+            liquidity_index: &limit / 2u8,
+            ..reserve.clone()
+        };
+        assert_eq!(
+            next_liquidity_index(&at, SECONDS_PER_YEAR),
+            Err(Unknown::Invalid("liquidity index uint128 overflow"))
+        );
+        assert_eq!(next_liquidity_index(&reserve, 0).unwrap(), reserve.liquidity_index);
+        let zero_rate = Reserve {
+            current_liquidity_rate: BigUint::zero(),
+            ..reserve
+        };
+        assert_eq!(next_liquidity_index(&zero_rate, SECONDS_PER_YEAR).unwrap(), zero_rate.liquidity_index);
     }
 }
 
