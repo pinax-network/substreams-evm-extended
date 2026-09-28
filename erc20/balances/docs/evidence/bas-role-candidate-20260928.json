@@ -1,0 +1,249 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "out/bas-role-20260928/replay-01/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "out/bas-role-20260928/replay-01/candidate-combined-layouts.json",
+      "sha256": "bf96f3d163f57b0a314e00cbaab911cf6b9e7e389bdaa460ce9bf7425dc32a6d"
+    },
+    {
+      "path": "out/bas-role-20260928/replay-01/replay-role-candidates.rs",
+      "sha256": "57026aec46e550766fbc81f67183f17974993106ef70af0793ab71b0b43d3987"
+    },
+    {
+      "path": "out/bas-role-20260928/replay-01/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "out/bas-role-20260928/replay-01/blocks.jsonl",
+      "sha256": "a9ce61e65961b4aca40ffc9ea2105fdca90a44b27987e0ec976de20c6882e01f"
+    },
+    {
+      "path": "out/bas-role-20260928/replay-01/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "out/bas-role-20260928/replay-01/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "out/bas-role-20260928/replay-01/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "attempted_block": 122289029,
+  "candidate_matches_current_baseline_all_blocks": true,
+  "candidate_profiles": {
+    "0x0f0df6cb17ee5e883eddfef9153fc6036bdb4e37": {
+      "cold_nonzero_reference_observations": 39,
+      "cold_reference_observations": 88,
+      "emitted_rows": 90,
+      "initialized_observed_holders": 15,
+      "persisted_fixed_pauser_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 90
+    }
+  },
+  "canonical_reference_interval_and_baseline_binding_verified": true,
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 120.606674667,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/bas-role-candidate/layouts.json",
+      "sha256": "b9692501106ceb32226d1f90c41c1a8cd173d3710268628cbf6d4c91eba3c054"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/bas-role-candidate/source-review.json",
+      "sha256": "265f96a39de3ab88cb5d52b23e9b1bfab26f5fd1e21af3f0f5ee6f47e8f0cc21"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_completed_block": 122289029,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 66265,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 110139,
+    "enumerated": [],
+    "first_block": 122288006,
+    "initialized_holders": 33591,
+    "known_zero_holders": 6197,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 33591,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "scope": "One NOT-QUALIFIED BAS exact membership path plus one fixed PAUSER admin word applied to historical431; exact saved source/runtime/constructor reconstruction and native parity do not qualify deployment, current admin or replacement package. Public token source gap remains unresolved. Canonical values never seed retained state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "3f1ea1e2d1400609911a5bfbba2fb596a32170f375d650f43ffd928110403544",
+  "source_rechecks": [
+    {
+      "chain_id": 56,
+      "constructor": {
+        "admin": "0x9d8796b0ac1064ede1378d785df96970eaf5a2b9",
+        "name": "BNB Attestation",
+        "pauser": "0x9d8796b0ac1064ede1378d785df96970eaf5a2b9",
+        "symbol": "BAS"
+      },
+      "constructor_abi_append_bytes": 288,
+      "contract": "0x0f0df6cb17ee5e883eddfef9153fc6036bdb4e37",
+      "current_admin_or_deployment_qualification": false,
+      "fixed_pauser_admin_word": "0xe09f975e15f8f53f24cbbc282b13c40b84df485fcdb8d3997fa103dc5a4ef842",
+      "fresh_compilation": false,
+      "immutable_cap": "10000000000000000000000000000",
+      "immutable_id": "1169",
+      "immutable_sites": [
+        3249,
+        4710
+      ],
+      "membership_root": "0x0000000000000000000000000000000000000000000000000000000000000006",
+      "original_match_labels": {
+        "creationMatch": "match",
+        "match": "match",
+        "runtimeMatch": "match"
+      },
+      "pauser_role": "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a",
+      "qualified": false,
+      "recorded_deployment": {
+        "blockNumber": "53994920",
+        "deployer": "0x9d8796B0AC1064ede1378D785df96970eAf5A2B9",
+        "transactionHash": "0x5368d4291e1b1427f0f61abe80ff515c5814e88f573a35dd71f4754accfd1c72",
+        "transactionIndex": "117"
+      },
+      "role_admin_callsite": "constructor-only _setRoleAdmin(PAUSER_ROLE, PAUSER_ROLE)",
+      "runtime_hash": "0x957bf9d2d5b267f6e4f01ddcbda34c4b3cf9d89f3af6c07c98056ca60fb9733e",
+      "runtime_reconstructed_from_saved_compiler_bytes": true,
+      "scope": "Exact captured source/compiler/runtime/constructor binding only; synthetic shapes and saved replay do not qualify a deployment or replacement package. No generic role-admin rule or constructor admission.",
+      "source_capture_sha256": "8fe36b7af10f037925e8a777e45ac5647d82779c606d99790f467c52e0d8cdd0",
+      "source_files": [
+        {
+          "keccak256": "0x0dd6e52cb394d7f5abe5dca2d4908a6be40417914720932de757de34a99ab87f",
+          "path": "@openzeppelin/contracts/access/AccessControl.sol",
+          "sha256": "afd98330d27bddff0db7cb8fcf42bd4766dda5f60b40871a3bec6220f9c9edf7"
+        },
+        {
+          "keccak256": "0x59ce320a585d7e1f163cd70390a0ef2ff9cec832e2aa544293a00692465a7a57",
+          "path": "@openzeppelin/contracts/access/IAccessControl.sol",
+          "sha256": "d03c1257f2094da6c86efa7aa09c1c07ebd33dd31046480c5097bc2542140e45"
+        },
+        {
+          "keccak256": "0x0849d93b16c9940beb286a7864ed02724b248b93e0d80ef6355af5ef15c64773",
+          "path": "@openzeppelin/contracts/security/Pausable.sol",
+          "sha256": "2072248d2f79e661c149fd6a6593a8a3f038466557c9b75e50e0b001bcb5cf97"
+        },
+        {
+          "keccak256": "0xa56ca923f70c1748830700250b19c61b70db9a683516dc5e216694a50445d99c",
+          "path": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+          "sha256": "d20d52b4be98738b8aa52b5bb0f88943f62128969b33d654fbca731539a7fe0a"
+        },
+        {
+          "keccak256": "0x287b55befed2961a7eabd7d7b1b2839cbca8a5b80ef8dcbb25ed3d4c2002c305",
+          "path": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+          "sha256": "7ebde70853ccafcf1876900dad458f46eb9444d591d39bfc58e952e2582f5587"
+        },
+        {
+          "keccak256": "0x3fe04ed1daf0f12454333fde982a25b103860d8a010dd5d8479b83ebf1dfb788",
+          "path": "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol",
+          "sha256": "00d9364a71bfb7590fdeb7e097fe84159f4fc002c4f603b036c61f91e6368861"
+        },
+        {
+          "keccak256": "0x8de418a5503946cabe331f35fe242d3201a73f67f77aaeb7110acb1f30423aca",
+          "path": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+          "sha256": "af5c8a77965cc82c33b7ff844deb9826166689e55dc037a7f2f790d057811990"
+        },
+        {
+          "keccak256": "0xa92e4fa126feb6907daa0513ddd816b2eb91f30a808de54f63c17d0e162c3439",
+          "path": "@openzeppelin/contracts/utils/Context.sol",
+          "sha256": "b2cfee351bcafd0f8f27c72d76c054df9b571b62cfac4781ed12c86354e2a56c"
+        },
+        {
+          "keccak256": "0x3088eb2868e8d13d89d16670b5f8612c4ab9ff8956272837d8e90106c59c14a0",
+          "path": "@openzeppelin/contracts/utils/Strings.sol",
+          "sha256": "cb2df477077a5963ab50a52768cb74ec6f32177177a78611ddbbe2c07e2d36de"
+        },
+        {
+          "keccak256": "0xd10975de010d89fd1c78dc5e8a9a7e7f496198085c151648f20cba166b32582b",
+          "path": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
+          "sha256": "8806a632d7b656cadb8133ff8f2acae4405b3a64d8709d93b0fa6a216a8a6154"
+        },
+        {
+          "keccak256": "0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1",
+          "path": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
+          "sha256": "701e025d13ec6be09ae892eb029cd83b3064325801d73654847a5fb11c58b1e5"
+        },
+        {
+          "keccak256": "0xe4455ac1eb7fc497bb7402579e7b4d64d928b846fce7d2b6fde06d366f21c2b3",
+          "path": "@openzeppelin/contracts/utils/math/Math.sol",
+          "sha256": "85a2caf3bd06579fb55236398c1321e15fd524a8fe140dff748c0f73d7a52345"
+        },
+        {
+          "keccak256": "0xf92515413956f529d95977adc9b0567d583c6203fc31ab1c23824c35187e3ddc",
+          "path": "@openzeppelin/contracts/utils/math/SignedMath.sol",
+          "sha256": "420a5a5d8d94611a04b39d6cf5f02492552ed4257ea82aba3c765b1ad52f77f6"
+        },
+        {
+          "keccak256": "0x34abdd99c82eb94d458fdec8bb651f3e92b6dffd3ff21a237b5b6f72d01dba6d",
+          "path": "contracts/bas/BAS.sol",
+          "sha256": "08beba1cb6911308c84bb235219eead860f1246e8913a7652f232ea73495c8c1"
+        }
+      ],
+      "token_primary_source_gap": "None of the six bounded public BAS.sol revisions matches the captured token source. Public head lacks the captured ERC20Recovered event declaration and emit. No normalization is allowed; exact OpenZeppelin dependencies do not resolve the token-source gap."
+    }
+  ],
+  "start_inclusive": 122288006,
+  "status": "passed_offline_role_candidate_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0
+}
