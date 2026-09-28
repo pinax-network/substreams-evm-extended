@@ -682,3 +682,11 @@ files and 38 exact dependency pins. It targets the selected OZ 4 coupled role
 operations and independent whitelist set in synthetic accounts. The custom
 token's primary source gap, proxy-dispatch boundary and missing deployed-state
 qualification remain explicit; no BTR ingestion rule or candidate is added.
+
+The [SecuritiesToken Phase A proof](docs/securities-operation-proof.md) binds all
+31 captured sources to official solc 0.8.24 and the exact full implementation
+runtime, with 23 literal primary matches and eight explicit source gaps. It
+targets local namespaced role operations and raw ERC20 getters in synthetic
+accounts. On-chain creation/deployment evidence is absent; initializer, external
+client, transfer and timed UI success paths remain excluded. No SecuritiesToken
+ingestion rule, candidate or seventeen-profile qualification is added.

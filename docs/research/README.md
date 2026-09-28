@@ -34,5 +34,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `23-OFT_role_candidates.json` | Three complete Kgen/Deep captures, exact primary and vendored-source distinctions, saved constructor/immutable reconstruction and plain role paths with explicit proxy-history limits | `erc20/balances`, issue #4 |
 | `24-PToken_coupled_role_candidate.json` | Selected compiled boolean/set operation admission, strict linked roots and producer boundaries, adversarial projector controls and a separate unqualified candidate | `erc20/balances`, issue #4 |
 | `25-BTR_operation_proof.json` | Complete implementation/proxy compilation, explicit local account context and compiled role/whitelist operation controls; host evidence with no candidate or ingestion permission | `erc20/balances` host tools, issue #4 |
+| `26-SecuritiesToken_operation_proof.json` | Complete official-compiler reproduction, exact versus differing primary sources, namespaced local role/set and raw-getter execution; synthetic constructor and explicit unsupported paths, with no ingestion candidate | `erc20/balances` host tools, issue #4 |
 
 Claims marked with a correction in a file supersede the corresponding claim.

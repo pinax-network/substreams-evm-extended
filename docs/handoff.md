@@ -342,6 +342,24 @@ Fresh attempts, full traces and failed attempts remain under
 `out/btr-operation-proof-20260928/` in `bsc-exclusion-review`. Actual initial state,
 runtime/package/getter/holder qualification and producer visibility remain open.
 
+The separate [SecuritiesToken host proof](../erc20/balances/docs/securities-operation-proof.md)
+rebuilds the complete selected implementation with official solc 0.8.24 and
+all 31 captured sources. Twenty-three bodies match immutable primary revisions;
+three differing BEP bodies and five unresolved token/client sources remain
+explicit gaps. Full runtime equality includes the metadata trailer. Saved and
+fresh metadata differ in Unicode escaping, so both raw strings are separately
+pinned alongside complete parsed equality. On-chain creation and deployment
+fields are absent; constructor execution is synthetic only.
+The local matrix exercises namespaced roles, enumerable-set ordering, raw
+ERC-20 getters and rollback. Unsupported initializer/client/transfer/UI paths
+remain explicit harness failures; no external-call or clock behavior is
+fabricated. This host proof adds no ingestion permission or candidate, so the
+seventeen SecuritiesToken profiles remain among the twenty unmigrated
+boolean-role profiles. Proxy/beacon traversal, real initial state, dynamic
+metadata and runtime/package/holder qualification remain separate requirements.
+Source builds, execution traces and failed attempts are preserved under
+`out/securities-operation-proof-20260928/` in `network-verification-config`.
+
 The host ledger now validates exact epoch membership for holder and global
 rows. A transition from epoch 1 to epoch 3 cannot introduce undeclared epoch 2
 or carry its unchecked value into the successor. Nonconsecutive IDs remain

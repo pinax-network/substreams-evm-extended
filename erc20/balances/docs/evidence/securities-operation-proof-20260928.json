@@ -1,0 +1,143 @@
+{
+  "calls": 831,
+  "capture_sha256": "fd44489fbc3e55ef5669b0a90246f32cd8b248079aa1cd58c5af2288a27daef2",
+  "cases_inventory_sha256": "be6f79f691d591a8e85d0c78253d9ab947745a4f3bee45455faca8d3a08ce1d6",
+  "chain_calls": 0,
+  "compiler_output_sha256": "0b44f0b9acc0d1f33aa3bc5af37e6d12bf64ed46909568ae73b4fd4d3cf4b739",
+  "creation": "synthetic constructor from fresh compiler object only; all saved on-chain creation/deployment fields are null",
+  "executed_opcode_counts": {
+    "0x00": 53,
+    "0x01": 2489,
+    "0x02": 82,
+    "0x03": 2978,
+    "0x04": 10,
+    "0x10": 1137,
+    "0x11": 2635,
+    "0x12": 784,
+    "0x14": 3048,
+    "0x15": 2328,
+    "0x16": 1886,
+    "0x17": 29,
+    "0x19": 64,
+    "0x1b": 1541,
+    "0x1c": 834,
+    "0x20": 1712,
+    "0x30": 3,
+    "0x33": 130,
+    "0x34": 831,
+    "0x35": 2109,
+    "0x36": 1610,
+    "0x37": 3,
+    "0x39": 908,
+    "0x3b": 2,
+    "0x42": 3,
+    "0x50": 7267,
+    "0x51": 3404,
+    "0x52": 6148,
+    "0x54": 1374,
+    "0x55": 215,
+    "0x56": 7013,
+    "0x57": 8769,
+    "0x5a": 3,
+    "0x5b": 11993,
+    "0x5f": 5146,
+    "0x60": 16823,
+    "0x61": 17133,
+    "0x62": 7,
+    "0x63": 5036,
+    "0x67": 15,
+    "0x68": 1,
+    "0x7f": 207,
+    "0x80": 9694,
+    "0x81": 5933,
+    "0x82": 2634,
+    "0x83": 2606,
+    "0x84": 1946,
+    "0x85": 887,
+    "0x86": 93,
+    "0x87": 98,
+    "0x88": 14,
+    "0x8a": 5,
+    "0x8b": 7,
+    "0x8c": 10,
+    "0x90": 7880,
+    "0x91": 4909,
+    "0x92": 1759,
+    "0x93": 1274,
+    "0x94": 221,
+    "0x95": 48,
+    "0x96": 47,
+    "0x97": 3,
+    "0x98": 2,
+    "0xa1": 1,
+    "0xa4": 49,
+    "0xf3": 658,
+    "0xfd": 112
+  },
+  "explicit_unsupported_path_controls": 8,
+  "qualified": false,
+  "returned_calls": 711,
+  "reverted_calls": 112,
+  "runtime_keccak256": "0x060dc28d4dd8d9bb8a381d4009bccbac129ce743a10b3d8aa0ffef5034b50544",
+  "scope": "selected SecuritiesToken compiled implementation in synthetic local accounts; no proxy/beacon dispatch, deployed initialization/history, ingestion candidate or qualification",
+  "source_artifacts": [
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/capture.json",
+      "sha256": "fd44489fbc3e55ef5669b0a90246f32cd8b248079aa1cd58c5af2288a27daef2"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/compiler-input-original.json",
+      "sha256": "399c94e05e909ff6a58c57e62625edbbd7a98bdf10b417b9cfdd5584bea877bf"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/compiler-input.json",
+      "sha256": "6db0d8a22f8230c75d0b179a1c666b4ddecd082f06abd652dcca7ab775261e99"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/compiler-output.json",
+      "sha256": "0b44f0b9acc0d1f33aa3bc5af37e6d12bf64ed46909568ae73b4fd4d3cf4b739"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/metadata-fresh.json",
+      "sha256": "c49c374e44cc250b2d11f362d3b48c5687ba46114d8fd2d2374d91b01189db9b"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/metadata-saved.json",
+      "sha256": "44f85de3053c3bcbe52f78c3cbd7ed520c5ec965fd74d4ab642d88894848f3b6"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/report.json",
+      "sha256": "d142396867d2fd13b51185046e5232a75685f8cd8a0daf8b1ad0cf3e1708020c"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/primary-sources.json",
+      "sha256": "8e6e998a596f5323cd9166ff2247c2997edfe561986c1723bc05992d99ceff99"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/compiler-version.txt",
+      "sha256": "ad4031486c69cc1f454e4f81e776c75d86bcaafe2f6598b7edbf94baaebf57dd"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/LICENSE-openzeppelin",
+      "sha256": "13cd784a6c31361f0e0c6aa3b410a1cb9a079868b7314c13e3eb8a75351746b9"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/LICENSE-openzeppelin-upgradeable",
+      "sha256": "13cd784a6c31361f0e0c6aa3b410a1cb9a079868b7314c13e3eb8a75351746b9"
+    },
+    {
+      "path": "out/securities-operation-proof-20260928/source-02/LICENSE-bep677",
+      "sha256": "57f37895dd6b66624e7fbb9219bff3ca29ebe39ecd40eaad9c92b8266c00bb21"
+    }
+  ],
+  "source_gap": "Eight captured custom sources have no exact independent primary body: three BEP-677 counterparts differ, and five SecuritiesToken/compliance/pause sources have no recovered public revision. The full original captured source is compiled without normalization or substitution. These gaps, null on-chain creation/deployment evidence, and proxy/beacon history remain unqualified.",
+  "source_inventory_sha256": "5a077b927b4596a8f4da41a6d3390d0a94292a443a602def0fbd2bf2fab052d0",
+  "status": "passed",
+  "transcripts_sha256": "77e77db3ae6b2113343ad3869c701a2fb80f783a3ebdeb87b2ae2f2bffc8399d",
+  "unexpected_invalid_or_harness_failure_calls": 0,
+  "unsupported": "initializer success, external client validation, transfers/mint/burn success, timed UI conversion, beacon/proxy calls, external account context, gas/refunds/fork costs"
+}
