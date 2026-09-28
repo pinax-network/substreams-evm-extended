@@ -1,0 +1,41 @@
+{
+  "topic": "Tagger exact outer-admin and membership paths, 2026-09-28; offline only and NOT-QUALIFIED",
+  "facts": [
+    {
+      "key": "complete_flattened_source_with_primary_gap",
+      "value": "One complete TaggerToken.sol capture is bound to compiler input, metadata, source ID, ABI and layout. No independent public token revision was recovered; OpenZeppelin-like sections in the flattened file are not independently verified upstream files.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/blob/main/erc20/balances/tests/fixtures/tagger-role-candidate/TaggerToken.json",
+      "source_pin": "Capture SHA256 5fac5c544be56adfb7779efabf5a23d435fcb7de04c37af0c6de2e1700fb5663; flattened source SHA256 a986e195f98b68a206a95aa0b591c5b527a0186fb62d4a5238430fc30f20e0eb",
+      "note": "This link is the preserved capture, not an independent primary token/dependency repository pin."
+    },
+    {
+      "key": "reachable_arbitrary_admin_word",
+      "value": "BasicAccessControl has two constructor admin assignments and public onlyOwner setRoleAdmin(bytes32,bytes32). Its _checkRole override permits owner without membership. Inherited grant/revoke accepts arbitrary roles under those checks; renounce requires account == caller. RoleData has inner address/bool membership at offset 0 and outer bytes32 admin at offset 1.",
+      "source_pin": "Complete pinned TaggerToken.sol lines1413-1419,1508-1546,1578-1608,1694-1748",
+      "note": "Candidate replaces only root 6 width 2 with [bytes32] offset 1 width1 plus [bytes32,address] offset 0 width1. This is source-derived shape coverage, not executed authorization/current-owner evidence."
+    },
+    {
+      "key": "exact_metadata_reconstruction",
+      "value": "solc 0.8.20+commit.a1b79de6 with optimizer enabled/runs200 has unspecified input EVM target and Shanghai in saved metadata. Runtime 11,535 and creation 13,809 bytes each require exactly one 53-byte CBOR replacement at 11,482 and 13,692. Creation keeps its 64-byte suffix. There are no immutables, links or constructor arguments.",
+      "source_pin": "Original raw capture above and fixture source-review.json exact before/after CBOR bytes",
+      "note": "Original match/runtimeMatch/creationMatch labels remain match. Runtime Keccak 0x949e3cc8727e6f0a8cd2734af1a44ce06cbd279749923868cad8b5bbe7dfd996; creation 0x56c86488af76ad8890b7365a0d008ba8ef28e588a617e75453093ac688457caf. Saved compiler reconstruction only; no fresh compilation or runtime measurement."
+    },
+    {
+      "key": "unchanged_profile_and_qualification_scope",
+      "value": "Direct inherited balanceOf reads balances root 0. Allowance 1, supply/name/symbol/status 2-5, owner 7, signer 8, mode 9, position/lock 10-11, claim 12, fee 13 and launched 14 metadata remain unchanged. No enumerable role storage is present. The 431-profile baseline and 425 qualified cohort are untouched.",
+      "source_pin": "Exact captured storage layout and baseline SHA256 e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+      "note": "All new validation is offline. Synthetic Extended records exercise shapes, not Solidity authorization or real producer-visible role changes."
+    },
+    {
+      "key": "bounded_saved_replay",
+      "value": "Complete saved BSC [122288006,122289030) replay passes all 1,024 blocks and 110,139 full-protobuf rows against unchanged current and historical baselines. Tagger has 30 same-block canonical matches across six initialized observed holders, zero retained reference-only matches, 38 cold observations including 14 nonzero reference values, and zero observed persisted outer-admin or membership writes.",
+      "source_url": "https://github.com/pinax-network/substreams-evm-extended/blob/main/erc20/balances/docs/evidence/tagger-role-candidate-20260928.json",
+      "source_pin": "replay-01 report and frozen source inventory; immutable original canonical capture SHA256 ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9",
+      "note": "Counts are bounded to this interval and initialized observed-holder set. Canonical values never initialize state. Synthetic role shapes do not establish real role-write visibility or replacement-package qualification. All 881 workspace tests / 51 suites, all-target Clippy and WASM checks pass."
+    }
+  ],
+  "open_questions": [
+    "Independent primary token/dependency source pins remain unresolved for this flattened capture.",
+    "Fresh authorized runtime, replacement-package/RPC, initialized-holder/final-state and real admin/membership-write visibility remain promotion gates. Other issue #4 cohorts remain open."
+  ]
+}

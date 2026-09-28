@@ -28,5 +28,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `17-Aave_static_source_oracles.json` | Pinned current/v3.4 Aave and static-token execution, stored uint128 index narrowing and precise division failure order, with explicit harness/dependency bounds | `conformance::aave`, `conformance::erc4626`, issue #16 |
 | `18-FHE_B2_role_candidates.json` | Exact primary source/runtime bindings and independently recomputed immutable substitutions; narrow membership candidates preserve unrelated metadata and both historical cohorts | `erc20/balances`, issue #4 |
 | `19-BAS_role_candidate.json` | Exact captured runtime/constructor binding, fixed PAUSER admin location and membership candidate, with thirteen exact dependencies and an explicit token-source gap | `erc20/balances`, issue #4 |
+| `20-Tagger_role_candidate.json` | Exact flattened capture and bounded metadata reconstruction; arbitrary outer admin and nested membership paths preserve owner-reachable writes, with an explicit independent-source gap | `erc20/balances`, issue #4 |
 
 Claims marked with a correction in a file supersede the corresponding claim.
