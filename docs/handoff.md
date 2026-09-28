@@ -33,6 +33,22 @@ as branch validation and replaced with fresh isolated builds; independent GitHub
 CI still gates every merge. Preserve the earlier logs as failed validation
 attempts, and do not share build output between worktrees.
 
+The host-only `common/retention::protocol::ProtocolLedger` now retains original
+holder/global rows, complete clocks, epoch declarations and dependencies with
+atomic block application and bounded snapshot undo. `conformance::retained`
+evaluates Aave, static-aToken, sDAI, OZ virtual-offset and Lido stored inputs;
+Compound v2 and Comet retained adapters remain open. Qualification is explicit:
+the caller supplies exact stream/model/storage bindings and external runtime
+hash evidence at the model's BOUND or checkpoint origin. The library validates
+that binding but does not fetch or establish its chain truth. Missing inputs
+remain unknown; log evidence never initializes stored getter inputs, derived
+values expire, and interrupted epochs cannot carry stale state into a rebind.
+Tests cover synthetic lifecycle cases and one captured Aave Pool-index oracle
+with synthetic holder/bootstrap inputs. This is a host reference implementation
+with full-state undo snapshots, not a production sink or package qualification.
+See [initialization](initialization-and-completeness.md) and
+[conformance](../conformance/README.md) for supported metrics and limits.
+
 The [offline six-exclusion review](../erc20/balances/docs/bsc-exclusions-offline-2026-09-28.md)
 preserves the original TAKE/RADR/TOPS refused transactions and prepares only a
 TAKE guard-slot candidate. Exact complete source-capture hashes bind saved

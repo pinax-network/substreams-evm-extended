@@ -9,6 +9,7 @@ pub mod comet;
 pub mod compound_v2;
 pub mod erc4626;
 pub mod lido;
+pub mod retained;
 
 /// Why a reference evaluation cannot produce a number.
 #[derive(Clone, Debug, PartialEq, Eq)]

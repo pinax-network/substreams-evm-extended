@@ -55,10 +55,45 @@ none replaces `evm.balances.v1.Balance.amount`.
   underlying liquidity that the current adapter does not extract.
 - stETH ([#23](https://github.com/pinax-network/substreams-evm-extended/issues/23))
   and sDAI still have synthetic arithmetic tests. Deployed sDAI and OZ epochs
-  remain unqualified. Initialized holder/global-state evaluation with
-  canonical clocks and fork undo remains follow-up work under
+  remain unqualified. The retained-input controls below add offline evaluation
+  and undo coverage; remaining independent getters, deployed bindings and
+  package qualification stay open under
   [#16](https://github.com/pinax-network/substreams-evm-extended/issues/16).
 
+## Retained-input reference evaluation
+
+[`retained`](src/retained.rs) connects the arithmetic to the host-only
+[`ProtocolLedger`](../common/retention/README.md). It exposes distinct metrics
+for holder basis, Aave `balanceOf`, static-aToken conversion/rate, sDAI and OZ
+conversion, and Lido `balanceOf`. Comet and Compound v2 retain their pure
+reference APIs; a retained-state bridge for those models is not supplied here.
+Withdrawal limits, debt evaluation and reward accounting are also outside
+this bridge. Lido logs remain inspectable evidence, never a report-time
+holder balance calculated from end-of-block shares.
+
+Callers supply an explicit `QualifiedModel`: exact stream and epoch,
+dependency set, holder mapping root, global locations, and separate external
+runtime qualification. The bridge checks source/rounding/scale and provenance
+before applying arithmetic. Runtime attestations bind the full origin header
+and code hashes, including when the stream's model row omits hashes. Their
+truth remains the caller's independent qualification responsibility; this
+library does not fetch code or validate a header against a network. Results
+preserve the runtime attestation and consumed facts for review. An empty
+holder/global/model binding remains `Unknown`, never inferred zero.
+
+The [retained-state tests](tests/retained.rs) exercise unchanged Aave holders
+through idle clocks and global-only updates, checkpoints, epoch carryover,
+suspension gaps, partial-block refusals, explicit constants, OZ donations,
+static-aToken/sDAI idle conversion, exact undo/replacement and bounded history.
+They pass actual Lido projector output through retention, including its
+`CHANGE`-only report logs and block-local derived total. One test uses the
+unmodified captured Aave transaction fixture at BSC block **122288734** to
+reproduce the independently recorded Pool index from retained pre-write
+inputs and that block's timestamp. Its holder and checkpoint are synthetic;
+it is not an independently verified parent snapshot or holder getter check.
+All other lifecycle controls are synthetic. These tests establish no new
+deployed runtime, SPKG, live reorg, sink or global-holder qualification.
+
 ```sh
-cargo test --locked -p conformance
+cargo test --offline --locked -p conformance --lib --tests
 ```

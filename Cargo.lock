@@ -333,9 +333,19 @@ dependencies = [
 name = "conformance"
 version = "0.1.0"
 dependencies = [
+ "aave-balance-state",
+ "evm-retention",
+ "hex",
+ "lido-balance-state",
  "num-bigint",
  "num-integer",
  "num-traits",
+ "prost 0.13.5",
+ "prost-types 0.13.5",
+ "proto",
+ "serde_json",
+ "substreams-ethereum",
+ "tiny-keccak",
 ]
 
 [[package]]
