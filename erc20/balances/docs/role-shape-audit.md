@@ -77,6 +77,13 @@ shapes do not establish executed authorization or real producer visibility.
 | [Tagger](tagger-role-candidate.md) | Exact root-6 membership and arbitrary outer admin at offset 1, preserving the owner-accessible setter. | One flattened captured source with exact bounded CBOR substitutions; independent token and upstream dependency pins remain unresolved. |
 | [Artx](artx-role-candidate.md) | Exact root-151 membership; proxy and implementation runtime/pointer guards retained. | Both complete captures preserve 35 input files and 34 exact dependency matches; independent token source remains unresolved. Constructor reconstruction does not initialize holder state. |
 
+The separate [PToken operation proof](ptoken-operation-proof.md) executes its
+compiled boolean/set transitions and rollback controls against synthetic state.
+It does not add a candidate or narrow a profile, so the coverage count above
+is unchanged. A coupled-operation validator and its own candidate replay are
+still required; source execution does not qualify producer visibility or
+initial state.
+
 The remaining 23 boolean-role profiles are SecuritiesToken (17), BTRToken,
 DeepTokenOFT, KgenOFT, PTokenV2 and GMToken (2).
 Each needs its own reachability, initialization and dependency review before

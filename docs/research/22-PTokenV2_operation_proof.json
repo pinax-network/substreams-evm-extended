@@ -1,0 +1,38 @@
+{
+  "id": 22,
+  "title": "PTokenV2 coupled role operation proof (Phase A only)",
+  "issue": 4,
+  "status": "host-only proof; NOT-QUALIFIED; no ingestion or candidate change",
+  "address": "0xc63961bf9a7d6bb5844524851d04fbd76dbe915b",
+  "capture_sha256": "14d5dcc50d8dd1b04fc6283e0d1fafad66fd7fe0bfafdff224a9ba6eda203f9c",
+  "compiler": "0.8.28+commit.7893614a",
+  "compiler_sha256": "81515b0e53deaa266d549545ccaac0a5a96e6d4e8201c77f673b2c710976d9ea",
+  "settings": "Original Cancun, optimizer 10000, remappings and metadata settings; outputSelection-only addition",
+  "source_files": 21,
+  "exact_primary_dependencies": 20,
+  "primary_token_repository": "unresolved; captured source/runtime proof does not replace an independent token source pin",
+  "runtime_bytes": 6065,
+  "runtime_keccak256": "0x60f53552d1ab18923098e47b0d7952ae7a4a48d8bece60b20d3d41734832c15c",
+  "creation_compiler_bytes": 7220,
+  "constructor_argument_bytes": 256,
+  "synthetic_calls": 382,
+  "evidence": "../../erc20/balances/docs/ptoken-operation-proof.md",
+  "limits": [
+    "No live or canonical saved-block candidate replay; no production parser/schema/protobuf change",
+    "Initial boolean-position-array coherence and zero unused tail cells remain qualification assumptions",
+    "Root5 membership must eventually be coupled to complete root6 operation; no independent typed-membership bypass",
+    "OZ5 tail removal omits self-swap; existing DSG semantics unchanged",
+    "Clear is unreachable and unsupported",
+    "Synthetic incoherent-state controls demonstrate wrapping push and exact reverted prefix, not admitted state",
+    "Gas/external-call/chain environment qualification remains out of scope"
+  ],
+  "returned_calls": 338,
+  "reverted_calls": 44,
+  "accepted_invalid_or_harness_failures": 0,
+  "compiler_attempt": "out/ptoken-coupled-role-20260928/source-04",
+  "operation_attempt": "out/ptoken-coupled-role-20260928/operations-07",
+  "reports": [
+    "../../erc20/balances/docs/evidence/ptoken-operation-proof-20260928-compiler.json",
+    "../../erc20/balances/docs/evidence/ptoken-operation-proof-20260928.json"
+  ]
+}
