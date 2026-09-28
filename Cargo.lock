@@ -619,10 +619,17 @@ dependencies = [
 name = "evm-retention"
 version = "0.1.0"
 dependencies = [
+ "aave-balance-state",
+ "compound-v2-balance-state",
+ "compound-v3-balance-state",
+ "erc4626-balance-state",
  "hex",
+ "lido-balance-state",
+ "prost-types 0.13.5",
  "proto",
  "serde",
  "serde_json",
+ "substreams-ethereum",
 ]
 
 [[package]]

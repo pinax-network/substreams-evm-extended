@@ -413,6 +413,26 @@ fn undoing_every_applied_block_clears_the_first_block() {
 }
 
 #[test]
+fn uninterrupted_compatible_binding_carries_basis_but_suspension_requires_fresh_observations() {
+    for suspended in [false, true] {
+        let mut ledger = state_ledger(4);
+        ledger
+            .apply_state(&clock(10), &state_events(10, vec![bound(2, 1, 0, true)], vec![basis(2, 1, "5")]))
+            .unwrap();
+        let mut epochs = vec![bound(2, 2, 100, true)];
+        if suspended {
+            epochs.push(epoch_row(2, 1, state::EpochEventKind::Suspended, 50, true));
+        }
+        ledger.apply_state(&clock(11), &state_events(11, epochs, vec![basis_in(2, 2, 2, "9")])).unwrap();
+        assert_eq!(known(&ledger, &key(2, 1)).as_deref(), if suspended { None } else { Some("5") });
+        assert_eq!(known(&ledger, &key(2, 2)).as_deref(), Some("9"));
+        ledger.undo(10).unwrap();
+        assert_eq!(known(&ledger, &key(2, 1)).as_deref(), Some("5"));
+        assert_eq!(ledger.lookup(&key(2, 2)), Lookup::Unknown);
+    }
+}
+
+#[test]
 fn migrations_suspend_and_rebinding_decides_carryover() {
     let mut l = state_ledger(4);
     let k = key(2, 1);
@@ -432,9 +452,9 @@ fn migrations_suspend_and_rebinding_decides_carryover() {
     };
     assert_eq!(l.lookup(&k), suspended);
     assert_eq!(l.compare(&[(k.clone(), "-5".into())]).suspended, 1);
-    // Re-binding with carryover keeps the basis; without it, holders are unknown again.
+    // Storage compatibility cannot carry basis across a suspended interval.
     l.apply_state(&clock(12), &state_events(12, vec![bound(2, 2, 0, true)], vec![])).unwrap();
-    assert_eq!(known(&l, &k).as_deref(), Some("-5"));
+    assert_eq!(l.lookup(&k), Lookup::Unknown);
     l.apply_state(&clock(13), &state_events(13, vec![bound(2, 3, 0, false)], vec![])).unwrap();
     assert_eq!(l.lookup(&k), Lookup::Unknown);
     assert_eq!((l.report().suspended_markets, l.epoch(&[2; 20])), (0, Some(3)));
@@ -467,7 +487,7 @@ fn suspended_suspends_reaffirmed_does_not_resume_and_only_a_newer_bound_does() {
         .contains("does not advance"));
     assert_unchanged(&l, &before);
     l.apply_state(&clock(13), &state_events(13, vec![bound(2, 2, 0, true)], vec![])).unwrap();
-    assert_eq!(known(&l, &key(2, 1)).as_deref(), Some("7"));
+    assert_eq!(l.lookup(&key(2, 1)), Lookup::Unknown);
     // A market declared SUSPENDED before it is bound may bind the declared epoch.
     let unqualified = epoch_row(4, 1, state::EpochEventKind::Suspended, 0, false);
     l.apply_state(&clock(14), &state_events(14, vec![unqualified], vec![])).unwrap();
@@ -527,7 +547,9 @@ fn an_activation_block_applies_the_previous_epochs_rows_before_the_new_binding_i
             l.apply_state(&clock(11), &state_events(11, epochs, rows)).unwrap();
             assert_eq!((l.epoch(&[2; 20]), l.report().suspended_markets), (Some(2), 0));
             let holder_1 = known(&l, &key(2, 1));
-            assert_eq!(holder_1.as_deref(), if carryover { Some("77") } else { None }, "carryover {carryover}");
+            // This also guards old producers that emitted a partial epoch-1
+            // end-of-block row: applying it before BOUND cannot revive it.
+            assert_eq!(holder_1, None, "carryover {carryover}");
             assert_eq!(known(&l, &key(2, 2)).as_deref(), Some("61"));
             l.undo(10).unwrap();
             assert_eq!(

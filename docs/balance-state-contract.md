@@ -67,16 +67,29 @@ says why (`Scope`, `Observation`, `AliasKind`, `alias_of` empty = native).
 
 **Persistence.** Only persisted effects produce rows, under the shared
 [`common/persist`](../common/persist) rules. A persisted write to a bound slot
-the model cannot explain, an unexpected code change, an ordinal collision or a
-discontinuous word fails the block, exactly as in `erc20/balances` and
-`native/balances`. Declared boundaries (`SUSPENDED`, `PARAMETER_REBIND`) are
-rows; live surprises are module errors.
+the model cannot explain inside its valid interval, an ordinal collision or a
+discontinuous word fails the block. Guarded pointer, version, migration and
+code changes produce `INVALIDATED` rows with their persisted evidence and end
+the affected epoch's decoding interval. Reverted effects cannot end it.
 
 **Boundary.** `BOUNDARY_END_OF_BLOCK` rows are the default: the value after
 the last persisted write, `previous_value` before the first, `first_ordinal`,
 `ordinal` and `change_count` reduced in execution-ordinal order (producer
-versions 4 and 5 only; version 3 is refused). `BOUNDARY_CHANGE` rows are
-opt-in per write. `BOUNDARY_DECLARATION` rows carry qualified constants.
+versions 4 and 5 only; version 3 is refused). Intermediate storage
+`BOUNDARY_CHANGE` rows require the optional `emit_intermediate_changes` flag,
+which no current package implements. Lido `OBSERVED_LOG` report evidence
+already uses `BOUNDARY_CHANGE` for its log position; it never represents
+end-of-block state. `BOUNDARY_DECLARATION` rows carry qualified constants.
+
+An epoch invalidated inside a block is an explicit exception to default
+end-of-block emission. Every holder row and `OBSERVED_WRITE` / `DERIVED`
+global row of that market and epoch is omitted, including values written
+before the invalidation: the qualified prefix is not the state at the end of
+the block. All invalidation rows remain, with each pointer transition's
+original provenance. Qualified declarations remain historical binding
+evidence, and Lido report evidence remains only before the cutoff. Unaffected
+markets still emit complete end-of-block rows. Clock counts describe exactly
+the rows emitted, including these omissions; absence is never zero.
 
 **Provenance.** Every fact row cites the contract whose storage holds the
 word, the 32-byte slot, the raw words before and after, and the decoded bit
@@ -100,6 +113,15 @@ the epoch's stored rows since `activation_block` before trusting one. Activation
 ([open questions](extraction-coverage.md#6-open-questions)); until bound, a
 market is `SUSPENDED` with `INVALIDATION_REASON_UNQUALIFIED_ERA`.
 
+Carryover flags establish storage compatibility only; they cannot repair an
+observation gap. After `INVALIDATED` or `SUSPENDED`, the next `BOUND` drops
+retained holder basis even if `basis_carryover = true`. Fresh observations
+under the new epoch or an independently verified checkpoint must establish
+it again. The same continuity requirement applies to retained global
+observations. `common/retention` keeps suspended raw entries only for undo,
+never for evaluation, and journals the drop so undo restores both entries and
+epoch/suspension state. Uninterrupted compatible bindings may carry basis.
+
 **Activation position and pointer writes.** Every balance-state package
 accepts an optional `activation_ordinal` beside `activation_block`
 (default `0`). An effect at `(block, ordinal)` belongs to an epoch only when
@@ -112,18 +134,41 @@ new one. The BOUND row states `activation_ordinal` and uses it as its
 order (as `common/retention` does) processes the previous epoch's
 `INVALIDATED` row first and ends the block bound.
 
+On the activation block the interpretation interval is half-open:
+`[activation_ordinal, earliest_invalidation_ordinal)`; in later blocks its
+lower bound is `0`. With no trigger there is no upper cutoff in the block.
+The activation point is inclusive and the invalidation point exclusive, independent of input
+vector order. Effects at the cutoff or later are not decoded with the old
+layout, including unknown storage or malformed old-model report logs.
+Unknown writes before the cutoff still fail the block, even though their
+epoch's partial output would be omitted. Raw storage shape, ordinal ordering
+and continuity checks still run on all owned persisted writes, including
+after the cutoff. Shared dependency triggers end every affected active
+market; an unrelated market keeps its own interval. A trigger at activation
+produces `BOUND` then `INVALIDATED` at that ordinal and no observed basis.
+
 A `BINDING_KIND_STORAGE_POINTER` dependency is invalidated by every persisted
 write to its slot, including a write back to the same value, and each write is
 evidenced by its own `INVALIDATED` row before storage is reduced to end-of-block
 values. An excursion X→Z→X inside one block therefore yields two rows that
 name Z, rather than one reduced X→X row that would hide the temporary
 implementation. Equal-value writes reach the maps through the persistence
-rules' `storage_noop` callback; they are consumed only for pointer slots and
-remain suppressed as balance effects. The BSC producers reviewed so far
+rules' `storage_noop` callback; they are consumed only for guarded pointers
+(and Lido contract-version / retired migration positions) and remain
+suppressed as ordinary balance effects. The BSC producers reviewed so far
 (versions 4 and 5) record no equal-value storage change at all (0 of
 2,093,149 in the saved data), so there the rule is enforced for every
 *changing* write, which is what an excursion consists of; a pure same-value
 re-set leaves no record to act on.
+
+The cutoff is block-local because the maps are stateless. A later heartbeat
+or a restored pointer does not prove that an earlier invalidation was safe;
+consumers must retain the suspension until a qualified newer epoch is bound.
+The synthetic projector-to-ledger tests in
+[`common/retention/tests/projector_invalidation.rs`](../common/retention/tests/projector_invalidation.rs)
+exercise all five packages, row counts, restored/equal-value pointers, unknown
+writes on both sides, shared code dependencies, suspension, successor binding,
+undo and replacement blocks. They do not qualify any runtime or package live.
 
 **Evaluation at a selected clock.** To value a holder at block N, a consumer
 takes the holder's latest `HolderBasis` at or before N, the latest observed or

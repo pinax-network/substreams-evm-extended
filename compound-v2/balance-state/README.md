@@ -29,7 +29,7 @@ the ERC-20 share amount with an underlying-equivalent value.
 | `GlobalState` `COMPOUND_V2_TOTAL_BORROWS` / `TOTAL_RESERVES` / `TOTAL_SUPPLY` / `BORROW_INDEX` / `ACCRUAL_BLOCK_NUMBER` / `RESERVE_FACTOR_MANTISSA` / `INITIAL_EXCHANGE_RATE_MANTISSA` | the cToken scalar words, scales `1` or `1e18` | cToken storage, configured slots |
 | `GlobalState` `COMPOUND_V2_TOTAL_CASH` (`key` = cToken) | CErc20: the low `value_bits` of `underlying.balances[cToken]` from the qualified underlying's mapping (USDC: 255 bits, the blacklist flag lives in bit 255); CEther: persisted native balance changes of the cToken, with no `storage_slot` (a native balance has none) | underlying storage or cToken balance changes |
 | `GlobalState` `COMPOUND_V2_IRM_*` | rate-model storage writes for configured slots (jump models' `updateJumpRateModel`), and qualified constants at BOUND / REAFFIRMED at the activation ordinal: `blocksPerYear`, and the 2019 WhitePaper model's per-year `IRM_BASE_RATE_PER_YEAR` / `IRM_MULTIPLIER_PER_YEAR` (set only by its constructor) | rate-model storage, parameters |
-| `ModelEpoch` INVALIDATED | every persisted write, including equal-value and restored ones, to the rate-model pointer on the cToken (`RATE_MODEL_CHANGE`), the delegator implementation pointer, the cToken's `underlying` word or the underlying implementation pointer, each with its own evidence; code change on the cToken, its implementation, the rate model, the underlying or its implementation; each with evidence word or code hash. The first such row ends the epoch at its ordinal: later effects of that block are not decoded, so an upgrade's `_becomeImplementation` writes yield the evidence instead of failing the block | persisted writes and code changes |
+| `ModelEpoch` INVALIDATED | every persisted write, including equal-value and restored ones, to the rate-model pointer on the cToken (`RATE_MODEL_CHANGE`), the delegator implementation pointer, the cToken's `underlying` word or the underlying implementation pointer, each with its own evidence; code change on the cToken, its implementation, the rate model, the underlying or its implementation; each with evidence word or code hash. The first such row ends the epoch at its ordinal: effects at that ordinal or later in that block are not decoded, so an upgrade's `_becomeImplementation` writes yield the evidence instead of failing the block | persisted writes and code changes |
 | `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (`basis_carryover = true`: share storage persists across upgrades; `global_carryover = false`: a rate-model replacement starts an epoch whose IRM rows do not carry): implementation (delegators), interest-rate model and underlying as storage pointers on the cToken, the underlying's implementation as a depth-2 pointer under it. `balance_asset` / `balance_decimals` name the underlying (empty for native ether) and `basis_scale` the 1e18 exchange-rate mantissa | parameters |
 | `BlockClock` | exactly one per block | header |
 
@@ -97,6 +97,28 @@ excursion that restores the pointer within the block, as the
 `BINDING_KIND_STORAGE_POINTER` contract in `proto/v1/balance_state.proto`
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
+
+Spec revision 3 decodes only the half-open interval from activation
+(inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
+before that cutoff still fail; writes at or after it are not decoded under
+the old model. Raw ordering and continuity checks still cover all owned
+storage writes. Every invalidation keeps its original evidence, including
+restored and equal-value guarded writes. Failed transactions and reverted
+frames cannot supply a cutoff.
+
+An invalidated market emits no holder basis or observed/derived end-of-block
+globals in that block: even a valid prefix cannot describe end-of-block
+state. Unaffected markets keep their rows; qualified declarations remain
+historical binding evidence. Counts match the emitted rows. A consumer keeps
+the market suspended, and a newer BOUND must discard retained basis after
+suspension even with compatible storage (`basis_carryover = true`); fresh
+observations or a verified checkpoint are required. See the
+[contract](../../docs/balance-state-contract.md) and the synthetic
+[projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
+
+This emission revision has offline synthetic validation only. Previously
+saved replay results and live package digests describe their original builds;
+they do not qualify this new build or its invalidation behavior.
 
 ## Fail-closed rules
 

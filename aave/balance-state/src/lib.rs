@@ -31,7 +31,7 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "aave_balance_state";
-pub const SPEC_REVISION: u32 = 1;
+pub const SPEC_REVISION: u32 = 2;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
@@ -278,6 +278,14 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             "market slots overlap",
         )?;
         require(markets.iter().all(|other: &Market| other.atoken != market.atoken), "duplicate aToken")?;
+        // A Pool reserve has one active aToken. Without unique ownership,
+        // a reserve write could inherit another market's invalidation cutoff.
+        require(
+            markets
+                .iter()
+                .all(|other| other.underlying != market.underlying && other.reserve_base != market.reserve_base),
+            "duplicate underlying/reserve binding within pool",
+        )?;
         markets.push(market);
     }
     Ok(Config {
@@ -681,7 +689,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             } else {
                 active.iter().find(|m| w.address == m.atoken)
             };
-            owner.is_none_or(|m| ended.get(&m.atoken).is_none_or(|end| w.ordinal <= *end))
+            owner.is_none_or(|m| ended.get(&m.atoken).is_none_or(|end| w.ordinal < *end))
         };
         let reduced = reduce(relevant.iter().filter(|w| decoded(w)).cloned().collect())?;
         for w in relevant.iter().filter(|w| is_pointer(w)) {
@@ -812,6 +820,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 )));
             }
         }
+        // A prefix of an invalidated epoch is not end-of-block state. Decode
+        // it above to keep unknown pre-cutoff writes fail-closed, but retain
+        // only the invalidation evidence for that market. Other markets keep
+        // their complete end-of-block rows.
+        events.holder_basis.retain(|row| !ended.contains_key(&row.market));
+        events.global_state.retain(|row| !ended.contains_key(&row.market));
         for market in &active {
             let kind = if block.number == market.activation_block {
                 pb::EpochEventKind::Bound

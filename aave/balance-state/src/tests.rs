@@ -510,6 +510,29 @@ fn parameters_are_explicit_and_fail_closed() {
 }
 
 #[test]
+fn different_atokens_cannot_bind_the_same_pool_reserve() {
+    let valid = config();
+    assert_ne!(valid.markets[0].underlying, valid.markets[1].underlying);
+    assert_ne!(valid.markets[0].reserve_base, valid.markets[1].reserve_base);
+    for later_activation in [false, true] {
+        for reversed in [false, true] {
+            let mut raw: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+            // Compare decoded identities, not spelling or activation order.
+            raw["markets"][1]["underlying"] = format!("0x{}", USDT.to_uppercase()).into();
+            if later_activation {
+                raw["markets"][1]["activation_block"] = 123_000_000.into();
+                raw["markets"][1]["activation_ordinal"] = 100.into();
+            }
+            if reversed {
+                raw["markets"].as_array_mut().unwrap().reverse();
+            }
+            let error = parse(&raw.to_string()).unwrap_err().to_string();
+            assert!(error.contains("duplicate underlying/reserve binding within pool"), "{error}");
+        }
+    }
+}
+
+#[test]
 fn every_fixture_carries_its_recorded_identity() {
     let cases: serde_json::Value = serde_json::from_str(include_str!("../tests/fixtures/cases.json")).unwrap();
     let listed = cases["cases"].as_array().unwrap();
@@ -743,11 +766,72 @@ fn an_upgrade_ends_the_epoch_at_its_pointer_write_for_the_rest_of_the_block() {
     })];
     let events = project(&block, &cfg).unwrap();
     assert_eq!(events.epochs.len(), 2);
-    let index: Vec<(String, String)> = events
-        .global_state
-        .iter()
-        .filter(|g| g.field == pb::StateField::AaveLiquidityIndex as i32)
-        .map(|g| (g.previous_value.clone(), g.value.clone()))
-        .collect();
-    assert_eq!(index, vec![("1".into(), "2".into())]);
+    // The pre-upgrade index is not the end-of-block value either.
+    assert!(events.global_state.is_empty());
+    assert_eq!((events.clocks[0].global_state_count, events.clocks[0].epoch_count), (0, 2));
+}
+
+#[test]
+fn invalidation_suppresses_partial_holder_state_but_preserves_other_markets() {
+    let cfg = config();
+    let market = &cfg.markets[0];
+    let other = &cfg.markets[1];
+    let mut before = user_state_call(&[9; 20], 1, 2, 9);
+    before.storage_changes.extend([
+        write(AUSDT, market.total_supply_slot, 5, 6, 8),
+        // An equal-value pointer write still ends the epoch.
+        write(AUSDT, market.implementation_slot, 1, 1, 10),
+        // Unknown new-model storage at the exact cutoff is quarantined.
+        write(AUSDT, word_of(0), 0, 1, 10),
+    ]);
+    let mut unaffected = user_state_call(&[8; 20], 3, 4, 11);
+    unaffected.address = other.atoken.clone();
+    unaffected.storage_changes[0].address = other.atoken.clone();
+    unaffected
+        .storage_changes
+        .push(write(POOL, add_offset(&other.reserve_base, RESERVE_INDEX_RATE_OFFSET), 1, 2, 12));
+    assert_eq!(market.user_state_slot, other.user_state_slot);
+    let mut block = synthetic_block(122288100);
+    block.transaction_traces = vec![tx(before), tx(unaffected)];
+    let events = project(&block, &cfg).unwrap();
+    assert_eq!(events.holder_basis.len(), 1);
+    assert_eq!(events.holder_basis[0].market, other.atoken);
+    assert_eq!(events.holder_basis[0].value, "4");
+    assert_eq!(events.global_state.len(), 2);
+    assert!(events.global_state.iter().all(|g| g.market == other.atoken && g.key == other.underlying));
+    let index = global(&events, AUSDC, pb::StateField::AaveLiquidityIndex);
+    assert_eq!((&*index.previous_value, &*index.value, index.ordinal), ("1", "2", 12));
+    assert_eq!(events.epochs.len(), 1);
+    assert_eq!(events.clocks[0].holder_basis_count, 1);
+    // Suppression must not conceal unknown writes owned by the old epoch.
+    block.transaction_traces[0].calls[0].storage_changes[3].ordinal = 7;
+    assert!(project(&block, &cfg).unwrap_err().to_string().contains("unresolved"));
+}
+
+#[test]
+fn code_invalidation_omits_the_old_prefix_and_reverted_upgrades_do_not() {
+    let cfg = config();
+    let market = &cfg.markets[0];
+    let mut block = synthetic_block(122288100);
+    block.transaction_traces = vec![tx(user_state_call(&[9; 20], 1, 2, 9))];
+    block.transaction_traces[0].calls.push(eth::Call {
+        index: 2,
+        address: market.atoken.clone(),
+        code_changes: vec![eth::CodeChange {
+            address: market.implementation.clone(),
+            old_hash: vec![1; 32],
+            new_hash: vec![2; 32],
+            ordinal: 10,
+            ..Default::default()
+        }],
+        storage_changes: vec![write(AUSDT, word_of(0), 0, 1, 10)],
+        ..Default::default()
+    });
+    let events = project(&block, &cfg).unwrap();
+    assert!(events.holder_basis.is_empty());
+    assert_eq!(events.epochs[0].ordinal, 10);
+    block.transaction_traces[0].calls[1].state_reverted = true;
+    let events = project(&block, &cfg).unwrap();
+    assert!(events.epochs.is_empty());
+    assert_eq!(events.holder_basis[0].value, "2");
 }

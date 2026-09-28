@@ -123,14 +123,19 @@ enum Observation {
 // a declaration with no write of its own.
 enum Boundary {
   BOUNDARY_UNSPECIFIED = 0;
-  // One persisted write at `ordinal`; `change_count` is 1. Emitted only when
-  // the package parameter `emit_intermediate_changes` is true.
+  // One persisted effect at `ordinal`; `change_count` is 1. Intermediate
+  // storage writes require `emit_intermediate_changes = true` (not currently
+  // supported by these packages). OBSERVED_LOG report evidence uses CHANGE
+  // without that flag; it is not an end-of-block state observation.
   BOUNDARY_CHANGE = 1;
   // Value after the last persisted write of the block, reduced over every
   // write of the key in execution order. `previous_value` is the value before
   // the first write, `first_ordinal` its ordinal, `ordinal` the last write's
-  // ordinal. Always emitted for every key written in the block; matches the
-  // end-of-block semantics of `evm.balances.v1`.
+  // ordinal. Emitted for every decoded key written in a valid epoch. If the
+  // epoch is invalidated within the block, its HolderBasis and OBSERVED_WRITE
+  // / DERIVED GlobalState rows are omitted: a prefix cannot represent the
+  // end of the block. Invalidation evidence, declarations and valid earlier
+  // OBSERVED_LOG evidence remain. Counts describe the rows actually emitted.
   BOUNDARY_END_OF_BLOCK = 2;
   // A qualified constant or parameter row; `ordinal` is the epoch boundary
   // ordinal.
@@ -448,9 +453,13 @@ message ModelEpoch {
   // BOUND rows: true when holder basis words retained under the previous
   // epoch stay evaluable under this one (same slot, bit range and meaning),
   // e.g. Aave aToken revision 4 -> 5 where only rounding changed.
+  // This is storage compatibility, not proof of observation continuity:
+  // after INVALIDATED / SUSPENDED, consumers must discard retained basis on
+  // the next BOUND even when true, then use fresh observations or a checkpoint.
   bool basis_carryover = 23;
   // Same statement for retained GlobalState rows; false at a storage
-  // migration or rate-model replacement.
+  // migration or rate-model replacement. Suspension also breaks continuity
+  // for retained observations regardless of this flag.
   bool global_carryover = 24;
   // INVALIDATED / SUSPENDED rows: why, and the persisted evidence in this
   // block, verified by the map.

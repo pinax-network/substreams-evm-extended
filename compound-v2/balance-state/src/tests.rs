@@ -487,6 +487,60 @@ fn dependency_changes_invalidate_with_evidence_instead_of_failing() {
 }
 
 #[test]
+fn invalidated_native_market_omits_partial_cash_and_shares_with_exclusive_cutoff() {
+    let cfg = config();
+    let market = ceth();
+    let other = cusdc();
+    let mut prefix = shares_call(&market, &[9; 20], 1, 2, 9);
+    prefix.balance_changes = vec![native(&market.ctoken, 10, 15, 8), native(&market.ctoken, 15, 20, 11)];
+    prefix.storage_changes.extend([
+        // Even a restored/equal-value dependency pointer ends the epoch.
+        write(&market.ctoken, market.rate_model_slot, w(1), w(1), 10),
+        write(&market.ctoken, w(999), w(0), w(1), 10),
+    ]);
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(prefix), tx(shares_call(&other, &[8; 20], 3, 4, 12))];
+    let events = project(&b, &cfg).unwrap();
+    assert_eq!(events.holder_basis.len(), 1);
+    assert_eq!(events.holder_basis[0].market, other.ctoken);
+    assert_eq!(events.holder_basis[0].value, "4");
+    assert!(events.global_state.is_empty());
+    assert_eq!(events.epochs.len(), 1);
+    assert_eq!(events.epochs[0].market, market.ctoken);
+    assert_eq!((events.clocks[0].holder_basis_count, events.clocks[0].global_state_count), (1, 0));
+    // The invalidation cannot hide a failure in the still-active prefix.
+    b.transaction_traces[0].calls[0].storage_changes[2].ordinal = 7;
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("unresolved"));
+}
+
+#[test]
+fn underlying_code_change_suppresses_old_model_prefix_unless_reverted() {
+    let cfg = config();
+    let market = cusdc();
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(shares_call(&market, &[9; 20], 1, 2, 9))];
+    b.transaction_traces[0].calls.push(eth::Call {
+        index: 2,
+        code_changes: vec![eth::CodeChange {
+            address: market.underlying.clone().unwrap(),
+            old_hash: vec![1; 32],
+            new_hash: vec![2; 32],
+            ordinal: 10,
+            ..Default::default()
+        }],
+        storage_changes: vec![write(&market.ctoken, w(999), w(0), w(1), 10)],
+        ..Default::default()
+    });
+    let events = project(&b, &cfg).unwrap();
+    assert!(events.holder_basis.is_empty());
+    assert_eq!(events.epochs[0].reason, pb::InvalidationReason::DependencyCodeChange as i32);
+    b.transaction_traces[0].calls[1].state_reverted = true;
+    let events = project(&b, &cfg).unwrap();
+    assert!(events.epochs.is_empty());
+    assert_eq!(events.holder_basis[0].value, "2");
+}
+
+#[test]
 fn reviewed_storage_is_ignored_and_unknown_ctoken_writes_fail_closed() {
     let m = cusdc();
     let cfg = config();

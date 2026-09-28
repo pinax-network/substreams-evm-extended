@@ -30,9 +30,9 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "lido_balance_state";
-/// 2: every contract-version write and a retired v3 position write
-/// invalidate, and the version declaration names the implementation.
-pub const SPEC_REVISION: u32 = 2;
+/// 3: exclusive invalidation cutoff, no partial end-of-block state, bounded
+/// report evidence, and equal-value version/migration guards.
+pub const SPEC_REVISION: u32 = 3;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
@@ -451,6 +451,14 @@ fn reduce(mut changes: Vec<Change>) -> Result<Vec<Reduced>, Error> {
     }
     Ok(rows.into_values().collect())
 }
+/// Validate every owned storage record, then decode only the half-open valid
+/// interval. Callers suppress these partial rows when the epoch ends in-block.
+fn decode_rows(writes: Vec<Change>, cutoff: Option<u64>) -> Result<Vec<Reduced>, Error> {
+    let reduced = reduce(writes.clone())?;
+    let Some(cutoff) = cutoff else { return Ok(reduced) };
+    reduce(writes.into_iter().filter(|w| w.ordinal < cutoff).collect())
+}
+
 fn scope_of(scope: persist::Scope) -> pb::Scope {
     match scope {
         persist::Scope::SystemCall => pb::Scope::SystemCall,
@@ -567,6 +575,26 @@ fn resolution_reason(epoch: &Epoch, address: &[u8], key: &[u8; 32]) -> Option<pb
     }
 }
 
+fn storage_reason(epoch: &Epoch, address: &[u8], key: &[u8; 32]) -> Option<pb::InvalidationReason> {
+    resolution_reason(epoch, address, key)
+        .or_else(|| (address == epoch.steth && *key == epoch.contract_version_slot).then_some(pb::InvalidationReason::ContractVersionSet))
+        .or_else(|| (address == epoch.steth && retired_v3_position(key)).then_some(pb::InvalidationReason::StorageMigration))
+}
+
+fn code_reason(epoch: &Epoch, address: &[u8]) -> Option<pb::InvalidationReason> {
+    if address == epoch.steth {
+        Some(pb::InvalidationReason::CodeChange)
+    } else if address == epoch.implementation
+        || address == epoch.aragon.kernel
+        || address == epoch.aragon.kernel_implementation
+        || epoch.accounting.as_deref() == Some(address)
+    {
+        Some(pb::InvalidationReason::DependencyCodeChange)
+    } else {
+        None
+    }
+}
+
 fn pointer_dependency(
     config: &Config,
     epoch: &Epoch,
@@ -632,7 +660,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 collected
                     .noops
                     .into_iter()
-                    .filter(|w| active.iter().any(|e| resolution_reason(e, &w.address, &w.key).is_some())),
+                    .filter(|w| active.iter().any(|e| storage_reason(e, &w.address, &w.key).is_some())),
             )
             // Each epoch owns only effects at or after its activation position;
             // earlier writes of the activation block belong to the previous one.
@@ -644,15 +672,39 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             .collect();
         // Validate continuity before emitting per-transition evidence. Reducing
         // pointers to only their final value would conceal temporary upgrades.
-        let reduced = reduce(relevant.clone())?;
+        let mut reduced = Vec::new();
+        let mut ended = BTreeMap::new();
+        for epoch in &active {
+            let writes: Vec<Change> = relevant
+                .iter()
+                .filter(|w| (w.address == epoch.steth || epoch.aragon.watches_kernel_slot(&w.address, &w.key)) && epoch.active_at(block.number, w.ordinal))
+                .cloned()
+                .collect();
+            let cutoff = writes
+                .iter()
+                .filter(|w| storage_reason(epoch, &w.address, &w.key).is_some())
+                .map(|w| w.ordinal)
+                .chain(
+                    collected
+                        .codes
+                        .iter()
+                        .filter(|c| code_reason(epoch, &c.address).is_some() && epoch.active_at(block.number, c.ordinal))
+                        .map(|c| c.ordinal),
+                )
+                .min();
+            if let Some(cutoff) = cutoff {
+                ended.insert(epoch.steth.clone(), cutoff);
+            }
+            // Kernel pointers carry evidence only. Per-market reduction keeps
+            // shared Kernel writes independent of other epochs' activation.
+            reduced.extend(decode_rows(writes, cutoff)?.into_iter().filter(|r| r.address == epoch.steth));
+        }
         for w in &relevant {
             for epoch in active.iter().filter(|e| e.active_at(block.number, w.ordinal)) {
-                // The version is constant within an epoch: any persisted write
-                // either leaves the qualified version or shows the epoch was
-                // active over the previous version's storage (3 -> 4).
-                let reason = resolution_reason(epoch, &w.address, &w.key)
-                    .or_else(|| (w.address == epoch.steth && w.key == epoch.contract_version_slot).then_some(pb::InvalidationReason::ContractVersionSet))
-                    .or_else(|| (w.address == epoch.steth && retired_v3_position(&w.key)).then_some(pb::InvalidationReason::StorageMigration));
+                // The version is constant within an epoch: even a repeated
+                // value ends it. A write from 3 -> 4 also shows that this v4
+                // epoch was active over the previous version's storage.
+                let reason = storage_reason(epoch, &w.address, &w.key);
                 if let Some(reason) = reason {
                     events.epochs.push(pb::ModelEpoch {
                         reason: reason as i32,
@@ -738,9 +790,13 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 )));
             }
         }
+        // Decoding above validates the still-qualified prefix. These partial
+        // rows are never end-of-block state for an invalidated epoch.
+        events.holder_basis.retain(|h| !ended.contains_key(&h.market));
+        events.global_state.retain(|g| !ended.contains_key(&g.market));
         // Derived total pooled ether: only when the three input words were all
         // written in this block; a map holds no state across blocks.
-        for epoch in &active {
+        for epoch in active.iter().filter(|e| !ended.contains_key(&e.steth)) {
             let (Some(shares), Some(buffered), Some(cl)) = (
                 words.get(&(epoch.steth.clone(), epoch.total_and_external_shares_slot)),
                 words.get(&(epoch.steth.clone(), epoch.buffered_slot)),
@@ -771,6 +827,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 ..base_row(config, epoch, pb::StateField::LidoTotalPooledEther)
             });
         }
+        // Report decoding is bounded by the same half-open validity interval.
+        let readable = |epoch: &Epoch, ordinal: u64| epoch.active_at(block.number, ordinal) && ended.get(&epoch.steth).is_none_or(|end| ordinal < *end);
         // TokenRebased report evidence from receipts of succeeded transactions.
         for tx in block
             .transaction_traces
@@ -784,12 +842,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 let logged = tx
                     .calls
                     .iter()
-                    .any(|c| !c.state_reverted && c.logs.iter().any(|l| active.iter().any(|e| e.steth == l.address)));
+                    .any(|c| !c.state_reverted && c.logs.iter().any(|l| active.iter().any(|e| e.steth == l.address && readable(e, l.ordinal))));
                 require(!logged, "succeeded transaction with stETH logs has no receipt")?;
                 continue;
             };
             for log in &receipt.logs {
-                let Some(epoch) = active.iter().find(|e| e.steth == log.address && e.active_at(block.number, log.ordinal)) else {
+                let Some(epoch) = active.iter().find(|e| e.steth == log.address && readable(e, log.ordinal)) else {
                     continue;
                 };
                 if log.topics.first().map(|t| t.as_slice()) != Some(&TOKEN_REBASED_TOPIC0[..]) {
@@ -822,18 +880,9 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         }
         for c in &collected.codes {
             for epoch in active.iter().filter(|e| e.active_at(block.number, c.ordinal)) {
-                if c.address == epoch.steth
-                    || c.address == epoch.implementation
-                    || c.address == epoch.aragon.kernel
-                    || c.address == epoch.aragon.kernel_implementation
-                    || epoch.accounting.as_ref() == Some(&c.address)
-                {
+                if let Some(reason) = code_reason(epoch, &c.address) {
                     events.epochs.push(pb::ModelEpoch {
-                        reason: if c.address == epoch.steth {
-                            pb::InvalidationReason::CodeChange
-                        } else {
-                            pb::InvalidationReason::DependencyCodeChange
-                        } as i32,
+                        reason: reason as i32,
                         scope: scope_of(c.scope) as i32,
                         ordinal: c.ordinal,
                         transaction_index: c.tx_index,

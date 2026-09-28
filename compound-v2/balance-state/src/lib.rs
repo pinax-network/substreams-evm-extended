@@ -30,10 +30,10 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "compound_v2_balance_state";
-/// 2: 2019 WhitePaper per-year rate fields, the underlying and its
-/// implementation as pointer edges, epoch metadata naming the underlying,
-/// and no decoding after an in-block invalidation.
-pub const SPEC_REVISION: u32 = 2;
+/// 3: an exclusive invalidation cutoff and no partial end-of-block state for
+/// an epoch invalidated during the block. Earlier revision-2 layout and
+/// dependency bindings remain unchanged.
+pub const SPEC_REVISION: u32 = 3;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
@@ -901,7 +901,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             if let Some(end) = end {
                 ended.insert(market.ctoken.clone(), end);
             }
-            let decoded: Vec<Change> = writes.into_iter().filter(|w| end.is_none_or(|e| w.ordinal <= e)).collect();
+            let decoded: Vec<Change> = writes.into_iter().filter(|w| end.is_none_or(|e| w.ordinal < e)).collect();
             for r in reduce(decoded, "storage")? {
                 if market.pointer_reason(&r.address, &r.key).is_some() {
                     // Every pointer write was invalidated above.
@@ -978,7 +978,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     m.cash == Cash::Native
                         && b.address == m.ctoken
                         && m.active_at(block.number, b.ordinal)
-                        && ended.get(&m.ctoken).is_none_or(|e| b.ordinal <= *e)
+                        && ended.get(&m.ctoken).is_none_or(|e| b.ordinal < *e)
                 })
             })
             .collect();
@@ -997,6 +997,11 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 }
             }
         }
+        // Validate the old-model prefix above, but never present its partial
+        // storage or native-cash values as end-of-block state. Declarations
+        // below remain evidence of the binding, including in this block.
+        events.holder_basis.retain(|row| !ended.contains_key(&row.market));
+        events.global_state.retain(|row| !ended.contains_key(&row.market));
         for market in &active {
             let kind = if block.number == market.activation_block {
                 pb::EpochEventKind::Bound
