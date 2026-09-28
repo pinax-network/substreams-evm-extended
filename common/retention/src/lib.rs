@@ -687,32 +687,45 @@ impl Ledger {
             };
             planned.insert(market, next);
         }
-        // Holder and global rows must belong to an epoch of this block: the
-        // one in force at its end, or an earlier one a BOUND of this block
-        // supersedes. A market with no known epoch adopts the rows' epoch.
+        // Membership is an identity check, not a numeric range between
+        // BOUNDs: skipped IDs never introduce an epoch. A cold market may
+        // infer one predecessor before its first declaration if that is a
+        // BOUND. Keep this inference separate from final epoch adoption so
+        // it cannot overwrite the BOUND after rows have been applied.
         let mut adopted: BTreeMap<Vec<u8>, u32> = BTreeMap::new();
+        let mut cold_predecessors: BTreeMap<Vec<u8>, u32> = BTreeMap::new();
         let mut member = |market: &[u8], epoch: u32| -> Result<()> {
             let before = self.epochs.get(market).map(|s| s.epoch);
-            let Some(after) = planned.get(market).map(|s| s.epoch).or(before) else {
-                return match adopted.insert(market.to_vec(), epoch) {
-                    Some(other) if other != epoch => err(format!("rows of market 0x{} carry epochs {other} and {epoch} without a BOUND", hex_of(market))),
-                    _ => Ok(()),
-                };
-            };
-            let superseded = epoch < after
-                && before.is_none_or(|b| epoch >= b)
-                && epochs
-                    .iter()
-                    .any(|(e, k)| *k == state::EpochEventKind::Bound && e.market == market && e.epoch > epoch);
-            if epoch == after || superseded {
-                Ok(())
-            } else {
-                err(format!(
-                    "row for epoch {epoch} of market 0x{} outside the epochs of block {}",
-                    hex_of(market),
-                    clock.number
-                ))
+            if before == Some(epoch) || epochs.iter().any(|(e, _)| e.market == market && e.epoch == epoch) {
+                return Ok(());
             }
+            if before.is_none() {
+                match epochs.iter().find(|(e, _)| e.market == market) {
+                    None => {
+                        return match adopted.insert(market.to_vec(), epoch) {
+                            Some(other) if other != epoch => {
+                                err(format!("rows of market 0x{} carry epochs {other} and {epoch} without a BOUND", hex_of(market)))
+                            }
+                            _ => Ok(()),
+                        };
+                    }
+                    Some((first, state::EpochEventKind::Bound)) if epoch < first.epoch => {
+                        return match cold_predecessors.insert(market.to_vec(), epoch) {
+                            Some(other) if other != epoch => err(format!(
+                                "rows of market 0x{} infer conflicting cold predecessor epochs {other} and {epoch}",
+                                hex_of(market)
+                            )),
+                            _ => Ok(()),
+                        };
+                    }
+                    _ => {}
+                }
+            }
+            err(format!(
+                "row for epoch {epoch} of market 0x{} outside the epochs of block {}",
+                hex_of(market),
+                clock.number
+            ))
         };
         let mut seen = BTreeSet::new();
         for row in &events.holder_basis {

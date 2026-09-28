@@ -342,6 +342,19 @@ Fresh attempts, full traces and failed attempts remain under
 `out/btr-operation-proof-20260928/` in `bsc-exclusion-review`. Actual initial state,
 runtime/package/getter/holder qualification and producer visibility remain open.
 
+The host ledger now validates exact epoch membership for holder and global
+rows. A transition from epoch 1 to epoch 3 cannot introduce undeclared epoch 2
+or carry its unchecked value into the successor. Nonconsecutive IDs remain
+valid. Cold input may adopt one epoch, or infer one consistent predecessor
+before its first BOUND for cleanup; the inferred predecessor never overwrites
+the final bound epoch. The protocol consumer inherits this validation before
+staging holder, global, model or dependency changes. Red regressions and atomic
+rejection/undo controls are retained under
+`out/retained-epoch-membership-20260928/` in `protocol-invalidation-boundary`.
+This correction does not validate row execution ordinals or enable multiple
+extractor epochs. Those remain separate #7/#16 work; runtime/package/checkpoint
+and live clock/holder qualification remain outstanding.
+
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
 records what was built between 2026-09-18 and 2026-09-21, what is verified and
