@@ -1,0 +1,492 @@
+{
+  "artifacts": [
+    {
+      "path": "baseline-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "selected-events.jsonl",
+      "sha256": "2bc1af8c1873ef1f6be640aab055934b285362fac68fcb76b0b790a336f4d054"
+    },
+    {
+      "path": "combined-events.jsonl",
+      "sha256": "06cbc54e84e4bc5b9523df1da6ba53b671ca9ad85a488864ab635e6ff10dd123"
+    },
+    {
+      "path": "blocks.jsonl",
+      "sha256": "1168c0c304318e024f1c1d9dea40792a6ea789d03d31d74ad19fad8cf2dae7a6"
+    },
+    {
+      "path": "per-block.jsonl",
+      "sha256": "04f286deb64aed734bf89de2213ba83808df34226bd7e3f77673ee7e4181db48"
+    },
+    {
+      "path": "reference-only-selected.jsonl",
+      "sha256": "9950fa669811e86abfd73693df28b2cb61922ae65ebb8634b3604c4fe736398a"
+    },
+    {
+      "path": "metadata-writes.jsonl",
+      "sha256": "c71fa6f22a6d4bb5043e81d1e06eb1c3a7b01a1adda59ea775a2bf715a2d59ba"
+    }
+  ],
+  "attempted_block": 122289029,
+  "baseline_all_fields_equal": true,
+  "baseline_rows": 110139,
+  "chain_id": 56,
+  "combined_profiles": 433,
+  "combined_projection_and_independent_selected_equal": true,
+  "combined_rows": 110185,
+  "completed_blocks": 1024,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "historical_profile_evidence": [
+    {
+      "candidate_balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000007",
+      "contract": "0xac68931b666e086e9de380cfdb0fb5704a35dc2d",
+      "discovery": {
+        "exact_row_parity": false,
+        "reference_only_rows": 6,
+        "reference_rows": 12,
+        "shared_rows": 6,
+        "storage_only_rows": 0,
+        "storage_rows": 6,
+        "value_mismatches": 0
+      },
+      "evaluated_blocks": 289,
+      "exact_mapper_parity": true,
+      "holdout": {
+        "exact_row_parity": true,
+        "reference_only_rows": 0,
+        "reference_rows": 16,
+        "shared_rows": 16,
+        "storage_only_rows": 0,
+        "storage_rows": 16,
+        "value_mismatches": 0
+      },
+      "holdout_start": 122288316,
+      "hypotheses": [
+        {
+          "matched": 6,
+          "mismatched": 0,
+          "nonzero_holders": 4,
+          "slot": "0x0000000000000000000000000000000000000000000000000000000000000007"
+        }
+      ],
+      "mapper_configuration": "unqualified balance-slot hypothesis; empty ignore lists",
+      "rank": 426,
+      "ranked_reference_rows": 28,
+      "rpc_errors": 0,
+      "rpc_mismatches": 0,
+      "rpc_unavailable_before_deployment": 0,
+      "rpc_value_checks": 44,
+      "runtime_hashes": [
+        "0x18f0619e94b94d884d917414ff4248c11e327998aef6a3e7089b9977e6ecef1c",
+        "0x18f0619e94b94d884d917414ff4248c11e327998aef6a3e7089b9977e6ecef1c"
+      ],
+      "runtime_stable_at_boundaries": true,
+      "sampled_active_blocks": 7,
+      "status": "candidate_matches_values_not_qualified",
+      "strict_mapper_errors": [],
+      "strict_mapper_successful_holdout_blocks_only": {
+        "exact_row_parity": true,
+        "reference_only_rows": 0,
+        "reference_rows": 16,
+        "shared_rows": 16,
+        "storage_only_rows": 0,
+        "storage_rows": 16,
+        "value_mismatches": 0
+      },
+      "symbol": "BNBTiger"
+    },
+    {
+      "candidate_balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "contract": "0x3505bee89d3b4e351dbd4849241a6b0716ea407f",
+      "discovery": {
+        "exact_row_parity": true,
+        "reference_only_rows": 0,
+        "reference_rows": 10,
+        "shared_rows": 10,
+        "storage_only_rows": 0,
+        "storage_rows": 10,
+        "value_mismatches": 0
+      },
+      "evaluated_blocks": 289,
+      "exact_mapper_parity": false,
+      "holdout": {
+        "exact_row_parity": false,
+        "reference_only_rows": 1,
+        "reference_rows": 15,
+        "shared_rows": 14,
+        "storage_only_rows": 0,
+        "storage_rows": 14,
+        "value_mismatches": 0
+      },
+      "holdout_start": 122288684,
+      "hypotheses": [
+        {
+          "matched": 10,
+          "mismatched": 0,
+          "nonzero_holders": 5,
+          "slot": "0x0000000000000000000000000000000000000000000000000000000000000001"
+        }
+      ],
+      "mapper_configuration": "unqualified balance-slot hypothesis; empty ignore lists",
+      "rank": 448,
+      "ranked_reference_rows": 25,
+      "rpc_errors": 0,
+      "rpc_mismatches": 0,
+      "rpc_unavailable_before_deployment": 0,
+      "rpc_value_checks": 48,
+      "runtime_hashes": [
+        "0x258d1c6c6dcac1bfb46886ed147f9445408e9e5420a2c7a9434cd1b60bcf200f",
+        "0x258d1c6c6dcac1bfb46886ed147f9445408e9e5420a2c7a9434cd1b60bcf200f"
+      ],
+      "runtime_stable_at_boundaries": true,
+      "sampled_active_blocks": 5,
+      "status": "candidate_matches_values_not_qualified",
+      "strict_mapper_errors": [
+        {
+          "block": 122288595,
+          "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x0000000000000000000000000000000000000000000000000000000000000003; refusing incomplete events",
+          "holdout": false
+        },
+        {
+          "block": 122288639,
+          "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x0000000000000000000000000000000000000000000000000000000000000003; refusing incomplete events",
+          "holdout": false
+        },
+        {
+          "block": 122288684,
+          "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x0000000000000000000000000000000000000000000000000000000000000003; refusing incomplete events",
+          "holdout": true
+        },
+        {
+          "block": 122288729,
+          "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x0000000000000000000000000000000000000000000000000000000000000003; refusing incomplete events",
+          "holdout": true
+        },
+        {
+          "block": 122288791,
+          "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x000000000000000000000000000000000000000000000000000000000000000b; refusing incomplete events",
+          "holdout": true
+        }
+      ],
+      "strict_mapper_successful_holdout_blocks_only": {
+        "exact_row_parity": false,
+        "reference_only_rows": 0,
+        "reference_rows": 0,
+        "shared_rows": 0,
+        "storage_only_rows": 0,
+        "storage_rows": 0,
+        "value_mismatches": 0
+      },
+      "symbol": "COOKIE"
+    }
+  ],
+  "historical_profiles": 431,
+  "inputs": [
+    {
+      "bytes": 15961709,
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "bytes": 16754,
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "bytes": 137960,
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "bytes": 26906372,
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "bytes": 919902,
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    },
+    {
+      "bytes": 166648,
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/ranks401-450-survey/report.json",
+      "sha256": "0cde910d1982bc418760e9ec718797151e8a5529d550992c4ab11ad44edcdf7b"
+    },
+    {
+      "bytes": 176129,
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/reflection-replay/blocks.json",
+      "sha256": "56397f18ea7371231b261baefb10122c1439e604d130be2cbc97fca598e38ba6"
+    },
+    {
+      "bytes": 531724,
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "bytes": 594,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-candidates/layouts.json",
+      "sha256": "d62d6ac3bc470ed35ffbb175bb3fd731be81665b18aeb720bde03b3a1d3d9759"
+    },
+    {
+      "bytes": 107984,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-candidates/source-review.json",
+      "sha256": "e8fb3f2fb8177c11377e50563618c178ad6dde86bf63920f505951117bba80db"
+    }
+  ],
+  "last_completed_block": 122289029,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "limits": "Two NOT-QUALIFIED noncohort direct-balance candidates with exact selected-source metadata field guards. Historical431 and qualified425 remain unchanged. Saved replay and finite initialized-holder controls do not qualify a new package, deployment, current runtime, transfer/router/signature authorization or global holder coverage.",
+  "metadata_observations": {
+    "0x3505bee89d3b4e351dbd4849241a6b0716ea407f": {
+      "changed_field:_allowances": 1,
+      "changed_field:_inSwapAndLiquify": 2,
+      "changed_field:_totalSupply": 8,
+      "changed_field:transferTaxRate": 2,
+      "changing_records": 13,
+      "equal_records": 0
+    },
+    "0xac68931b666e086e9de380cfdb0fb5704a35dc2d": {
+      "changing_records": 0,
+      "equal_records": 0
+    }
+  },
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "phase_a_artifacts": [
+    {
+      "bytes": 1090,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/LICENSE-openzeppelin",
+      "sha256": "5d77daf99ea6e8033e57b449761ab4e9b486c45ef578c387d2805fe98e560f46"
+    },
+    {
+      "bytes": 35149,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/LICENSE-uniswap-core",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "bytes": 35149,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/LICENSE-uniswap-periphery",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "bytes": 53429,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    {
+      "bytes": 344587,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-capture.json",
+      "sha256": "9fd9afe36b7c9adf159e344ef6e693b15ae37a0703063e153890566a14503242"
+    },
+    {
+      "bytes": 31678,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-compiler-input-original.json",
+      "sha256": "14d0b1b79f254000d4d5ebcdd30707e8d6467ac17cf98add2fab27173e0735ee"
+    },
+    {
+      "bytes": 31824,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-compiler-input.json",
+      "sha256": "32328b00cece1301ef29c56bb42fdb7882f5f0ebe56380f94a443ddc95e90171"
+    },
+    {
+      "bytes": 524281,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-compiler-output.json",
+      "sha256": "aa63df18318d835da823852d3638ce9b6b327fe8cb41b0e4627fb666347c45e8"
+    },
+    {
+      "bytes": 99,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-compiler-version.txt",
+      "sha256": "16925bd068671dea710ac4ddce1298229fca9aa0df94e2c6fc5980bd58456e5b"
+    },
+    {
+      "bytes": 13631,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-metadata-fresh.json",
+      "sha256": "39712709b3ab4dca16f7d05f111473460841263990e49c27a243fe6a832a3e46"
+    },
+    {
+      "bytes": 13631,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-metadata-original.json",
+      "sha256": "39712709b3ab4dca16f7d05f111473460841263990e49c27a243fe6a832a3e46"
+    },
+    {
+      "bytes": 671,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-primary-sources.json",
+      "sha256": "cea2e13c83027501c91745ad3935b293fecb54c3bc55035670e2cf676f4be01c"
+    },
+    {
+      "bytes": 274,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-source-licenses.json",
+      "sha256": "43a2e312f3a9005305eb30de44a43857c47deff59b2a366d1a29c3c995981b98"
+    },
+    {
+      "bytes": 47598,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-writer-review.json",
+      "sha256": "65473b99cd1da18a429cf3c9cf8ad113ee88da68309919c8bca94ac7bdb0b8b8"
+    },
+    {
+      "bytes": 592971,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-capture.json",
+      "sha256": "ec5f5628b41b1eced18fc284246559422db795d71f5bb3c0dbffe9eec06d58b1"
+    },
+    {
+      "bytes": 66445,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-compiler-input-original.json",
+      "sha256": "cc735a62fc6dc5521ade82a01c7ff275113a4cb7e639d44b29bab03be5e35f82"
+    },
+    {
+      "bytes": 66591,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-compiler-input.json",
+      "sha256": "15d537e90363e8f902e27a6ca73138d4dcfad00f897256f9453a0e5c5bd30e9f"
+    },
+    {
+      "bytes": 589462,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-compiler-output.json",
+      "sha256": "c46a969fa4cbc87004c7cb106acaa5440751001b252f029001ea873ef55b6397"
+    },
+    {
+      "bytes": 100,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-compiler-version.txt",
+      "sha256": "4c4be572097efc783e35c16382b862402ff6c374dd7a4767039bf002c9b47754"
+    },
+    {
+      "bytes": 24236,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-metadata-fresh.json",
+      "sha256": "93606dcbeaf588e4f576a796eab142586abccc13edcad52145791c7613989637"
+    },
+    {
+      "bytes": 24236,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-metadata-original.json",
+      "sha256": "93606dcbeaf588e4f576a796eab142586abccc13edcad52145791c7613989637"
+    },
+    {
+      "bytes": 32157,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-primary-sources.json",
+      "sha256": "61ef9dfaa7fa5e10ed4e18690b1e3fe2460201db9d3cb12cd7ffe18e8ee20cca"
+    },
+    {
+      "bytes": 3049,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-source-licenses.json",
+      "sha256": "6256031aa42a29bf81f307f54dc6e157f9016e08beff73bc966cfe9d927e7bbf"
+    },
+    {
+      "bytes": 33189,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-writer-review.json",
+      "sha256": "c49e79d60ee9407f7cebb6bcbb9403fc77837573f1e47740885608efe5d77db5"
+    },
+    {
+      "bytes": 6629,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929-compiler.json",
+      "sha256": "6f7ab61359902685cfb1465cb18feff12a24c2ec3d27eb654fdafeb33702cef4"
+    },
+    {
+      "bytes": 7073,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929.json",
+      "sha256": "c7645326d19b08fd615df49a6fd66a4c1afe2f8ac44965263975b90e9274f50c"
+    },
+    {
+      "bytes": 45246,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929-source-inputs.json",
+      "sha256": "1eeffd537ace32dcc780eb23c6fc805b6c4edaa28bcdd4935fcd8b5b5da6c978"
+    },
+    {
+      "bytes": 697562,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929-cases.json",
+      "sha256": "98a67fc54e020def9049c9d2b02d2b8bc09d6c69b8bd84ef394a04e562b9606c"
+    },
+    {
+      "bytes": 5868750,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929-transcripts.json",
+      "sha256": "3735614a3931f0fd35cc8d04bdc20d8827650fb1cd14bbbc6bc315a795b82fc3"
+    }
+  ],
+  "producer_versions": {
+    "5": 1024
+  },
+  "qualified": false,
+  "reproduced_original_cookie_refusals": [
+    {
+      "block": 122288595,
+      "block_sha256": "00ca6fae5070ede36e1f1a44bebfa42b2a28d0b38890598b529bfd1526aafc86",
+      "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x0000000000000000000000000000000000000000000000000000000000000003; refusing incomplete events",
+      "slot": 3
+    },
+    {
+      "block": 122288639,
+      "block_sha256": "2081698541369d25cb0ed208e1cbda34bdf62b0a8b30e1af4cf7f590772bc69d",
+      "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x0000000000000000000000000000000000000000000000000000000000000003; refusing incomplete events",
+      "slot": 3
+    },
+    {
+      "block": 122288684,
+      "block_sha256": "f64ba51743c07aaf0b47a9f87d8fd54392f6b1b77f6118d34f87c635dc8997c0",
+      "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x0000000000000000000000000000000000000000000000000000000000000003; refusing incomplete events",
+      "slot": 3
+    },
+    {
+      "block": 122288729,
+      "block_sha256": "52992d8fdf681fadbc3298404cf008d8494862b9decc9ea7682e7eb71ec53f96",
+      "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x0000000000000000000000000000000000000000000000000000000000000003; refusing incomplete events",
+      "slot": 3
+    },
+    {
+      "block": 122288791,
+      "block_sha256": "5ede1336468b5a0766afe3aa87d8280f682c3110d91bb91c21a586cd798cc003",
+      "error": "unresolved storage for configured token 0x3505bee89d3b4e351dbd4849241a6b0716ea407f at key 0x000000000000000000000000000000000000000000000000000000000000000b; refusing incomplete events",
+      "slot": 11
+    }
+  ],
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 7,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 46,
+    "enumerated": [],
+    "first_block": 122288006,
+    "initialized_holders": 14,
+    "known_zero_holders": 2,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 14,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "selected": {
+    "0x3505bee89d3b4e351dbd4849241a6b0716ea407f": {
+      "canonical_distinct_holders": 7,
+      "canonical_rows": 25,
+      "cold_nonzero_reference_observations": 0,
+      "cold_reference_observations": 1,
+      "emitted_rows": 24,
+      "emitted_zero_rows": 1,
+      "initialized_observed_holders": 6,
+      "known_zero_holders": 1,
+      "retained_reference_matches": 0,
+      "same_block_reference_matches": 24
+    },
+    "0xac68931b666e086e9de380cfdb0fb5704a35dc2d": {
+      "canonical_distinct_holders": 9,
+      "canonical_rows": 28,
+      "cold_nonzero_reference_observations": 3,
+      "cold_reference_observations": 6,
+      "emitted_rows": 22,
+      "emitted_zero_rows": 4,
+      "initialized_observed_holders": 8,
+      "known_zero_holders": 1,
+      "retained_reference_matches": 0,
+      "same_block_reference_matches": 22
+    }
+  },
+  "selected_profiles": 2,
+  "selected_rows": 46,
+  "source_inventory_sha256": "660b1414df2b4911648b197152926191d780b5ec43674b0d8c268f081bfc83b0",
+  "start_inclusive": 122288006,
+  "status": "passed",
+  "stop_exclusive": 122289030
+}

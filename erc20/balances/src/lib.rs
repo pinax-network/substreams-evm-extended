@@ -8,6 +8,7 @@ pub mod discovery;
 mod enumerable_sets;
 pub mod layout;
 mod mapping_paths;
+mod metadata_words;
 #[allow(dead_code)]
 pub mod persist;
 
@@ -58,6 +59,7 @@ struct Changes {
     immutable_zero_contracts: BTreeSet<Vec<u8>>,
     address_list_contracts: BTreeSet<Vec<u8>>,
     address_list_noops: Vec<eth::StorageChange>,
+    guarded_metadata_contracts: BTreeSet<Vec<u8>>,
     invalid_storage_words: BTreeSet<Vec<u8>>,
 }
 impl Changes {
@@ -83,7 +85,7 @@ impl persist::Sink for Changes {
         self.check_storage_words(c);
         // Even a no-op can contradict the reviewed no-balance-write invariant.
         // Ordinary layouts retain the existing no-op filtering behavior.
-        if self.immutable_zero_contracts.contains(&c.address) {
+        if self.immutable_zero_contracts.contains(&c.address) || self.guarded_metadata_contracts.contains(&c.address) {
             self.storage.push(c.clone());
         } else if self.address_list_contracts.contains(&c.address) {
             // A zero address append can write an unchanged, empty array word.
@@ -197,6 +199,7 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
     let mut raw = Changes {
         immutable_zero_contracts: layouts.iter().filter(|l| l.immutable_zero_mapping).map(|l| l.contract.clone()).collect(),
         address_list_contracts: layouts.iter().filter(|l| !l.address_lists.is_empty()).map(|l| l.contract.clone()).collect(),
+        guarded_metadata_contracts: layouts.iter().filter(|l| l.metadata_semantics.is_some()).map(|l| l.contract.clone()).collect(),
         ..Default::default()
     };
     persist::collect_block(block, &mut raw)?;
@@ -280,6 +283,7 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
         }
     }
     raw.storage.sort_by_key(|c| c.ordinal);
+    let guarded_metadata = metadata_words::validate(block.number, layouts, &raw.storage, &preimages, &candidates)?;
     let checkpoint_keys = checkpoints::validate(block, layouts, &raw.storage, &preimages)?;
     let address_list_keys = address_lists::validate(layouts, &raw.storage, &raw.address_list_noops)?;
     // Read original persisted records, including unchanged witnesses and their
@@ -341,12 +345,18 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
                 "enumerable-set metadata aliases balance storage",
             )?;
             require(!layout.immutable_zero_mapping, "immutable-zero balance mapping was written; requalify layout")?;
+            if layout.metadata_semantics.is_some() && word(&c.old_value)? == word(&c.new_value)? {
+                // Opt-in metadata validation sees every persisted record. A known
+                // balance no-op still must not invent an emitted balance observation.
+                continue;
+            }
             insert(&mut rows, &c.address, &owner, &c.old_value, &c.new_value, c.ordinal)?;
         } else if !layout.other_slots.contains(&key)
             && !ignored_mapping(key, &preimages, layout)
             && !checkpoint_keys.contains(&(c.address.clone(), key))
             && !address_list_keys.contains(&(c.address.clone(), key))
             && !enumerable_events.contains(&(c.address.clone(), key, c.ordinal))
+            && !guarded_metadata.contains(&(c.address.clone(), key, c.ordinal))
         {
             return Err(Error::msg(format!(
                 "unresolved storage for configured token 0x{} at key 0x{}; refusing incomplete events",

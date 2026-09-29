@@ -16,8 +16,9 @@ the preserved historical package from the package built in this repository.
 
 ## Configurable verified layouts
 
-No token address, balance slot or runtime is built into the mapper. Supply a JSON
-array in the `map_events` parameter. The default is `[]`, which emits no balances.
+No token profile is enabled by default. Supply a JSON array in the `map_events`
+parameter. The default is `[]`, which emits no balances. Optional source-bound
+metadata modes additionally require their exact reviewed address and runtime.
 Each entry describes a **previously qualified balance mapping**, optionally
 with a reviewed zero-word fallback, address-derived balance, immutable empty
 mapping, or pinned proxy:
@@ -33,6 +34,7 @@ mapping, or pinned proxy:
 | `other_mapping_slots` | Optional array of 32-byte `0x` hex | Explicitly qualified non-balance mapping bases, including nested mappings |
 | `other_mapping_words` | Optional object mapping 32-byte `0x` bases to counts 1–32 | Reviewed non-balance mappings with multiword values, such as governance checkpoint structs |
 | `other_mapping_paths` | Optional array of `{root,key_types,offset,words}` | Reviewed non-balance paths with exact nesting depth and key types; offsets apply only to terminal fields. See [typed paths](docs/typed-mapping-paths.md) |
+| `metadata_semantics` | Optional exact source/runtime mode | Closed field/value guards for the separate [BNBTiger/COOKIE candidates](docs/bnbtiger-cookie-candidates.md), including packed constants, zero padding and persisted no-ops. Cannot combine with generic metadata or dependency permissions; these candidates remain NOT-QUALIFIED |
 | `enumerable_address_sets` | Optional array of `{root,key_types,semantics}` | Explicit source-bound role-member sets with complete ordered array/index witnesses. Currently one `bytes32` key and `oz_3_4_2` semantics; see [prerequisites and limits](docs/enumerable-role-sets.md) |
 | `voting_checkpoints` | Optional object | Reviewed OpenZeppelin `Trace208` arrays: `clock` is `block_number` or `timestamp`; `slots` lists direct array roots and `mapping_slots` lists `mapping(address => Trace208)` bases, all 32-byte hex |
 | `address_lists` | Optional array of 32-byte `0x` hex roots | Reviewed `address[]` bookkeeping, with exact persisted witnesses for appends, tail pops and swap-and-pop removals |
@@ -801,3 +803,11 @@ The proof adds no production candidate or write permission; zero call value and
 selected metadata keys/words do not establish deployed or live qualification.
 
 The host-only [calculated retention adapter](docs/calculated-retention.md) retains finite raw checkpoints for the existing LBP, BabyDoge and 10SET models with atomic apply, explicit provenance, bounded undo and reset-only epochs. It does not emit production calculated balances or qualify a new live interval.
+
+The separate [BNBTiger/COOKIE metadata candidates](docs/bnbtiger-cookie-candidates.md)
+append two NOT-QUALIFIED profiles outside the historical 431/425 cohorts. Exact
+source/runtime modes validate packed field constants, unused padding, typed
+mapping keys, value constraints and persisted no-ops. Unknown and constructor-only
+records refuse; the original fixtures and package remain unchanged. Their saved
+three-way replay compares the original431, independent selected2 and combined433
+outputs against the unchanged full canonical interval and preserves cold holders.

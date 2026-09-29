@@ -1,0 +1,2532 @@
+{
+  "appended_profiles": 2,
+  "baseline_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+  "combined_profiles": 433,
+  "historical_profiles": 431,
+  "limits": "Two NOT-QUALIFIED noncohort direct-balance candidates with exact selected-source metadata field guards. Historical431 and qualified425 remain unchanged. Saved replay and finite initialized-holder controls do not qualify a new package, deployment, current runtime, transfer/router/signature authorization or global holder coverage.",
+  "mode": "offline_source_bound_candidate_preparation",
+  "phase_a_artifacts": [
+    {
+      "bytes": 1090,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/LICENSE-openzeppelin",
+      "sha256": "5d77daf99ea6e8033e57b449761ab4e9b486c45ef578c387d2805fe98e560f46"
+    },
+    {
+      "bytes": 35149,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/LICENSE-uniswap-core",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "bytes": 35149,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/LICENSE-uniswap-periphery",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "bytes": 53429,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    {
+      "bytes": 344587,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-capture.json",
+      "sha256": "9fd9afe36b7c9adf159e344ef6e693b15ae37a0703063e153890566a14503242"
+    },
+    {
+      "bytes": 31678,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-compiler-input-original.json",
+      "sha256": "14d0b1b79f254000d4d5ebcdd30707e8d6467ac17cf98add2fab27173e0735ee"
+    },
+    {
+      "bytes": 31824,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-compiler-input.json",
+      "sha256": "32328b00cece1301ef29c56bb42fdb7882f5f0ebe56380f94a443ddc95e90171"
+    },
+    {
+      "bytes": 524281,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-compiler-output.json",
+      "sha256": "aa63df18318d835da823852d3638ce9b6b327fe8cb41b0e4627fb666347c45e8"
+    },
+    {
+      "bytes": 99,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-compiler-version.txt",
+      "sha256": "16925bd068671dea710ac4ddce1298229fca9aa0df94e2c6fc5980bd58456e5b"
+    },
+    {
+      "bytes": 13631,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-metadata-fresh.json",
+      "sha256": "39712709b3ab4dca16f7d05f111473460841263990e49c27a243fe6a832a3e46"
+    },
+    {
+      "bytes": 13631,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-metadata-original.json",
+      "sha256": "39712709b3ab4dca16f7d05f111473460841263990e49c27a243fe6a832a3e46"
+    },
+    {
+      "bytes": 671,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-primary-sources.json",
+      "sha256": "cea2e13c83027501c91745ad3935b293fecb54c3bc55035670e2cf676f4be01c"
+    },
+    {
+      "bytes": 274,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-source-licenses.json",
+      "sha256": "43a2e312f3a9005305eb30de44a43857c47deff59b2a366d1a29c3c995981b98"
+    },
+    {
+      "bytes": 47598,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/bnbtiger-writer-review.json",
+      "sha256": "65473b99cd1da18a429cf3c9cf8ad113ee88da68309919c8bca94ac7bdb0b8b8"
+    },
+    {
+      "bytes": 592971,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-capture.json",
+      "sha256": "ec5f5628b41b1eced18fc284246559422db795d71f5bb3c0dbffe9eec06d58b1"
+    },
+    {
+      "bytes": 66445,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-compiler-input-original.json",
+      "sha256": "cc735a62fc6dc5521ade82a01c7ff275113a4cb7e639d44b29bab03be5e35f82"
+    },
+    {
+      "bytes": 66591,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-compiler-input.json",
+      "sha256": "15d537e90363e8f902e27a6ca73138d4dcfad00f897256f9453a0e5c5bd30e9f"
+    },
+    {
+      "bytes": 589462,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-compiler-output.json",
+      "sha256": "c46a969fa4cbc87004c7cb106acaa5440751001b252f029001ea873ef55b6397"
+    },
+    {
+      "bytes": 100,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-compiler-version.txt",
+      "sha256": "4c4be572097efc783e35c16382b862402ff6c374dd7a4767039bf002c9b47754"
+    },
+    {
+      "bytes": 24236,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-metadata-fresh.json",
+      "sha256": "93606dcbeaf588e4f576a796eab142586abccc13edcad52145791c7613989637"
+    },
+    {
+      "bytes": 24236,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-metadata-original.json",
+      "sha256": "93606dcbeaf588e4f576a796eab142586abccc13edcad52145791c7613989637"
+    },
+    {
+      "bytes": 32157,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-primary-sources.json",
+      "sha256": "61ef9dfaa7fa5e10ed4e18690b1e3fe2460201db9d3cb12cd7ffe18e8ee20cca"
+    },
+    {
+      "bytes": 3049,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-source-licenses.json",
+      "sha256": "6256031aa42a29bf81f307f54dc6e157f9016e08beff73bc966cfe9d927e7bbf"
+    },
+    {
+      "bytes": 33189,
+      "path": "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof/cookie-writer-review.json",
+      "sha256": "c49e79d60ee9407f7cebb6bcbb9403fc77837573f1e47740885608efe5d77db5"
+    },
+    {
+      "bytes": 6629,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929-compiler.json",
+      "sha256": "6f7ab61359902685cfb1465cb18feff12a24c2ec3d27eb654fdafeb33702cef4"
+    },
+    {
+      "bytes": 7073,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929.json",
+      "sha256": "c7645326d19b08fd615df49a6fd66a4c1afe2f8ac44965263975b90e9274f50c"
+    },
+    {
+      "bytes": 45246,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929-source-inputs.json",
+      "sha256": "1eeffd537ace32dcc780eb23c6fc805b6c4edaa28bcdd4935fcd8b5b5da6c978"
+    },
+    {
+      "bytes": 697562,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929-cases.json",
+      "sha256": "98a67fc54e020def9049c9d2b02d2b8bc09d6c69b8bd84ef394a04e562b9606c"
+    },
+    {
+      "bytes": 5868750,
+      "path": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929-transcripts.json",
+      "sha256": "3735614a3931f0fd35cc8d04bdc20d8827650fb1cd14bbbc6bc315a795b82fc3"
+    }
+  ],
+  "qualified": false,
+  "source_authentication": "Frozen historical proof input inventory remains historical; new candidate source is independently inventoried. No historical artifact is rewritten.",
+  "status": "passed",
+  "targets": [
+    {
+      "contract": "0xac68931b666e086e9de380cfdb0fb5704a35dc2d",
+      "primary_gap": "Eight COOKIE dependency bodies exactly match the immutable OpenZeppelin/Uniswap files listed here; this does not establish a unique historical import commit. The original CookieToken, BEP20 and IBEP20 custom origins, and the complete flattened BNBTiger origin, remain unestablished. No source text, line ending, import path or license is normalized.",
+      "runtime_hash": "0x18f0619e94b94d884d917414ff4248c11e327998aef6a3e7089b9977e6ecef1c",
+      "source_capture_sha256": "9fd9afe36b7c9adf159e344ef6e693b15ae37a0703063e153890566a14503242",
+      "types": {
+        "t_address": {
+          "encoding": "inplace",
+          "label": "address",
+          "numberOfBytes": "20"
+        },
+        "t_address_payable": {
+          "encoding": "inplace",
+          "label": "address payable",
+          "numberOfBytes": "20"
+        },
+        "t_bool": {
+          "encoding": "inplace",
+          "label": "bool",
+          "numberOfBytes": "1"
+        },
+        "t_contract(IUniswapV2Router02)1333": {
+          "encoding": "inplace",
+          "label": "contract IUniswapV2Router02",
+          "numberOfBytes": "20"
+        },
+        "t_mapping(t_address,t_bool)": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => bool)",
+          "numberOfBytes": "32",
+          "value": "t_bool"
+        },
+        "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => mapping(address => uint256))",
+          "numberOfBytes": "32",
+          "value": "t_mapping(t_address,t_uint256)"
+        },
+        "t_mapping(t_address,t_uint256)": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => uint256)",
+          "numberOfBytes": "32",
+          "value": "t_uint256"
+        },
+        "t_string_storage": {
+          "encoding": "bytes",
+          "label": "string",
+          "numberOfBytes": "32"
+        },
+        "t_uint256": {
+          "encoding": "inplace",
+          "label": "uint256",
+          "numberOfBytes": "32"
+        },
+        "t_uint8": {
+          "encoding": "inplace",
+          "label": "uint8",
+          "numberOfBytes": "1"
+        }
+      },
+      "writer_review": {
+        "dynamic_string_limit": "No long-string write admission; string head/data mutations test only getter independence",
+        "executed_scope": "balanceOf only",
+        "fields": [
+          {
+            "anchors": [
+              {
+                "byte_length": 19,
+                "byte_start": 5707,
+                "line": 148,
+                "literal": "_owner = msgSender;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 20,
+                "byte_start": 6143,
+                "line": 163,
+                "literal": "_owner = address(0);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 20,
+                "byte_start": 6728,
+                "line": 182,
+                "literal": "_owner = address(0);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 18,
+                "byte_start": 6397,
+                "line": 169,
+                "literal": "_owner = newOwner;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 24,
+                "byte_start": 7142,
+                "line": 191,
+                "literal": "_owner = _previousOwner;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 476,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address"
+            },
+            "review": "Ownable constructor; waiveOwnership, transferOwnership and lock are onlyOwner; unlock requires previous owner and elapsed lock time."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 24,
+                "byte_start": 6694,
+                "line": 181,
+                "literal": "_previousOwner = _owner;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 478,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_previousOwner",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address"
+            },
+            "review": "onlyOwner lock; retained for unlock."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 35,
+                "byte_start": 6758,
+                "line": 183,
+                "literal": "_lockTime = block.timestamp + time;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 480,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_lockTime",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_uint256"
+            },
+            "review": "onlyOwner lock; timestamp-dependent setter is outside execution scope."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 39,
+                "byte_start": 15142,
+                "line": 400,
+                "literal": "string private _name = \"Bnb Tiger Inu\";",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 15187,
+                "line": 401,
+                "literal": "string private _symbol = \"BNBTiger\";",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 28,
+                "byte_start": 15229,
+                "line": 402,
+                "literal": "uint8 private _decimals = 9;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "constructor_only",
+            "declaration": {
+              "astId": 1348,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_name",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_string_storage"
+            },
+            "review": "Declaration initializers only; no runtime setter. Name and symbol are short literals. Synthetic string corruption below does not admit dynamic-string writes."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 39,
+                "byte_start": 15142,
+                "line": 400,
+                "literal": "string private _name = \"Bnb Tiger Inu\";",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 15187,
+                "line": 401,
+                "literal": "string private _symbol = \"BNBTiger\";",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 28,
+                "byte_start": 15229,
+                "line": 402,
+                "literal": "uint8 private _decimals = 9;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "constructor_only",
+            "declaration": {
+              "astId": 1351,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_symbol",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_string_storage"
+            },
+            "review": "Declaration initializers only; no runtime setter. Name and symbol are short literals. Synthetic string corruption below does not admit dynamic-string writes."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 39,
+                "byte_start": 15142,
+                "line": 400,
+                "literal": "string private _name = \"Bnb Tiger Inu\";",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 15187,
+                "line": 401,
+                "literal": "string private _symbol = \"BNBTiger\";",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 28,
+                "byte_start": 15229,
+                "line": 402,
+                "literal": "uint8 private _decimals = 9;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "constructor_only",
+            "declaration": {
+              "astId": 1354,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_decimals",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_uint8"
+            },
+            "review": "Declaration initializers only; no runtime setter. Name and symbol are short literals. Synthetic string corruption below does not admit dynamic-string writes."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 45,
+                "byte_start": 22786,
+                "line": 606,
+                "literal": "marketingWalletAddress = payable(newAddress);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1360,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "marketingWalletAddress",
+              "offset": 1,
+              "slot": "5",
+              "type": "t_address_payable"
+            },
+            "review": "Declaration initializer and onlyOwner setMarketingWalletAddress; shares slot 5 with decimals."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 40,
+                "byte_start": 22928,
+                "line": 610,
+                "literal": "teamWalletAddress = payable(newAddress);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1366,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "teamWalletAddress",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_address_payable"
+            },
+            "review": "Declaration initializer and onlyOwner setTeamWalletAddress."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 24,
+                "byte_start": 26693,
+                "line": 703,
+                "literal": "function _basicTransfer(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 17,
+                "byte_start": 29286,
+                "line": 769,
+                "literal": "function takeFee(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 19254,
+                "line": 515,
+                "literal": "return _balances[account];",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "balance_input",
+            "declaration": {
+              "astId": 1373,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_balances",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_mapping(t_address,t_uint256)"
+            },
+            "review": "Constructor allocation and transfer/transferFrom through _transfer, _basicTransfer and takeFee. Transfer/router paths are not executed here."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 18,
+                "byte_start": 20246,
+                "line": 541,
+                "literal": "function _approve(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 27,
+                "byte_start": 19446,
+                "line": 522,
+                "literal": "function increaseAllowance(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 27,
+                "byte_start": 19672,
+                "line": 527,
+                "literal": "function decreaseAllowance(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 22,
+                "byte_start": 878,
+                "line": 23,
+                "literal": "function transferFrom(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 22,
+                "byte_start": 8563,
+                "line": 224,
+                "literal": "function transferFrom(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 22,
+                "byte_start": 24657,
+                "line": 657,
+                "literal": "function transferFrom(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1379,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_allowances",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+            },
+            "review": "Constructor router allowance; approve/increaseAllowance/decreaseAllowance/transferFrom and swap approval through _approve."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 38,
+                "byte_start": 20957,
+                "line": 558,
+                "literal": "isExcludedFromFee[account] = newValue;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1383,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "isExcludedFromFee",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_mapping(t_address,t_bool)"
+            },
+            "review": "Constructor and onlyOwner setIsExcludedFromFee."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 37,
+                "byte_start": 22405,
+                "line": 594,
+                "literal": "isWalletLimitExempt[holder] = exempt;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 29,
+                "byte_start": 23573,
+                "line": 630,
+                "literal": "function changeRouterVersion(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1387,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "isWalletLimitExempt",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_mapping(t_address,t_bool)"
+            },
+            "review": "Constructor, onlyOwner setIsWalletLimitExempt and changeRouterVersion."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 33,
+                "byte_start": 20815,
+                "line": 554,
+                "literal": "isTxLimitExempt[holder] = exempt;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1391,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "isTxLimitExempt",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_mapping(t_address,t_bool)"
+            },
+            "review": "Constructor and onlyOwner setIsTxLimitExempt."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 33,
+                "byte_start": 20680,
+                "line": 550,
+                "literal": "isMarketPair[account] = newValue;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 29,
+                "byte_start": 23573,
+                "line": 630,
+                "literal": "function changeRouterVersion(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1395,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "isMarketPair",
+              "offset": 0,
+              "slot": "12",
+              "type": "t_mapping(t_address,t_bool)"
+            },
+            "review": "Constructor, onlyOwner setMarketPairStatus and changeRouterVersion."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 35,
+                "byte_start": 21133,
+                "line": 562,
+                "literal": "_buyLiquidityFee = newLiquidityTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 35,
+                "byte_start": 21178,
+                "line": 563,
+                "literal": "_buyMarketingFee = newMarketingTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 25,
+                "byte_start": 21223,
+                "line": 564,
+                "literal": "_buyTeamFee = newTeamTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 76,
+                "byte_start": 18084,
+                "line": 481,
+                "literal": "_totalTaxIfBuying = _buyLiquidityFee.add(_buyMarketingFee).add(_buyTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 76,
+                "byte_start": 21260,
+                "line": 566,
+                "literal": "_totalTaxIfBuying = _buyLiquidityFee.add(_buyMarketingFee).add(_buyTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1398,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_buyLiquidityFee",
+              "offset": 0,
+              "slot": "13",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setBuyTaxes; total recomputed with checked additions."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 35,
+                "byte_start": 21133,
+                "line": 562,
+                "literal": "_buyLiquidityFee = newLiquidityTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 35,
+                "byte_start": 21178,
+                "line": 563,
+                "literal": "_buyMarketingFee = newMarketingTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 25,
+                "byte_start": 21223,
+                "line": 564,
+                "literal": "_buyTeamFee = newTeamTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 76,
+                "byte_start": 18084,
+                "line": 481,
+                "literal": "_totalTaxIfBuying = _buyLiquidityFee.add(_buyMarketingFee).add(_buyTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 76,
+                "byte_start": 21260,
+                "line": 566,
+                "literal": "_totalTaxIfBuying = _buyLiquidityFee.add(_buyMarketingFee).add(_buyTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1401,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_buyMarketingFee",
+              "offset": 0,
+              "slot": "14",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setBuyTaxes; total recomputed with checked additions."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 35,
+                "byte_start": 21133,
+                "line": 562,
+                "literal": "_buyLiquidityFee = newLiquidityTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 35,
+                "byte_start": 21178,
+                "line": 563,
+                "literal": "_buyMarketingFee = newMarketingTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 25,
+                "byte_start": 21223,
+                "line": 564,
+                "literal": "_buyTeamFee = newTeamTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 76,
+                "byte_start": 18084,
+                "line": 481,
+                "literal": "_totalTaxIfBuying = _buyLiquidityFee.add(_buyMarketingFee).add(_buyTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 76,
+                "byte_start": 21260,
+                "line": 566,
+                "literal": "_totalTaxIfBuying = _buyLiquidityFee.add(_buyMarketingFee).add(_buyTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1404,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_buyTeamFee",
+              "offset": 0,
+              "slot": "15",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setBuyTaxes; total recomputed with checked additions."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 36,
+                "byte_start": 21475,
+                "line": 570,
+                "literal": "_sellLiquidityFee = newLiquidityTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 21521,
+                "line": 571,
+                "literal": "_sellMarketingFee = newMarketingTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 21567,
+                "line": 572,
+                "literal": "_sellTeamFee = newTeamTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 18170,
+                "line": 482,
+                "literal": "_totalTaxIfSelling = _sellLiquidityFee.add(_sellMarketingFee).add(_sellTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 21605,
+                "line": 574,
+                "literal": "_totalTaxIfSelling = _sellLiquidityFee.add(_sellMarketingFee).add(_sellTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1407,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_sellLiquidityFee",
+              "offset": 0,
+              "slot": "16",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setSellTaxes; total recomputed with checked additions."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 36,
+                "byte_start": 21475,
+                "line": 570,
+                "literal": "_sellLiquidityFee = newLiquidityTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 21521,
+                "line": 571,
+                "literal": "_sellMarketingFee = newMarketingTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 21567,
+                "line": 572,
+                "literal": "_sellTeamFee = newTeamTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 18170,
+                "line": 482,
+                "literal": "_totalTaxIfSelling = _sellLiquidityFee.add(_sellMarketingFee).add(_sellTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 21605,
+                "line": 574,
+                "literal": "_totalTaxIfSelling = _sellLiquidityFee.add(_sellMarketingFee).add(_sellTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1410,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_sellMarketingFee",
+              "offset": 0,
+              "slot": "17",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setSellTaxes; total recomputed with checked additions."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 36,
+                "byte_start": 21475,
+                "line": 570,
+                "literal": "_sellLiquidityFee = newLiquidityTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 21521,
+                "line": 571,
+                "literal": "_sellMarketingFee = newMarketingTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 21567,
+                "line": 572,
+                "literal": "_sellTeamFee = newTeamTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 18170,
+                "line": 482,
+                "literal": "_totalTaxIfSelling = _sellLiquidityFee.add(_sellMarketingFee).add(_sellTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 21605,
+                "line": 574,
+                "literal": "_totalTaxIfSelling = _sellLiquidityFee.add(_sellMarketingFee).add(_sellTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1413,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_sellTeamFee",
+              "offset": 0,
+              "slot": "18",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setSellTaxes; total recomputed with checked additions."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 36,
+                "byte_start": 21845,
+                "line": 578,
+                "literal": "_liquidityShare = newLiquidityShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 21891,
+                "line": 579,
+                "literal": "_marketingShare = newMarketingShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 21937,
+                "line": 580,
+                "literal": "_teamShare = newTeamShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 18260,
+                "line": 483,
+                "literal": "_totalDistributionShares = _liquidityShare.add(_marketingShare).add(_teamShare);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 21975,
+                "line": 582,
+                "literal": "_totalDistributionShares = _liquidityShare.add(_marketingShare).add(_teamShare);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1416,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_liquidityShare",
+              "offset": 0,
+              "slot": "19",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setDistributionSettings; total recomputed."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 36,
+                "byte_start": 21845,
+                "line": 578,
+                "literal": "_liquidityShare = newLiquidityShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 21891,
+                "line": 579,
+                "literal": "_marketingShare = newMarketingShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 21937,
+                "line": 580,
+                "literal": "_teamShare = newTeamShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 18260,
+                "line": 483,
+                "literal": "_totalDistributionShares = _liquidityShare.add(_marketingShare).add(_teamShare);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 21975,
+                "line": 582,
+                "literal": "_totalDistributionShares = _liquidityShare.add(_marketingShare).add(_teamShare);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1419,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_marketingShare",
+              "offset": 0,
+              "slot": "20",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setDistributionSettings; total recomputed."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 36,
+                "byte_start": 21845,
+                "line": 578,
+                "literal": "_liquidityShare = newLiquidityShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 21891,
+                "line": 579,
+                "literal": "_marketingShare = newMarketingShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 21937,
+                "line": 580,
+                "literal": "_teamShare = newTeamShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 18260,
+                "line": 483,
+                "literal": "_totalDistributionShares = _liquidityShare.add(_marketingShare).add(_teamShare);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 21975,
+                "line": 582,
+                "literal": "_totalDistributionShares = _liquidityShare.add(_marketingShare).add(_teamShare);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1422,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_teamShare",
+              "offset": 0,
+              "slot": "21",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setDistributionSettings; total recomputed."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 35,
+                "byte_start": 21133,
+                "line": 562,
+                "literal": "_buyLiquidityFee = newLiquidityTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 35,
+                "byte_start": 21178,
+                "line": 563,
+                "literal": "_buyMarketingFee = newMarketingTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 25,
+                "byte_start": 21223,
+                "line": 564,
+                "literal": "_buyTeamFee = newTeamTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 76,
+                "byte_start": 18084,
+                "line": 481,
+                "literal": "_totalTaxIfBuying = _buyLiquidityFee.add(_buyMarketingFee).add(_buyTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 76,
+                "byte_start": 21260,
+                "line": 566,
+                "literal": "_totalTaxIfBuying = _buyLiquidityFee.add(_buyMarketingFee).add(_buyTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1425,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_totalTaxIfBuying",
+              "offset": 0,
+              "slot": "22",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setBuyTaxes; total recomputed with checked additions."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 36,
+                "byte_start": 21475,
+                "line": 570,
+                "literal": "_sellLiquidityFee = newLiquidityTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 21521,
+                "line": 571,
+                "literal": "_sellMarketingFee = newMarketingTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 21567,
+                "line": 572,
+                "literal": "_sellTeamFee = newTeamTax;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 18170,
+                "line": 482,
+                "literal": "_totalTaxIfSelling = _sellLiquidityFee.add(_sellMarketingFee).add(_sellTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 21605,
+                "line": 574,
+                "literal": "_totalTaxIfSelling = _sellLiquidityFee.add(_sellMarketingFee).add(_sellTeamFee);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1428,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_totalTaxIfSelling",
+              "offset": 0,
+              "slot": "23",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setSellTaxes; total recomputed with checked additions."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 36,
+                "byte_start": 21845,
+                "line": 578,
+                "literal": "_liquidityShare = newLiquidityShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 21891,
+                "line": 579,
+                "literal": "_marketingShare = newMarketingShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 21937,
+                "line": 580,
+                "literal": "_teamShare = newTeamShare;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 18260,
+                "line": 483,
+                "literal": "_totalDistributionShares = _liquidityShare.add(_marketingShare).add(_teamShare);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 80,
+                "byte_start": 21975,
+                "line": 582,
+                "literal": "_totalDistributionShares = _liquidityShare.add(_marketingShare).add(_teamShare);",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1431,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_totalDistributionShares",
+              "offset": 0,
+              "slot": "24",
+              "type": "t_uint256"
+            },
+            "review": "Declaration/constructor values and onlyOwner setDistributionSettings; total recomputed."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 77,
+                "byte_start": 16471,
+                "line": 432,
+                "literal": "uint256 private _totalSupply = 10000000000000 * 10**6* 10**6 * 10**_decimals;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "constructor_only",
+            "declaration": {
+              "astId": 1446,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_totalSupply",
+              "offset": 0,
+              "slot": "25",
+              "type": "t_uint256"
+            },
+            "review": "Declaration initializer; no mint/burn or runtime supply assignment in the complete selected contract. Direct balances need no supply conversion."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 27,
+                "byte_start": 22151,
+                "line": 586,
+                "literal": "_maxTxAmount = maxTxAmount;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1461,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_maxTxAmount",
+              "offset": 0,
+              "slot": "26",
+              "type": "t_uint256"
+            },
+            "review": "Declaration and onlyOwner setMaxTxAmount."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 23,
+                "byte_start": 22529,
+                "line": 598,
+                "literal": "_walletMax  = newLimit;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1476,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "_walletMax",
+              "offset": 0,
+              "slot": "27",
+              "type": "t_uint256"
+            },
+            "review": "Declaration and onlyOwner setWalletLimit."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 35,
+                "byte_start": 22649,
+                "line": 602,
+                "literal": "minimumTokensBeforeSwap = newLimit;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1487,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "minimumTokensBeforeSwap",
+              "offset": 0,
+              "slot": "28",
+              "type": "t_uint256"
+            },
+            "review": "Declaration and onlyOwner setNumTokensBeforeSwap."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 29,
+                "byte_start": 23573,
+                "line": 630,
+                "literal": "function changeRouterVersion(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 29,
+                "byte_start": 24138,
+                "line": 642,
+                "literal": "uniswapPair = newPairAddress;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 35,
+                "byte_start": 17855,
+                "line": 475,
+                "literal": "uniswapV2Router = _uniswapV2Router;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 35,
+                "byte_start": 24200,
+                "line": 643,
+                "literal": "uniswapV2Router = _uniswapV2Router;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime_external_context",
+            "declaration": {
+              "astId": 1490,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "uniswapV2Router",
+              "offset": 0,
+              "slot": "29",
+              "type": "t_contract(IUniswapV2Router02)1333"
+            },
+            "review": "Constructor and onlyOwner changeRouterVersion use external router/factory calls. These are source-reviewed, not executed or qualified."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 29,
+                "byte_start": 23573,
+                "line": 630,
+                "literal": "function changeRouterVersion(",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 29,
+                "byte_start": 24138,
+                "line": 642,
+                "literal": "uniswapPair = newPairAddress;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 35,
+                "byte_start": 17855,
+                "line": 475,
+                "literal": "uniswapV2Router = _uniswapV2Router;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 35,
+                "byte_start": 24200,
+                "line": 643,
+                "literal": "uniswapV2Router = _uniswapV2Router;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime_external_context",
+            "declaration": {
+              "astId": 1492,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "uniswapPair",
+              "offset": 0,
+              "slot": "30",
+              "type": "t_address"
+            },
+            "review": "Constructor and onlyOwner changeRouterVersion use external router/factory calls. These are source-reviewed, not executed or qualified."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 24,
+                "byte_start": 17478,
+                "line": 463,
+                "literal": "inSwapAndLiquify = true;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              },
+              {
+                "byte_length": 25,
+                "byte_start": 17524,
+                "line": 465,
+                "literal": "inSwapAndLiquify = false;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1494,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "inSwapAndLiquify",
+              "offset": 20,
+              "slot": "30",
+              "type": "t_bool"
+            },
+            "review": "lockTheSwap modifier enters/exits during swapAndLiquify; external transfer path excluded."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 33,
+                "byte_start": 23060,
+                "line": 614,
+                "literal": "swapAndLiquifyEnabled = _enabled;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1497,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "swapAndLiquifyEnabled",
+              "offset": 21,
+              "slot": "30",
+              "type": "t_bool"
+            },
+            "review": "Declaration and onlyOwner setSwapAndLiquifyEnabled."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 37,
+                "byte_start": 23243,
+                "line": 619,
+                "literal": "swapAndLiquifyByLimitOnly = newValue;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1500,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "swapAndLiquifyByLimitOnly",
+              "offset": 22,
+              "slot": "30",
+              "type": "t_bool"
+            },
+            "review": "Declaration and onlyOwner setSwapAndLiquifyByLimitOnly."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 28,
+                "byte_start": 22271,
+                "line": 590,
+                "literal": "checkWalletLimit = newValue;",
+                "path": "BNBTiger.sol",
+                "source_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1503,
+              "contract": "BNBTiger.sol:BNBTiger",
+              "label": "checkWalletLimit",
+              "offset": 23,
+              "slot": "30",
+              "type": "t_bool"
+            },
+            "review": "Declaration and onlyOwner enableDisableWalletLimit."
+          }
+        ],
+        "immutable_dead_address": "0x000000000000000000000000000000000000dead",
+        "method": "Manual complete selected-source review with literal source anchors; not an automatic reachability proof or metadata permission",
+        "target": "bnbtiger"
+      }
+    },
+    {
+      "contract": "0x3505bee89d3b4e351dbd4849241a6b0716ea407f",
+      "primary_gap": "Eight COOKIE dependency bodies exactly match the immutable OpenZeppelin/Uniswap files listed here; this does not establish a unique historical import commit. The original CookieToken, BEP20 and IBEP20 custom origins, and the complete flattened BNBTiger origin, remain unestablished. No source text, line ending, import path or license is normalized.",
+      "runtime_hash": "0x258d1c6c6dcac1bfb46886ed147f9445408e9e5420a2c7a9434cd1b60bcf200f",
+      "source_capture_sha256": "ec5f5628b41b1eced18fc284246559422db795d71f5bb3c0dbffe9eec06d58b1",
+      "types": {
+        "t_address": {
+          "encoding": "inplace",
+          "label": "address",
+          "numberOfBytes": "20"
+        },
+        "t_bool": {
+          "encoding": "inplace",
+          "label": "bool",
+          "numberOfBytes": "1"
+        },
+        "t_contract(IUniswapV2Router02)3737": {
+          "encoding": "inplace",
+          "label": "contract IUniswapV2Router02",
+          "numberOfBytes": "20"
+        },
+        "t_mapping(t_address,t_address)": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => address)",
+          "numberOfBytes": "32",
+          "value": "t_address"
+        },
+        "t_mapping(t_address,t_bool)": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => bool)",
+          "numberOfBytes": "32",
+          "value": "t_bool"
+        },
+        "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => mapping(address => uint256))",
+          "numberOfBytes": "32",
+          "value": "t_mapping(t_address,t_uint256)"
+        },
+        "t_mapping(t_address,t_mapping(t_uint32,t_struct(Checkpoint)1032_storage))": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => mapping(uint32 => struct CookieToken.Checkpoint))",
+          "numberOfBytes": "32",
+          "value": "t_mapping(t_uint32,t_struct(Checkpoint)1032_storage)"
+        },
+        "t_mapping(t_address,t_uint256)": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => uint256)",
+          "numberOfBytes": "32",
+          "value": "t_uint256"
+        },
+        "t_mapping(t_address,t_uint32)": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => uint32)",
+          "numberOfBytes": "32",
+          "value": "t_uint32"
+        },
+        "t_mapping(t_uint32,t_struct(Checkpoint)1032_storage)": {
+          "encoding": "mapping",
+          "key": "t_uint32",
+          "label": "mapping(uint32 => struct CookieToken.Checkpoint)",
+          "numberOfBytes": "32",
+          "value": "t_struct(Checkpoint)1032_storage"
+        },
+        "t_string_storage": {
+          "encoding": "bytes",
+          "label": "string",
+          "numberOfBytes": "32"
+        },
+        "t_struct(Checkpoint)1032_storage": {
+          "encoding": "inplace",
+          "label": "struct CookieToken.Checkpoint",
+          "members": [
+            {
+              "astId": 1029,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "fromBlock",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint32"
+            },
+            {
+              "astId": 1031,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "votes",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_uint256"
+            }
+          ],
+          "numberOfBytes": "64"
+        },
+        "t_uint16": {
+          "encoding": "inplace",
+          "label": "uint16",
+          "numberOfBytes": "2"
+        },
+        "t_uint256": {
+          "encoding": "inplace",
+          "label": "uint256",
+          "numberOfBytes": "32"
+        },
+        "t_uint32": {
+          "encoding": "inplace",
+          "label": "uint32",
+          "numberOfBytes": "4"
+        },
+        "t_uint8": {
+          "encoding": "inplace",
+          "label": "uint8",
+          "numberOfBytes": "1"
+        }
+      },
+      "writer_review": {
+        "dynamic_string_limit": "No long-string write admission; string head/data mutations test only getter independence",
+        "executed_scope": "balanceOf only",
+        "fields": [
+          {
+            "anchors": [
+              {
+                "byte_length": 27,
+                "byte_start": 1717,
+                "line": 54,
+                "literal": "function renounceOwnership(",
+                "path": "@openzeppelin/contracts/access/Ownable.sol",
+                "source_sha256": "b9f957b42bdcf3d3499be4c94558152e91658e34a1fe5a5e8f0972ce20e15ed7"
+              },
+              {
+                "byte_length": 27,
+                "byte_start": 2011,
+                "line": 63,
+                "literal": "function transferOwnership(",
+                "path": "@openzeppelin/contracts/access/Ownable.sol",
+                "source_sha256": "b9f957b42bdcf3d3499be4c94558152e91658e34a1fe5a5e8f0972ce20e15ed7"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 2260,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_owner",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address"
+            },
+            "review": "Ownable constructor, onlyOwner renounceOwnership and transferOwnership."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 19,
+                "byte_start": 5047,
+                "line": 121,
+                "literal": "function _transfer(",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 19,
+                "byte_start": 7340,
+                "line": 231,
+                "literal": "function _transfer(",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 15,
+                "byte_start": 8134,
+                "line": 253,
+                "literal": "function _mint(",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 29,
+                "byte_start": 6720,
+                "line": 212,
+                "literal": "function mint(uint256 amount)",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 43,
+                "byte_start": 4806,
+                "line": 115,
+                "literal": "function mint(address _to, uint256 _amount)",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 3279,
+                "line": 103,
+                "literal": "return _balances[account];",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              }
+            ],
+            "classification": "balance_input",
+            "declaration": {
+              "astId": 1648,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_balances",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_mapping(t_address,t_uint256)"
+            },
+            "review": "BEP20 _transfer and _mint reachable from transfers and two onlyOwner mint overloads. _burn/_burnFrom are declared internal but have no public caller in this complete selected source; sending to BURN_ADDRESS is a balance transfer."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 18,
+                "byte_start": 9562,
+                "line": 293,
+                "literal": "function _approve(",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 17,
+                "byte_start": 4042,
+                "line": 133,
+                "literal": "function approve(",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 17,
+                "byte_start": 2203,
+                "line": 68,
+                "literal": "function approve(",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/IBEP20.sol",
+                "source_sha256": "3eea0486fd8eac0a569993eecaaf87999595e6103702ef72da8c77ad4f2d605b"
+              },
+              {
+                "byte_length": 17,
+                "byte_start": 598,
+                "line": 14,
+                "literal": "function approve(",
+                "path": "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol",
+                "source_sha256": "29c75e69ce173ff8b498584700fef76bc81498c1d98120e2877a1439f0c31b5a"
+              },
+              {
+                "byte_length": 22,
+                "byte_start": 4674,
+                "line": 150,
+                "literal": "function transferFrom(",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 22,
+                "byte_start": 2595,
+                "line": 79,
+                "literal": "function transferFrom(",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/IBEP20.sol",
+                "source_sha256": "3eea0486fd8eac0a569993eecaaf87999595e6103702ef72da8c77ad4f2d605b"
+              },
+              {
+                "byte_length": 22,
+                "byte_start": 744,
+                "line": 16,
+                "literal": "function transferFrom(",
+                "path": "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol",
+                "source_sha256": "29c75e69ce173ff8b498584700fef76bc81498c1d98120e2877a1439f0c31b5a"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1654,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_allowances",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+            },
+            "review": "_approve reached by approve/increaseAllowance/decreaseAllowance/transferFrom and swap helpers. _burnFrom has no public call path."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 40,
+                "byte_start": 8280,
+                "line": 256,
+                "literal": "_totalSupply = _totalSupply.add(amount);",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 29,
+                "byte_start": 6720,
+                "line": 212,
+                "literal": "function mint(uint256 amount)",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 43,
+                "byte_start": 4806,
+                "line": 115,
+                "literal": "function mint(address _to, uint256 _amount)",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1656,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_totalSupply",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_uint256"
+            },
+            "review": "_mint is reached by both onlyOwner mint overloads. _burn is an unreachable internal definition here; transfer to BURN_ADDRESS does not reduce supply."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 13,
+                "byte_start": 2258,
+                "line": 59,
+                "literal": "_name = name;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 17,
+                "byte_start": 2281,
+                "line": 60,
+                "literal": "_symbol = symbol;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 15,
+                "byte_start": 2308,
+                "line": 61,
+                "literal": "_decimals = 18;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              }
+            ],
+            "classification": "constructor_only",
+            "declaration": {
+              "astId": 1658,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_name",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_string_storage"
+            },
+            "review": "BEP20 constructor assignments only; Cookie Token/COOKIE are short literals. No runtime name/symbol/decimal setter. Dynamic-string host corruption is an independence control only."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 13,
+                "byte_start": 2258,
+                "line": 59,
+                "literal": "_name = name;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 17,
+                "byte_start": 2281,
+                "line": 60,
+                "literal": "_symbol = symbol;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 15,
+                "byte_start": 2308,
+                "line": 61,
+                "literal": "_decimals = 18;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              }
+            ],
+            "classification": "constructor_only",
+            "declaration": {
+              "astId": 1660,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_symbol",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_string_storage"
+            },
+            "review": "BEP20 constructor assignments only; Cookie Token/COOKIE are short literals. No runtime name/symbol/decimal setter. Dynamic-string host corruption is an independence control only."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 13,
+                "byte_start": 2258,
+                "line": 59,
+                "literal": "_name = name;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 17,
+                "byte_start": 2281,
+                "line": 60,
+                "literal": "_symbol = symbol;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              },
+              {
+                "byte_length": 15,
+                "byte_start": 2308,
+                "line": 61,
+                "literal": "_decimals = 18;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/libs/BEP20.sol",
+                "source_sha256": "1d17de9ebc1f3c935d8d9f61b6cd13e70b73d8aff3853de91f37ca61b5f7fc57"
+              }
+            ],
+            "classification": "constructor_only",
+            "declaration": {
+              "astId": 1662,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_decimals",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_uint8"
+            },
+            "review": "BEP20 constructor assignments only; Cookie Token/COOKIE are short literals. No runtime name/symbol/decimal setter. Dynamic-string host corruption is an independence control only."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 35,
+                "byte_start": 4005,
+                "line": 94,
+                "literal": "transferTaxRate = _transferTaxRate;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 35,
+                "byte_start": 10513,
+                "line": 261,
+                "literal": "transferTaxRate = _transferTaxRate;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 20,
+                "byte_start": 3963,
+                "line": 92,
+                "literal": "transferTaxRate = 0;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 45,
+                "byte_start": 10285,
+                "line": 259,
+                "literal": "_transferTaxRate <= MAXIMUM_TRANSFER_TAX_RATE",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 10,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "transferTaxRate",
+              "offset": 1,
+              "slot": "6",
+              "type": "t_uint16"
+            },
+            "review": "Declaration, onlyOperator updateTransferTaxRate bounded <=1000, and transferTaxFree temporary zero/restore."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 21,
+                "byte_start": 10912,
+                "line": 271,
+                "literal": "burnRate = _burnRate;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 16,
+                "byte_start": 10749,
+                "line": 269,
+                "literal": "_burnRate <= 100",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 13,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "burnRate",
+              "offset": 3,
+              "slot": "6",
+              "type": "t_uint16"
+            },
+            "review": "Declaration and onlyOperator updateBurnRate bounded <=100."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 47,
+                "byte_start": 11418,
+                "line": 281,
+                "literal": "maxTransferAmountRate = _maxTransferAmountRate;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 29,
+                "byte_start": 11175,
+                "line": 279,
+                "literal": "_maxTransferAmountRate <= 500",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 22,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "maxTransferAmountRate",
+              "offset": 5,
+              "slot": "6",
+              "type": "t_uint16"
+            },
+            "review": "Declaration and onlyOperator updateMaxTransferAmountRate bounded <=500."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 45,
+                "byte_start": 12042,
+                "line": 298,
+                "literal": "_excludedFromAntiWhale[_account] = _excluded;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 26,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_excludedFromAntiWhale",
+              "offset": 0,
+              "slot": "7",
+              "type": "t_mapping(t_address,t_bool)"
+            },
+            "review": "Constructor and onlyOperator setExcludedFromAntiWhale."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 33,
+                "byte_start": 13015,
+                "line": 328,
+                "literal": "swapAndLiquifyEnabled = _enabled;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 29,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "swapAndLiquifyEnabled",
+              "offset": 0,
+              "slot": "8",
+              "type": "t_bool"
+            },
+            "review": "Declaration and onlyOperator updateSwapAndLiquifyEnabled."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 32,
+                "byte_start": 11767,
+                "line": 290,
+                "literal": "minAmountToLiquify = _minAmount;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 32,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "minAmountToLiquify",
+              "offset": 0,
+              "slot": "9",
+              "type": "t_uint256"
+            },
+            "review": "Declaration and onlyOperator updateMinAmountToLiquify."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 47,
+                "byte_start": 13250,
+                "line": 336,
+                "literal": "cookieSwapRouter = IUniswapV2Router02(_router);",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 111,
+                "byte_start": 13307,
+                "line": 337,
+                "literal": "cookieSwapPair = IUniswapV2Factory(cookieSwapRouter.factory()).getPair(address(this), cookieSwapRouter.WETH());",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime_external_context",
+            "declaration": {
+              "astId": 34,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "cookieSwapRouter",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_contract(IUniswapV2Router02)3737"
+            },
+            "review": "onlyOperator updateCookieSwapRouter calls router/factory and requires a nonzero pair. No successful external execution is claimed."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 47,
+                "byte_start": 13250,
+                "line": 336,
+                "literal": "cookieSwapRouter = IUniswapV2Router02(_router);",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 111,
+                "byte_start": 13307,
+                "line": 337,
+                "literal": "cookieSwapPair = IUniswapV2Factory(cookieSwapRouter.factory()).getPair(address(this), cookieSwapRouter.WETH());",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime_external_context",
+            "declaration": {
+              "astId": 36,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "cookieSwapPair",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_address"
+            },
+            "review": "onlyOperator updateCookieSwapRouter calls router/factory and requires a nonzero pair. No successful external execution is claimed."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 25,
+                "byte_start": 3787,
+                "line": 85,
+                "literal": "_inSwapAndLiquify = true;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 26,
+                "byte_start": 3834,
+                "line": 87,
+                "literal": "_inSwapAndLiquify = false;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 38,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_inSwapAndLiquify",
+              "offset": 20,
+              "slot": "11",
+              "type": "t_bool"
+            },
+            "review": "lockTheSwap modifier around excluded swap/router path."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 35,
+                "byte_start": 1598,
+                "line": 40,
+                "literal": "uint16 public maxHoldingRate = 500;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "constructor_only",
+            "declaration": {
+              "astId": 41,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "maxHoldingRate",
+              "offset": 21,
+              "slot": "11",
+              "type": "t_uint16"
+            },
+            "review": "Declaration value 500 only; no setter in complete selected source. It affects blacklist/transfer policy, not raw balanceOf."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 38,
+                "byte_start": 12302,
+                "line": 306,
+                "literal": "_includeToBlackList[_account] = false;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 38,
+                "byte_start": 12685,
+                "line": 318,
+                "literal": "_includeToBlackList[_account] = false;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 37,
+                "byte_start": 12606,
+                "line": 315,
+                "literal": "_includeToBlackList[_account] = true;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 45,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_includeToBlackList",
+              "offset": 0,
+              "slot": "12",
+              "type": "t_mapping(t_address,t_bool)"
+            },
+            "review": "Constructor false entries; onlyOperator setExcludeFromBlackList and conditional setIncludeToBlackList. The latter reads balanceOf/maxHolding."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 25,
+                "byte_start": 4190,
+                "line": 101,
+                "literal": "_operator = _msgSender();",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 24,
+                "byte_start": 14197,
+                "line": 356,
+                "literal": "_operator = newOperator;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 47,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_operator",
+              "offset": 0,
+              "slot": "13",
+              "type": "t_address"
+            },
+            "review": "Constructor and onlyOperator transferOperator, nonzero new operator."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 34,
+                "byte_start": 20645,
+                "line": 531,
+                "literal": "_delegates[delegator] = delegatee;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 36,
+                "byte_start": 16519,
+                "line": 411,
+                "literal": "function delegate(address delegatee)",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 23,
+                "byte_start": 17057,
+                "line": 424,
+                "literal": "function delegateBySig(",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime",
+            "declaration": {
+              "astId": 1027,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "_delegates",
+              "offset": 0,
+              "slot": "14",
+              "type": "t_mapping(t_address,t_address)"
+            },
+            "review": "_delegate from delegate or delegateBySig; signature/context path not executed."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 58,
+                "byte_start": 22191,
+                "line": 569,
+                "literal": "checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 73,
+                "byte_start": 22281,
+                "line": 571,
+                "literal": "checkpoints[delegatee][nCheckpoints] = Checkpoint(blockNumber, newVotes);",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime_context",
+            "declaration": {
+              "astId": 1039,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "checkpoints",
+              "offset": 0,
+              "slot": "15",
+              "type": "t_mapping(t_address,t_mapping(t_uint32,t_struct(Checkpoint)1032_storage))"
+            },
+            "review": "_writeCheckpoint through _moveDelegates from mint(address,uint256), delegate and delegateBySig. Same-block changes votes only; new record writes uint32 block plus uint256 votes. Block/signature context not executed."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 45,
+                "byte_start": 22368,
+                "line": 572,
+                "literal": "numCheckpoints[delegatee] = nCheckpoints + 1;",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              },
+              {
+                "byte_length": 20,
+                "byte_start": 21994,
+                "line": 566,
+                "literal": "safe32(block.number,",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime_context",
+            "declaration": {
+              "astId": 1044,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "numCheckpoints",
+              "offset": 0,
+              "slot": "16",
+              "type": "t_mapping(t_address,t_uint32)"
+            },
+            "review": "_writeCheckpoint appends a new uint32-indexed record. safe32 checks the block conversion; nCheckpoints + 1 wraps as unchecked uint32 arithmetic in Solidity 0.6.12. Neither path is executed here."
+          },
+          {
+            "anchors": [
+              {
+                "byte_length": 28,
+                "byte_start": 18038,
+                "line": 462,
+                "literal": "nonce == nonces[signatory]++",
+                "path": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol",
+                "source_sha256": "ae9524ab5d50f3a7428368046f5922772e62f094a995cc50ca1417d942dbd8e2"
+              }
+            ],
+            "classification": "runtime_context",
+            "declaration": {
+              "astId": 1061,
+              "contract": "/C/Users/wesle/Desktop/Deploying Tokens/goose-contracts-referral/contracts/CookieToken.sol:CookieToken",
+              "label": "nonces",
+              "offset": 0,
+              "slot": "17",
+              "type": "t_mapping(t_address,t_uint256)"
+            },
+            "review": "delegateBySig postincrement after signature recovery; expiry/time/chain/signature path excluded."
+          }
+        ],
+        "immutable_dead_address": null,
+        "method": "Manual complete selected-source review with literal source anchors; not an automatic reachability proof or metadata permission",
+        "target": "cookie"
+      }
+    }
+  ]
+}

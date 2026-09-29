@@ -1058,3 +1058,40 @@ replay. No production layout, new protobuf kind, RPC, stream or sink execution i
 This finite initialized holder set and historical interval do not establish global
 holder coverage or qualify the current deployment. Issues #5, #7 and #21 retain their
 remaining qualification gates.
+
+
+## BNBTiger / COOKIE separate candidates, 2026-09-29
+
+The [candidate implementation](../erc20/balances/docs/bnbtiger-cookie-candidates.md)
+adds two opt-in source-specific metadata modes with exact address/runtime/balance
+roots. All 29 frozen getter-proof artifacts remain pinned. Canonical field widths,
+fixed packed fields, unused zero padding and at most one changed packed field are
+checked on old/new words. Allowances, bool/delegate paths, COOKIE uint32 checkpoint
+keys and fromBlock values, wrapping checkpoint counts/nonces and monotonic mint
+supply have separate constraints. Writes to constructor-only strings, BNBTiger
+supply or unknown fields refuse, including no-ops; known balance no-ops emit no observation. These
+are field/value guards, not complete operation, authorization or global-state
+validation. The generic role validator and all prior layouts retain their behavior.
+
+Separate NOT-QUALIFIED fixtures append exactly two profiles to the immutable431
+baseline; removing them restores its original array. The qualified425 fixture is
+untouched. Three independent native projections over original BSC Extended v5
+blocks [122288006,122289030) preserve all 110,139 historical rows and produce
+110,185 combined rows. Each PB must match its original immutable manifest digest,
+not only its header. All emitted selected rows match the full unchanged canonical
+reference at that block. Finite initialized holders and cold gaps are:
+
+| Candidate | Emitted/reference matches | Initialized observed holders | Canonical rows / distinct holders | Cold observations (nonzero) | Ending known-zero holders |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| BNBTiger | 22 | 8 | 28 / 9 | 6 (3) | 1 |
+| COOKIE | 24 | 6 | 25 / 7 | 1 (0) | 1 |
+
+There are no retained-only reference comparisons in this interval. Reference rows
+never initialize the ledger. COOKIE has 13 changing metadata records: eight supply,
+two lock, two tax and one allowance; BNBTiger has none, and neither has an equal
+metadata record. The five original COOKIE strict refusals are reproduced without
+the new mode. These counts establish neither missing metadata-path observation
+nor global holders. Current runtime/source attribution, external dependencies,
+new package/getter and initialized-holder qualification remain open under #5/#21.
+No live source or RPC checks ran. Fresh attempts remain in the Network worktree
+under out/bnbtiger-cookie-candidate-20260929/; original evidence is preserved.
