@@ -303,6 +303,7 @@ pub fn run(args: Survey) -> Result<bool> {
                 // No unknown write is automatically declared harmless. The mapper
                 // runs with an empty ignore list; errors remain distinct from no rows.
                 let mut layout = VerifiedLayout {
+                    lpinfo_array: false,
                     contract: hex::decode(&contract[2..])?,
                     balance_slot: hex::decode(&slot[2..])?.try_into().unwrap(),
                     code_hash: hex::decode(&codes[0][2..])?.try_into().unwrap(),

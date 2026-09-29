@@ -161,8 +161,10 @@ Across saved BSC [123561000, 123562024), all 8,436 emitted candidate rows match
 the immutable canonical reference. The emitted-only ledger initializes 207
 observed holders; 6,586 reference observations remain cold. The 431-profile
 baseline and qualified 425-profile set are unchanged, and all six exclusions
-remain open under #61. TOPS's production array path remains unimplemented;
-RADR source and BNC4/sPro/swkeyDAO2 replacement dependencies remain unqualified.
+remain open under #61. TOPS's array path was not implemented by this initial
+review; the later [bounded candidate](../erc20/balances/docs/tops-lpinfo-candidate.md)
+remains NOT-QUALIFIED. RADR source and BNC4/sPro/swkeyDAO2 replacement
+dependencies remain unqualified.
 The associated production fix rejects oversized persisted storage keys and
 values, including no-ops, before configured-token or beacon metadata ignores.
 See the linked report for preserved failed attempts, isolated validation and
@@ -1139,3 +1141,42 @@ visibility, runtime/package/getter and initialized-holder qualification remain
 open under #61/#21. No candidate or production permission is added. Fresh attempts
 remain in the Protocol worktree under out/tops-runtime-cleanup-proof-20260929/;
 failed and preliminary attempts are retained, and no live chain checks ran.
+
+## TOPS bounded LPInfo candidate, 2026-09-29
+
+The [separate candidate](../erc20/balances/docs/tops-lpinfo-candidate.md) selects
+the original captured TOPS runtime, balance root 5 and exact inherited metadata
+permissions. It removes only broad mapping root 32 and adds complete root 31
+LPInfo append/prefix-cleanup validation, including the one coupled root 32 credit.
+Both immutable historical431 and qualified425 files remain untouched; removing
+the new rule and restoring root 32 recovers every original selected-profile field.
+This is not part of the boolean/enumerable role migration.
+
+Admission is deliberately limited to six records before/after an operation.
+Append requires a canonical nonzero owner/amount, coherent zero unused tail, the
+actual header timestamp and checked expiry after 100 days. Cleanup reconstructs
+the original three-word records from observed old/new values or prior accepted
+block-local facts, finds the first unexpired record, and checks forward compaction,
+reverse tail clears, each length decrement and the final wrapping credit.
+Omissions are deferred equalities, never invented old-zero facts. A wrapping
+expired sum of zero grants no cleanup permission. The limit bounds reconstruction
+work; it does not assert that deployed arrays always have six or fewer records.
+
+Exact head preimages, physical call frames, canonical calldata/origin, unique
+positive ordinals, inclusive foreign-store/call barriers and logical/physical
+continuity are required. Each physical frame can admit at most one operation.
+All logical keys, including omitted fields, are protected against discovered
+balances, inherited mapping descendants, validated address-list keys and other
+owners. Unknown/out-of-bound array writes and standalone or extra credit writes
+refuse even when unchanged; unchanged balance words emit no observation.
+
+These operation shapes do not independently attest authorization, deployed
+initialization, external execution or complete producer visibility. Unmodeled
+root 32 liquidity/constructor writes refuse, but inherited balance/metadata
+permissions do not establish global router-path exclusion. The candidate remains
+NOT-QUALIFIED, with actual runtime/dependency, custom primary-source, new package,
+getter and initialized-holder gates open. No VM, persistence, protobuf or
+dependency changes and no live chain checks are part of this candidate. Fresh
+attempts remain under the BSC worktree's out/tops-lpinfo-candidate-20260929;
+source-derived controls, saved replay and their precise coverage are recorded
+in the focused document and frozen evidence without replacing historical proof.

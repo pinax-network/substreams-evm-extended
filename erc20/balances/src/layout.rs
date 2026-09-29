@@ -35,6 +35,9 @@ pub struct Layout {
     /// Explicitly reviewed role-member sets with correlated array/index writes.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub enumerable_address_sets: Vec<EnumerableAddressSet>,
+    /// Selected TOPS build only: bounded three-word LPInfo append/prefix cleanup.
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "non_null_membership_root")]
+    pub lpinfo_array: Option<String>,
     /// Reviewed OpenZeppelin Trace208 arrays, separate from ordinary balances.
     #[serde(default)]
     pub voting_checkpoints: Option<VotingCheckpoints>,
@@ -78,6 +81,7 @@ fn non_null_membership_root<'de, D: serde::Deserializer<'de>>(deserializer: D) -
     String::deserialize(deserializer).map(Some)
 }
 pub const PTOKEN_ENUMERABLE_SEMANTICS: &str = "ptoken_v2_solc_0_8_28_oz_5_4_0";
+pub const TOPS_LPINFO_SEMANTICS: &str = "tops_solc_0_8_28_lpinfo_prefix";
 pub const GM_ENUMERABLE_SEMANTICS: &str = "gm_token_solc_0_8_16_ondo_vendor";
 pub const MAI_ENUMERABLE_SEMANTICS: &str = "mai_solc_0_8_9_oz_4_7_0";
 pub const SECURITIES_ENUMERABLE_SEMANTICS: &str = "securities_token_solc_0_8_24_oz_5_3_0";
@@ -315,6 +319,7 @@ pub struct VerifiedLayout {
     pub other_mapping_paths: Vec<VerifiedMappingPath>,
     pub metadata_semantics: Option<MetadataSemantics>,
     pub enumerable_address_sets: Vec<VerifiedEnumerableAddressSet>,
+    pub lpinfo_array: bool,
     pub voting_checkpoints: Option<VerifiedVotingCheckpoints>,
     pub address_lists: BTreeSet<[u8; 32]>,
     pub zero_balance: Option<VerifiedZeroBalance>,
@@ -807,6 +812,58 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
                 };
                 enumerable_address_sets.push(VerifiedEnumerableAddressSet { root, semantics });
             }
+            let lpinfo_array = if let Some(semantics) = layout.lpinfo_array {
+                require(semantics == TOPS_LPINFO_SEMANTICS, "unsupported LPInfo semantics")?;
+                let mut balance = [0; 32];
+                balance[31] = 5;
+                require(
+                    contract == hex_bytes("cdf52c0b13c24f32f1d8d4ec6356203a1ef0826a")?
+                        && code_hash.as_slice() == hex_bytes("f4dc8abcac62d4707f5a839731c0e2b3dde17c643accf43299541c421ba0050b")?
+                        && balance_slot == balance
+                        && layout.balance_bits.is_none()
+                        && proxy.is_none()
+                        && beacon_proxy.is_none()
+                        && minimal_proxy.is_none()
+                        && deployment.is_none()
+                        && zero_balance.is_none()
+                        && balance_divisor.is_none()
+                        && address_hash_balance.is_none()
+                        && !layout.immutable_zero_mapping
+                        && enumerable_address_sets.is_empty()
+                        && voting_checkpoints.is_none()
+                        && metadata_semantics.is_none(),
+                    "selected TOPS LPInfo requires its exact direct runtime and ordinary root5 balance",
+                )?;
+                // This selected build adds only the bounded root31/root32
+                // operation contract. Pin the inherited permissions so an
+                // added generic scalar/path cannot bypass the record bound.
+                let words = |values: &[u8]| {
+                    values
+                        .iter()
+                        .map(|value| {
+                            let mut word = [0; 32];
+                            word[31] = *value;
+                            word
+                        })
+                        .collect::<BTreeSet<_>>()
+                };
+                require(
+                    other_slots == words(&[0, 1, 2, 3, 4, 7, 9, 10, 11, 12, 13, 14, 15, 16, 20, 21, 22, 23, 24, 25, 33, 34])
+                        && other_mapping_slots == words(&[6, 8, 17, 18, 19, 26, 27, 29, 30])
+                        && address_lists == words(&[28])
+                        && other_mapping_words.is_empty()
+                        && layout.other_mapping_paths.is_empty(),
+                    "selected TOPS LPInfo requires exact reviewed inherited field permissions",
+                )?;
+                for n in [31, 32] {
+                    let mut root = [0; 32];
+                    root[31] = n;
+                    require(reserved.insert(root), "LPInfo namespace overlaps another configured field")?;
+                }
+                true
+            } else {
+                false
+            };
             let other_mapping_paths = crate::mapping_paths::parse(layout.other_mapping_paths, &reserved)?;
             Ok(VerifiedLayout {
                 contract,
@@ -820,6 +877,7 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
                 other_mapping_paths,
                 metadata_semantics,
                 enumerable_address_sets,
+                lpinfo_array,
                 voting_checkpoints,
                 address_lists,
                 zero_balance,
