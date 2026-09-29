@@ -476,6 +476,23 @@ profiles across five other runtimes remain. The custom primary-source gap,
 PHI's runtime-only attribution, coherent initialization and actual
 producer/runtime/package/getter/initialized-holder qualification remain open.
 
+The separate [WKEYDAO/GOT host proof](../erc20/balances/docs/wkey-got-operation-proof.md)
+binds each complete source/compiler/runtime and constructor append independently.
+The two runtimes use different role roots (9/8) and domain handling, while both
+keep MaxSupply at slot 6 and nonce mapping at 7. Their 1,263 synthetic calls
+yield 1,000 returns, 252 exact expected reverts, six named source INVALID
+controls and five explicit unsupported boundaries. Raw source-mapped effects,
+full committed state and rollback preserve each token's role, cap and fee rules.
+WKEYDAO construction stops at CHAINID PC 222 after five attempted stores and no
+logs. GOT's original synthetic construction returns its exact runtime after
+17 stores and three role logs; invalid argument controls roll back. This does
+not establish either deployed initial set. Both custom primary-source revisions
+remain unresolved, despite exact pinned dependency matches. No production
+candidate or VM extension is added. A later GOT migration must remove both
+broad root-8 rules, and both candidates need separate projector/replay review.
+Fresh evidence remains under `out/wkeydao-got-operation-proof-20260929/` in
+`protocol-invalidation-boundary`; previous attempts are preserved.
+
 The host ledger now validates exact epoch membership for holder and global
 rows. A transition from epoch 1 to epoch 3 cannot introduce undeclared epoch 2
 or carry its unchecked value into the successor. Nonconsecutive IDs remain

@@ -1,0 +1,93 @@
+{
+  "title": "WKEYDAO and GOT bounded host operation proof",
+  "status": "not_qualified_offline_host_proof_passed",
+  "scope": "Two independently compiled exact runtimes with separate source/state bindings; synthetic host operations only, no production candidate or new VM opcode.",
+  "chain_id": 56,
+  "contracts": [
+    "0x194b302a4b0a79795fb68e2adf1b8c9ec5ff8d1f",
+    "0x701add4311e85c1f9c1549319fe2c476bc8a1b8b"
+  ],
+  "source_pin": "OpenZeppelin/openzeppelin-contracts@8e0296096449d9b1cd7c5631e917330635244c37: four exact shared dependencies plus GOT ECDSA/IERC20; neither custom contracts/ERC20.sol has an independent maintainer pin established",
+  "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/tree/8e0296096449d9b1cd7c5631e917330635244c37",
+  "compiler_pin": "ethereum/solc-bin@16a99b8c26ed33a91796e209ff6797ee7baf2b0d macosx-amd64 0.7.5+commit.eb77ed08",
+  "compiler_sha256": "1c100ce86a3167fd4c194290aafec0d3d94fe86c7a1aa0837c1346cc93d8b6ce",
+  "findings": [
+    "WKEYDAO stores domain separator at slot 8 and combined roles at root 9; GOT computes its domain inside permit and uses roles root 8.",
+    "Both use MaxSupply slot 6 and nonce root 7; burn decreases the cap, and WKEYDAO alone exposes _burnFrom publicly.",
+    "Whole runtime and creation-object compilation and both raw metadata strings match separately without substitutions.",
+    "No source callsite changes role admins. Compiler or library similarity alone cannot qualify a runtime or candidate.",
+    "WKEYDAO constructor stops at unsupported CHAINID with exact five-store rollback; GOT original constructor returns its exact runtime with 17 stores and three role logs in synthetic state."
+  ],
+  "remaining_gates": [
+    "Independent custom-token source pins",
+    "Separate candidate/projector review and saved canonical replay",
+    "Runtime/dependency, initial-set, producer visibility and authorized package/getter/holder qualification"
+  ],
+  "evidence": "erc20/balances/docs/wkey-got-operation-proof.md",
+  "chain_calls": 0,
+  "initial_measurement": {
+    "source": "out/wkeydao-got-operation-proof-20260929/source-01",
+    "operations": "out/wkeydao-got-operation-proof-20260929/operations-01",
+    "calls": 1263,
+    "returns": 1000,
+    "expected_reverts": 252,
+    "explicit_source_invalid": 6,
+    "explicit_unsupported": 5,
+    "focused_tests": 17,
+    "package_all_target_clippy": "passed",
+    "final_workspace_gates": "superseded by final source-02 and operations-02 evidence; original attempts preserved"
+  },
+  "qualified": false,
+  "final_measurement": {
+    "source": "out/wkeydao-got-operation-proof-20260929/source-02",
+    "operations": "out/wkeydao-got-operation-proof-20260929/operations-02",
+    "calls": 1263,
+    "returns": 1000,
+    "expected_reverts": 252,
+    "explicit_source_invalid": 6,
+    "explicit_unsupported": 5,
+    "unexpected_invalid_or_harness_failure": 0,
+    "targets": {
+      "WKEYDAO": {
+        "calls": 630,
+        "returns": 501,
+        "reverts": 123,
+        "source_invalid": 3,
+        "unsupported": 3
+      },
+      "GOT": {
+        "calls": 633,
+        "returns": 499,
+        "reverts": 129,
+        "source_invalid": 3,
+        "unsupported": 2
+      }
+    },
+    "compact_transcripts": 445,
+    "executed_opcode_records": 218417,
+    "mapped_effect_annotations": 5535,
+    "source_inputs": 231,
+    "source_trees_equal": true,
+    "source_inventory_sha256": "4782430d017a36991bbefe3577cf72380b311025a701a632cb503d8aff7a2ca9",
+    "report": "erc20/balances/docs/evidence/wkey-got-operation-proof-20260929.json",
+    "report_sha256": "0dfc95a2b5c949ec5eab362fb7a638256a86de527b1ce94cb06966426aa86e08",
+    "compiler_report_sha256": "bd61d288b2d02fc6820c89c7f88e2907c11551fae3271c2bf429634bdcb555c0",
+    "cases_sha256": "b49b4d16017cfb38b70d13e7a69244fcf1049994f0973a64222836cf2ce1712e",
+    "transcripts_sha256": "d4e9a8ec2aac91d9ee9af1a273a959d30cda089c1598df1f409ac91f15502426"
+  },
+  "validation": {
+    "base": "8ca61c2d71bbf066f052e93cc3f4b12249c8a7b7",
+    "workspace_tests": 1163,
+    "suites": 99,
+    "nonempty_suites": 67,
+    "new_focused_tests": 17,
+    "format": "passed",
+    "clippy_all_targets_warnings_denied": "passed",
+    "wasm_workspace_check": "passed",
+    "mode": "pinned_locked_offline",
+    "target_directory": "out/wkeydao-got-operation-proof-20260929/target-isolated",
+    "new_wasm_or_live_qualification": false,
+    "merged_base": "d16b81e9535fe91c3ed1e4011e3af29039fa75e6",
+    "merged_base_tree_identical": true
+  }
+}
