@@ -1,0 +1,167 @@
+{
+  "blocks": 1024,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "pool": "0xe82c917d216d15dd88ae65300d53c2a202dd41c6",
+  "raw_balance_equal_rpc_blocks": 1024,
+  "record_cursor_versions": [
+    {
+      "blocks": 1024,
+      "first_block": 122288006,
+      "last_block": 122289029,
+      "record_and_cursors": [
+        "0x0000000000000000000000003b5d3bbb95ffbf4c98efeacbaaf445c22e4e2222",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  ],
+  "runtime_boundary_checks": [
+    {
+      "address": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "block": "0x749f786",
+      "runtime_hash": "0xe904e21712652b72bb09176cbfa0ef41be3cbbf56121e292cb86bacde74b9373"
+    },
+    {
+      "address": "0x1430c0bd0d023690f7aee3666daf265c498cc6a5",
+      "block": "0x749f786",
+      "runtime_hash": "0x1c8507bc61f3c46a5d90674b6172d2384b657059d49c3f39621a9cb10c5c06e5"
+    },
+    {
+      "address": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "block": "0x749fb85",
+      "runtime_hash": "0xe904e21712652b72bb09176cbfa0ef41be3cbbf56121e292cb86bacde74b9373"
+    },
+    {
+      "address": "0x1430c0bd0d023690f7aee3666daf265c498cc6a5",
+      "block": "0x749fb85",
+      "runtime_hash": "0x1c8507bc61f3c46a5d90674b6172d2384b657059d49c3f39621a9cb10c5c06e5"
+    }
+  ],
+  "scope": "Fresh hash-pinned storage and balanceOf for every canonical header in the original1024-block ranking window. Code checked at boundaries only; no production qualification.",
+  "snapshots_sha256": "0da397d9a73b62770089364c0c962b87381355c59e0824bb2972b0afae33c50e",
+  "start": 122288006,
+  "status": "captured",
+  "stop_exclusive": 122289030,
+  "storage_slots": [
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97e2",
+      "name": "record_storage_0"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97e3",
+      "name": "record_storage_1"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97e4",
+      "name": "record_storage_2"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97e5",
+      "name": "record_storage_3"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97e6",
+      "name": "record_storage_4"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97e7",
+      "name": "record_storage_5"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97e8",
+      "name": "record_storage_6"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97e9",
+      "name": "record_storage_7"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97ea",
+      "name": "record_storage_8"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97eb",
+      "name": "record_storage_9"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97ec",
+      "name": "record_storage_10"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0xabd342db6b9e67537850cea1c992e4049c9f62af9267c13fc0b00b026c2e97ed",
+      "name": "record_storage_11"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0x95e6719470a9aed857e930faf53978500c66b708bf782ab05ea49cef55b6e12a",
+      "name": "cursor_0"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0x95e6719470a9aed857e930faf53978500c66b708bf782ab05ea49cef55b6e12b",
+      "name": "cursor_1"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0x95e6719470a9aed857e930faf53978500c66b708bf782ab05ea49cef55b6e12c",
+      "name": "cursor_2"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0x95e6719470a9aed857e930faf53978500c66b708bf782ab05ea49cef55b6e12d",
+      "name": "cursor_3"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0x813998e44ea1c133f7c76cda13bad808619c7b6ad6ab3df4643aa3643b61a756",
+      "name": "raw_pool_balance"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0x000000000000000000000000000000000000000000000000000000000000001d",
+      "name": "epoch"
+    },
+    {
+      "contract": "0xe18102869d32181aea317a40c5c4ce90ca591913",
+      "key": "0x0000000000000000000000000000000000000000000000000000000000000006",
+      "name": "helper_address"
+    },
+    {
+      "contract": "0x1430c0bd0d023690f7aee3666daf265c498cc6a5",
+      "key": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "name": "token_address"
+    },
+    {
+      "contract": "0x1430c0bd0d023690f7aee3666daf265c498cc6a5",
+      "key": "0x0000000000000000000000000000000000000000000000000000000000000002",
+      "name": "pool_address"
+    }
+  ],
+  "zero_hourly_and_daily_rate_blocks": 1024
+}

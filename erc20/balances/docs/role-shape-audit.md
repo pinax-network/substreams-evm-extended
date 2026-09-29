@@ -323,3 +323,7 @@ unknown, and derived rewards never replace raw facts or advance a stored cursor.
 No role validator, role-candidate count, production layout or historical cohort
 changes. Current deployment, dependency, package and holder qualification remains
 separate from host retention under #5/#7/#21.
+
+## Separate OG retained-input model
+
+The [OG host adapter](og-retained-inputs.md) retains selected historical raw reward inputs without changing any role validator, candidate count or production cohort. Separate captured checkpoints and raw override controls do not establish initialized global holders or continuous getter parity. Runtime hashes bind five dependency identities; shared pool-code bytes preserve their cross-capture origin, while token/helper source gaps remain explicit. Recursive paths, missing newly required history and changed dependencies never become inferred balances or permissions.

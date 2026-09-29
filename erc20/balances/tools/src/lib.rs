@@ -28,6 +28,7 @@ pub mod mai_role;
 pub mod network;
 pub mod oft_roles;
 pub mod og_model;
+pub mod og_retention;
 pub mod package;
 pub mod point_bedrock_roles;
 pub mod probe;

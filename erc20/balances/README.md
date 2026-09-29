@@ -823,3 +823,7 @@ mapping keys, value constraints and persisted no-ops. Unknown and constructor-on
 records refuse; the original fixtures and package remain unchanged. Their saved
 three-way replay compares the original431, independent selected2 and combined433
 outputs against the unchanged full canonical interval and preserves cold holders.
+
+The separate [OG retained-input host adapter](docs/og-retained-inputs.md) keeps
+raw facts, hourly/daily metrics, missing-history and recursive refusals distinct.
+Its finite checkpoint/replay evidence does not qualify a production layout.
