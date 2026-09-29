@@ -6,6 +6,7 @@ fn activation_code_invalidation_omits_basis_and_globals_for_each_vault_model() {
         let v = &mut cfg.vaults[index];
         v.activation_block = 10;
         v.activation_ordinal = 100;
+        v.interval = Interval::unbounded(Position::new(10, 100));
         let mut call = shares_call(v, &[9; 20], 1, 2, 100);
         call.storage_changes.extend([
             write(&v.vault, v.total_supply_slot, w(1_000), w(1_150), 100),
@@ -1293,4 +1294,214 @@ fn nested_allowances_resolve_through_both_preimages_and_reverted_child_frames_ar
     let events = project(&b, &cfg).unwrap();
     let holders: Vec<(&[u8], &str)> = events.holder_basis.iter().map(|h| (h.holder.as_slice(), h.value.as_str())).collect();
     assert_eq!(holders, vec![(holder.as_slice(), "2")]);
+}
+
+fn successor_params(source: &str, index: usize) -> serde_json::Value {
+    let mut raw: serde_json::Value = serde_json::from_str(source).unwrap();
+    let mut first = raw["vaults"][index].clone();
+    first["activation_block"] = 1.into();
+    first["activation_ordinal"] = 0.into();
+    let mut next = first.clone();
+    next["epoch"] = 3.into();
+    next["activation_block"] = 2.into();
+    next["activation_ordinal"] = 30.into();
+    let mut unrelated = first.clone();
+    unrelated["vault"] = format!("0x{}", hex::encode([0x88; 20])).into();
+    raw["vaults"] = serde_json::json!([first, unrelated, next]);
+    raw["heartbeat_blocks"] = 1.into();
+    raw
+}
+
+fn dependency_change(v: &Vault, old: u128, new: u128, ordinal: u64) -> eth::StorageChange {
+    let (address, key) = match &v.model {
+        Model::AaveStaticAToken { pool, reserve_base, .. } => (pool, add_offset(reserve_base, 1)),
+        Model::MakerSavingsDai { pot, chi_slot, .. } => (pot, *chi_slot),
+        Model::OzVirtualOffset { asset_balance_key, .. } => (&v.asset, *asset_balance_key),
+    };
+    write(address, key, w(old), w(new), ordinal)
+}
+
+#[test]
+fn successor_schedule_splits_every_vault_model_and_preserves_unrelated_ownership() {
+    for (source, index) in [(BSC, 0), (MAINNET, 0), (MAINNET, 1)] {
+        let cfg = parse(&successor_params(source, index).to_string()).unwrap();
+        let v = &cfg.vaults[0];
+        let mut b = block(2);
+        let mut call = shares_call(v, &[9; 20], 7, 9, 20);
+        call.storage_changes.push(shares_call(v, &[9; 20], 9, 0, 30).storage_changes.remove(0));
+        call.storage_changes.extend([dependency_change(v, 8, 9, 21), dependency_change(v, 9, 0, 31)]);
+        call.storage_changes
+            .push(write(&cfg.vaults[1].vault, cfg.vaults[1].total_supply_slot, w(3), w(4), 40));
+        b.transaction_traces.push(tx(call));
+        let output = project(&b, &cfg).unwrap();
+        assert_eq!(
+            (
+                output.holder_basis.len(),
+                output.holder_basis[0].epoch,
+                output.holder_basis[0].first_ordinal,
+                output.holder_basis[0].change_count
+            ),
+            (1, 3, 30, 1)
+        );
+        assert_eq!((&*output.holder_basis[0].previous_value, &*output.holder_basis[0].value), ("9", "0"));
+        let globals: Vec<_> = output
+            .global_state
+            .iter()
+            .filter(|row| row.market == v.vault && row.observation == pb::Observation::ObservedWrite as i32)
+            .collect();
+        assert!(!globals.is_empty());
+        assert!(globals.iter().all(|row| row.epoch == 3 && row.first_ordinal == 31 && row.change_count == 1));
+        assert!(output
+            .global_state
+            .iter()
+            .any(|row| row.market == cfg.vaults[1].vault && row.field == pb::StateField::Erc4626TotalSupply as i32 && row.value == "4"));
+        let next = output.epochs.iter().find(|row| row.market == v.vault && row.epoch == 3).unwrap();
+        assert!(!next.basis_carryover && !next.global_carryover);
+        let quiet = project(&block(3), &cfg).unwrap();
+        assert!(quiet
+            .epochs
+            .iter()
+            .filter(|row| row.market == v.vault)
+            .all(|row| row.epoch == 3 && !row.basis_carryover && !row.global_carryover));
+        assert!(quiet.dependencies.iter().filter(|row| row.market == v.vault).all(|row| row.epoch == 3));
+        assert!(quiet.holder_basis.is_empty());
+        assert!(quiet
+            .global_state
+            .iter()
+            .all(|row| row.observation == pb::Observation::QualifiedConstant as i32));
+        b.transaction_traces[0].calls[0].storage_changes[1].old_value = w(8).to_vec();
+        assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous"));
+        b.transaction_traces[0].calls[0].storage_changes = vec![write(&v.vault, w(0xabcdef), w(0), w(1), 20)];
+        assert!(project(&b, &cfg).unwrap_err().to_string().contains("unresolved"));
+    }
+}
+
+#[test]
+fn successor_schedule_changes_models_assets_and_storage_without_carryover() {
+    let mut raw = successor_params(MAINNET, 0); // SavingsDai -> OZ shares, different layout and asset.
+    let oz: serde_json::Value = serde_json::from_str(MAINNET).unwrap();
+    let mut next = oz["vaults"][1].clone();
+    next["vault"] = raw["vaults"][0]["vault"].clone();
+    next["epoch"] = 3.into();
+    next["activation_block"] = 2.into();
+    next["activation_ordinal"] = 30.into();
+    raw["vaults"][2] = next;
+    let cfg = parse(&raw.to_string()).unwrap();
+    let old = &cfg.vaults[0];
+    let next = &cfg.vaults[2];
+    assert_ne!(old.balances_slot, next.balances_slot);
+    assert_ne!(old.asset, next.asset);
+    let mut b = block(2);
+    let mut call = shares_call(old, &[9; 20], 7, 9, 20);
+    let next_call = shares_call(next, &[9; 20], 2, 0, 30);
+    call.keccak_preimages.extend(next_call.keccak_preimages);
+    call.storage_changes.extend(next_call.storage_changes);
+    let mut assets = dependency_change(next, 8, 9, 31);
+    assets.new_value[0] |= 0x80; // USDC blacklist flag is not an accounting bit.
+    call.storage_changes.push(assets);
+    b.transaction_traces.push(tx(call));
+    let output = project(&b, &cfg).unwrap();
+    assert_eq!(output.holder_basis.len(), 1);
+    assert_eq!(
+        (output.holder_basis[0].epoch, output.holder_basis[0].storage_slot.clone()),
+        (3, mapping_key(&[9; 20], &next.balances_slot).to_vec())
+    );
+    let assets = output
+        .global_state
+        .iter()
+        .find(|row| row.market == next.vault && row.field == pb::StateField::Erc4626TotalAssets as i32)
+        .unwrap();
+    assert_eq!((&*assets.value, assets.bit_width, assets.epoch), ("9", 255, 3));
+    let constant = output
+        .global_state
+        .iter()
+        .find(|row| row.market == next.vault && row.field == pb::StateField::Erc4626DecimalsOffset as i32)
+        .unwrap();
+    assert_eq!((constant.epoch, constant.ordinal, constant.first_ordinal, constant.change_count), (3, 30, 0, 0));
+    assert!(output
+        .epochs
+        .iter()
+        .filter(|row| row.epoch == 3)
+        .all(|row| !row.basis_carryover && !row.global_carryover && row.balance_asset == next.asset));
+}
+
+#[test]
+fn successor_schedule_scopes_dependency_code_and_pointer_excursions() {
+    let cfg = parse(&successor_params(BSC, 0).to_string()).unwrap();
+    let v = &cfg.vaults[0];
+    let Model::AaveStaticAToken { pool, implementation_slot, .. } = &v.model else {
+        panic!()
+    };
+    for (ordinal, epoch) in [(20, 1), (30, 3), (40, 3)] {
+        for code in [false, true] {
+            let mut b = block(2);
+            let mut call = shares_call(v, &[9; 20], 1, 2, 35);
+            if code {
+                call.code_changes.push(eth::CodeChange {
+                    address: pool.clone(),
+                    ordinal,
+                    new_hash: vec![8; 32],
+                    ..Default::default()
+                });
+            } else {
+                call.storage_changes.push(write(pool, *implementation_slot, w(1), w(1), ordinal));
+            }
+            b.transaction_traces.push(tx(call));
+            let output = project(&b, &cfg).unwrap();
+            assert!(output
+                .epochs
+                .iter()
+                .any(|row| row.market == v.vault && row.epoch == epoch && row.kind == pb::EpochEventKind::Invalidated as i32));
+            assert_eq!(output.holder_basis.len(), usize::from(ordinal < 30));
+        }
+    }
+    let mut b = block(2);
+    let mut call = shares_call(v, &[9; 20], 1, 2, 35);
+    call.storage_changes.extend([
+        write(pool, *implementation_slot, w(1), w(2), 20),
+        write(pool, *implementation_slot, w(2), w(1), 30),
+    ]);
+    b.transaction_traces.push(tx(call));
+    let output = project(&b, &cfg).unwrap();
+    let edges: Vec<_> = output
+        .epochs
+        .iter()
+        .filter(|row| row.market == v.vault && row.kind == pb::EpochEventKind::Invalidated as i32)
+        .map(|row| (row.epoch, row.ordinal))
+        .collect();
+    assert_eq!(edges, vec![(1, 20), (3, 30)]);
+    b.transaction_traces[0].calls[0].storage_changes[2].old_value = w(9).to_vec();
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous"));
+}
+
+#[test]
+fn successor_schedule_is_deterministic_and_emits_every_actual_bound() {
+    use prost::Message;
+    let mut raw = successor_params(BSC, 0);
+    let mut third = raw["vaults"][2].clone();
+    third["epoch"] = 8.into();
+    third["activation_ordinal"] = 50.into();
+    raw["vaults"].as_array_mut().unwrap().push(third);
+    let cfg = parse(&raw.to_string()).unwrap();
+    let mut b = block(2);
+    b.transaction_traces.push(tx(shares_call(&cfg.vaults[0], &[9; 20], 1, 0, 50)));
+    let mut expected = project(&b, &cfg).unwrap();
+    assert_eq!(expected.holder_basis[0].epoch, 8);
+    assert_eq!(
+        expected
+            .epochs
+            .iter()
+            .filter(|row| row.market == cfg.vaults[0].vault && row.kind == pb::EpochEventKind::Bound as i32)
+            .count(),
+        2
+    );
+    raw["vaults"].as_array_mut().unwrap().reverse();
+    let mut actual = project(&b, &parse(&raw.to_string()).unwrap()).unwrap();
+    expected.clocks.clear();
+    actual.clocks.clear();
+    assert_eq!(expected.encode_to_vec(), actual.encode_to_vec());
+    raw["vaults"][1]["activation_ordinal"] = 0.into();
+    let cfg = parse(&raw.to_string()).unwrap();
+    let output = project(&block(2), &cfg).unwrap();
+    assert!(!output.epochs.iter().any(|row| row.market == cfg.vaults[0].vault && row.epoch == 1));
 }

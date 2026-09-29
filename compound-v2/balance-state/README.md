@@ -30,7 +30,7 @@ the ERC-20 share amount with an underlying-equivalent value.
 | `GlobalState` `COMPOUND_V2_TOTAL_CASH` (`key` = cToken) | CErc20: the low `value_bits` of `underlying.balances[cToken]` from the qualified underlying's mapping (USDC: 255 bits, the blacklist flag lives in bit 255); CEther: persisted native balance changes of the cToken, with no `storage_slot` (a native balance has none) | underlying storage or cToken balance changes |
 | `GlobalState` `COMPOUND_V2_IRM_*` | rate-model storage writes for configured slots (jump models' `updateJumpRateModel`), and qualified constants at BOUND / REAFFIRMED at the activation ordinal: `blocksPerYear`, and the 2019 WhitePaper model's per-year `IRM_BASE_RATE_PER_YEAR` / `IRM_MULTIPLIER_PER_YEAR` (set only by its constructor) | rate-model storage, parameters |
 | `ModelEpoch` INVALIDATED | every persisted write, including equal-value and restored ones, to the rate-model pointer on the cToken (`RATE_MODEL_CHANGE`), the delegator implementation pointer, the cToken's `underlying` word or the underlying implementation pointer, each with its own evidence; code change on the cToken, its implementation, the rate model, the underlying or its implementation; each with evidence word or code hash. The first such row ends the epoch at its ordinal: effects at that ordinal or later in that block are not decoded, so an upgrade's `_becomeImplementation` writes yield the evidence instead of failing the block | persisted writes and code changes |
-| `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (`basis_carryover = true`: share storage persists across upgrades; `global_carryover = false`: a rate-model replacement starts an epoch whose IRM rows do not carry): implementation (delegators), interest-rate model and underlying as storage pointers on the cToken, the underlying's implementation as a depth-2 pointer under it. `balance_asset` / `balance_decimals` name the underlying (empty for native ether) and `basis_scale` the 1e18 exchange-rate mantissa | parameters |
+| `ModelEpoch` + `Dependency` | binding rows at activation and on the active epoch's heartbeat. The first configured entry preserves `basis_carryover = true`, `global_carryover = false`; every successor resets both flags. Dependencies name implementation (delegators), interest-rate model and underlying as storage pointers on the cToken, and the underlying's implementation as a depth-2 pointer. `balance_asset` / `balance_decimals` name the underlying (empty for native ether) and `basis_scale` the 1e18 exchange-rate mantissa | parameters |
 | `BlockClock` | exactly one per block | header |
 
 Cash is cross-contract state. A direct USDC transfer to cUSDC or an ETH
@@ -80,8 +80,13 @@ implementation the proxy must hold (`underlying.implementation`) is an
 **unqualified placeholder**. Not verified: the deployed runtime code hashes
 (including which FiatToken version the USDC proxy points to) and the
 placeholder `activation_block` values; no Ethereum Extended blocks are
-cached locally and live Firehose and RPC use is paused. A parameter set
-binds one epoch per market; a successor epoch is a new parameter set.
+cached locally and live Firehose and RPC use is paused. Package version 0.2.0,
+spec revision 4 accepts a complete schedule of reset-only epochs per market.
+Entries may be supplied in any order; IDs must be positive and strictly increase
+in activation order, with unique activation positions. IDs may have gaps.
+Appending a successor changes the raw parameter digest: configure the complete
+schedule from stream start, or qualify a new stream/checkpoint. Existing ledger
+state cannot silently move to a different parameter digest.
 
 `activation_ordinal` (optional, default `0`) is the first execution ordinal of
 `activation_block` at which the epoch applies. Effects earlier in that block,
@@ -89,7 +94,13 @@ such as the upgrade write that installs this epoch's implementation, belong to
 the previous epoch: they are neither decoded under this epoch nor treated as
 invalidating it. The BOUND row carries the activation ordinal as its `ordinal`,
 so a consumer applying rows in ordinal order sees the previous epoch's
-invalidation before this epoch's binding.
+invalidation before this epoch's binding. The next configured activation is
+exclusive: a pointer or code change exactly at that position belongs to the
+successor and invalidates it. Each market/epoch selects its own layout, rate
+model, underlying cash binding and native-balance effects. Physical storage and
+native-cash ordering/continuity are checked across all owned effects before
+splitting by epoch or applying invalidation cutoffs. Shared dependencies are
+checked once physically and interpreted for every owning market.
 
 Every persisted write to a storage-pointer slot invalidates the epoch with its
 own evidence row, including a write back to the same value and each step of an
@@ -98,7 +109,7 @@ excursion that restores the pointer within the block, as the
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
 
-Spec revision 3 decodes only the half-open interval from activation
+Since spec revision 3, extraction decodes only the half-open interval from activation
 (inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
 before that cutoff still fail; writes at or after it are not decoded under
 the old model. Raw ordering and continuity checks still cover all owned
@@ -106,13 +117,18 @@ storage writes. Every invalidation keeps its original evidence, including
 restored and equal-value guarded writes. Failed transactions and reverted
 frames cannot supply a cutoff.
 
-An invalidated market emits no holder basis or observed/derived end-of-block
-globals in that block: even a valid prefix cannot describe end-of-block
+An invalidated or scheduled-retired epoch emits no holder basis or
+observed/derived end-of-block globals in that block: even a valid prefix cannot describe end-of-block
 state. Unaffected markets keep their rows; qualified declarations remain
-historical binding evidence. Counts match the emitted rows. A consumer keeps
-the market suspended, and a newer BOUND must discard retained basis after
-suspension even with compatible storage (`basis_carryover = true`); fresh
-observations or a verified checkpoint are required. See the
+historical binding evidence. Every in-block activation still emits BOUND and
+fresh constants/dependencies. A predecessor may emit its ordinal-zero heartbeat
+before a later in-block activation; retired entries emit nothing on subsequent
+blocks. Counts match the emitted rows. Every configured successor sets both
+carryover flags false, including later heartbeats: old holder/cash/accrual/IRM
+facts cannot carry into it, even when the layout is unchanged. Fresh suffix
+observations or a qualified exact checkpoint must initialize the new model;
+unobserved values remain unknown on quiet blocks. A consumer also keeps an
+invalidated model suspended until a valid newer BOUND. See the
 [contract](../../docs/balance-state-contract.md) and the synthetic
 [projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
 

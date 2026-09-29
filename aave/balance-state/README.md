@@ -59,6 +59,30 @@ invalidating it. The BOUND row carries the activation ordinal as its `ordinal`,
 so a consumer applying rows in ordinal order sees the previous epoch's
 invalidation before this epoch's binding.
 
+Version 0.2.0 / spec revision 3 supports an immutable schedule of reset-only
+successor epochs for each aToken. Entries may be listed in any order, but epoch
+IDs and activation positions must increase strictly per aToken; IDs may skip
+numbers. Each entry owns `[activation, next activation)`. An effect at the
+successor's exact start belongs to the successor, including pointer/code
+invalidation. To resume after an upgrade, independently qualify an activation
+position after the installing write.
+
+Physical storage continuity is checked before effects are split by epoch.
+Predecessor holder/global prefixes are decoded fail-closed but omitted from
+END_OF_BLOCK output in the retirement block. All BOUND declarations are emitted;
+only intervals intersecting a block may emit heartbeats/dependencies. Every
+successor declaration has both carryover flags false, including later
+heartbeats: missing successor observations remain unknown until independently
+initialized. Initial-entry flags and single-epoch row semantics are preserved.
+
+`Params.pool` remains one common Pool address, implementation and storage layout
+for the entire schedule. This does not support changing the Pool binding across
+epochs. Concurrent reserve ownership is refused; sequential epochs may reuse a
+reserve. Appending an epoch changes the raw parameter hash: provide the complete
+schedule from stream start or qualify a new stream and exact checkpoint.
+These offline changes and new artifacts do not extend the historical live
+qualification below.
+
 Every persisted write to a storage-pointer slot invalidates the epoch with its
 own evidence row, including a write back to the same value and each step of an
 excursion that restores the pointer within the block, as the
@@ -66,7 +90,7 @@ excursion that restores the pointer within the block, as the
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
 
-Spec revision 2 decodes only the half-open interval from activation
+Spec revision 2 introduced decoding only the half-open interval from activation
 (inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
 before that cutoff still fail; writes at or after it are not decoded under
 the old model. Raw ordering and continuity checks still cover all owned
@@ -93,7 +117,7 @@ they do not qualify this new build or its invalidation behavior.
 | Condition | Result |
 | --- | --- |
 | Non-Extended block, `Block.ver` not listed (only 4 and 5 may be listed), incomplete transaction data | block fails |
-| Duplicate aToken or underlying/reserve binding within the configured Pool, even with different activation positions | parameters rejected; a reserve has one market owner and therefore one invalidation cutoff |
+| Duplicate epoch IDs/activation positions, decreasing IDs in activation order, or overlapping underlying/reserve ownership within the configured Pool | parameters rejected; sequential epochs may reuse a reserve |
 | Code change on the Pool, its implementation, an aToken or its implementation | `ModelEpoch` INVALIDATED (`CODE_CHANGE` for the aToken or its implementation, `DEPENDENCY_CODE_CHANGE` for the Pool side) with the new code hash as evidence; decoding ends at the earliest invalidation ordinal |
 | Any persisted write to the Pool or aToken implementation pointer slot, including an equal-value write and each step of an in-block excursion that restores the bound implementation | `ModelEpoch` INVALIDATED per write (`DEPENDENCY_POINTER_WRITE` for every market active at that ordinal / `IMPLEMENTATION_POINTER_WRITE`) with the old and new words as evidence; decoding ends at the earliest invalidation ordinal |
 | aToken write that is not `_userState` (verified preimage), `_totalSupply`, or a reviewed `other_slots` / `other_mapping_slots` entry | `unresolved storage for aToken … refusing incomplete balance state` |

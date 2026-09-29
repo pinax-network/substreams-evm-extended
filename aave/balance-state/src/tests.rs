@@ -835,3 +835,193 @@ fn code_invalidation_omits_the_old_prefix_and_reverted_upgrades_do_not() {
     assert!(events.epochs.is_empty());
     assert_eq!(events.holder_basis[0].value, "2");
 }
+
+fn successor_params() -> serde_json::Value {
+    let mut raw: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    raw["heartbeat_blocks"] = 1.into();
+    let mut next = raw["markets"][0].clone();
+    next["epoch"] = 3.into();
+    next["activation_block"] = (next["activation_block"].as_u64().unwrap() + 1).into();
+    next["activation_ordinal"] = 30.into();
+    raw["markets"].as_array_mut().unwrap().push(next);
+    raw
+}
+
+#[test]
+fn successor_schedule_splits_physical_effects_and_retires_prefix_rows() {
+    let config = parse(&successor_params().to_string()).unwrap();
+    let first = &config.markets[0];
+    let number = first.activation_block + 1;
+    let mut block = synthetic_block(number);
+    let mut call = user_state_call(&[9; 20], 7, 9, 20);
+    let key = call.storage_changes[0].key.clone();
+    let mut suffix = call.storage_changes[0].clone();
+    suffix.old_value = vec![9];
+    suffix.new_value = vec![0];
+    suffix.ordinal = 30;
+    call.storage_changes.push(suffix);
+    let index = add_offset(&first.reserve_base, RESERVE_INDEX_RATE_OFFSET);
+    call.storage_changes.extend([write(POOL, index, 1, 2, 20), write(POOL, index, 2, 3, 30)]);
+    call.storage_changes.push(write(AUSDC, config.markets[1].total_supply_slot, 3, 4, 40));
+    block.transaction_traces.push(tx(call));
+    let output = project(&block, &config).unwrap();
+    let holder = &output.holder_basis[0];
+    assert_eq!((holder.epoch, holder.first_ordinal, holder.ordinal, holder.change_count), (3, 30, 30, 1));
+    assert_eq!((&*holder.previous_value, &*holder.value), ("9", "0"));
+    assert_eq!(holder.storage_slot, key);
+    assert!(output.global_state.iter().filter(|row| row.market == first.atoken).all(|row| row.epoch == 3));
+    assert_eq!(global(&output, AUSDT, pb::StateField::AaveLiquidityIndex).previous_value, "2");
+    assert_eq!(global(&output, AUSDC, pb::StateField::AaveScaledTotalSupply).value, "4");
+    let bound = output.epochs.iter().find(|row| row.market == first.atoken && row.epoch == 3).unwrap();
+    assert_eq!(
+        (bound.kind, bound.ordinal, bound.basis_carryover, bound.global_carryover),
+        (pb::EpochEventKind::Bound as i32, 30, false, false)
+    );
+    let quiet = project(&synthetic_block(number + 1), &config).unwrap();
+    assert!(quiet
+        .epochs
+        .iter()
+        .filter(|row| row.market == first.atoken)
+        .all(|row| row.epoch == 3 && !row.basis_carryover && !row.global_carryover));
+    assert!(quiet.dependencies.iter().filter(|row| row.market == first.atoken).all(|row| row.epoch == 3));
+    assert!(quiet.holder_basis.is_empty() && quiet.global_state.is_empty());
+}
+
+#[test]
+fn successor_schedule_never_hides_cross_boundary_discontinuity_or_unknown_prefixes() {
+    let config = parse(&successor_params().to_string()).unwrap();
+    let mut block = synthetic_block(config.markets[0].activation_block + 1);
+    let mut call = user_state_call(&[9; 20], 7, 9, 20);
+    let mut suffix = call.storage_changes[0].clone();
+    suffix.old_value = vec![8];
+    suffix.new_value = vec![10];
+    suffix.ordinal = 30;
+    call.storage_changes.push(suffix);
+    block.transaction_traces.push(tx(call));
+    assert!(project(&block, &config).unwrap_err().to_string().contains("discontinuous"));
+    block.transaction_traces[0].calls[0].storage_changes = vec![write(AUSDT, [99; 32], 0, 1, 20)];
+    assert!(project(&block, &config).unwrap_err().to_string().contains("unresolved"));
+}
+
+#[test]
+fn successor_schedule_pointer_cutoffs_are_owned_by_exact_epoch() {
+    let config = parse(&successor_params().to_string()).unwrap();
+    let first = &config.markets[0];
+    let mut block = synthetic_block(first.activation_block + 1);
+    let mut call = user_state_call(&[9; 20], 7, 9, 30);
+    call.storage_changes.push(write(AUSDT, first.implementation_slot, 1, 1, 20));
+    block.transaction_traces.push(tx(call));
+    let output = project(&block, &config).unwrap();
+    assert_eq!(output.holder_basis[0].epoch, 3);
+    assert!(output
+        .epochs
+        .iter()
+        .any(|row| row.epoch == 1 && row.kind == pb::EpochEventKind::Invalidated as i32 && row.ordinal == 20));
+    block.transaction_traces[0].calls[0].storage_changes[1].ordinal = 30;
+    let output = project(&block, &config).unwrap();
+    assert!(output.holder_basis.is_empty());
+    assert!(output
+        .epochs
+        .iter()
+        .any(|row| row.epoch == 3 && row.kind == pb::EpochEventKind::Invalidated as i32 && row.ordinal == 30));
+}
+
+#[test]
+fn successor_schedule_accepts_unsorted_nonconsecutive_ids_and_rejects_ambiguity() {
+    let raw = successor_params();
+    let expected = parse(&raw.to_string()).unwrap();
+    let mut reversed = raw.clone();
+    reversed["markets"].as_array_mut().unwrap().reverse();
+    let actual = parse(&reversed.to_string()).unwrap();
+    let block = synthetic_block(expected.markets[0].activation_block + 1);
+    let mut a = project(&block, &expected).unwrap();
+    let mut b = project(&block, &actual).unwrap();
+    a.clocks.clear();
+    b.clocks.clear();
+    assert_eq!(a.encode_to_vec(), b.encode_to_vec());
+    for field in ["epoch", "activation_block"] {
+        let mut bad = raw.clone();
+        bad["markets"][2][field] = bad["markets"][0][field].clone();
+        if field == "activation_block" {
+            bad["markets"][2]["activation_ordinal"] = 0.into();
+        }
+        assert!(parse(&bad.to_string()).is_err());
+    }
+}
+
+#[test]
+fn successor_schedule_declares_every_in_block_epoch_without_partial_snapshots() {
+    let mut raw = successor_params();
+    let mut third = raw["markets"][2].clone();
+    third["epoch"] = 8.into();
+    third["activation_ordinal"] = 50.into();
+    raw["markets"].as_array_mut().unwrap().push(third);
+    let config = parse(&raw.to_string()).unwrap();
+    let mut block = synthetic_block(config.markets[0].activation_block + 1);
+    let mut call = user_state_call(&[9; 20], 1, 2, 20);
+    for (old, new, ordinal) in [(2, 3, 30), (3, 0, 50)] {
+        let mut w = call.storage_changes[0].clone();
+        w.old_value = vec![old];
+        w.new_value = vec![new];
+        w.ordinal = ordinal;
+        call.storage_changes.push(w);
+    }
+    block.transaction_traces.push(tx(call));
+    let output = project(&block, &config).unwrap();
+    assert_eq!(
+        (output.holder_basis.len(), output.holder_basis[0].epoch, output.holder_basis[0].first_ordinal),
+        (1, 8, 50)
+    );
+    assert_eq!(output.holder_basis[0].value, "0");
+    for epoch in [3, 8] {
+        assert!(output
+            .epochs
+            .iter()
+            .any(|row| row.epoch == epoch && row.kind == pb::EpochEventKind::Bound as i32 && !row.basis_carryover && !row.global_carryover));
+        assert!(output.dependencies.iter().any(|row| row.epoch == epoch));
+    }
+    // A zero-ordinal next-block start leaves no interval in that block for its predecessor.
+    raw["markets"][2]["activation_ordinal"] = 0.into();
+    let config = parse(&raw.to_string()).unwrap();
+    let output = project(&synthetic_block(block.number), &config).unwrap();
+    assert!(!output.epochs.iter().any(|row| row.market == config.markets[0].atoken && row.epoch == 1));
+}
+
+#[test]
+fn successor_schedule_keeps_code_dependencies_and_post_cutoff_shape_checks_scoped() {
+    let mut raw = successor_params();
+    raw["markets"][2]["implementation"] = format!("0x{}", hex::encode([0xab; 20])).into();
+    let config = parse(&raw.to_string()).unwrap();
+    let first = &config.markets[0];
+    for (ordinal, expected_epoch) in [(20, 1), (30, 3), (40, 3)] {
+        let mut block = synthetic_block(first.activation_block + 1);
+        let mut call = user_state_call(&[9; 20], 1, 2, 35);
+        call.code_changes.push(eth::CodeChange {
+            address: config.pool.as_ref().unwrap().address.clone(),
+            ordinal,
+            new_hash: vec![3; 32],
+            ..Default::default()
+        });
+        block.transaction_traces.push(tx(call));
+        let output = project(&block, &config).unwrap();
+        assert!(output
+            .epochs
+            .iter()
+            .any(|row| row.market == first.atoken && row.kind == pb::EpochEventKind::Invalidated as i32 && row.epoch == expected_epoch));
+        assert_eq!(output.holder_basis.len(), usize::from(ordinal < 30));
+    }
+    let mut block = synthetic_block(first.activation_block + 1);
+    let mut call = user_state_call(&[9; 20], 1, 2, 30);
+    call.code_changes.push(eth::CodeChange {
+        address: first.implementation.clone(),
+        ordinal: 20,
+        new_hash: vec![3; 32],
+        ..Default::default()
+    });
+    call.storage_changes.push(write(AUSDT, [99; 32], 0, 1, 25));
+    block.transaction_traces.push(tx(call));
+    assert_eq!(project(&block, &config).unwrap().holder_basis[0].epoch, 3);
+    // Even skipped old-layout effects must retain physical key continuity.
+    block.transaction_traces[0].calls[0].storage_changes.push(write(AUSDT, [99; 32], 8, 9, 26));
+    assert!(project(&block, &config).unwrap_err().to_string().contains("discontinuous"));
+}

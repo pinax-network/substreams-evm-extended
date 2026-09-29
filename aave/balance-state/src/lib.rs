@@ -16,11 +16,11 @@
 //! holder whose word was not written, and a global update never fans out into
 //! synthetic holder rows.
 //!
-//! Fail-closed rules: unlisted producer versions, code changes on the Pool,
-//! an aToken or their implementations, writes to any bound implementation
-//! pointer slot, unresolved aToken writes, ambiguous or discontinuous writes
-//! all fail the block. Pool writes outside the bound reserve structs are not
-//! part of the model and are ignored.
+//! Unlisted producer versions, unresolved aToken writes, ambiguous or
+//! discontinuous writes fail the block. Bound pointer writes and code changes
+//! invalidate their owning epochs with evidence. Pool writes outside the
+//! bound reserve structs are not part of the model and are ignored.
+use evm_epochs::{schedule, Interval, Position};
 use evm_persist as persist;
 use proto::pb::evm::balance_state::v1 as pb;
 use serde::Deserialize;
@@ -31,7 +31,7 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "aave_balance_state";
-pub const SPEC_REVISION: u32 = 2;
+pub const SPEC_REVISION: u32 = 3;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
@@ -178,6 +178,7 @@ pub struct Pool {
 }
 #[derive(Clone, Debug)]
 pub struct Market {
+    pub interval: Interval,
     pub atoken: Vec<u8>,
     pub underlying: Vec<u8>,
     pub reserve_base: [u8; 32],
@@ -210,7 +211,7 @@ pub struct Config {
 impl Market {
     /// Whether this epoch applies to an effect at `(block, ordinal)`.
     pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
-        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+        self.interval.contains(Position::new(block, ordinal))
     }
 }
 
@@ -245,6 +246,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
         require(m.epoch > 0 && m.activation_block > 0, "epoch and activation_block must be positive")?;
         require(!m.model_id.is_empty() && !m.source_pin.is_empty(), "model_id and source_pin required")?;
         let market = Market {
+            interval: Interval::unbounded(Position::new(m.activation_block, m.activation_ordinal)),
             atoken: hex_bytes(&m.atoken, 20, "market atoken")?,
             reserve_base: mapping_key(&underlying, &pool.reserves_slot),
             underlying,
@@ -277,16 +279,26 @@ pub fn parse(params: &str) -> Result<Config, Error> {
                 && !market.other_mapping_slots.contains(&market.user_state_slot),
             "market slots overlap",
         )?;
-        require(markets.iter().all(|other: &Market| other.atoken != market.atoken), "duplicate aToken")?;
-        // A Pool reserve has one active aToken. Without unique ownership,
-        // a reserve write could inherit another market's invalidation cutoff.
+        markets.push(market);
+    }
+    let intervals = schedule(
+        markets
+            .iter()
+            .map(|m| (&m.atoken, m.epoch, Position::new(m.activation_block, m.activation_ordinal))),
+    )
+    .map_err(|error| Error::msg(error.to_string()))?;
+    for (market, interval) in markets.iter_mut().zip(intervals) {
+        market.interval = interval;
+    }
+    // One common Pool binding remains in force for the complete schedule.
+    // A reserve cannot belong to distinct markets during overlapping intervals.
+    for (i, market) in markets.iter().enumerate() {
         require(
-            markets
+            markets[..i]
                 .iter()
-                .all(|other| other.underlying != market.underlying && other.reserve_base != market.reserve_base),
+                .all(|other| (other.underlying != market.underlying && other.reserve_base != market.reserve_base) || !other.interval.overlaps(market.interval)),
             "duplicate underlying/reserve binding within pool",
         )?;
-        markets.push(market);
     }
     Ok(Config {
         chain_id: raw.chain_id,
@@ -327,7 +339,8 @@ struct CodeChanged {
 #[derive(Default)]
 struct Collected {
     writes: Vec<Write>,
-    /// Equal-value writes; only STORAGE_POINTER slots consume them.
+    /// Equal-value writes constrain physical continuity; only STORAGE_POINTER
+    /// slots produce semantic evidence from them.
     noops: Vec<Write>,
     codes: Vec<CodeChanged>,
     errors: Vec<String>,
@@ -559,8 +572,8 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         activation_ordinal: market.activation_ordinal,
         balance_asset: market.underlying.clone(),
         balance_decimals: market.balance_decimals,
-        basis_carryover: true,
-        global_carryover: true,
+        basis_carryover: !market.interval.successor,
+        global_carryover: !market.interval.successor,
         scope: pb::Scope::Epoch as i32,
         ..Default::default()
     }
@@ -584,7 +597,7 @@ fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
     let header = block.header.as_ref().unwrap();
-    let active: Vec<&Market> = config.markets.iter().filter(|m| m.activation_block <= block.number).collect();
+    let active: Vec<&Market> = config.markets.iter().filter(|m| m.interval.intersects_block(block.number)).collect();
     let mut events = pb::Events::default();
 
     let mut collected = Collected::default();
@@ -650,22 +663,27 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             }
         };
         let is_pointer = |w: &Write| {
-            (w.address == pool.address && w.key == pool.implementation_slot) || active.iter().any(|m| w.address == m.atoken && w.key == m.implementation_slot)
+            (w.address == pool.address && w.key == pool.implementation_slot)
+                || active
+                    .iter()
+                    .any(|m| m.active_at(block.number, w.ordinal) && w.address == m.atoken && w.key == m.implementation_slot)
         };
+        // Ordinary equal-value writes still constrain physical continuity,
+        // although only guarded pointer noops become semantic evidence.
+        reduce(collected.writes.iter().chain(&collected.noops).filter(|w| owned(w)).cloned().collect())?;
         let mut relevant: Vec<Write> = collected.writes.into_iter().filter(&owned).collect();
         // STORAGE_POINTER contract: any persisted write to a pointer slot
         // invalidates, including a write back to the same value.
         relevant.extend(collected.noops.into_iter().filter(|w| is_pointer(w) && owned(w)));
         // Validate continuity first, then evidence each pointer transition:
         // an in-block excursion X->Z->X must not be concealed by reduction.
-        reduce(relevant.clone())?;
         // An INVALIDATED row ends the epoch at its (block, ordinal): later
         // effects of that block are not decoded under it, so an upgrade whose
         // `initialize` writes storage the epoch never described yields the
         // evidence instead of failing the block.
-        let mut ended: BTreeMap<Vec<u8>, u64> = BTreeMap::new();
+        let mut ended: BTreeMap<(Vec<u8>, u32), u64> = BTreeMap::new();
         let mut end_at = |market: &Market, ordinal: u64| {
-            let e = ended.entry(market.atoken.clone()).or_insert(ordinal);
+            let e = ended.entry((market.atoken.clone(), market.epoch)).or_insert(ordinal);
             *e = (*e).min(ordinal);
         };
         for c in &collected.codes {
@@ -678,20 +696,11 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         for w in relevant.iter().filter(|w| is_pointer(w)) {
             for market in active
                 .iter()
-                .filter(|m| m.active_at(block.number, w.ordinal) && (w.address == pool.address || w.address == m.atoken))
+                .filter(|m| m.active_at(block.number, w.ordinal) && (w.address == pool.address || (w.address == m.atoken && w.key == m.implementation_slot)))
             {
                 end_at(market, w.ordinal);
             }
         }
-        let decoded = |w: &Write| {
-            let owner = if w.address == pool.address {
-                active.iter().find(|m| struct_offset(&w.key, &m.reserve_base, RESERVE_WORDS).is_some())
-            } else {
-                active.iter().find(|m| w.address == m.atoken)
-            };
-            owner.is_none_or(|m| ended.get(&m.atoken).is_none_or(|end| w.ordinal < *end))
-        };
-        let reduced = reduce(relevant.iter().filter(|w| decoded(w)).cloned().collect())?;
         for w in relevant.iter().filter(|w| is_pointer(w)) {
             if w.address == pool.address {
                 for market in active.iter().filter(|m| m.active_at(block.number, w.ordinal)) {
@@ -699,133 +708,156 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                         .epochs
                         .push(invalidation(config, market, pb::InvalidationReason::DependencyPointerWrite, w));
                 }
-            } else if let Some(market) = active.iter().find(|m| w.address == m.atoken) {
+            } else if let Some(market) = active
+                .iter()
+                .find(|m| m.active_at(block.number, w.ordinal) && w.address == m.atoken && w.key == m.implementation_slot)
+            {
                 events
                     .epochs
                     .push(invalidation(config, market, pb::InvalidationReason::ImplementationPointerWrite, w));
             }
         }
-        for r in reduced {
-            if r.address == pool.address {
-                if r.key == pool.implementation_slot {
+        for market in &active {
+            let reduced = reduce(
+                relevant
+                    .iter()
+                    .filter(|w| {
+                        market.active_at(block.number, w.ordinal)
+                            && ended.get(&(market.atoken.clone(), market.epoch)).is_none_or(|end| w.ordinal < *end)
+                            && (w.address == market.atoken
+                                || (w.address == pool.address
+                                    && (w.key == pool.implementation_slot || struct_offset(&w.key, &market.reserve_base, RESERVE_WORDS).is_some())))
+                    })
+                    .cloned()
+                    .collect(),
+            )?;
+            for r in reduced {
+                if r.address == pool.address {
+                    if r.key == pool.implementation_slot {
+                        continue; // Every pointer write was invalidated above.
+                    }
+                    {
+                        let Some(offset) = struct_offset(&r.key, &market.reserve_base, RESERVE_WORDS) else {
+                            continue;
+                        };
+                        match offset {
+                            RESERVE_INDEX_RATE_OFFSET => {
+                                events.global_state.push(field_row(
+                                    config,
+                                    market,
+                                    &r,
+                                    Field {
+                                        field: pb::StateField::AaveLiquidityIndex,
+                                        key: &market.underlying,
+                                        offset: 0,
+                                        width: 128,
+                                        scale: RAY,
+                                    },
+                                ));
+                                events.global_state.push(field_row(
+                                    config,
+                                    market,
+                                    &r,
+                                    Field {
+                                        field: pb::StateField::AaveCurrentLiquidityRate,
+                                        key: &market.underlying,
+                                        offset: 128,
+                                        width: 128,
+                                        scale: RAY,
+                                    },
+                                ));
+                            }
+                            RESERVE_CLOCK_OFFSET => {
+                                events.global_state.push(field_row(
+                                    config,
+                                    market,
+                                    &r,
+                                    Field {
+                                        field: pb::StateField::AaveLastUpdateTimestamp,
+                                        key: &market.underlying,
+                                        offset: 128,
+                                        width: 40,
+                                        scale: "1",
+                                    },
+                                ));
+                            }
+                            // configuration, variable-debt index/rate, addresses,
+                            // treasury accrual, virtual balance: bound layout,
+                            // not balance inputs of this model.
+                            _ => {}
+                        }
+                    }
+                    continue;
+                }
+                if r.key == market.implementation_slot {
                     continue; // Every pointer write was invalidated above.
                 }
-                for market in &active {
-                    let Some(offset) = struct_offset(&r.key, &market.reserve_base, RESERVE_WORDS) else {
-                        continue;
-                    };
-                    match offset {
-                        RESERVE_INDEX_RATE_OFFSET => {
-                            events.global_state.push(field_row(
-                                config,
-                                market,
-                                &r,
-                                Field {
-                                    field: pb::StateField::AaveLiquidityIndex,
-                                    key: &market.underlying,
-                                    offset: 0,
-                                    width: 128,
-                                    scale: RAY,
-                                },
-                            ));
-                            events.global_state.push(field_row(
-                                config,
-                                market,
-                                &r,
-                                Field {
-                                    field: pb::StateField::AaveCurrentLiquidityRate,
-                                    key: &market.underlying,
-                                    offset: 128,
-                                    width: 128,
-                                    scale: RAY,
-                                },
-                            ));
-                        }
-                        RESERVE_CLOCK_OFFSET => {
-                            events.global_state.push(field_row(
-                                config,
-                                market,
-                                &r,
-                                Field {
-                                    field: pb::StateField::AaveLastUpdateTimestamp,
-                                    key: &market.underlying,
-                                    offset: 128,
-                                    width: 40,
-                                    scale: "1",
-                                },
-                            ));
-                        }
-                        // configuration, variable-debt index/rate, addresses,
-                        // treasury accrual, virtual balance: bound layout,
-                        // not balance inputs of this model.
-                        _ => {}
-                    }
+                if let Some(holder) = preimages
+                    .get(&r.key)
+                    .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == market.user_state_slot)
+                    .map(|p| p[12..32].to_vec())
+                {
+                    events.holder_basis.push(pb::HolderBasis {
+                        chain_id: config.chain_id,
+                        market: market.atoken.clone(),
+                        holder,
+                        epoch: market.epoch,
+                        basis_kind: pb::BasisKind::ScaledBalance as i32,
+                        value: bits(&r.new, 0, market.basis_bits).to_string(),
+                        previous_value: bits(&r.old, 0, market.basis_bits).to_string(),
+                        observation: pb::Observation::ObservedWrite as i32,
+                        boundary: pb::Boundary::EndOfBlock as i32,
+                        scope: scope_of(r.scope) as i32,
+                        ordinal: r.ordinal,
+                        first_ordinal: r.first_ordinal,
+                        change_count: r.count,
+                        transaction_index: r.tx_index,
+                        transaction_hash: r.tx_hash.clone(),
+                        call_index: r.call_index,
+                        storage_contract: r.address.clone(),
+                        storage_slot: r.key.to_vec(),
+                        raw_previous_word: r.old.to_vec(),
+                        raw_word: r.new.to_vec(),
+                        bit_offset: 0,
+                        bit_width: market.basis_bits,
+                        signed: false,
+                    });
+                } else if r.key == market.total_supply_slot {
+                    events.global_state.push(field_row(
+                        config,
+                        market,
+                        &r,
+                        Field {
+                            field: pb::StateField::AaveScaledTotalSupply,
+                            key: &market.atoken,
+                            offset: 0,
+                            width: 256,
+                            scale: "1",
+                        },
+                    ));
+                } else if market.other_slots.contains(&r.key) || market.other_mapping_slots.iter().any(|base| mapping_has_base(r.key, &preimages, base)) {
+                    // Reviewed non-balance storage.
+                } else {
+                    return Err(Error::msg(format!(
+                        "unresolved storage for aToken 0x{} at key 0x{}; refusing incomplete balance state",
+                        hex::encode(&r.address),
+                        hex::encode(r.key)
+                    )));
                 }
-                continue;
-            }
-            let market = active.iter().find(|m| m.atoken == r.address).unwrap();
-            if r.key == market.implementation_slot {
-                continue; // Every pointer write was invalidated above.
-            }
-            if let Some(holder) = preimages
-                .get(&r.key)
-                .filter(|p| p.len() == 64 && p[..12] == [0; 12] && p[32..] == market.user_state_slot)
-                .map(|p| p[12..32].to_vec())
-            {
-                events.holder_basis.push(pb::HolderBasis {
-                    chain_id: config.chain_id,
-                    market: market.atoken.clone(),
-                    holder,
-                    epoch: market.epoch,
-                    basis_kind: pb::BasisKind::ScaledBalance as i32,
-                    value: bits(&r.new, 0, market.basis_bits).to_string(),
-                    previous_value: bits(&r.old, 0, market.basis_bits).to_string(),
-                    observation: pb::Observation::ObservedWrite as i32,
-                    boundary: pb::Boundary::EndOfBlock as i32,
-                    scope: scope_of(r.scope) as i32,
-                    ordinal: r.ordinal,
-                    first_ordinal: r.first_ordinal,
-                    change_count: r.count,
-                    transaction_index: r.tx_index,
-                    transaction_hash: r.tx_hash.clone(),
-                    call_index: r.call_index,
-                    storage_contract: r.address.clone(),
-                    storage_slot: r.key.to_vec(),
-                    raw_previous_word: r.old.to_vec(),
-                    raw_word: r.new.to_vec(),
-                    bit_offset: 0,
-                    bit_width: market.basis_bits,
-                    signed: false,
-                });
-            } else if r.key == market.total_supply_slot {
-                events.global_state.push(field_row(
-                    config,
-                    market,
-                    &r,
-                    Field {
-                        field: pb::StateField::AaveScaledTotalSupply,
-                        key: &market.atoken,
-                        offset: 0,
-                        width: 256,
-                        scale: "1",
-                    },
-                ));
-            } else if market.other_slots.contains(&r.key) || market.other_mapping_slots.iter().any(|base| mapping_has_base(r.key, &preimages, base)) {
-                // Reviewed non-balance storage.
-            } else {
-                return Err(Error::msg(format!(
-                    "unresolved storage for aToken 0x{} at key 0x{}; refusing incomplete balance state",
-                    hex::encode(&r.address),
-                    hex::encode(r.key)
-                )));
             }
         }
-        // A prefix of an invalidated epoch is not end-of-block state. Decode
+        // A prefix of an invalidated or scheduled-out epoch is not end-of-block state. Decode
         // it above to keep unknown pre-cutoff writes fail-closed, but retain
         // only the invalidation evidence for that market. Other markets keep
         // their complete end-of-block rows.
-        events.holder_basis.retain(|row| !ended.contains_key(&row.market));
-        events.global_state.retain(|row| !ended.contains_key(&row.market));
+        let complete = |market: &[u8], epoch: u32| {
+            !ended.contains_key(&(market.to_vec(), epoch))
+                && active
+                    .iter()
+                    .any(|m| m.atoken == market && m.epoch == epoch && !m.interval.ends_in_block(block.number))
+        };
+        events.holder_basis.retain(|row| complete(&row.market, row.epoch));
+        events.global_state.retain(|row| complete(&row.market, row.epoch));
         for market in &active {
             let kind = if block.number == market.activation_block {
                 pb::EpochEventKind::Bound

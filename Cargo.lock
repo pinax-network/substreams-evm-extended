@@ -35,8 +35,9 @@ dependencies = [
 
 [[package]]
 name = "aave-balance-state"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
+ "evm-epochs",
  "evm-persist",
  "hex",
  "prost 0.13.5",
@@ -297,8 +298,9 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 
 [[package]]
 name = "compound-v2-balance-state"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
+ "evm-epochs",
  "evm-persist",
  "hex",
  "prost 0.13.5",
@@ -314,8 +316,9 @@ dependencies = [
 
 [[package]]
 name = "compound-v3-balance-state"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
+ "evm-epochs",
  "evm-persist",
  "hex",
  "prost 0.13.5",
@@ -336,6 +339,7 @@ dependencies = [
  "aave-balance-state",
  "compound-v2-balance-state",
  "compound-v3-balance-state",
+ "erc4626-balance-state",
  "evm-retention",
  "hex",
  "lido-balance-state",
@@ -497,9 +501,10 @@ dependencies = [
 
 [[package]]
 name = "erc4626-balance-state"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "conformance",
+ "evm-epochs",
  "evm-persist",
  "hex",
  "num-bigint",
@@ -583,6 +588,10 @@ dependencies = [
  "primitive-types",
  "uint",
 ]
+
+[[package]]
+name = "evm-epochs"
+version = "0.1.0"
 
 [[package]]
 name = "evm-executions"
@@ -1019,8 +1028,9 @@ dependencies = [
 
 [[package]]
 name = "lido-balance-state"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
+ "evm-epochs",
  "evm-persist",
  "hex",
  "prost 0.13.5",

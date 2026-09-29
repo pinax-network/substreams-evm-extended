@@ -2,6 +2,7 @@
 members = [
   "proto",
   "common/persist",
+  "common/epochs",
   "common/retention",
   "erc20/balances",
   "erc20/balances/tools",

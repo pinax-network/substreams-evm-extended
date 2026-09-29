@@ -17,7 +17,7 @@ emit a computed balance and never replace `evm.balances.v1` `Balance.amount`.
 
 ```
 <protocol>/balance-state/
-  Cargo.toml          # deps: substreams, substreams-ethereum, proto, evm-persist, hex, serde, serde_json, sha2, tiny-keccak
+  Cargo.toml          # deps: substreams, substreams-ethereum, proto, evm-persist, evm-epochs, hex, serde, serde_json, sha2, tiny-keccak
   substreams.yaml     # module map_events, output proto:evm.balance_state.v1.Events, default params bind nothing
   Makefile, .gitignore
   src/lib.rs          # parse(), validate_block(), project(); handler gated #[cfg(target_arch = "wasm32")]
@@ -37,12 +37,20 @@ unlocked so `Cargo.lock` updates, then keep `--locked` green.
    pointer (slot + address) when the contract is a proxy, the balance mapping
    slot, the scalar/packed word slots, `other_slots`, `other_mapping_slots`
    and, where the source uses unstructured storage, `other_slot_names` hashed
-   at parse time. Reject overlapping slots, missing pins, duplicate markets,
-   and (to do, see handoff) producer versions other than 4 and 5.
+   at parse time. Reject overlapping slots, missing pins and producer versions
+   other than 4 and 5. Use `evm_epochs::schedule` for complete per-market
+   schedules: positive IDs strictly increase by unique activation position;
+   input order and gaps in IDs are allowed. Each interval includes its start
+   and excludes the next activation. A successor resets both carryover flags,
+   including heartbeats. The complete raw parameter digest identifies the
+   stream; changing the schedule requires a new qualified stream/checkpoint.
 2. **Persisted effects** through `evm_persist::collect_block` into a `Sink`
    that collects storage writes (and native balance changes or code changes
    when needed). Never read `Call.storage_changes` directly.
-3. **Reduce** per `(address, key)` in ordinal order: strictly increasing
+3. **Validate physical continuity** across the union of owned persisted writes
+   and equal-value writes before splitting by epoch or applying invalidation
+   cutoffs. Shared dependencies must not duplicate physical writes. Then
+   **reduce** the selected epoch's semantic writes per `(address, key)` in ordinal order: strictly increasing
    ordinals (`ambiguous` otherwise), `old == previous new` (`discontinuous`
    otherwise), keep first old / last new, `first_ordinal`, `ordinal`,
    `change_count`, last write's transaction/call provenance. Include address,
@@ -57,7 +65,13 @@ unlocked so `Cargo.lock` updates, then keep `--locked` green.
    row per decoded field; do not filter unchanged fields without a documented
    decision); `ModelEpoch` `BOUND` at `activation_block` and `REAFFIRMED` on
    the heartbeat with dependencies and qualified constants; `INVALIDATED` rows
-   with evidence for pointer writes and code changes; exactly one `BlockClock`.
+   with evidence for every pointer write (including equal/restored values)
+   and code change; exactly one `BlockClock`. The earliest invalidation is
+   exclusive. Validate the preceding decoded prefix, but omit holder and
+   stored/derived end-of-block rows for epochs invalidated or scheduled to
+   retire in this block. Preserve declarations and valid log evidence.
+   Unobserved successor values stay unknown until fresh observations or an
+   independently qualified checkpoint initialize them.
 6. **Fail closed** on: non-Extended blocks, unlisted `Block.ver`, malformed
    persisted records, invalid preimages, and any persisted write to the
    contract that is not a configured word, a verified holder key, a pointer or
@@ -68,9 +82,11 @@ unlocked so `Cargo.lock` updates, then keep `--locked` green.
 
 Reentrancy guards and version flags are written even when balances are not:
 Comet `keccak256("comet.reentrancy.guard")`, cToken `_notEntered` (slot 0),
-Aragon `aragonOS.reentrancyGuard.mutex`. `evm-persist` drops writes whose old
-and new values are equal, but 0→1 then 1→0 are two writes that reduce to
-`old == new` and must be reviewed. Read the pinned source for every
+Aragon `aragonOS.reentrancyGuard.mutex`. `evm-persist` routes writes whose old
+and new values are equal through `storage_noop`: include them in physical
+continuity checks and pointer invalidation evidence. Ordinary noops do not
+initialize observations. The sequence 0→1 then 1→0 contains two changed
+writes that reduce to `old == new` and must be reviewed. Read the pinned source for every
 `nonReentrant`, `whenNotPaused`, nonce and counter write.
 
 ## Fixture and README conventions
@@ -109,6 +125,10 @@ and new values are equal, but 0→1 then 1→0 are two writes that reduce to
   order and compare encoded bytes
 - parameters: unknown field, overlap, missing pin, model/dependency mismatch,
   constant cross-checks
+- successors: reordered and nonconsecutive schedules, exact start/end effects,
+  changed layouts/dependencies, same-value pointer and code triggers, shared
+  dependencies, ordinary-noop continuity, discarded prefixes, cold versus zero,
+  fresh constants, quiet heartbeats, max ordinals, and undo/checkpoint replay
 - conformance: exact values on both sides of a kink, long elapsed time, checked
   cast/overflow error arms, revert-on-negation extremes, missing input is an
   error never zero
@@ -117,8 +137,8 @@ and new values are equal, but 0→1 then 1→0 are two writes that reduce to
 
 ```sh
 cargo fmt --all -- --check
-cargo test --workspace --lib --bins
-cargo clippy --workspace --all-targets -- -D warnings   # rustdoc lints count
+cargo test --locked --workspace --lib --bins --tests
+cargo clippy --locked --workspace --all-targets -- -D warnings   # rustdoc lints count
 cargo check --locked --workspace --target wasm32-unknown-unknown
 ```
 

@@ -16,7 +16,7 @@ using the exact model in [`conformance::comet`](../../conformance/src/comet.rs).
 | `GlobalState` `COMET_TOTAL_SUPPLY_BASE` / `COMET_TOTAL_BORROW_BASE` / `COMET_LAST_ACCRUAL_TIME` / `COMET_PAUSE_FLAGS` | bits 0..104, 104..208, 208..248 and 248..256 of the totals word, one row each per written word | Comet storage, `totals_slot` |
 | `GlobalState` kinks, rate slopes, rate bases, scales | `QUALIFIED_CONSTANT` / `DECLARATION` rows of the bound implementation's immutables | parameters, cross-checked against the pinned constants |
 | `ModelEpoch` INVALIDATED | every persisted write to the implementation pointer, including an equal-value write and each step of an in-block excursion (`IMPLEMENTATION_POINTER_WRITE`); code change on the Comet or its implementation (`CODE_CHANGE`); each with evidence; decoding ends at the earliest invalidation ordinal | persisted writes and code changes |
-| `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (`basis_carryover = true`, `global_carryover = false`: storage persists across an upgrade, rate immutables do not) | parameters |
+| `ModelEpoch` + `Dependency` | binding rows at the activation block and on the heartbeat (initial entry: `basis_carryover = true`, `global_carryover = false`; every configured successor resets both) | parameters |
 | `BlockClock` | exactly one per block | header |
 
 One persisted write to a packed word yields one row per decoded field, as the
@@ -71,6 +71,27 @@ invalidating it. The BOUND row carries the activation ordinal as its `ordinal`,
 so a consumer applying rows in ordinal order sees the previous epoch's
 invalidation before this epoch's binding.
 
+Version 0.2.0 / spec revision 4 supports immutable reset-only successor
+schedules for each Comet market. IDs and activation positions must increase
+strictly per market after sorting by activation; entries may be unordered and
+IDs may skip numbers. Effects belong to `[activation, next activation)`.
+Pointer/code changes at the exact successor start invalidate that successor;
+qualified activation after an installing write must be supplied explicitly.
+
+The physical storage stream is validated before splitting epochs. The owning
+epoch selects signed-principal/packed-word decoding, and retired predecessor
+holder/global prefixes are omitted from END_OF_BLOCK output. Every configured
+successor resets holder and global state, regardless of matching layout or
+principal type. BOUND and later heartbeats redeclare only their own rate
+immutables/dependencies; missing successor inputs stay unknown until fresh
+observations or an independently qualified checkpoint. Initial-entry flags and
+single-epoch rows stay compatible apart from the new versioned clock.
+
+Supply the complete schedule from stream start. Appending a successor changes
+the raw parameter hash and requires a newly qualified stream/checkpoint rather
+than continuing an existing ledger. These offline transitions do not establish
+deployed runtime/activation, a new WASM/SPKG or live getter/holder qualification.
+
 Every persisted write to a storage-pointer slot invalidates the epoch with its
 own evidence row, including a write back to the same value and each step of an
 excursion that restores the pointer within the block, as the
@@ -78,7 +99,7 @@ excursion that restores the pointer within the block, as the
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
 
-Spec revision 3 decodes only the half-open interval from activation
+Spec revision 3 introduced decoding only the half-open interval from activation
 (inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
 before that cutoff still fail; writes at or after it are not decoded under
 the old model. Raw ordering and continuity checks still cover all owned

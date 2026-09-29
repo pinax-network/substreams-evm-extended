@@ -742,6 +742,7 @@ fn activation_and_invalidation_at_the_same_ordinal_leave_only_binding_evidence()
     let m = &mut cfg.markets[0];
     m.activation_block = 10;
     m.activation_ordinal = 100;
+    m.interval = Interval::unbounded(Position::new(10, 100));
     let mut call = user_basic_call(&[9; 20], principal_word(1, 0), principal_word(2, 0), 100);
     call.storage_changes.extend([
         write(m.totals_slot, w(1), w(2), 100),
@@ -766,4 +767,181 @@ fn activation_and_invalidation_at_the_same_ordinal_leave_only_binding_evidence()
     // must fail even though all of that prefix's EOB rows would be omitted.
     b.transaction_traces[0].calls[0].storage_changes[2].ordinal = 101;
     assert!(project(&b, &cfg).unwrap_err().to_string().contains("unresolved"));
+}
+
+fn successor_params() -> serde_json::Value {
+    let mut raw: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
+    let first = raw["markets"][0].clone();
+    let mut unrelated = first.clone();
+    unrelated["comet"] = format!("0x{}", hex::encode([0x88; 20])).into();
+    let mut next = first.clone();
+    next["epoch"] = 3.into();
+    next["activation_block"] = 2.into();
+    next["activation_ordinal"] = 30.into();
+    next["immutables"]["supply_rate_base"] = "42".into();
+    raw["markets"] = serde_json::json!([first, unrelated, next]);
+    raw["heartbeat_blocks"] = 1.into();
+    raw
+}
+
+#[test]
+fn successor_schedule_preserves_signed_suffix_and_redeclares_rate_immutables() {
+    let cfg = parse(&successor_params().to_string()).unwrap();
+    let m = &cfg.markets[0];
+    let mut b = block(2);
+    let mut call = user_basic_call(&[9; 20], principal_word(-7, 10), principal_word(-9, 20), 20);
+    call.storage_changes
+        .extend(user_basic_call(&[9; 20], principal_word(-9, 20), principal_word(0, 30), 30).storage_changes);
+    call.storage_changes
+        .extend([write(m.totals_slot, w(8), w(9), 21), write(m.totals_slot, w(9), w(0), 31)]);
+    call.storage_changes
+        .push(write_at(&cfg.markets[1].comet, cfg.markets[1].totals_slot, w(3), w(4), 40));
+    b.transaction_traces.push(tx(call));
+    let output = project(&b, &cfg).unwrap();
+    assert_eq!(output.holder_basis.len(), 1);
+    let h = &output.holder_basis[0];
+    assert_eq!((h.epoch, h.first_ordinal, h.ordinal, h.change_count, h.signed), (3, 30, 30, 1, true));
+    assert_eq!((&*h.previous_value, &*h.value), ("-9", "0"));
+    assert!(output
+        .global_state
+        .iter()
+        .filter(|row| row.market == m.comet && row.observation == pb::Observation::ObservedWrite as i32)
+        .all(|row| row.epoch == 3 && row.first_ordinal == 31));
+    let rate = output
+        .global_state
+        .iter()
+        .find(|row| row.market == m.comet && row.epoch == 3 && row.field == pb::StateField::CometSupplyRateBase as i32)
+        .unwrap();
+    assert_eq!((&*rate.value, rate.ordinal, rate.first_ordinal, rate.change_count), ("42", 30, 0, 0));
+    assert!(output
+        .global_state
+        .iter()
+        .any(|row| row.market == cfg.markets[1].comet && row.field == pb::StateField::CometTotalSupplyBase as i32 && row.value == "4"));
+    let quiet = project(&block(3), &cfg).unwrap();
+    assert!(quiet.holder_basis.is_empty());
+    assert!(quiet
+        .epochs
+        .iter()
+        .filter(|row| row.market == m.comet)
+        .all(|row| row.epoch == 3 && !row.basis_carryover && !row.global_carryover));
+    assert!(quiet
+        .global_state
+        .iter()
+        .filter(|row| row.market == m.comet)
+        .all(|row| row.epoch == 3 && row.observation == pb::Observation::QualifiedConstant as i32));
+    assert!(quiet.dependencies.iter().filter(|row| row.market == m.comet).all(|row| row.epoch == 3));
+    b.transaction_traces[0].calls[0].storage_changes[1].old_value = principal_word(-8, 20).to_vec();
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous"));
+}
+
+#[test]
+fn successor_schedule_uses_the_owning_layout_and_checks_unknown_prefixes() {
+    let mut raw = successor_params();
+    raw["markets"][2]["user_basic_slot"] = format!("0x{}", hex::encode(w(63))).into();
+    raw["markets"][2]["totals_slot"] = format!("0x{}", hex::encode(w(64))).into();
+    let cfg = parse(&raw.to_string()).unwrap();
+    let next = &cfg.markets[2];
+    let mut b = block(2);
+    let mut call = user_basic_call(&[9; 20], principal_word(7, 0), principal_word(9, 0), 20);
+    let key = mapping_key(&[9; 20], &next.user_basic_slot);
+    call.keccak_preimages.extend([preimage(&[9; 20], &next.user_basic_slot)]);
+    call.storage_changes.extend([
+        write(key, principal_word(0, 0), principal_word(-3, 0), 30),
+        write(next.totals_slot, w(0), w(4), 31),
+    ]);
+    b.transaction_traces.push(tx(call));
+    let output = project(&b, &cfg).unwrap();
+    assert_eq!(
+        (output.holder_basis.len(), output.holder_basis[0].epoch, &*output.holder_basis[0].value),
+        (1, 3, "-3")
+    );
+    assert_eq!(output.holder_basis[0].storage_slot, key.to_vec());
+    assert!(output
+        .global_state
+        .iter()
+        .filter(|row| row.observation == pb::Observation::ObservedWrite as i32)
+        .all(|row| row.storage_slot == next.totals_slot && row.epoch == 3));
+    b.transaction_traces[0].calls[0].storage_changes.push(write(w(0xabcdef), w(0), w(1), 20));
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("unresolved"));
+    b.transaction_traces[0].calls[0]
+        .storage_changes
+        .push(write(cfg.markets[0].implementation_slot, w(1), w(1), 19));
+    assert_eq!(project(&b, &cfg).unwrap().holder_basis[0].epoch, 3);
+}
+
+#[test]
+fn successor_schedule_scopes_pointer_excursions_and_code_changes_to_each_interval() {
+    let cfg = parse(&successor_params().to_string()).unwrap();
+    let m = &cfg.markets[0];
+    for (ordinal, epoch) in [(20, 1), (30, 3), (40, 3)] {
+        for code in [false, true] {
+            let mut b = block(2);
+            let mut call = user_basic_call(&[9; 20], principal_word(1, 0), principal_word(2, 0), 35);
+            if code {
+                call.code_changes.push(eth::CodeChange {
+                    address: m.implementation.clone(),
+                    ordinal,
+                    new_hash: vec![8; 32],
+                    ..Default::default()
+                });
+            } else {
+                call.storage_changes.push(write(m.implementation_slot, w(1), w(1), ordinal));
+            }
+            b.transaction_traces.push(tx(call));
+            let output = project(&b, &cfg).unwrap();
+            assert!(output
+                .epochs
+                .iter()
+                .any(|row| row.market == m.comet && row.epoch == epoch && row.kind == pb::EpochEventKind::Invalidated as i32));
+            assert_eq!(output.holder_basis.len(), usize::from(ordinal < 30));
+        }
+    }
+    let mut b = block(2);
+    b.transaction_traces.push(tx(eth::Call {
+        address: m.comet.clone(),
+        storage_changes: vec![write(m.implementation_slot, w(1), w(2), 20), write(m.implementation_slot, w(2), w(1), 30)],
+        ..Default::default()
+    }));
+    let output = project(&b, &cfg).unwrap();
+    let edges: Vec<_> = output
+        .epochs
+        .iter()
+        .filter(|row| row.market == m.comet && row.kind == pb::EpochEventKind::Invalidated as i32)
+        .map(|row| (row.epoch, row.ordinal))
+        .collect();
+    assert_eq!(edges, vec![(1, 20), (3, 30)]);
+    b.transaction_traces[0].calls[0].storage_changes[1].old_value = w(9).to_vec();
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous"));
+}
+
+#[test]
+fn successor_schedule_is_deterministic_and_skips_no_actual_in_block_binding() {
+    let mut raw = successor_params();
+    let mut third = raw["markets"][2].clone();
+    third["epoch"] = 8.into();
+    third["activation_ordinal"] = 50.into();
+    raw["markets"].as_array_mut().unwrap().push(third);
+    let cfg = parse(&raw.to_string()).unwrap();
+    let mut b = block(2);
+    b.transaction_traces
+        .push(tx(user_basic_call(&[9; 20], principal_word(1, 0), principal_word(0, 0), 50)));
+    let mut expected = project(&b, &cfg).unwrap();
+    assert_eq!(expected.holder_basis[0].epoch, 8);
+    assert_eq!(
+        expected
+            .epochs
+            .iter()
+            .filter(|row| row.market == cfg.markets[0].comet && row.kind == pb::EpochEventKind::Bound as i32)
+            .count(),
+        2
+    );
+    raw["markets"].as_array_mut().unwrap().reverse();
+    let mut actual = project(&b, &parse(&raw.to_string()).unwrap()).unwrap();
+    expected.clocks.clear();
+    actual.clocks.clear();
+    assert_eq!(expected.encode_to_vec(), actual.encode_to_vec());
+    raw["markets"][1]["activation_ordinal"] = 0.into();
+    let cfg = parse(&raw.to_string()).unwrap();
+    let output = project(&block(2), &cfg).unwrap();
+    assert!(!output.epochs.iter().any(|row| row.market == cfg.markets[0].comet && row.epoch == 1));
 }

@@ -20,6 +20,7 @@
 //! rows with evidence, the last fails
 //! the block. Slots are caller-qualified; tests check each committed slot
 //! against `keccak256` of its pinned name.
+use evm_epochs::{schedule, Interval, Position};
 use evm_persist as persist;
 use proto::pb::evm::balance_state::v1 as pb;
 use serde::Deserialize;
@@ -30,9 +31,9 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "lido_balance_state";
-/// 4: source-matched uint256 wrapping of the external-ether product and
-/// omission of a derived total when the getter's checked addition fails.
-pub const SPEC_REVISION: u32 = 4;
+/// 5: reset-only successor schedules with exact storage/log ownership;
+/// preserve revision 4's wrapping product and checked derived-total omission.
+pub const SPEC_REVISION: u32 = 5;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
@@ -205,6 +206,7 @@ impl AragonBinding {
 }
 #[derive(Clone, Debug)]
 pub struct Epoch {
+    pub interval: Interval,
     pub steth: Vec<u8>,
     pub epoch: u32,
     pub contract_version: u64,
@@ -235,7 +237,7 @@ pub struct Config {
 impl Epoch {
     /// Whether this epoch applies to an effect at `(block, ordinal)`.
     pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
-        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+        self.interval.contains(Position::new(block, ordinal))
     }
 }
 
@@ -259,6 +261,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             other_slots.push(keccak(name.as_bytes()));
         }
         let epoch = Epoch {
+            interval: Interval::unbounded(Position::new(e.activation_block, e.activation_ordinal)),
             steth: hex_bytes(&e.steth, 20, "steth")?,
             epoch: e.epoch,
             contract_version: e.contract_version,
@@ -295,8 +298,16 @@ pub fn parse(params: &str) -> Result<Config, Error> {
         all.extend(epoch.other_mapping_slots.iter().copied());
         all.extend(epoch.other_slots.iter().copied());
         require(all.iter().collect::<BTreeSet<_>>().len() == all.len(), "epoch slots overlap")?;
-        require(epochs.iter().all(|o| o.steth != epoch.steth), "duplicate stETH epoch")?;
         epochs.push(epoch);
+    }
+    let intervals = schedule(
+        epochs
+            .iter()
+            .map(|e| (&e.steth, e.epoch, Position::new(e.activation_block, e.activation_ordinal))),
+    )
+    .map_err(|error| Error::msg(error.to_string()))?;
+    for (epoch, interval) in epochs.iter_mut().zip(intervals) {
+        epoch.interval = interval;
     }
     Ok(Config {
         chain_id: raw.chain_id,
@@ -558,7 +569,7 @@ fn epoch_row(config: &Config, epoch: &Epoch, kind: pb::EpochEventKind) -> pb::Mo
         activation_ordinal: epoch.activation_ordinal,
         balance_asset: epoch.steth.clone(),
         balance_decimals: 18,
-        basis_carryover: true,
+        basis_carryover: !epoch.interval.successor,
         global_carryover: false,
         scope: pb::Scope::Epoch as i32,
         ..Default::default()
@@ -632,7 +643,7 @@ fn pointer_dependency(
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
     let header = block.header.as_ref().unwrap();
-    let active: Vec<&Epoch> = config.epochs.iter().filter(|e| e.activation_block <= block.number).collect();
+    let active: Vec<&Epoch> = config.epochs.iter().filter(|e| e.interval.intersects_block(block.number)).collect();
     let mut events = pb::Events::default();
     if !active.is_empty() {
         let mut collected = Collected::default();
@@ -653,15 +664,22 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 preimages.insert(word(&key)?, value);
             }
         }
+        // Ordinary noops constrain the same physical key stream but do not
+        // become holder/global observations or initialize a successor.
+        let owned = |w: &Change| {
+            active
+                .iter()
+                .any(|e| (w.address == e.steth || e.aragon.watches_kernel_slot(&w.address, &w.key)) && e.active_at(block.number, w.ordinal))
+        };
+        reduce(collected.writes.iter().chain(&collected.noops).filter(|w| owned(w)).cloned().collect())?;
         let relevant: Vec<Change> = collected
             .writes
             .into_iter()
-            .chain(
-                collected
-                    .noops
-                    .into_iter()
-                    .filter(|w| active.iter().any(|e| storage_reason(e, &w.address, &w.key).is_some())),
-            )
+            .chain(collected.noops.into_iter().filter(|w| {
+                active
+                    .iter()
+                    .any(|e| e.active_at(block.number, w.ordinal) && storage_reason(e, &w.address, &w.key).is_some())
+            }))
             // Each epoch owns only effects at or after its activation position;
             // earlier writes of the activation block belong to the previous one.
             .filter(|w| {
@@ -693,11 +711,16 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 )
                 .min();
             if let Some(cutoff) = cutoff {
-                ended.insert(epoch.steth.clone(), cutoff);
+                ended.insert((epoch.steth.clone(), epoch.epoch), cutoff);
             }
             // Kernel pointers carry evidence only. Per-market reduction keeps
             // shared Kernel writes independent of other epochs' activation.
-            reduced.extend(decode_rows(writes, cutoff)?.into_iter().filter(|r| r.address == epoch.steth));
+            reduced.extend(
+                decode_rows(writes, cutoff)?
+                    .into_iter()
+                    .filter(|r| r.address == epoch.steth)
+                    .map(|row| (epoch, row)),
+            );
         }
         for w in &relevant {
             for epoch in active.iter().filter(|e| e.active_at(block.number, w.ordinal)) {
@@ -722,26 +745,23 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 }
             }
         }
-        let mut words: BTreeMap<(Vec<u8>, [u8; 32]), Reduced> = BTreeMap::new();
-        for r in reduced {
-            let Some(epoch) = active.iter().find(|e| e.steth == r.address) else {
-                continue; // Guarded Kernel writes were handled above.
-            };
+        let mut words: BTreeMap<(Vec<u8>, u32, [u8; 32]), Reduced> = BTreeMap::new();
+        for (epoch, r) in reduced {
             if r.key == epoch.total_and_external_shares_slot {
                 for (field, offset) in [(pb::StateField::LidoTotalShares, 0), (pb::StateField::LidoExternalShares, 128)] {
                     events.global_state.push(packed_row(config, epoch, &r, field, offset, 128));
                 }
-                words.insert((r.address.clone(), r.key), r);
+                words.insert((r.address.clone(), epoch.epoch, r.key), r);
             } else if r.key == epoch.buffered_slot {
                 for (field, offset) in [(pb::StateField::LidoBufferedEther, 0), (pb::StateField::LidoDepositedPostReport, 128)] {
                     events.global_state.push(packed_row(config, epoch, &r, field, offset, 128));
                 }
-                words.insert((r.address.clone(), r.key), r);
+                words.insert((r.address.clone(), epoch.epoch, r.key), r);
             } else if r.key == epoch.cl_slot {
                 for (field, offset) in [(pb::StateField::LidoClValidatorsBalance, 0), (pb::StateField::LidoClPendingBalance, 128)] {
                     events.global_state.push(packed_row(config, epoch, &r, field, offset, 128));
                 }
-                words.insert((r.address.clone(), r.key), r);
+                words.insert((r.address.clone(), epoch.epoch, r.key), r);
             } else if r.key == epoch.contract_version_slot {
                 events
                     .global_state
@@ -792,15 +812,20 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         }
         // Decoding above validates the still-qualified prefix. These partial
         // rows are never end-of-block state for an invalidated epoch.
-        events.holder_basis.retain(|h| !ended.contains_key(&h.market));
-        events.global_state.retain(|g| !ended.contains_key(&g.market));
+        let incomplete: BTreeSet<_> = active
+            .iter()
+            .filter(|e| ended.contains_key(&(e.steth.clone(), e.epoch)) || e.interval.ends_in_block(block.number))
+            .map(|e| (e.steth.clone(), e.epoch))
+            .collect();
+        events.holder_basis.retain(|h| !incomplete.contains(&(h.market.clone(), h.epoch)));
+        events.global_state.retain(|g| !incomplete.contains(&(g.market.clone(), g.epoch)));
         // Derived total pooled ether: only when the three input words were all
         // written in this block; a map holds no state across blocks.
-        for epoch in active.iter().filter(|e| !ended.contains_key(&e.steth)) {
+        for epoch in active.iter().filter(|e| !incomplete.contains(&(e.steth.clone(), e.epoch))) {
             let (Some(shares), Some(buffered), Some(cl)) = (
-                words.get(&(epoch.steth.clone(), epoch.total_and_external_shares_slot)),
-                words.get(&(epoch.steth.clone(), epoch.buffered_slot)),
-                words.get(&(epoch.steth.clone(), epoch.cl_slot)),
+                words.get(&(epoch.steth.clone(), epoch.epoch, epoch.total_and_external_shares_slot)),
+                words.get(&(epoch.steth.clone(), epoch.epoch, epoch.buffered_slot)),
+                words.get(&(epoch.steth.clone(), epoch.epoch, epoch.cl_slot)),
             ) else {
                 continue;
             };
@@ -838,7 +863,9 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             });
         }
         // Report decoding is bounded by the same half-open validity interval.
-        let readable = |epoch: &Epoch, ordinal: u64| epoch.active_at(block.number, ordinal) && ended.get(&epoch.steth).is_none_or(|end| ordinal < *end);
+        let readable = |epoch: &Epoch, ordinal: u64| {
+            epoch.active_at(block.number, ordinal) && ended.get(&(epoch.steth.clone(), epoch.epoch)).is_none_or(|end| ordinal < *end)
+        };
         // TokenRebased report evidence from receipts of succeeded transactions.
         for tx in block
             .transaction_traces

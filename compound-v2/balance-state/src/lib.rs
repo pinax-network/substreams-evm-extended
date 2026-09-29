@@ -20,6 +20,7 @@
 //! of synthetic balances: rate-model pointer writes, delegator implementation
 //! pointer writes, and code changes on the cToken, its implementation, the
 //! rate model or the underlying. Unresolved cToken writes fail the block.
+use evm_epochs::{schedule, Interval, Position};
 use evm_persist as persist;
 use proto::pb::evm::balance_state::v1 as pb;
 use serde::Deserialize;
@@ -30,10 +31,8 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "compound_v2_balance_state";
-/// 3: an exclusive invalidation cutoff and no partial end-of-block state for
-/// an epoch invalidated during the block. Earlier revision-2 layout and
-/// dependency bindings remain unchanged.
-pub const SPEC_REVISION: u32 = 3;
+/// 4: reset-only successor schedules; retired prefixes are not end-of-block state.
+pub const SPEC_REVISION: u32 = 4;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
@@ -235,6 +234,7 @@ pub enum Cash {
 }
 #[derive(Clone, Debug)]
 pub struct Market {
+    pub interval: Interval,
     pub ctoken: Vec<u8>,
     pub ctoken_decimals: u32,
     pub epoch: u32,
@@ -284,7 +284,7 @@ fn irm_field(name: &str) -> Result<(pb::StateField, &'static str), Error> {
 impl Market {
     /// Whether this epoch applies to an effect at `(block, ordinal)`.
     pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
-        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+        self.interval.contains(Position::new(block, ordinal))
     }
     fn watches(&self, address: &[u8]) -> bool {
         address == self.ctoken || address == self.rate_model || self.implementation.as_deref() == Some(address) || self.underlying.as_deref() == Some(address)
@@ -474,6 +474,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             "rate model blocks_per_year constant must equal the pinned 2102400",
         )?;
         let market = Market {
+            interval: Interval::unbounded(Position::new(m.activation_block, m.activation_ordinal)),
             ctoken,
             ctoken_decimals: m.ctoken_decimals,
             epoch: m.epoch,
@@ -499,8 +500,16 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             rate_model_slots,
             rate_model_constants,
         };
-        require(markets.iter().all(|o| o.ctoken != market.ctoken), "duplicate market")?;
         markets.push(market);
+    }
+    let intervals = schedule(
+        markets
+            .iter()
+            .map(|m| (&m.ctoken, m.epoch, Position::new(m.activation_block, m.activation_ordinal))),
+    )
+    .map_err(|e| Error::msg(e.to_string()))?;
+    for (market, interval) in markets.iter_mut().zip(intervals) {
+        market.interval = interval;
     }
     Ok(Config {
         chain_id: raw.chain_id,
@@ -540,7 +549,8 @@ struct CodeChanged {
 #[derive(Default)]
 struct Collected {
     writes: Vec<Change>,
-    /// Equal-value writes; only pointer slots consume them.
+    /// Equal-value writes constrain physical continuity; only pointer slots
+    /// produce semantic evidence from them.
     noops: Vec<Change>,
     balances: Vec<Change>,
     codes: Vec<CodeChanged>,
@@ -773,9 +783,9 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         // evaluated balance is the underlying (empty for native ether).
         balance_asset: market.underlying.clone().unwrap_or_default(),
         balance_decimals: market.underlying_decimals,
-        // Share storage persists across implementation upgrades; a rate-model
-        // replacement starts a new epoch whose IRM rows do not carry.
-        basis_carryover: true,
+        // Preserve the initial entry's flag; configured successors require
+        // fresh holder and global observations or a qualified checkpoint.
+        basis_carryover: !market.interval.successor,
         global_carryover: false,
         scope: pb::Scope::Epoch as i32,
         ..Default::default()
@@ -828,7 +838,7 @@ fn dependency(config: &Config, market: &Market, kind: pb::EpochEventKind, role: 
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
     let header = block.header.as_ref().unwrap();
-    let active: Vec<&Market> = config.markets.iter().filter(|m| m.activation_block <= block.number).collect();
+    let active: Vec<&Market> = config.markets.iter().filter(|m| m.interval.intersects_block(block.number)).collect();
     let mut events = pb::Events::default();
     if !active.is_empty() {
         let mut collected = Collected::default();
@@ -864,7 +874,29 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 None
             }
         };
-        let mut ended: BTreeMap<Vec<u8>, u64> = BTreeMap::new();
+        // Check physical continuity once across the union of owned effects,
+        // before any epoch split or invalidation cutoff. Shared dependencies
+        // must not duplicate writes, and equal-value writes still constrain
+        // continuity even when they do not produce an observation.
+        let owns_storage = |w: &Change| active.iter().any(|m| m.watches(&w.address) && m.active_at(block.number, w.ordinal));
+        reduce(
+            collected.writes.iter().chain(&collected.noops).filter(|w| owns_storage(w)).cloned().collect(),
+            "storage",
+        )?;
+        reduce(
+            collected
+                .balances
+                .iter()
+                .filter(|w| {
+                    active
+                        .iter()
+                        .any(|m| m.cash == Cash::Native && w.address == m.ctoken && m.active_at(block.number, w.ordinal))
+                })
+                .cloned()
+                .collect(),
+            "native balance",
+        )?;
+        let mut ended: BTreeMap<(Vec<u8>, u32), u64> = BTreeMap::new();
         // Each epoch owns only the effects at or after its activation position,
         // so writes are selected per market before reduction.
         for market in &active {
@@ -877,10 +909,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     .filter(|w| owns(w) && market.pointer_reason(&w.address, &w.key).is_some())
                     .cloned(),
             );
-            // Validate continuity of every owned write first, then evidence
-            // every pointer transition individually: an in-block excursion
-            // X->Z->X must not be concealed.
-            reduce(writes.clone(), "storage")?;
+            // Evidence every pointer transition individually: an in-block
+            // excursion X->Z->X must not be concealed.
             for w in &writes {
                 if let Some(reason) = market.pointer_reason(&w.address, &w.key) {
                     events.epochs.push(invalidation(config, market, reason, w));
@@ -898,8 +928,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                         .map(|c| c.ordinal),
                 )
                 .min();
-            if let Some(end) = end {
-                ended.insert(market.ctoken.clone(), end);
+            if let Some(end) = end.or_else(|| market.interval.end.filter(|p| p.block == block.number).map(|p| p.ordinal)) {
+                ended.insert((market.ctoken.clone(), market.epoch), end);
             }
             let decoded: Vec<Change> = writes.into_iter().filter(|w| end.is_none_or(|e| w.ordinal < e)).collect();
             for r in reduce(decoded, "storage")? {
@@ -970,25 +1000,24 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 }
             }
         }
-        let balances: Vec<Change> = collected
-            .balances
-            .into_iter()
-            .filter(|b| {
-                active.iter().any(|m| {
-                    m.cash == Cash::Native
-                        && b.address == m.ctoken
-                        && m.active_at(block.number, b.ordinal)
-                        && ended.get(&m.ctoken).is_none_or(|e| b.ordinal < *e)
+        for market in active.iter().filter(|m| m.cash == Cash::Native) {
+            let balances = collected
+                .balances
+                .iter()
+                .filter(|b| {
+                    b.address == market.ctoken
+                        && market.active_at(block.number, b.ordinal)
+                        && ended.get(&(market.ctoken.clone(), market.epoch)).is_none_or(|e| b.ordinal < *e)
                 })
-            })
-            .collect();
-        for r in reduce(balances, "native balance")? {
-            let market = active.iter().find(|m| m.ctoken == r.address).unwrap();
-            // A native balance has no storage slot; slot 0 of a CEther is its
-            // reentrancy word, so the row must not name one.
-            let mut row = global_row(config, market, &r, pb::StateField::CompoundV2TotalCash, "1", market.ctoken.clone());
-            row.storage_slot = Vec::new();
-            events.global_state.push(row);
+                .cloned()
+                .collect();
+            for r in reduce(balances, "native balance")? {
+                // A native balance has no storage slot; slot 0 of a CEther is
+                // its reentrancy word, so the row must not name one.
+                let mut row = global_row(config, market, &r, pb::StateField::CompoundV2TotalCash, "1", market.ctoken.clone());
+                row.storage_slot = Vec::new();
+                events.global_state.push(row);
+            }
         }
         for c in &collected.codes {
             for market in active.iter().filter(|m| m.active_at(block.number, c.ordinal)) {
@@ -1000,8 +1029,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         // Validate the old-model prefix above, but never present its partial
         // storage or native-cash values as end-of-block state. Declarations
         // below remain evidence of the binding, including in this block.
-        events.holder_basis.retain(|row| !ended.contains_key(&row.market));
-        events.global_state.retain(|row| !ended.contains_key(&row.market));
+        events.holder_basis.retain(|row| !ended.contains_key(&(row.market.clone(), row.epoch)));
+        events.global_state.retain(|row| !ended.contains_key(&(row.market.clone(), row.epoch)));
         for market in &active {
             let kind = if block.number == market.activation_block {
                 pb::EpochEventKind::Bound

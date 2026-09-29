@@ -1,7 +1,7 @@
 specVersion: v0.1.0
 package:
   name: erc4626_balance_state
-  version: v0.1.0
+  version: v0.2.0
   url: https://github.com/pinax-network/substreams-evm-extended
   description: RPC-free ERC-4626 vault shares, total supply and source-bound conversion inputs (Aave static aToken, Savings DAI, OpenZeppelin virtual offset) for explicitly qualified vault epochs.
 protobuf:

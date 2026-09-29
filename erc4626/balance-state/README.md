@@ -119,6 +119,30 @@ invalidating it. The BOUND row carries the activation ordinal as its `ordinal`,
 so a consumer applying rows in ordinal order sees the previous epoch's
 invalidation before this epoch's binding.
 
+Version 0.2.0 / spec revision 4 accepts an immutable reset-only successor
+schedule for each vault. Entries may be unordered, but IDs and activation
+positions must increase strictly per vault; IDs need not be consecutive. The
+interval is `[activation, next activation)`. Dependency storage, code and
+pointer effects use the same ownership rule. A pointer write at the exact
+successor start invalidates that successor; its layout is never automatically
+admitted by an observed upgrade.
+
+Physical storage continuity is checked before splitting effects by epoch,
+including shared dependencies and effects beyond an invalidation cutoff.
+Retired predecessor holder/storage prefixes are validated but omitted from
+END_OF_BLOCK output. Every successor emits BOUND with both carryover flags
+false; those flags stay false on heartbeats, even if the model still uses
+SHARES. Model, asset, mapping root, dependency and decoder changes therefore
+require fresh observations or an independently qualified checkpoint. OZ asset
+width rules, including USDC low-255-bit accounting, remain model-specific.
+Only intervals intersecting the block declare constants/dependencies.
+
+Single-epoch row behavior is preserved apart from the new versioned clock.
+Appending a successor changes the raw parameter hash: start with the complete
+schedule or qualify a new stream and exact checkpoint. Synthetic transitions
+do not qualify deployed bindings or the new WASM/SPKG; historical evidence
+below remains tied to its original artifacts.
+
 Every persisted write to a storage-pointer slot invalidates the epoch with its
 own evidence row, including a write back to the same value and each step of an
 excursion that restores the pointer within the block, as the
@@ -126,7 +150,7 @@ excursion that restores the pointer within the block, as the
 requires. Reducing an excursion X→Z→X to its end points would otherwise hide a
 temporary implementation that ran inside the block.
 
-Spec revision 3 decodes only the half-open interval from activation
+Spec revision 3 introduced decoding only the half-open interval from activation
 (inclusive) to the earliest persisted invalidation (exclusive). Unknown writes
 before that cutoff still fail; writes at or after it are not decoded under
 the old model. Raw ordering and continuity checks still cover all owned

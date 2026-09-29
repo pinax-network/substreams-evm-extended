@@ -39,7 +39,7 @@ Since contract version 3 the getter is
 using `totalPooledEther / totalShares` can therefore change the holder balance.
 Solidity 0.4.24 wraps the plain multiplication before division, while the
 total-pooled getter's final `SafeMath.add` rejects overflow. The four ether
-fields each fit uint128, but their sum need not. Spec revision **4** matches
+fields each fit uint128, but their sum need not. Spec revision **4** introduced (and revision **5** preserves)
 both source behaviors; a failing total omits only the `DERIVED` row and keeps
 all six stored input fields. This changes neither contract version 4 nor its
 model ID. A retained holder balance can still be evaluated from those inputs
@@ -117,6 +117,31 @@ position invalidates as `STORAGE_MIGRATION`, so an early activation yields
 evidence rather than a halted stream. The BOUND row carries the activation ordinal as its `ordinal`,
 so a consumer applying rows in ordinal order sees the previous epoch's
 invalidation before this epoch's binding.
+
+Version 0.2.0 / spec revision 5 supports immutable reset-only successor
+schedules per stETH market. Activation positions and positive epoch IDs must
+increase strictly after sorting; entries may be unordered and IDs may skip
+numbers. An epoch owns `[activation, next activation)`. Aragon Kernel/app
+resolution, Kernel implementation, contract-version and retired-v3 migration
+writes, dependency code changes and TokenRebased logs all use this ownership.
+A trigger exactly at the successor start invalidates that successor, so the
+qualified activation must follow an installing/migration write when resuming.
+
+Physical continuity is validated before splitting epochs. Retired predecessor
+holder/storage/derived prefixes are omitted from END_OF_BLOCK output; valid
+pre-boundary report logs remain separate evidence. Derived totals require all
+three packed words from the same epoch's suffix and cannot mix predecessor
+inputs. Every actual BOUND is emitted with successor carryover flags both false;
+later heartbeats retain those flags and redeclare only their own dependencies.
+Fresh observations or an independently qualified checkpoint must initialize
+the successor. Initial-entry flags and single-epoch arithmetic/rows remain
+unchanged apart from the new versioned clock.
+
+Provide the complete schedule from stream start: appending an entry changes
+the raw parameter hash and requires a new qualified stream/checkpoint. These
+synthetic transitions do not qualify actual runtime, activation/dependencies,
+a new WASM/SPKG, report reachability or the global holder set. Saved evidence
+remains tied to its historical artifact and observed interval.
 
 Every persisted write to a storage-pointer slot invalidates the epoch with its
 own evidence row, including a write back to the same value and each step of an
