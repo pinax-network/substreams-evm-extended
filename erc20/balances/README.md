@@ -731,6 +731,15 @@ exactly, while the custom token's primary revision is unestablished. Local role
 measurement does not enable a candidate or infer constructor success: the
 unchanged host VM stops at unsupported CHAINID before initial role setup.
 
+The separate [ORI/FNA/PHI enumerable candidates](docs/erc20tokenx-enumerable-candidate.md)
+replace only root 8 width 3 with the existing `oz_3_4_2` complete-operation rule.
+They add no boolean or admin permission and preserve the legacy producer and
+equality boundaries. Source-derived projector controls bind the measured store
+order and exact profile restoration. All three remain NOT-QUALIFIED; PHI's
+individual source/history, initial set coherence and actual producer role-write
+visibility remain unresolved. The focused report keeps saved replay observations
+separate from source execution and replacement-package qualification.
+
 ### TOPS host source proof
 
 [TOPS Phase A](docs/tops-operation-proof.md) binds the exact captured source/compiler
