@@ -15,6 +15,7 @@
 //! each vault binds to one implementation. Dependency code changes and
 //! pointer writes emit INVALIDATED epochs with evidence; unresolved vault
 //! writes fail the block. Slots are caller-qualified.
+use evm_epochs::{schedule, Interval, Position};
 use evm_persist as persist;
 use proto::pb::evm::balance_state::v1 as pb;
 use serde::Deserialize;
@@ -25,8 +26,8 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "erc4626_balance_state";
-/// 3: exclusive invalidation cutoff and no partial end-of-block state.
-pub const SPEC_REVISION: u32 = 3;
+/// 4: reset-only successor schedules; retired prefixes are not end-of-block state.
+pub const SPEC_REVISION: u32 = 4;
 /// Producer versions whose execution ordinals are qualified (version 3 has
 /// broken system-call ordinals and is refused by the contract).
 pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
@@ -240,6 +241,7 @@ pub enum Model {
 }
 #[derive(Clone, Debug)]
 pub struct Vault {
+    pub interval: Interval,
     pub vault: Vec<u8>,
     pub epoch: u32,
     pub model: Model,
@@ -262,7 +264,7 @@ pub struct Vault {
 impl Vault {
     /// Whether this epoch applies to an effect at `(block, ordinal)`.
     pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
-        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+        self.interval.contains(Position::new(block, ordinal))
     }
     fn family(&self) -> pb::ModelFamily {
         pb::ModelFamily::Erc4626Vault
@@ -427,6 +429,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             "vault implementation slot and address go together",
         )?;
         let out = Vault {
+            interval: Interval::unbounded(Position::new(v.activation_block, v.activation_ordinal)),
             vault,
             epoch: v.epoch,
             model,
@@ -463,8 +466,16 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             Model::MakerSavingsDai { .. } => {}
         }
         require(all.iter().collect::<BTreeSet<_>>().len() == all.len(), "vault slots overlap")?;
-        require(vaults.iter().all(|o| o.vault != out.vault), "duplicate vault")?;
         vaults.push(out);
+    }
+    let intervals = schedule(
+        vaults
+            .iter()
+            .map(|v| (&v.vault, v.epoch, Position::new(v.activation_block, v.activation_ordinal))),
+    )
+    .map_err(|error| Error::msg(error.to_string()))?;
+    for (vault, interval) in vaults.iter_mut().zip(intervals) {
+        vault.interval = interval;
     }
     Ok(Config {
         chain_id: raw.chain_id,
@@ -767,8 +778,8 @@ fn epoch_row(config: &Config, vault: &Vault, kind: pb::EpochEventKind) -> pb::Mo
         // evaluated balance is the conversion into the underlying asset.
         balance_asset: vault.asset.clone(),
         balance_decimals: vault.asset_decimals,
-        basis_carryover: true,
-        global_carryover: true,
+        basis_carryover: !vault.interval.successor,
+        global_carryover: !vault.interval.successor,
         scope: pb::Scope::Epoch as i32,
         ..Default::default()
     }
@@ -824,7 +835,7 @@ fn pointer(
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
     let header = block.header.as_ref().unwrap();
-    let active: Vec<&Vault> = config.vaults.iter().filter(|v| v.activation_block <= block.number).collect();
+    let active: Vec<&Vault> = config.vaults.iter().filter(|v| v.interval.intersects_block(block.number)).collect();
     let mut events = pb::Events::default();
     if !active.is_empty() {
         let mut collected = Collected::default();
@@ -845,7 +856,15 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 preimages.insert(word(&key)?, value);
             }
         }
-        // Each epoch owns only the effects at or after its activation position.
+        // Check the physical stream once before splitting it by epoch. Shared
+        // dependencies are selected with `any`, so their writes are not counted
+        // twice and a transition cannot conceal a discontinuous physical key.
+        let owns =
+            |vault: &Vault, w: &Change| vault.active_at(block.number, w.ordinal) && (w.address == vault.vault || vault.dependencies().contains(&w.address));
+        let mut physical: Vec<_> = collected.writes.iter().filter(|w| active.iter().any(|v| owns(v, w))).cloned().collect();
+        physical.extend(collected.noop_writes.iter().filter(|w| active.iter().any(|v| owns(v, w))).cloned());
+        reduce(physical)?;
+        // Each epoch owns only its validated half-open interval.
         // Dependencies (a Pool, a Pot, an asset) can be shared by vaults with
         // different activation positions, so writes are selected per vault.
         for vault in &active {
@@ -1047,7 +1066,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             }
             // The prefix was validated, but it cannot become end-of-block
             // state after the model has ceased to be qualified.
-            if cutoff.is_some() {
+            if cutoff.is_some() || vault.interval.ends_in_block(block.number) {
                 events.holder_basis.truncate(holder_start);
                 events.global_state.truncate(global_start);
             }

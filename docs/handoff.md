@@ -419,9 +419,29 @@ and later stateless output from suspended markets remain quarantined or are
 dropped at rebinding, without restoring evaluable state. Eight pre-fix failures,
 boundary/checkpoint regressions and full validation logs are preserved under
 `out/retained-epoch-ordinals-20260928/` in `protocol-invalidation-boundary`.
-Multiple extractor epochs, source-qualified carryover, actual initialized
-checkpoints and runtime/package/live clock/holder qualification remain open
-under #7/#16 and the individual package issues.
+The five protocol extractors now accept complete reset-only successor schedules
+through the dependency-free `common/epochs` helper. Entries normalize by market
+and activation; IDs strictly increase but may have gaps. Effects at a successor's
+start belong to it, including invalidating same-value pointer writes and code
+changes. Raw storage/noop/native-cash continuity is checked before splitting or
+cutoffs; retired prefixes still validate but cannot become end-of-block state.
+Every successor and its later heartbeats set both carryover flags false.
+Unknown suffix inputs stay unknown; only fresh observations or an independently
+qualified checkpoint initialize them. Complete raw parameters remain part of
+the stream identity, so appending an epoch cannot silently reuse the old ledger.
+
+All five packages are version 0.2.0: Aave spec 3, Compound v2/Comet/ERC4626 spec 4,
+and Lido spec 5. Actual-projector synthetic tests cover three-epoch schedules,
+changed decoders/dependencies, shared physical effects, exact boundaries,
+invalidations, quiet blocks, cold versus zero, checkpoint restore and undo.
+The Aave evaluated bridge additionally rejects missing successor globals,
+reinitializes a changed holder root, and refuses old qualification/stream data.
+Four pre-fix ordinary-noop continuity failures and validation logs remain in
+`out/protocol-successor-epochs-20260928/` in `protocol-invalidation-boundary`.
+Source-qualified carryover, actual initialized checkpoints and deployed
+runtime/package/getter/clock/holder qualification remain open under #7/#16
+and the individual package issues. Historical package digests and live reports
+continue to describe their original builds; these revisions are offline only.
 
 This page is the entry point for anyone picking up the roadmap in
 [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21). It
@@ -640,16 +660,12 @@ changed the `common/retention` host API: `seed_checkpoint` and
    provenance, multi-market attribution) are mirrored in every sibling.
 2. **Done:** the independent review of `compound-v2`, `lido`, `erc4626` and
    `common/retention` (§4 item 8), PRs #49–#52.
-   Follow-ups it exposed, not yet done: (a) every package refuses a second
-   epoch for the same market, so `basis_carryover` cannot be exercised inside
-   one parameter set, and the retention ledger binds the parameter hash;
-   supporting successor epochs means accepting several `(market, epoch)`
-   entries with increasing activation in every package; (b) `compound-v2`
-   and, since #54, `aave/balance-state` stop decoding after an in-block
-   invalidation; the other siblings can still fail a block whose upgrade
-   writes unknown storage after the pointer write; (c) `aave/balance-state`
-   was not part of this independent review; #54 subsequently added live
-   checks and fixes.
+   Its offline follow-ups are implemented: all five extractors now accept
+   complete reset-only successor schedules and use exclusive invalidation
+   cutoffs. No predecessor prefix is emitted as end-of-block state. The
+   current review includes Aave and the projector-to-consumer lifecycle.
+   Source-qualified carryover and actual deployed successor qualification
+   remain separate; the complete parameter hash still binds the stream.
 3. **Done 2026-09-21:** solc storage layouts for every pinned contract are
    committed under `docs/evidence/storage-layouts/` with a `tests/storage_layout.rs`
    per package ([provenance](storage-layout-provenance.md)). The USDC FiatToken

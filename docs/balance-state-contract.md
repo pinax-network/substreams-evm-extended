@@ -91,13 +91,41 @@ evidence, and Lido report evidence remains only before the cutoff. Unaffected
 markets still emit complete end-of-block rows. Clock counts describe exactly
 the rows emitted, including these omissions; absence is never zero.
 
+Configured successor epochs use an immutable schedule per market. Activation
+positions and positive epoch IDs must increase strictly in activation order;
+IDs need not be consecutive and input ordering does not define ownership.
+Each epoch owns the half-open interval `[activation, next activation)`. Storage,
+native-cash, log, code and dependency effects use that same interval. Raw
+physical continuity is validated before splitting effects among epochs.
+
+A scheduled predecessor ending inside the block cannot emit an END_OF_BLOCK
+holder, observed-write or derived prefix, just as an invalidated epoch cannot.
+Its valid declarations/invalidation evidence and pre-boundary log evidence
+remain distinct from final state. Every actual configured BOUND is emitted.
+Successor declarations always set both carryover flags false, including later
+heartbeats. New layouts, assets, constants and dependencies must initialize
+independently; an unchanged basis kind is not carryover permission. Missing
+successor observations remain unknown. Initial-entry flags are unchanged.
+
+A pointer/code change at the successor's exact start is owned by that successor
+and still invalidates it. No observed upgrade qualifies its replacement layout.
+Aave retains one common Pool binding across its entire aToken schedule; Pool
+implementation/layout changes cannot be represented by this schedule alone.
+
+The raw parameter SHA-256 includes the complete schedule. Appending an entry
+changes stream identity: consumers must start with that complete configuration
+or use a separately qualified new stream and exact checkpoint. The versioned
+extractors (package 0.2.0; Aave spec 3, Compound v2/Comet/ERC-4626 spec 4, Lido
+spec 5) require new artifact qualification. Saved replay/live evidence remains
+bound to its historical package and initialized-holder interval.
+
 The host retention consumers validate positive, ordered emitted observation
 spans against their epoch's activation, actual successor BOUND and any
 current-block invalidation cutoff. CHANGE rows identify one effect; a final
 global companion must cover its intermediate write positions. Constants match
 their declaration positions with no write count. This validation includes
 rows discarded by later selection. It does not qualify model metadata or
-enable multiple configured epochs in the projectors.
+qualify configured successor epochs or their deployed runtimes.
 
 The host consumer retains a narrow compatibility path for older producers:
 valid pre-cutoff prefixes may be quarantined or discarded by a successor,

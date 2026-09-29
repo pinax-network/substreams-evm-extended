@@ -1206,7 +1206,7 @@ fn actual_lido_wrapping_and_failed_total_keep_evaluable_retained_holder_inputs()
             ..Default::default()
         }];
         let output = lido_balance_state::project(&input, &cfg).unwrap();
-        assert_eq!(output.clocks[0].spec_revision, 4);
+        assert_eq!(output.clocks[0].spec_revision, 5);
         let qualified = qualify(&output, ReferenceModel::LidoV4);
         let mut state = ProtocolLedger::new(4);
         state.apply(&output).unwrap();
@@ -1214,7 +1214,7 @@ fn actual_lido_wrapping_and_failed_total_keep_evaluable_retained_holder_inputs()
         let result = qualified.evaluate(&state, &HOLDER, Metric::LidoBalanceOf).unwrap();
         assert_eq!(result.value.to_string(), expected.to_string());
         assert_eq!(result.clock.hash, input.hash);
-        assert_eq!(result.clock.spec_revision, 4);
+        assert_eq!(result.clock.spec_revision, 5);
         let original_holder = result.holder.unwrap();
         assert_eq!(original_holder.row.value, shares.to_string());
         assert_eq!(original_holder.row.raw_word, packed(shares, 0));

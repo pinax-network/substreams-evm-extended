@@ -64,8 +64,11 @@ For compatibility, an older producer's valid pre-cutoff prefix may remain
 quarantined or be dropped at the successor; it never revives an invalidated
 model. Later-block stateless output from an already-suspended epoch likewise
 remains unavailable and cannot carry across rebinding. Historical suspension
-ordinals are not execution positions in the new block. These consumer rules
-do not enable multi-epoch extractor configuration or change producer emission.
+ordinals are not execution positions in the new block. The five protocol
+extractors separately support reset-only successor schedules through
+[`common/epochs`](../epochs); their retired prefixes are validated but omitted
+from end-of-block state. Those extraction rules and this legacy consumer
+compatibility serve different producer revisions.
 
 Only the explicit checkpoint constructor uses snapshot-position rules:
 historical or neutral observation descriptors need not claim writes at the

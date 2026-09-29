@@ -1,0 +1,6 @@
+[package]
+name = "evm-epochs"
+description = "Dependency-free half-open epoch schedules for EVM balance-state extractors"
+edition = { workspace = true }
+version = "0.1.0"
+license = { workspace = true }

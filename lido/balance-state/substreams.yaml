@@ -1,7 +1,7 @@
 specVersion: v0.1.0
 package:
   name: lido_balance_state
-  version: v0.1.0
+  version: v0.2.0
   url: https://github.com/pinax-network/substreams-evm-extended
   description: RPC-free Lido stETH holder shares, packed total/external shares, internal-ether components and TokenRebased report evidence for one explicitly qualified contract-version epoch.
 protobuf:

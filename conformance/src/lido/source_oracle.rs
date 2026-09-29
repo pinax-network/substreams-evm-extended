@@ -238,7 +238,7 @@ fn actual_projector_derived_totals_match_source_and_keep_all_six_stored_inputs()
             ..Default::default()
         };
         let output = lido_balance_state::project(&input, &config).unwrap();
-        assert_eq!(output.clocks[0].spec_revision, 4);
+        assert_eq!(output.clocks[0].spec_revision, 5);
         let rows: Vec<_> = output
             .global_state
             .iter()

@@ -1,5 +1,338 @@
 use super::*;
 
+fn successor_config(index: usize, starts: &[(u32, u64, u64)]) -> Config {
+    let mut v: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    let original = v["markets"][index].clone();
+    let other = v["markets"][1 - index].clone();
+    let mut entries = vec![other];
+    for &(epoch, block, ordinal) in starts {
+        let mut m = original.clone();
+        m["epoch"] = epoch.into();
+        m["activation_block"] = block.into();
+        m["activation_ordinal"] = ordinal.into();
+        entries.push(m);
+    }
+    v["markets"] = entries.into();
+    v["heartbeat_blocks"] = 1.into();
+    parse(&v.to_string()).unwrap()
+}
+
+#[test]
+fn successor_epochs_reset_native_cash_and_omit_retired_prefixes() {
+    let cfg = successor_config(1, &[(9, 10, 30), (1, 1, 0), (3, 10, 20)]);
+    let m = ceth();
+    let holder = [9; 20];
+    let mut b = block(10);
+    let mut call = shares_call(&m, &holder, 1, 2, 10);
+    call.storage_changes.extend([
+        write(&m.ctoken, mapping_key(&holder, &m.account_tokens_slot), w(2), w(3), 20),
+        write(&m.ctoken, mapping_key(&holder, &m.account_tokens_slot), w(3), w(0), 30),
+    ]);
+    call.balance_changes = vec![native(&m.ctoken, 10, 20, 11), native(&m.ctoken, 20, 30, 21), native(&m.ctoken, 30, 0, 31)];
+    b.transaction_traces = vec![tx(call)];
+    let out = project(&b, &cfg).unwrap();
+    assert_eq!(out.holder_basis.len(), 1);
+    let h = &out.holder_basis[0];
+    assert_eq!(
+        (h.epoch, h.previous_value.as_str(), h.value.as_str(), h.first_ordinal, h.ordinal),
+        (9, "3", "0", 30, 30)
+    );
+    let cash: Vec<_> = out
+        .global_state
+        .iter()
+        .filter(|g| g.field == pb::StateField::CompoundV2TotalCash as i32)
+        .collect();
+    assert_eq!(cash.len(), 1);
+    assert_eq!(
+        (cash[0].epoch, cash[0].previous_value.as_str(), cash[0].value.as_str(), cash[0].first_ordinal),
+        (9, "30", "0", 31)
+    );
+    assert!(cash[0].storage_slot.is_empty());
+    let epochs: Vec<_> = out.epochs.iter().filter(|e| e.market == m.ctoken).collect();
+    assert_eq!(epochs.iter().map(|e| (e.epoch, e.ordinal)).collect::<Vec<_>>(), vec![(1, 0), (3, 20), (9, 30)]);
+    assert!(epochs[0].basis_carryover && !epochs[0].global_carryover);
+    assert!(epochs[1..].iter().all(|e| !e.basis_carryover && !e.global_carryover));
+    let quiet = project(&block(11), &cfg).unwrap();
+    assert!(quiet.holder_basis.is_empty());
+    assert!(quiet
+        .epochs
+        .iter()
+        .filter(|e| e.market == m.ctoken)
+        .all(|e| e.epoch == 9 && !e.basis_carryover && !e.global_carryover));
+    assert!(quiet.dependencies.iter().filter(|e| e.market == m.ctoken).all(|e| e.epoch == 9));
+    assert!(quiet.global_state.iter().filter(|e| e.market == m.ctoken).all(|e| e.epoch == 9));
+    assert!(quiet.epochs.iter().any(|e| e.market == cusdc().ctoken));
+    // Retired prefixes do not become end-of-block observations when the final
+    // successor has no fresh holder or cash input at all.
+    b.transaction_traces[0].calls[0].storage_changes.retain(|w| w.ordinal < 30);
+    b.transaction_traces[0].calls[0].balance_changes.retain(|w| w.ordinal < 30);
+    let prefix_only = project(&b, &cfg).unwrap();
+    assert!(prefix_only.holder_basis.is_empty());
+    assert!(prefix_only
+        .global_state
+        .iter()
+        .all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+}
+
+#[test]
+fn successor_epochs_cannot_hide_physical_storage_or_native_discontinuity() {
+    let cfg = successor_config(1, &[(1, 1, 0), (2, 10, 20)]);
+    let m = ceth();
+    let mut b = block(10);
+    let mut call = shares_call(&m, &[9; 20], 1, 2, 10);
+    call.storage_changes
+        .push(write(&m.ctoken, mapping_key(&[9; 20], &m.account_tokens_slot), w(99), w(3), 20));
+    b.transaction_traces = vec![tx(call)];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous storage"));
+    // Ordinary equality writes constrain physical continuity too, even though
+    // they emit no row and are not pointer triggers.
+    b.transaction_traces[0].calls[0].storage_changes[1].new_value = w(99).to_vec();
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous storage"));
+    b.transaction_traces[0].calls[0].storage_changes[1].old_value = vec![0; 33];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("malformed"));
+    b.transaction_traces = vec![tx(eth::Call {
+        balance_changes: vec![native(&m.ctoken, 1, 2, 10), native(&m.ctoken, 99, 3, 20)],
+        ..Default::default()
+    })];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous native balance"));
+    // Even the invalidation cutoff cannot hide later physical cash failures.
+    b.transaction_traces[0].calls[0].storage_changes = vec![write(&m.ctoken, m.rate_model_slot, w(1), w(2), 21)];
+    b.transaction_traces[0].calls[0].balance_changes = vec![native(&m.ctoken, 1, 2, 20), native(&m.ctoken, 99, 3, 22)];
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous native balance"));
+}
+
+#[test]
+fn successor_epochs_use_selected_usdc_width_layout_and_rate_model() {
+    let mut cfg = successor_config(0, &[(1, 1, 0), (3, 10, 20)]);
+    let old = cfg.markets[1].clone();
+    cfg.markets[2].account_tokens_slot = w(77);
+    cfg.markets[2].rate_model = vec![88; 20];
+    let new = cfg.markets[2].clone();
+    let Cash::Erc20Mapping { balances_slot, .. } = old.cash else { unreachable!() };
+    let asset = old.underlying.as_ref().unwrap();
+    let cash_key = mapping_key(&old.ctoken, &balances_slot);
+    let mut flagged = w(5);
+    flagged[0] = 128;
+    let mut call = shares_call(&old, &[9; 20], 1, 2, 10);
+    let suffix = shares_call(&new, &[9; 20], 0, 7, 20);
+    call.keccak_preimages.extend(suffix.keccak_preimages);
+    call.storage_changes.extend(suffix.storage_changes);
+    call.storage_changes.extend([
+        write(asset, cash_key, w(1), flagged, 11),
+        write(asset, cash_key, flagged, w(0), 21),
+        write(&old.rate_model, old.rate_model_slots[0].0, w(1), w(2), 12),
+        write(&new.rate_model, new.rate_model_slots[0].0, w(3), w(4), 22),
+    ]);
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(call)];
+    let out = project(&b, &cfg).unwrap();
+    assert_eq!(out.holder_basis.len(), 1);
+    assert_eq!(
+        (
+            out.holder_basis[0].epoch,
+            out.holder_basis[0].value.as_str(),
+            out.holder_basis[0].storage_slot.as_slice()
+        ),
+        (3, "7", mapping_key(&[9; 20], &w(77)).as_slice())
+    );
+    let cash = out.global_state.iter().find(|g| g.field == pb::StateField::CompoundV2TotalCash as i32).unwrap();
+    assert_eq!(
+        (
+            cash.epoch,
+            cash.previous_value.as_str(),
+            cash.value.as_str(),
+            cash.bit_width,
+            cash.first_ordinal
+        ),
+        (3, "5", "0", 255, 21)
+    );
+    assert_eq!(cash.raw_previous_word, flagged);
+    let rate = out
+        .global_state
+        .iter()
+        .find(|g| g.observation == pb::Observation::ObservedWrite as i32 && g.storage_contract == new.rate_model)
+        .unwrap();
+    assert_eq!((rate.epoch, rate.value.as_str(), rate.first_ordinal), (3, "4", 22));
+    assert!(out
+        .global_state
+        .iter()
+        .filter(|g| g.market == old.ctoken && g.observation == pb::Observation::ObservedWrite as i32)
+        .all(|g| g.epoch == 3));
+    assert!(out
+        .dependencies
+        .iter()
+        .any(|d| d.market == new.ctoken && d.epoch == 3 && d.contract == new.rate_model));
+    assert!(out
+        .global_state
+        .iter()
+        .any(|g| g.market == new.ctoken && g.epoch == 3 && g.observation == pb::Observation::QualifiedConstant as i32));
+    let mut reverse = cfg.clone();
+    reverse.markets.reverse();
+    assert_eq!(out, project(&b, &reverse).unwrap());
+}
+
+#[test]
+fn successor_epochs_pointer_and_code_triggers_belong_only_to_their_interval() {
+    let mut cfg = successor_config(0, &[(1, 1, 0), (3, 10, 20)]);
+    for m in &mut cfg.markets[1..] {
+        m.implementation = Some(vec![77; 20]);
+        m.implementation_slot = Some(w(88));
+    }
+    let m = cfg.markets[1].clone();
+    let Cash::Erc20Mapping {
+        underlying_slot,
+        implementation_slot,
+        ..
+    } = m.cash
+    else {
+        unreachable!()
+    };
+    let pointers = [
+        (m.ctoken.clone(), m.rate_model_slot),
+        (m.ctoken.clone(), m.implementation_slot.unwrap()),
+        (m.ctoken.clone(), underlying_slot),
+        (m.underlying.clone().unwrap(), implementation_slot.unwrap()),
+    ];
+    for (address, key) in pointers {
+        for ordinal in [19, 20, 21] {
+            let mut b = block(10);
+            let mut call = shares_call(&m, &[9; 20], 1, 2, 22);
+            call.storage_changes.push(write(&address, key, w(1), w(1), ordinal));
+            b.transaction_traces = vec![tx(call)];
+            let out = project(&b, &cfg).unwrap();
+            let invalid: Vec<_> = out.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
+            assert_eq!(invalid.len(), 1);
+            assert_eq!((invalid[0].epoch, invalid[0].ordinal), (if ordinal < 20 { 1 } else { 3 }, ordinal));
+            assert_eq!(out.holder_basis.len(), usize::from(ordinal < 20));
+        }
+    }
+    for address in [
+        m.ctoken.clone(),
+        m.implementation.clone().unwrap(),
+        m.rate_model.clone(),
+        m.underlying.clone().unwrap(),
+        m.underlying_implementation().unwrap().to_vec(),
+    ] {
+        for ordinal in [19, 20, 21] {
+            let mut b = block(10);
+            let mut call = shares_call(&m, &[9; 20], 1, 2, 22);
+            call.code_changes.push(eth::CodeChange {
+                address: address.clone(),
+                old_hash: vec![1; 32],
+                new_hash: vec![2; 32],
+                ordinal,
+                ..Default::default()
+            });
+            b.transaction_traces = vec![tx(call)];
+            let out = project(&b, &cfg).unwrap();
+            let invalid: Vec<_> = out.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
+            assert_eq!(invalid.len(), 1);
+            assert_eq!(invalid[0].epoch, if ordinal < 20 { 1 } else { 3 });
+            assert_eq!(out.holder_basis.len(), usize::from(ordinal < 20));
+        }
+    }
+}
+
+#[test]
+fn successor_epochs_preserve_excursions_and_reject_unknown_prefixes() {
+    let cfg = successor_config(0, &[(1, 1, 0), (3, 10, 20)]);
+    let m = cusdc();
+    let mut b = block(10);
+    let mut call = shares_call(&m, &[9; 20], 1, 2, 25);
+    call.storage_changes.extend([
+        write(&m.ctoken, m.rate_model_slot, w(1), w(2), 18),
+        write(&m.ctoken, m.rate_model_slot, w(2), w(1), 20),
+        write(&m.ctoken, w(999), w(0), w(1), 19),
+    ]);
+    b.transaction_traces = vec![tx(call)];
+    let out = project(&b, &cfg).unwrap();
+    assert_eq!(
+        out.epochs
+            .iter()
+            .filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32)
+            .map(|e| (e.epoch, e.ordinal))
+            .collect::<Vec<_>>(),
+        vec![(1, 18), (3, 20)]
+    );
+    assert!(out.holder_basis.is_empty());
+    b.transaction_traces[0].calls[0].storage_changes[3].ordinal = 17;
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("unresolved"));
+    b.transaction_traces[0].calls[0].storage_changes[3].ordinal = 19;
+    b.transaction_traces[0].calls[0].storage_changes[2].old_value = w(99).to_vec();
+    assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous storage"));
+}
+
+#[test]
+fn successor_epochs_shared_dependencies_are_not_duplicate_physical_writes() {
+    let mut cfg = successor_config(0, &[(1, 1, 0), (3, 10, 20)]);
+    let shared = cfg.markets[1].rate_model.clone();
+    cfg.markets[0].rate_model = shared.clone();
+    cfg.markets[0].rate_model_slots = cfg.markets[1].rate_model_slots.clone();
+    let mut b = block(10);
+    b.transaction_traces = vec![tx(eth::Call {
+        storage_changes: vec![
+            write(&shared, cfg.markets[1].rate_model_slots[0].0, w(1), w(2), 10),
+            write(&shared, cfg.markets[1].rate_model_slots[0].0, w(2), w(3), 20),
+        ],
+        code_changes: vec![eth::CodeChange {
+            address: shared,
+            new_hash: vec![3; 32],
+            ordinal: 21,
+            ..Default::default()
+        }],
+        ..Default::default()
+    })];
+    let out = project(&b, &cfg).unwrap();
+    let invalid: Vec<_> = out
+        .epochs
+        .iter()
+        .filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32)
+        .map(|e| (e.market.clone(), e.epoch))
+        .collect();
+    assert_eq!(invalid.len(), 2);
+    assert!(invalid.contains(&(cfg.markets[0].ctoken.clone(), 1)));
+    assert!(invalid.contains(&(cfg.markets[2].ctoken.clone(), 3)));
+    b.transaction_traces[0].calls[0].code_changes.clear();
+    let out = project(&b, &cfg).unwrap();
+    let observed: Vec<_> = out
+        .global_state
+        .iter()
+        .filter(|g| g.observation == pb::Observation::ObservedWrite as i32)
+        .collect();
+    assert_eq!(observed.len(), 2);
+    assert_eq!(observed.iter().find(|g| g.market == cfg.markets[2].ctoken).unwrap().change_count, 1);
+    assert_eq!(observed.iter().find(|g| g.market == cfg.markets[0].ctoken).unwrap().change_count, 2);
+}
+
+#[test]
+fn successor_epochs_validate_schedule_and_exact_maximum_boundaries() {
+    let cfg = successor_config(1, &[(1, 1, 0), (7, u64::MAX, u64::MAX)]);
+    let m = ceth();
+    let mut b = block(u64::MAX);
+    b.transaction_traces = vec![tx(eth::Call {
+        balance_changes: vec![native(&m.ctoken, 1, 2, u64::MAX - 1), native(&m.ctoken, 2, 3, u64::MAX)],
+        ..Default::default()
+    })];
+    let out = project(&b, &cfg).unwrap();
+    let cash = out.global_state.iter().find(|g| g.field == pb::StateField::CompoundV2TotalCash as i32).unwrap();
+    assert_eq!((cash.epoch, cash.first_ordinal, cash.value.as_str()), (7, u64::MAX, "3"));
+    let mut raw: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
+    let original = raw["markets"][0].clone();
+    for (id, block, ordinal) in [(1, 10, 0), (0, 10, 0), (2, 1, 0)] {
+        let mut next = original.clone();
+        next["epoch"] = id.into();
+        next["activation_block"] = block.into();
+        next["activation_ordinal"] = ordinal.into();
+        raw["markets"] = vec![original.clone(), next].into();
+        assert!(parse(&raw.to_string()).is_err());
+    }
+    let at_start = successor_config(1, &[(1, 1, 0), (2, 10, 0)]);
+    let quiet = project(&block(10), &at_start).unwrap();
+    assert!(quiet.epochs.iter().filter(|e| e.market == m.ctoken).all(|e| e.epoch == 2));
+    assert!(quiet.holder_basis.is_empty());
+    assert!(quiet.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+}
+
 const EPOCHS: &str = include_str!("../tests/fixtures/mainnet-ctoken-epochs.json");
 
 fn config() -> Config {

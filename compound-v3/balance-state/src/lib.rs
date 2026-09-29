@@ -29,6 +29,7 @@
 //! configuration infers them from the pinned declaration order (see
 //! `docs/storage-layout-provenance.md`). Unstructured slots such as
 //! `keccak256("comet.reentrancy.guard")` are reviewed by name.
+use evm_epochs::{schedule, Interval, Position};
 use evm_persist as persist;
 use proto::pb::evm::balance_state::v1 as pb;
 use serde::Deserialize;
@@ -39,8 +40,8 @@ use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
 pub const PACKAGE: &str = "compound_v3_balance_state";
-/// 3: exclusive invalidation cutoff and no partial end-of-block state.
-pub const SPEC_REVISION: u32 = 3;
+/// 4: reset-only successor schedules; retired prefixes are not end-of-block state.
+pub const SPEC_REVISION: u32 = 4;
 /// `CometCore.BASE_INDEX_SCALE`.
 pub const BASE_INDEX_SCALE: &str = "1000000000000000";
 /// `CometCore.FACTOR_SCALE`.
@@ -181,6 +182,7 @@ pub struct MarketConfig {
 }
 #[derive(Clone, Debug)]
 pub struct Market {
+    pub interval: Interval,
     pub comet: Vec<u8>,
     pub base_token: Vec<u8>,
     pub base_decimals: u32,
@@ -217,7 +219,7 @@ fn pow10(decimals: u32) -> String {
 impl Market {
     /// Whether this epoch applies to an effect at `(block, ordinal)`.
     pub fn active_at(&self, block: u64, ordinal: u64) -> bool {
-        block > self.activation_block || (block == self.activation_block && ordinal >= self.activation_ordinal)
+        self.interval.contains(Position::new(block, ordinal))
     }
 }
 
@@ -289,6 +291,7 @@ pub fn parse(params: &str) -> Result<Config, Error> {
             other_slots.push(keccak(name.as_bytes()));
         }
         let market = Market {
+            interval: Interval::unbounded(Position::new(m.activation_block, m.activation_ordinal)),
             comet: hex_bytes(&m.comet, 20, "comet")?,
             base_token: hex_bytes(&m.base_token, 20, "base_token")?,
             base_decimals: m.base_decimals,
@@ -310,8 +313,16 @@ pub fn parse(params: &str) -> Result<Config, Error> {
         all.extend(market.other_slots.iter().copied());
         all.extend(market.other_mapping_slots.iter().copied());
         require(all.iter().collect::<BTreeSet<_>>().len() == all.len(), "market slots overlap")?;
-        require(markets.iter().all(|other| other.comet != market.comet), "duplicate market")?;
         markets.push(market);
+    }
+    let intervals = schedule(
+        markets
+            .iter()
+            .map(|m| (&m.comet, m.epoch, Position::new(m.activation_block, m.activation_ordinal))),
+    )
+    .map_err(|error| Error::msg(error.to_string()))?;
+    for (market, interval) in markets.iter_mut().zip(intervals) {
+        market.interval = interval;
     }
     Ok(Config {
         chain_id: raw.chain_id,
@@ -351,8 +362,8 @@ struct CodeChanged {
 #[derive(Default)]
 struct Collected {
     writes: Vec<Write>,
-    /// Equal-value writes. Persistence drops them as balance effects, but a
-    /// STORAGE_POINTER binding invalidates on any write to its slot.
+    /// Equal-value writes constrain physical continuity without balance effects.
+    /// STORAGE_POINTER bindings additionally invalidate on any write to the slot.
     noops: Vec<Write>,
     codes: Vec<CodeChanged>,
     errors: usize,
@@ -576,9 +587,9 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         activation_ordinal: market.activation_ordinal,
         balance_asset: market.base_token.clone(),
         balance_decimals: market.base_decimals,
-        // Storage (principals, indices, totals) persists across a Comet
-        // implementation upgrade, so retained holder basis stays evaluable.
-        basis_carryover: true,
+        // Preserve the initial entry's flag. Configured successors reset
+        // principal and global observations regardless of layout similarity.
+        basis_carryover: !market.interval.successor,
         // Every Comet epoch is a new implementation with new rate immutables
         // (a rate-model replacement): retained GlobalState rows do not carry;
         // the constants are re-declared on BOUND.
@@ -606,7 +617,7 @@ fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
     let header = block.header.as_ref().unwrap();
-    let active: Vec<&Market> = config.markets.iter().filter(|m| m.activation_block <= block.number).collect();
+    let active: Vec<&Market> = config.markets.iter().filter(|m| m.interval.intersects_block(block.number)).collect();
     let mut events = pb::Events::default();
     if !active.is_empty() {
         let mut collected = Collected::default();
@@ -632,6 +643,17 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         // An epoch owns only the effects at or after its activation position;
         // earlier writes of the activation block belong to the previous epoch.
         let owner = |w: &Write| active.iter().find(|m| w.address == m.comet && m.active_at(block.number, w.ordinal)).copied();
+        // Validate all physical writes, including ordinary noops which remain
+        // absent from semantic observations and cannot initialize a successor.
+        reduce(
+            collected
+                .writes
+                .iter()
+                .chain(&collected.noops)
+                .filter(|w| owner(w).is_some())
+                .cloned()
+                .collect(),
+        )?;
         let mut relevant: Vec<Write> = collected.writes.into_iter().filter(|w| owner(w).is_some()).collect();
         // STORAGE_POINTER contract: any persisted write to the pointer slot
         // invalidates, including a write back to the same value.
@@ -642,7 +664,11 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         let mut reduced = Vec::new();
         let mut ended = BTreeSet::new();
         for market in &active {
-            let writes: Vec<Write> = relevant.iter().filter(|w| w.address == market.comet).cloned().collect();
+            let writes: Vec<Write> = relevant
+                .iter()
+                .filter(|w| w.address == market.comet && market.active_at(block.number, w.ordinal))
+                .cloned()
+                .collect();
             let cutoff = writes
                 .iter()
                 .filter(|w| w.key == market.implementation_slot)
@@ -655,10 +681,10 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                         .map(|c| c.ordinal),
                 )
                 .min();
-            if cutoff.is_some() {
-                ended.insert(market.comet.clone());
+            if cutoff.is_some() || market.interval.ends_in_block(block.number) {
+                ended.insert((market.comet.clone(), market.epoch));
             }
-            reduced.extend(decode_rows(writes, cutoff)?);
+            reduced.extend(decode_rows(writes, cutoff)?.into_iter().map(|row| (market, row)));
         }
         for w in &relevant {
             let market = owner(w).unwrap();
@@ -668,8 +694,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     .push(invalidation(config, market, pb::InvalidationReason::ImplementationPointerWrite, w));
             }
         }
-        for r in reduced {
-            let market = active.iter().find(|m| m.comet == r.address).unwrap();
+        for (market, r) in reduced {
             if r.key == market.implementation_slot {
                 // Every pointer write was invalidated above.
             } else if r.key == market.indices_slot {
@@ -740,8 +765,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         }
         // Valid pre-cutoff writes were checked above, but no state from a
         // partial epoch can be advertised as an end-of-block observation.
-        events.holder_basis.retain(|h| !ended.contains(&h.market));
-        events.global_state.retain(|g| !ended.contains(&g.market));
+        events.holder_basis.retain(|h| !ended.contains(&(h.market.clone(), h.epoch)));
+        events.global_state.retain(|g| !ended.contains(&(g.market.clone(), g.epoch)));
         for c in &collected.codes {
             for market in active
                 .iter()

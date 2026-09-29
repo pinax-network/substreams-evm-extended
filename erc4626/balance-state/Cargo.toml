@@ -2,7 +2,7 @@
 name = "erc4626-balance-state"
 description = "RPC-free ERC-4626 vault shares and source-bound conversion inputs from Extended blocks (evm.balance_state.v1)"
 edition = { workspace = true }
-version = "0.1.0"
+version = "0.2.0"
 license = { workspace = true }
 
 [lib]
@@ -13,6 +13,7 @@ substreams = { workspace = true }
 substreams-ethereum = { workspace = true }
 proto = { path = "../../proto" }
 evm-persist = { path = "../../common/persist" }
+evm-epochs = { path = "../../common/epochs" }
 hex = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
