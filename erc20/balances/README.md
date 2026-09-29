@@ -799,3 +799,5 @@ witnesses and field-level writer reviews keep packed runtime fields,
 constructor-only metadata, checkpoint words and external-context limits distinct.
 The proof adds no production candidate or write permission; zero call value and
 selected metadata keys/words do not establish deployed or live qualification.
+
+The host-only [calculated retention adapter](docs/calculated-retention.md) retains finite raw checkpoints for the existing LBP, BabyDoge and 10SET models with atomic apply, explicit provenance, bounded undo and reset-only epochs. It does not emit production calculated balances or qualify a new live interval.

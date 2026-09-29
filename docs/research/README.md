@@ -50,5 +50,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `39-Mai_coupled_role_candidate.json` | Exact membership0/set1 coupled candidate binds all raw source-proof artifacts, refuses old one-sided successes and guards witnessed allowance aliases while preserving unrelated permissions and qualification limits | `erc20/balances`, issue #4 |
 | `40-APD_DSG_getter_controls.json` | Exact saved runtime getters and independently observed metadata changes establish bounded balance isolation; source-derived operations feed actual projector controls without changing profiles, VM or production rules | `erc20/balances` host tools, issue #3 |
 | `41-BNBTiger_COOKIE_getter_proof.json` | Exact source/compiler/runtime reconstruction and paired finite getter controls cover selected metadata field shapes without write admission; complete writer classifications preserve constructor-only, packed-field, external-context and attribution limits | `erc20/balances` host tools, issue #5 |
+| `42-Calculated_balance_retention.json` | A host-only raw-input ledger binds three historical calculated models, preserves missing/refused/suspended outcomes, and replays the finite saved holder set with exact snapshot and undo controls | `erc20/balances` host tools, issues #5 and #7 |
 
 Claims marked with a correction in a file supersede the corresponding claim.
