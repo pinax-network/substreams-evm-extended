@@ -7,6 +7,7 @@ mod deployment;
 pub mod discovery;
 mod enumerable_sets;
 pub mod layout;
+mod lpinfo_arrays;
 mod mapping_paths;
 mod metadata_words;
 #[allow(dead_code)]
@@ -199,7 +200,11 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
     let mut raw = Changes {
         immutable_zero_contracts: layouts.iter().filter(|l| l.immutable_zero_mapping).map(|l| l.contract.clone()).collect(),
         address_list_contracts: layouts.iter().filter(|l| !l.address_lists.is_empty()).map(|l| l.contract.clone()).collect(),
-        guarded_metadata_contracts: layouts.iter().filter(|l| l.metadata_semantics.is_some()).map(|l| l.contract.clone()).collect(),
+        guarded_metadata_contracts: layouts
+            .iter()
+            .filter(|l| l.metadata_semantics.is_some() || l.lpinfo_array)
+            .map(|l| l.contract.clone())
+            .collect(),
         ..Default::default()
     };
     persist::collect_block(block, &mut raw)?;
@@ -289,6 +294,7 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
     // Read original persisted records, including unchanged witnesses and their
     // structural call context. Failure must precede every metadata ignore rule.
     let enumerable_events = enumerable_sets::validate(block, layouts, &preimages, &candidates)?;
+    let lpinfo_events = lpinfo_arrays::validate(block, layouts, &preimages, &candidates, &address_list_keys)?;
     let mut deployment_keys = BTreeSet::new();
     for c in raw.storage {
         if !configured.contains_key(&c.address) && !beacon_slots.contains_key(&c.address) {
@@ -344,8 +350,12 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
                 !enumerable_events.contains(&(c.address.clone(), key, c.ordinal)),
                 "enumerable-set metadata aliases balance storage",
             )?;
+            require(
+                !lpinfo_events.contains(&(c.address.clone(), key, c.ordinal)),
+                "LPInfo metadata aliases balance storage",
+            )?;
             require(!layout.immutable_zero_mapping, "immutable-zero balance mapping was written; requalify layout")?;
-            if layout.metadata_semantics.is_some() && word(&c.old_value)? == word(&c.new_value)? {
+            if (layout.metadata_semantics.is_some() || layout.lpinfo_array) && word(&c.old_value)? == word(&c.new_value)? {
                 // Opt-in metadata validation sees every persisted record. A known
                 // balance no-op still must not invent an emitted balance observation.
                 continue;
@@ -357,6 +367,7 @@ pub fn changes(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<Vec<Cha
             && !address_list_keys.contains(&(c.address.clone(), key))
             && !enumerable_events.contains(&(c.address.clone(), key, c.ordinal))
             && !guarded_metadata.contains(&(c.address.clone(), key, c.ordinal))
+            && !lpinfo_events.contains(&(c.address.clone(), key, c.ordinal))
         {
             return Err(Error::msg(format!(
                 "unresolved storage for configured token 0x{} at key 0x{}; refusing incomplete events",

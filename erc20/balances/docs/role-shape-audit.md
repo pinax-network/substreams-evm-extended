@@ -293,3 +293,21 @@ and independent liquidity-credit behavior remain unqualified. This host-only
 optional context adds no ingestion template/candidate and leaves every cohort
 and role-candidate count unchanged. Any new TOPS storage admission needs its own
 complete operation, producer and qualification review.
+
+## Separate TOPS LPInfo candidate
+
+The subsequent [TOPS candidate](tops-lpinfo-candidate.md) is outside this role
+cohort. It replaces only TOPS's broad root 32 permission with a selected-build
+root 31 three-word struct-array operation guard and its coupled credit. Complete
+append and expired-prefix cleanup are bounded to at most six records before and
+after each operation. This bound is an admission/resource limit, not a Solidity
+invariant. Omitted equal stores require independently witnessed old/new values
+or prior accepted block-local facts; absence never initializes a word to zero.
+The exact inherited permission sets, runtime and balance root remain fixed.
+
+Standalone liquidity credits, malformed/ambiguous operations and unmodeled array
+writes refuse, including equal writes. The rule does not attest caller/miner
+authorization or qualify every router path permitted by inherited fields. Both
+historical layout files and every role-candidate count remain unchanged. The
+separate fixture stays NOT-QUALIFIED, with source, deployed initial state, producer,
+package/getter and initialized-holder gates retained under #61/#21.

@@ -1,0 +1,53 @@
+{
+  "title": "Separate bounded TOPS LPInfo metadata candidate",
+  "issues": [61, 21],
+  "qualified": false,
+  "status": "bounded validator and source-derived controls passed; frozen source-02/replay-01 passed all 1024 saved blocks; complete offline gates passed",
+  "contract": "0xcdf52c0b13c24f32f1d8d4ec6356203a1ef0826a",
+  "template": "tops_solc_0_8_28_lpinfo_prefix",
+  "change": "Remove only historical broad mapping root 32 and add exact root 31 array/root 32 credit complete-operation validation. Preserve all other profile fields and historical 431/qualified 425 cohorts.",
+  "bound": "At most six records before and after; one operation per physical frame; omitted equality requires independently observed or prior accepted block-local values.",
+  "source_bindings": "35 complete raw artifacts and both historical source inventories, full runtime/creation/immutable reconstruction, exact compiler/settings/maps/transcripts and report crosslinks. Eight exact OpenZeppelin dependencies; custom token maintainer source gap remains.",
+  "source_projector_controls": {
+    "bounded_cleanup_prefix_cases": 84,
+    "other_successful_transfer_contexts": 21,
+    "representable_original_runtime_appends": 3,
+    "source_reverts_filtered": 21,
+    "host_failures_not_chain_successes": 9,
+    "extended_versions": [4, 5],
+    "original_23_store_fixture": "Block 123561227 transaction 63 call 14 unchanged header/origin, exact two balance rows"
+  },
+  "omission_limits": "Absence never supplies old zero; incomplete traces can remain observationally ambiguous. Reject ungrounded equality and preserve strict physical/logical continuity, namespace/alias and inclusive ordinal/frame barriers.",
+  "replay": {
+    "requested_interval": [123561000, 123562024],
+    "status": "passed all 1024 blocks",
+    "reference": "Immutable original canonical package; all whole PB digests pinned. Empty ledger, no reference seeding. Preserve partial failure evidence.",
+    "same_block_rows": 42,
+    "emitted_zero_rows": 4,
+    "initialized_observed_holders": 5,
+    "retained_only_matches": 5,
+    "cold_observations": 40,
+    "cold_nonzero_observations": 30,
+    "canonical_observations": 87,
+    "validated_cleanups": 1,
+    "observed_length_decrements": 5,
+    "observed_metadata_stores": 21,
+    "validated_appends": 0,
+    "observed_equal_metadata_stores": 0,
+    "report_sha256": "6a0c91ac043e47d4210a0281035fd149a061141f03930bd47905b009ba9bd134",
+    "source_inventory_sha256": "bad32ed9c2d56977266c01bfd2778c8f8cbf896c30c15e5cc4ca668f644a03fc"
+  },
+  "remaining_gates": "All six exclusions remain outside the qualified cohort. No creation, caller authorization, independent root32 or whole-router qualification. Custom primary source, actual deployment/runtime/dependencies, producer visibility, replacement package and initialized-holder getter qualification remain separate.",
+  "offline_validation": {
+    "workspace_tests_passed": 1396,
+    "library_binary_integration_suites": 139,
+    "additional_empty_documentation_suites": 22,
+    "nonempty_suites": 92,
+    "failed": 0,
+    "ignored": 0,
+    "all_target_clippy": "passed with warnings denied",
+    "wasm_workspace": "passed",
+    "format_and_staged_whitespace": "passed"
+  },
+  "document": "erc20/balances/docs/tops-lpinfo-candidate.md"
+}

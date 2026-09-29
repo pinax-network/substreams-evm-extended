@@ -35,6 +35,7 @@ mapping, or pinned proxy:
 | `other_mapping_words` | Optional object mapping 32-byte `0x` bases to counts 1–32 | Reviewed non-balance mappings with multiword values, such as governance checkpoint structs |
 | `other_mapping_paths` | Optional array of `{root,key_types,offset,words}` | Reviewed non-balance paths with exact nesting depth and key types; offsets apply only to terminal fields. See [typed paths](docs/typed-mapping-paths.md) |
 | `metadata_semantics` | Optional exact source/runtime mode | Closed field/value guards for the separate [BNBTiger/COOKIE candidates](docs/bnbtiger-cookie-candidates.md), including packed constants, zero padding and persisted no-ops. Cannot combine with generic metadata or dependency permissions; these candidates remain NOT-QUALIFIED |
+| `lpinfo_array` | Optional exact source/runtime mode | Bounded complete append/expired-prefix operations for the separate [TOPS LPInfo candidate](docs/tops-lpinfo-candidate.md). At most six records before and after, independently grounded omitted equalities, exact frame/order/alias guards; NOT-QUALIFIED |
 | `enumerable_address_sets` | Optional array of `{root,key_types,semantics}` | Explicit source-bound role-member sets with complete ordered array/index witnesses. Currently one `bytes32` key and `oz_3_4_2` semantics; see [prerequisites and limits](docs/enumerable-role-sets.md) |
 | `voting_checkpoints` | Optional object | Reviewed OpenZeppelin `Trace208` arrays: `clock` is `block_number` or `timestamp`; `slots` lists direct array roots and `mapping_slots` lists `mapping(address => Trace208)` bases, all 32-byte hex |
 | `address_lists` | Optional array of 32-byte `0x` hex roots | Reviewed `address[]` bookkeeping, with exact persisted witnesses for appends, tail pops and swap-and-pop removals |
@@ -747,7 +748,11 @@ separate from source execution and replacement-package qualification.
 [TOPS Phase A](docs/tops-operation-proof.md) binds the exact captured source/compiler
 and exercises synthetic local append/getter paths plus a separate cleanup source
 harness. It adds no array validator or candidate; all six issue #61 exclusions remain.
-The original transfer and constructor require unsupported external calls.
+The later [original-runtime proof](docs/tops-runtime-cleanup-proof.md) exercises
+transfer/transferFrom under a bounded synthetic external context. The separate
+[TOPS LPInfo candidate](docs/tops-lpinfo-candidate.md) uses that runtime's exact
+append/cleanup store order to admit only bounded root 31/32 metadata operations.
+Historical 431/qualified 425 layouts remain unchanged; all six exclusions remain.
 
 The separate [wkeyDAO2/TRX enumerable candidates](docs/wkeydao2-trx-enumerable-candidate.md)
 remove only wkeyDAO2 root 8 width 2 and TRX root 6 width 3, using the unchanged
