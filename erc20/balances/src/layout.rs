@@ -79,23 +79,48 @@ pub const SECURITIES_ENUMERABLE_SEMANTICS: &str = "securities_token_solc_0_8_24_
 pub const SECURITIES_MEMBERSHIP_ROOT: &str = "0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800";
 pub const SECURITIES_SET_ROOT: &str = "0xc1f6fe24621ce81ec5827caf0253cadb74709b061630e6b55e82371705932000";
 pub const SECURITIES_ISSUER_ADMIN_SLOT: &str = "0xecfb03a241cc67499591701273c9840824101e710aea92d3ca0339671f5c64c1";
+pub const BTR_ENUMERABLE_SEMANTICS: &str = "btr_token_solc_0_8_24_oz_4_9_3";
+pub const BTR_PAUSER_ROLE: &str = "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a";
+pub const BTR_PAUSER_ADMIN_SLOT: &str = "0xbfe93621c6aa2dbf737e9056c9b79e4d30ee4f6b28b18be2cb71aac8a7bf258f";
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum EnumerableSemantics {
     Oz342,
-    PToken { membership_root: [u8; 32] },
-    Gm { membership_root: [u8; 32] },
-    Securities { membership_root: [u8; 32], issuer_admin_slot: [u8; 32] },
+    PToken {
+        membership_root: [u8; 32],
+    },
+    Gm {
+        membership_root: [u8; 32],
+    },
+    Securities {
+        membership_root: [u8; 32],
+        issuer_admin_slot: [u8; 32],
+    },
+    Btr {
+        membership_root: [u8; 32],
+        pauser_admin_slot: [u8; 32],
+        pauser_role: [u8; 32],
+    },
 }
 impl EnumerableSemantics {
     pub(crate) fn membership_root(self) -> Option<[u8; 32]> {
         match self {
             Self::Oz342 => None,
-            Self::PToken { membership_root } | Self::Gm { membership_root } | Self::Securities { membership_root, .. } => Some(membership_root),
+            Self::PToken { membership_root } | Self::Gm { membership_root } | Self::Securities { membership_root, .. } | Self::Btr { membership_root, .. } => {
+                Some(membership_root)
+            }
         }
     }
     pub(crate) fn fixed_admin_slot(self) -> Option<[u8; 32]> {
         match self {
             Self::Securities { issuer_admin_slot, .. } => Some(issuer_admin_slot),
+            Self::Btr { pauser_admin_slot, .. } => Some(pauser_admin_slot),
+            _ => None,
+        }
+    }
+    pub(crate) fn fixed_admin_value(self) -> Option<[u8; 32]> {
+        match self {
+            Self::Securities { .. } => Some([0; 32]),
+            Self::Btr { pauser_role, .. } => Some(pauser_role),
             _ => None,
         }
     }
@@ -723,6 +748,32 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
                         EnumerableSemantics::Securities {
                             membership_root,
                             issuer_admin_slot,
+                        }
+                    }
+                    BTR_ENUMERABLE_SEMANTICS => {
+                        let membership_root = word(
+                            set.membership_root
+                                .as_deref()
+                                .ok_or_else(|| Error::msg("coupled enumerable semantics requires membership_root"))?,
+                        )?;
+                        let mut expected_set = [0; 32];
+                        expected_set[31] = 151;
+                        let mut expected_membership = [0; 32];
+                        expected_membership[31] = 101;
+                        require(
+                            root == expected_set && membership_root == expected_membership,
+                            "selected BTR template requires set root151 and membership root101",
+                        )?;
+                        let pauser_admin_slot = word(BTR_PAUSER_ADMIN_SLOT)?;
+                        require(
+                            other_slots.contains(&pauser_admin_slot),
+                            "selected BTR template requires explicit fixed PAUSER admin scalar",
+                        )?;
+                        require(reserved.insert(membership_root), "enumerable membership root overlaps another configured field")?;
+                        EnumerableSemantics::Btr {
+                            membership_root,
+                            pauser_admin_slot,
+                            pauser_role: word(BTR_PAUSER_ROLE)?,
                         }
                     }
                     _ => return Err(Error::msg("unsupported enumerable-address-set semantics")),

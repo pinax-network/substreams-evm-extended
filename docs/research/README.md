@@ -38,5 +38,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `27-GMToken_operation_proof.json` | Three complete captures and official compiler regeneration, exact metadata substitutions, separate compiler/captured execution matrices and explicit local initialization context; custom source gaps and no ingestion candidate | `erc20/balances` host tools, issue #4 |
 | `28-SecuritiesToken_coupled_role_candidate.json` | Selected namespaced boolean/set operation admission and exact zero-only ISSUER admin scalar, with seventeen separate candidates, source-derived adversarial projector tests and bounded canonical replay | `erc20/balances`, issue #4 |
 | `29-GMToken_coupled_role_candidate.json` | Selected legacy boolean/set operation admission for two beacon proxies, with no admin permission, preserved finite name words and separate unqualified candidate replay | `erc20/balances`, issue #4 |
+| `30-BTR_coupled_role_candidate.json` | Selected role-only root101/root151 operation admission plus the exact PAUSER self-admin scalar; inherited whitelist limitations and separate unqualified candidate replay | `erc20/balances`, issue #4 |
 
 Claims marked with a correction in a file supersede the corresponding claim.

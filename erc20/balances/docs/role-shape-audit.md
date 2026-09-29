@@ -61,7 +61,7 @@ published baseline and the other reviewed profiles remain unchanged.
 ## Candidate progress
 
 The original inventory and its evidence above remain historical. Separate
-**NOT-QUALIFIED** fixtures now cover thirty-two of its 33 boolean-role profiles;
+**NOT-QUALIFIED** fixtures now cover all 33 of its boolean-role profiles;
 they do not replace the original 431-profile baseline or qualified 425 cohort.
 Each linked report records its complete saved interval, initialized observed
 holders, cold gaps, source bindings and regression controls. Synthetic write
@@ -80,6 +80,7 @@ shapes do not establish executed authorization or real producer visibility.
 | [PTokenV2](ptoken-coupled-role-candidate.md) | Source-selected complete operations couple root-5 membership to the root-6 enumerable set. Independent boolean permission is removed; Extended v4/v5 and actual frame boundaries are required. | The compiled operation proof binds the selected solc 0.8.28/OZ 5.4 template. Exact token-source provenance, initial-set coherence and actual producer visibility remain unqualified. |
 | [SecuritiesToken (17)](securities-coupled-role-candidate.md) | Exact namespaced membership/set operations for the selected solc 0.8.24/OZ 5.3 build; only the fixed ISSUER admin scalar may be written to zero. All other profile fields and guards are retained. | Eight explicit primary-source gaps, absent deployment/creation evidence and unqualified initializer/client/proxy execution. Saved replay does not establish role-operation visibility or coherent initial state. |
 | [GMToken (2)](gm-coupled-role-candidate.md) | Exact selected solc 0.8.16/Ondo-vendored membership201/set251 operations; no role-admin permission, with all beacon/runtime/balance and finite long-name words retained. | Five custom primary-source gaps, exact compiler/captured metadata substitutions and absent on-chain creation binding. Actual initial coherence, producer role visibility and proxy/external-client execution remain unqualified. |
+| [BTRToken](btr-coupled-role-candidate.md) | Exact selected solc 0.8.24/OZ 4.9.3 membership101/set151 operations plus the fixed PAUSER self-admin scalar. All unrelated fields remain unchanged; direct whitelist length/index permissions remain partial. | Custom token primary-source gap, initial coherence, deployed initialization/proxy history and actual producer/package/getter/holder qualification remain open. Full whitelist operation admission is separate work. |
 
 The prerequisite [PToken operation proof](ptoken-operation-proof.md) executes its
 compiled boolean/set transitions and rollback controls against synthetic state.
@@ -88,13 +89,14 @@ and candidate listed above. Source execution and synthetic Extended records
 do not qualify producer visibility or initial state. The selected write-order
 template is not a universal OpenZeppelin enumerable-set rule.
 
-The remaining boolean-role profile without a separate candidate is BTRToken.
-The [BTR host operation proof](btr-operation-proof.md) is a prerequisite for
-its future migration. It binds the selected OZ 4.9.3 implementation and OZ 5.2
-proxy sources and distinguishes coupled role transitions from the separate
-whitelist set. No BTR ingestion rule or candidate is added, so the candidate
-count remains thirty-two. The custom token's independent primary source and
-actual initialization remain unresolved.
+The [BTR host operation proof](btr-operation-proof.md) binds the selected
+OZ 4.9.3 implementation and OZ 5.2 proxy sources and distinguishes coupled role
+transitions from the separate whitelist set. Its subsequent role-only candidate
+above removes broad membership permission and checks the exact PAUSER admin
+value even for equal writes or absent preimages. Nonzero whitelist array
+mutations remain refused, while zero-member add/sole-remove can pass under
+inherited equality handling. The custom token's independent primary source,
+actual initialization and complete direct-whitelist admission remain unresolved.
 The separate [SecuritiesToken host proof](securities-operation-proof.md) binds
 the selected OZ 5.3 namespaced role/set behavior and raw ERC-20 getters.
 Twenty-three of 31 captured sources have exact independent matches; three
@@ -119,9 +121,10 @@ retains its exact source bindings and qualification limits.
 Each candidate needs its own reachability, initialization and dependency review
 before promotion. This classification concerns the configured role field;
 some contracts also contain separate enumerable or dynamic metadata that must
-retain its existing handling. The eight enumerable-role profiles, four
-terminal-record profiles and six source-unavailable profiles retain the
-original audit's separate findings; they are not plain membership migrations.
+retain its existing handling. Eight separate enumerable-role profiles across
+six runtime groups still need their own source-selected migration. Four legitimate
+terminal-record profiles and six source-unavailable profiles retain the original
+audit's separate findings; they are not plain membership migrations.
 
 Fresh runtime/dependency controls, actual replacement-package/getter output,
 initialized-holder/final-state checks and relevant role-operation observations

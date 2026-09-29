@@ -336,7 +336,9 @@ from the synthetic proxy account's code. It does not execute proxy dispatch.
 The operation matrix separates coherent role changes, four incoherent
 boolean/index controls, wrapper authorization, direct whitelist operations,
 initialization and rollback. This host proof adds no BTR production candidate. The
-whitelist's existing length/index permissions do not admit its array operations.
+whitelist's existing length/index permissions do not establish complete
+array-operation admission; the role-only candidate below records the inherited
+zero-member/equality exception explicitly.
 Fresh attempts, full traces and failed attempts remain under
 `out/btr-operation-proof-20260928/` in `bsc-exclusion-review`. Actual initial state,
 runtime/package/getter/holder qualification and producer visibility remain open.
@@ -408,9 +410,25 @@ payload words remain unchanged. The saved host proof is independently frozen;
 producer visibility, initial coherence and package/getter/holder qualification
 remain open. Fresh artifacts and failed attempts are under
 `out/gm-coupled-validator-20260928/` in `bsc-exclusion-review`.
-Separate NOT-QUALIFIED candidates now cover thirty-two of 33 boolean-role
-profiles; the remaining profile is BTR. Full cohort and historical qualification
+These candidates raised separate NOT-QUALIFIED coverage to thirty-two of 33
+boolean-role profiles. Full cohort and historical qualification
 fixtures remain unchanged.
+
+The separate [BTR role-only candidate](../erc20/balances/docs/btr-coupled-role-candidate.md)
+completes candidate migration for all 33 boolean-role profiles. It replaces only
+the broad root-101 membership permission with complete root-101/root-151 operations
+and the exact PAUSER self-admin scalar. Every persisted admin write must set the
+source-bound role value, including equal writes and absent preimages. Unrelated
+runtime/proxy/pointer/balance and whitelist fields remain unchanged. Direct
+whitelist admission remains partial: nonzero array mutations refuse; zero-member
+add/sole-remove can pass with omitted or ignored equal array stores. Full direct
+whitelist admission is separate work. Fresh evidence is under
+`out/btr-coupled-validator-20260928/` in `network-verification-config`.
+All candidates remain NOT-QUALIFIED. Eight separate enumerable-role profiles
+across six runtime groups still need source-selected migration; four legitimate
+terminal records and six unresolved-source profiles retain their classifications.
+Source gaps, initial coherence, actual producer visibility and replacement
+runtime/package/getter/initialized-holder qualification remain open.
 
 The host ledger now validates exact epoch membership for holder and global
 rows. A transition from epoch 1 to epoch 3 cannot introduce undeclared epoch 2

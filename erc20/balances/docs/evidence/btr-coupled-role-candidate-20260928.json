@@ -1,0 +1,201 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "out/btr-coupled-validator-20260928/replay-01/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "out/btr-coupled-validator-20260928/replay-01/candidate-combined-layouts.json",
+      "sha256": "ce11604bcd6e0d0213804f3c1104babeb6b43e7aadab88b5451652759e528b9a"
+    },
+    {
+      "path": "out/btr-coupled-validator-20260928/replay-01/replay-role-candidates.rs",
+      "sha256": "fdef2ee3b632adb061014ba2649944c56289576c744fd694bd207c74c8d9302f"
+    },
+    {
+      "path": "out/btr-coupled-validator-20260928/replay-01/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "out/btr-coupled-validator-20260928/replay-01/blocks.jsonl",
+      "sha256": "d416b4e1cc58ff50d30888b2861a14e5e98c0e5969d35137d8e90d4047b436f4"
+    },
+    {
+      "path": "out/btr-coupled-validator-20260928/replay-01/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "out/btr-coupled-validator-20260928/replay-01/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "out/btr-coupled-validator-20260928/replay-01/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "attempted_block": 122289029,
+  "candidate_matches_current_baseline_all_blocks": true,
+  "candidate_profiles": {
+    "0xfed13d0c40790220fbde712987079eda1ed75c51": {
+      "cold_nonzero_reference_observations": 80,
+      "cold_reference_observations": 167,
+      "emitted_rows": 178,
+      "initialized_observed_holders": 16,
+      "persisted_fixed_pauser_admin_writes": 0,
+      "persisted_role_membership_writes": 0,
+      "persisted_whitelist_index_writes": 0,
+      "persisted_whitelist_length_writes": 0,
+      "same_block_reference_matches": 178,
+      "validated_coupled_role_operations": 0
+    }
+  },
+  "canonical_reference_interval_and_baseline_binding_verified": true,
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "completed_block_producer_versions": {
+    "5": 1024
+  },
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 124.290489208,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/btr-coupled-role-candidate/layouts.json",
+      "sha256": "ed4931ab73cf2e3a11b884436b9920cbc21ae9dd797b902c11350e93194a7b9c"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/btr-coupled-role-candidate/source-review.json",
+      "sha256": "06299a851c46900b305eb9286ed7bd61b124aab30c4dc0751708d8f66e47568d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_completed_block": 122289029,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 66265,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 110139,
+    "enumerated": [],
+    "first_block": 122288006,
+    "initialized_holders": 33591,
+    "known_zero_holders": 6197,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 33591,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "scope": "One NOT-QUALIFIED BTR role-only candidate replaces broad root101 with the exact independently proved root101/root151 template plus the fixed PAUSER self-admin scalar. Historical431 and whitelist length555/index556 are unchanged. Whitelist admission remains partial: nonzero array mutations refuse while source zero-address add/sole-remove may pass with equal array records omitted or ignored. Extended4/5 and real frames required; no current proxy/init/coherence/producer/package/holder qualification. Custom token primary gap remains; canonical values never seed retained state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "6dc8b6384993d7376b9f1c80fc6b523d6e733354593c38657b8b043e3f884d49",
+  "source_rechecks": [
+    {
+      "baseline_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+      "captures": [
+        {
+          "compiler_output_sha256": "c72916720a301b5eedf94f100b9c7cca4e35000eb77a252d5af68e1d7c53fcec",
+          "label": "implementation",
+          "runtime_keccak256": "0x44d6248ac6cfc67512326547ee54cf5e5d5a5573d4d65a8e94b29cb2f8e42949",
+          "sha256": "b45110e73361a6bdaf50181ec265b0c9cc00cab6dbafbe1c76f1262a57139b21",
+          "source_files": 31
+        },
+        {
+          "compiler_output_sha256": "6d93cd857f4bf15d98f3ed89bbfa154bf399957cd1f0df406ac4bc94f6b98a05",
+          "label": "proxy",
+          "runtime_keccak256": "0xbd576604a6f2b4dac58ff676c3912bd2ef37d52f93640e2d20c8d47de43d3418",
+          "sha256": "9c9fcd09b032a0ac632041217f5ce4000a20492c555e30e5ca5896fb14b6b320",
+          "source_files": 8
+        }
+      ],
+      "chain_id": 56,
+      "compiler": "0.8.24+commit.e11b9ed9",
+      "compiler_report_sha256": "6611a2d5959a206a632b1063813eddedb1a2dcbf083a41891454205622fa9866",
+      "contract": "0xfed13d0c40790220fbde712987079eda1ed75c51",
+      "exact_primary_files": 38,
+      "fixed_admin": {
+        "new_value": "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a",
+        "role": "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a",
+        "slot": "0xbfe93621c6aa2dbf737e9056c9b79e4d30ee4f6b28b18be2cb71aac8a7bf258f",
+        "source_initialization_scope": "exact compiled synthetic initializer, not deployed proxy/authorization qualification"
+      },
+      "implementation": "0xc8b5a0c5453c15157328b6cc1f1452be032a41f1",
+      "initial_coherence": "caller qualification assumption; all four void-super one-sided successes refused",
+      "logical_growth": "conservative checked admission; source maximum-length push wraps",
+      "membership_root": "0x0000000000000000000000000000000000000000000000000000000000000065",
+      "primary_sources_sha256": "198705036dc5a4b78cf6fe460651d89f8c356cbc5527feb8148e5b47ab47bdcc",
+      "producer_structure": {
+        "actual_positive_root_begin_required": true,
+        "actual_role_visibility": "unqualified",
+        "v3_fallback": false,
+        "versions": [
+          4,
+          5
+        ]
+      },
+      "proof_report_sha256": "4789b115a4b8af1d7be497ac192a0f62ba74f8815d417c2e8cd3b8584e3159c0",
+      "proof_transcripts_sha256": "93d600e5a11585d70320a8c40fd3f812be783038117c25353cc2996f7b082c5d",
+      "qualified": false,
+      "scope": "role-only candidate; inherited whitelist permissions unchanged and partial",
+      "semantics": "btr_token_solc_0_8_24_oz_4_9_3",
+      "set_root": "0x0000000000000000000000000000000000000000000000000000000000000097",
+      "source_gap": "The exact UNLICENSED BTRToken custom source has no recovered independent public primary revision. The official bitlayer-contracts basic/BTR.sol is a different non-upgradeable distribution token. Exact dependency matches and captured/compiler/runtime binding do not resolve that token gap.",
+      "synthetic_calls": 910,
+      "whitelist": {
+        "index_root": "0x000000000000000000000000000000000000000000000000000000000000022c",
+        "length": "0x000000000000000000000000000000000000000000000000000000000000022b",
+        "scope": "unchanged inherited partial permissions; nonzero array mutations refused, zero-address add/sole-remove can pass when equal array stores are omitted or ignored"
+      }
+    }
+  ],
+  "start_inclusive": 122288006,
+  "status": "passed_offline_role_candidate_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0,
+  "whitelist_counter_scope": "Changed persisted length555 and canonical address-index556 words only, separate from role/admin counters; not complete array visibility or full whitelist operation admission."
+}
