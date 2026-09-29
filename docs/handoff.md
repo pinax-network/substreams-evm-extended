@@ -447,6 +447,20 @@ terminal records and six unresolved-source profiles retain their classifications
 Source gaps, initial coherence, actual producer visibility and replacement
 runtime/package/getter/initialized-holder qualification remain open.
 
+The separate [ERC20TokenX host proof](../erc20/balances/docs/erc20tokenx-operation-proof.md)
+binds ORI and FNA's complete source/creation records to the shared 7,896-byte
+runtime without substitutions. PHI has only an exact historical runtime capture;
+its absent individual source and creation records remain explicit. Four pinned
+OpenZeppelin dependencies match exactly, while the custom token's independent
+primary revision remains unresolved. The 520 synthetic calls measure legacy
+root-8 role operations, self-swaps and equal stores, full-width authorization,
+raw getters and exact return/revert/INVALID behavior. Captured constructor
+attempts stop at unsupported CHAINID before role setup; fee callback and permit
+attempts retain their separate unsupported boundaries and roll back. No VM or
+production permission changes accompany this proof. All eight enumerable-role
+profiles still need separately reviewed candidates and qualification; a source
+matrix does not establish deployed initialization or actual producer visibility.
+
 The host ledger now validates exact epoch membership for holder and global
 rows. A transition from epoch 1 to epoch 3 cannot introduce undeclared epoch 2
 or carry its unchecked value into the successor. Nonconsecutive IDs remain

@@ -1,0 +1,85 @@
+{
+  "id": 31,
+  "title": "ORI/FNA/PHI shared ERC20TokenX host operation proof (Phase A)",
+  "issue": 4,
+  "status": "host-only operation proof and offline gates passed; NOT-QUALIFIED; no candidate",
+  "complete_capture_profiles": [
+    "0xda033999bb6165e64db01bd9be14b40f5653092e",
+    "0x08332a515cb2a57884176e887b682e7da2eb114e"
+  ],
+  "runtime_only_attribution": "0xa71add46ea4fbf0058b36e6baa39530f8e48b103",
+  "unique_source_files": 5,
+  "exact_primary_dependencies": 4,
+  "dependency_pin": "OpenZeppelin/openzeppelin-contracts@8e0296096449d9b1cd7c5631e917330635244c37",
+  "dependency_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/tree/8e0296096449d9b1cd7c5631e917330635244c37",
+  "custom_primary_gap": "No independent public revision for captured contracts/core/ERC20.sol established in reviewed material; exact captured bytes remain unchanged",
+  "phi_boundary": "Original source request contains null match labels and no source/creation/deployment fields. Exact runtime file and report are historical block 122288067 evidence, not a fresh chain read.",
+  "compiler": "0.7.5+commit.eb77ed08",
+  "compiler_sha256": "1c100ce86a3167fd4c194290aafec0d3d94fe86c7a1aa0837c1346cc93d8b6ce",
+  "compiler_keccak256": "0xff52724ea7d3e0913219c765b40f311f72fe1e5c95389020a165a1959e57e24f",
+  "compiler_manifest_revision": "16a99b8c26ed33a91796e209ff6797ee7baf2b0d",
+  "compiler_manifest_url": "https://github.com/ethereum/solc-bin/blob/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json",
+  "compiler_output_sha256": "ddc187357403c4cd7dd9d70cdfc63603a36178fe33e58cf986c4af585318aa61",
+  "settings": "Original optimizer enabled with 200 runs and empty libraries; default Istanbul confirmed by metadata. Only outputSelection added.",
+  "runtime_bytes": 7896,
+  "runtime_keccak256": "0xbaaa46c4d0133a30bd1020c46f86c0ea4ac0609d18317a95fc923efb5b22afdf",
+  "runtime_substitutions": 0,
+  "creation_bytes": 9347,
+  "creation_boundary": "Exact saved compiler object plus each original ORI/FNA constructor append reproduces saved creation bytes. Bounded execution cannot finish because unchanged VM lacks CHAINID. No initialized-set or fresh deployment qualification.",
+  "source_semantics": "Combined role root 8: length at offset 0, index anchor at offset 1, admin at offset 2; membership is index nonzero. Source has tail self-swap and no reachable _setRoleAdmin call. Exact operation order requires this runtime proof, not DSG relabeling.",
+  "evidence": "../../erc20/balances/docs/erc20tokenx-operation-proof.md",
+  "limits": [
+    "No production parser, layout, candidate, baseline, dependency or protobuf changes",
+    "No RPC, Firehose, Substreams, sink or saved-block replay",
+    "No external-call mocks or VM opcode relaxation",
+    "Malformed synthetic state never establishes coherent initial-state admission",
+    "Actual producer operation/preimage/equal-write visibility and runtime/package/holder qualification remain separate"
+  ],
+  "preserved_attempts": [
+    "source-01 refused a mismatched later-OpenZeppelin license hash before compilation; exact 3.4.2 notice pinned without changing source"
+  ],
+  "synthetic_calls": 520,
+  "returned_calls": 431,
+  "reverted_calls": 82,
+  "explicit_source_invalid_controls": 3,
+  "explicit_unsupported_controls": 4,
+  "full_opcode_records": 81550,
+  "mapped_effect_annotations": 2043,
+  "measured_store_pcs": {
+    "append": [
+      6309,
+      6325,
+      6344
+    ],
+    "remove": [
+      7072,
+      7092,
+      7123,
+      7125,
+      7150
+    ]
+  },
+  "unsupported_boundaries": "ORI/FNA CHAINID PC 509 after name/symbol/decimals; fee foreign EXTCODESIZE PC 5169 after two stores and two logs; permit TIMESTAMP PC 3331 before effects; all roll back",
+  "operation_attempt": "out/erc20tokenx-operation-proof-20260929/operations-03",
+  "compiler_attempt": "out/erc20tokenx-operation-proof-20260929/source-03",
+  "source_inventory_sha256": "b83de18f701ecf8641a638f68a0821598b261088870de9bdc37dd5fb1f20b0f0",
+  "source_inputs": 203,
+  "operation_report_sha256": "340d3d1b0ed1542a8e2328b05560bddb2d61d4e712411e399c9bcaf5628033a1",
+  "transcripts_sha256": "acb9ec23a5b0a5ffbfc6e9ed67237cd3f8252d6baf46fd4848fa803fdc6b1d8d",
+  "cases_inventory_sha256": "57794c74e64ac143bb2a651e44c44990c1eae1d162eded4ea211f891d1832a7b",
+  "reports": [
+    "../../erc20/balances/docs/evidence/erc20tokenx-operation-proof-20260929-compiler.json",
+    "../../erc20/balances/docs/evidence/erc20tokenx-operation-proof-20260929.json"
+  ],
+  "default_vm_equivalence": "Final transcripts and case inventory are byte-identical to the preceding expanded matrix after optional timestamp API integration. Existing entrypoint supplies no timestamp and preserves exact legacy failure text.",
+  "validation": {
+    "workspace_tests": 1129,
+    "test_suites": 92,
+    "new_focused_tests": 16,
+    "formatting": "passed",
+    "clippy_all_targets": "passed with warnings denied",
+    "wasm_workspace": "passed",
+    "base_commit": "30bbd68ee74b774029738cc9e2fc7cf24c9dc670",
+    "target": "out/erc20tokenx-operation-proof-20260929/target-isolated"
+  }
+}
