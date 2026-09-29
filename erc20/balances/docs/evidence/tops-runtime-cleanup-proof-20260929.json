@@ -1,0 +1,182 @@
+{
+  "args": [
+    "/Users/denis/.codex/worktrees/protocol-invalidation-boundary/substreams-evm-extended/out/tops-runtime-cleanup-proof-20260929/target-isolated/release/execute_tops_runtime_proof",
+    "out/tops-runtime-cleanup-proof-20260929/source-02",
+    "out/tops-runtime-cleanup-proof-20260929/operations-02"
+  ],
+  "calls": 400,
+  "cases_inventory_sha256": "a2d0d1b5898cc501cd4ea90c330e7c5a615ab05e7db7c271934c34be5e07932a",
+  "chain_calls": 0,
+  "compact_transcripts": 138,
+  "executed_opcode_counts": {
+    "0x01": 4578,
+    "0x02": 871,
+    "0x03": 3798,
+    "0x10": 2550,
+    "0x11": 1099,
+    "0x12": 639,
+    "0x14": 16187,
+    "0x15": 2761,
+    "0x16": 3417,
+    "0x17": 243,
+    "0x19": 797,
+    "0x1b": 2529,
+    "0x1c": 406,
+    "0x20": 2164,
+    "0x30": 227,
+    "0x32": 220,
+    "0x33": 147,
+    "0x34": 400,
+    "0x35": 952,
+    "0x36": 802,
+    "0x37": 2,
+    "0x3d": 254,
+    "0x3e": 4,
+    "0x42": 297,
+    "0x50": 4841,
+    "0x51": 1218,
+    "0x52": 4879,
+    "0x54": 3283,
+    "0x55": 1187,
+    "0x56": 6178,
+    "0x57": 24438,
+    "0x5a": 252,
+    "0x5b": 10401,
+    "0x5f": 6625,
+    "0x60": 18167,
+    "0x61": 30708,
+    "0x62": 2,
+    "0x63": 16454,
+    "0x67": 2,
+    "0x7f": 597,
+    "0x80": 4899,
+    "0x81": 21586,
+    "0x82": 5955,
+    "0x83": 1288,
+    "0x84": 979,
+    "0x85": 1317,
+    "0x86": 932,
+    "0x87": 493,
+    "0x88": 612,
+    "0x89": 114,
+    "0x8a": 114,
+    "0x90": 9415,
+    "0x91": 5376,
+    "0x92": 1468,
+    "0x93": 1363,
+    "0x94": 786,
+    "0x95": 69,
+    "0x96": 814,
+    "0x97": 216,
+    "0x98": 108,
+    "0xa3": 108,
+    "0xf3": 370,
+    "0xfa": 247,
+    "0xfd": 21
+  },
+  "explicit_unsupported_calls": 9,
+  "historical_compiler_inventory_sha256": "a3d755532cdc9c868b2941943e6e42dcc0c469062843d73781e3246c0c456c92",
+  "historical_compiler_report_sha256": "e473e5c6284bcc36ee0f325f356912c940eaa91dca29dd3c1006df3f6fde265a",
+  "historical_source_gap": "No exact independent public maintainer source pin was recovered for contracts/v1/token.sol (SPDX Unlicensed). Eight dependency bodies match the pinned OpenZeppelin v5.6.0 commit. Complete saved capture/runtime reconstruction does not establish current deployment or external dependencies.",
+  "invalid_calls": 0,
+  "preparation_source_inventory_sha256": "3496b348d03085d28aeeaa445b3aca9be81b3aa774dbae159e4380eb122bdcb1",
+  "qualified": false,
+  "returned_calls": 370,
+  "reverted_calls": 21,
+  "scope": "Exact capture-bound original TOPS runtime with synthetic local storage, explicit origin/time and ordered read-only external responses. GAS words are supplied values, not gas accounting or sufficiency. No callee bytecode executes. CALLVALUE is zero. No live chain, deployed state, caller authorization, constructor, swap/router, package, holder, validator or candidate qualification. Historical cleanup harness remains source-semantics-only. Unexpected interactions fail the host boundary even where source catch could absorb a normal callee revert.",
+  "source_artifacts": {
+    "LICENSE-OpenZeppelin": {
+      "bytes": 1090,
+      "sha256": "20aebc68b11c063133aa2af0ef4bb29875477c6d16d715718f0daec563938b84"
+    },
+    "LICENSE-execution-specs": {
+      "bytes": 6932,
+      "sha256": "f81577cb97c59ed748f9117fa839b80e3be0ec605a4b66c234e07468bc011808"
+    },
+    "TOPSCleanup.sol": {
+      "bytes": 3090,
+      "sha256": "1053ef43a3dd61504efe5e7aa22aa8438f68ac98fb0cff16b445a07ab50f3cc3"
+    },
+    "capture.json": {
+      "bytes": 809190,
+      "sha256": "bed5d7155189f849140fce44c4971a526a139b40b1ac4cc7d83db48b057a4c1a"
+    },
+    "compiler-version.txt": {
+      "bytes": 100,
+      "sha256": "df9e0e873736454fea76f295ae7f597b21a06ef9db8e44f20465ec7e2522521a"
+    },
+    "control_flow.py": {
+      "bytes": 3163,
+      "sha256": "cfd4781581c0f65d3a25534f8a4eb8cd2e749aa7d54c337ef4a89752fa894448"
+    },
+    "environment.py": {
+      "bytes": 12714,
+      "sha256": "a01c01b4266eed06bff799ef5886f86d7103ee8599f4e7fcba5b11a9b631669d"
+    },
+    "execution-spec-block.py": {
+      "bytes": 6131,
+      "sha256": "299ca6ed3ad79e3a3b2c8992744e84bb70c781beb1af0804a7dc4bfdab1e9801"
+    },
+    "full-input.json": {
+      "bytes": 135625,
+      "sha256": "666be4712e615d75784570368d854c72d5d226fe0a5e6961a12b419094eb2aa2"
+    },
+    "full-output.json": {
+      "bytes": 4046645,
+      "sha256": "653ee0d4f9ac33899d6bcc828f44e18eba517e02882bf09b39114fd3b0d73f7d"
+    },
+    "harness-extraction.json": {
+      "bytes": 1065,
+      "sha256": "27028cd594be2312f4cde32cc6e595e9010cef1e575c1ed9c34867ae9ee5d037"
+    },
+    "harness-input.json": {
+      "bytes": 3950,
+      "sha256": "5fe1baa7be5a236d3e20436c2c1e4ec4224bee312358e9e7c886b6feab08eacf"
+    },
+    "harness-output.json": {
+      "bytes": 177859,
+      "sha256": "d250f4f254f7bb50f8c1fb25995e6ba9d154278f510b1ffbfb7858d339b58956"
+    },
+    "historical-compiler-inventory.json": {
+      "bytes": 34909,
+      "sha256": "a3d755532cdc9c868b2941943e6e42dcc0c469062843d73781e3246c0c456c92"
+    },
+    "historical-compiler-report.json": {
+      "bytes": 5045,
+      "sha256": "e473e5c6284bcc36ee0f325f356912c940eaa91dca29dd3c1006df3f6fde265a"
+    },
+    "metadata-fresh.json": {
+      "bytes": 22908,
+      "sha256": "86dc8f7a5c56839386bcf34de679f0c6a0cf938ad2c611f6436724a7bd200cda"
+    },
+    "metadata-original.json": {
+      "bytes": 22908,
+      "sha256": "86dc8f7a5c56839386bcf34de679f0c6a0cf938ad2c611f6436724a7bd200cda"
+    },
+    "original-input.json": {
+      "bytes": 135443,
+      "sha256": "1f6f04eb402b6186484be9e748f08f1f523dee13baa18dfc5635ac0607472df8"
+    },
+    "primary-sources.json": {
+      "bytes": 91107,
+      "sha256": "0e5c56672de6090bf1bb2d404a7d59151b2e2690c236f88aad1dd6c48176340e"
+    },
+    "settings.json": {
+      "bytes": 678,
+      "sha256": "9b4f4951f0782e9a503ccab777f429b90602ce0a4db247cf11a0556a27c02801"
+    },
+    "solc-list.json": {
+      "bytes": 53429,
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    "system.py": {
+      "bytes": 19468,
+      "sha256": "32bc20f15831feb8327cc6770f6b963d56abfc996a36bc1b49655a8917ab85df"
+    }
+  },
+  "source_inventory_sha256": "3496b348d03085d28aeeaa445b3aca9be81b3aa774dbae159e4380eb122bdcb1",
+  "source_report_sha256": "b9230e2c3f3b80e394fa3a2e43c400a9284a729523ecb7a7376fd5cd87950de3",
+  "source_trees_equal": true,
+  "status": "passed",
+  "transcripts_sha256": "6ea61762e277c6f0b345bdf8b5fe6c86ec13d15d91b3ba73d3de04882686be02"
+}
