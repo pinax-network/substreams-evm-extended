@@ -1,7 +1,8 @@
 //! Exact observed-write witnesses for legacy DSG/OZ3.4.2 and the separately
-//! opted-in PTokenV2 solc0.8.28/OZ5.4, SecuritiesToken solc0.8.24/OZ5.3 and
-//! GM solc0.8.16/Ondo-vendor coupled membership/set templates. Names identify
-//! selected reviewed builds, not every contract using a library version.
+//! opted-in PTokenV2 solc0.8.28/OZ5.4, SecuritiesToken solc0.8.24/OZ5.3,
+//! GM solc0.8.16/Ondo-vendor and BTR solc0.8.24/OZ4.9.3 coupled membership/set
+//! templates. Names identify selected reviewed builds, not every contract using
+//! a library version.
 //!
 //! The caller binds the runtime and an outer mapping(bytes32 => RoleData) root.
 //! This rule grants event permissions, never an array range or an inferred key.
@@ -301,8 +302,8 @@ fn namespaces(
                 }
                 if let Some(base) = membership {
                     for key in [base, plus(base, ONE), plus(plus(base, ONE), ONE)] {
-                        // Only the selected Securities initializer's fixed
-                        // ISSUER admin scalar is a separate metadata capability.
+                        // Only an independently selected initializer's fixed
+                        // admin scalar is a separate metadata capability.
                         // It stays protected from operation aliases and remains
                         // a store barrier; it is never a membership stage.
                         if Some(key) == set.semantics.fixed_admin_slot() {
@@ -485,7 +486,7 @@ fn legacy_candidates(
     found
 }
 
-// Independently proven selected PToken, Securities and coherent GM templates.
+// Independently proven selected PToken, Securities, coherent GM and BTR templates.
 // Membership precedes every set mutation. No standalone bool/index/length
 // fragment can supply permission.
 fn coupled_candidates(
@@ -785,20 +786,22 @@ pub(crate) fn validate(
         .collect();
     let collected = collect(block, &accounts, &coupled_accounts)?;
     let events = &collected.events;
-    let fixed_admin: BTreeSet<_> = layouts
+    let fixed_admin: BTreeMap<_, _> = layouts
         .iter()
         .flat_map(|layout| {
-            layout
-                .enumerable_address_sets
-                .iter()
-                .filter_map(move |set| set.semantics.fixed_admin_slot().map(|slot| (layout.contract.clone(), slot)))
+            layout.enumerable_address_sets.iter().filter_map(move |set| {
+                set.semantics
+                    .fixed_admin_slot()
+                    .zip(set.semantics.fixed_admin_value())
+                    .map(|(slot, value)| ((layout.contract.clone(), slot), value))
+            })
         })
         .collect();
     for event in events {
-        if fixed_admin.contains(&(event.account.clone(), event.slot.key)) {
+        if let Some(expected) = fixed_admin.get(&(event.account.clone(), event.slot.key)) {
             require(
-                event.slot.new == ZERO,
-                "selected Securities ISSUER admin write must set DEFAULT_ADMIN_ROLE zero",
+                event.slot.new == *expected,
+                "selected fixed admin write must set its exact source-bound role value",
             )?;
         }
     }

@@ -187,6 +187,7 @@ mod offline {
         PToken,
         Securities,
         Gm,
+        Btr,
     }
     fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
@@ -203,7 +204,27 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::Gm {
+        if mode == Mode::Btr {
+            use erc20_balances_tools::btr_role as bound;
+            for name in ["layouts.json", "source-review.json"] {
+                paths.push(root.join(bound::FIXTURE).join(name));
+            }
+            for entry in fs::read_dir(root.join(bound::PROOF_FIXTURE))? {
+                let path = entry?.path();
+                if path.is_file() {
+                    paths.push(path);
+                }
+            }
+            for name in [
+                "docs/evidence/btr-operation-proof-20260928.json",
+                "docs/evidence/btr-operation-proof-20260928-transcripts.json",
+                "docs/evidence/btr-operation-proof-20260928-compiler.json",
+                "tests/btr_coupled_operations.rs",
+                "tools/tests/btr_role_candidate.rs",
+            ] {
+                paths.push(root.join(name));
+            }
+        } else if mode == Mode::Gm {
             use erc20_balances_tools::gm_role as bound;
             for name in ["layouts.json", "source-review.json"] {
                 paths.push(root.join(bound::FIXTURE).join(name));
@@ -505,6 +526,69 @@ mod offline {
         Ok(counts)
     }
 
+    // Diagnostic counters only. Retained whitelist anchors/indexes are not a
+    // direct-array operation rule; never infer array visibility or admission.
+    fn btr_auxiliary_writes(block: &eth::Block) -> Result<BTreeMap<&'static str, u64>> {
+        use erc20_balances_tools::btr_role as bound;
+        let address = hex::decode(&bound::CONTRACT[2..])?;
+        let admin = hex::decode(&bound::ADMIN_SLOT[2..])?;
+        let value = hex::decode(&bound::ADMIN_VALUE[2..])?;
+        let length = hex::decode(&bound::root(555)[2..])?;
+        let index = hex::decode(&bound::root(556)[2..])?;
+        let mut images = BTreeMap::new();
+        for call in block.system_calls.iter().chain(block.transaction_traces.iter().flat_map(|tx| &tx.calls)) {
+            for (key, image) in &call.keccak_preimages {
+                let key = hex::decode(key.trim_start_matches("0x"))?;
+                let raw = hex::decode(image.trim_start_matches("0x"))?;
+                ensure!(key == erc20_balances::hash(&raw), "invalid BTR counter preimage");
+                if let Some(previous) = images.insert(key, raw.clone()) {
+                    ensure!(previous == raw, "conflicting BTR counter preimage");
+                }
+            }
+        }
+        let mut counts = BTreeMap::from([
+            ("persisted_fixed_pauser_admin_writes", 0),
+            ("persisted_whitelist_length_writes", 0),
+            ("persisted_whitelist_index_writes", 0),
+        ]);
+        for write in block
+            .system_calls
+            .iter()
+            .chain(
+                block
+                    .transaction_traces
+                    .iter()
+                    .filter(|tx| tx.status() == eth::TransactionTraceStatus::Succeeded)
+                    .flat_map(|tx| &tx.calls),
+            )
+            .filter(|call| !call.state_reverted)
+            .flat_map(|call| &call.storage_changes)
+            .filter(|w| w.address == address && w.key.len() == 32 && w.old_value.len() <= 32 && w.new_value.len() <= 32)
+        {
+            if write
+                .old_value
+                .iter()
+                .skip_while(|b| **b == 0)
+                .eq(write.new_value.iter().skip_while(|b| **b == 0))
+            {
+                continue;
+            }
+            if write.key == admin && write.new_value == value {
+                *counts.get_mut("persisted_fixed_pauser_admin_writes").unwrap() += 1;
+            }
+            if write.key == length {
+                *counts.get_mut("persisted_whitelist_length_writes").unwrap() += 1;
+            }
+            if images
+                .get(&write.key)
+                .is_some_and(|raw| raw.len() == 64 && raw[..12] == [0; 12] && raw[32..] == index)
+            {
+                *counts.get_mut("persisted_whitelist_index_writes").unwrap() += 1;
+            }
+        }
+        Ok(counts)
+    }
+
     // Count only changed persisted writes to the exact source-derived scalar.
     // Called after successful projection; this is not initializer execution proof.
     fn securities_admin_writes(block: &eth::Block, candidates: &Value) -> Result<BTreeMap<String, u64>> {
@@ -650,6 +734,8 @@ mod offline {
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
         let candidate_path = root.join(if mode == Mode::Gm {
             "tests/fixtures/gm-coupled-role-candidate/layouts.json"
+        } else if mode == Mode::Btr {
+            "tests/fixtures/btr-coupled-role-candidate/layouts.json"
         } else if mode == Mode::Securities {
             "tests/fixtures/securities-coupled-role-candidate/layouts.json"
         } else if mode == Mode::PToken {
@@ -673,6 +759,8 @@ mod offline {
         });
         let review_path = root.join(if mode == Mode::Gm {
             "tests/fixtures/gm-coupled-role-candidate/source-review.json"
+        } else if mode == Mode::Btr {
+            "tests/fixtures/btr-coupled-role-candidate/source-review.json"
         } else if mode == Mode::Securities {
             "tests/fixtures/securities-coupled-role-candidate/source-review.json"
         } else if mode == Mode::PToken {
@@ -701,7 +789,7 @@ mod offline {
             candidates.as_array().context("candidate array")?.len()
                 == if mode == Mode::Securities {
                     17
-                } else if matches!(mode, Mode::Burnmint | Mode::Bas | Mode::Tagger | Mode::Artx | Mode::PToken) {
+                } else if matches!(mode, Mode::Burnmint | Mode::Bas | Mode::Tagger | Mode::Artx | Mode::PToken | Mode::Btr) {
                     1
                 } else {
                     2
@@ -712,6 +800,30 @@ mod offline {
             use erc20_balances_tools::gm_role as bound;
             bound::verify_cache(root, cache)?;
             ensure!(review == bound::review(root)?, "GM review differs from complete frozen proof");
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([review])
+        } else if mode == Mode::Btr {
+            use erc20_balances_tools::{btr_proof as proof, btr_role as bound};
+            let mut raw = vec![];
+            let mut compiled = vec![];
+            for (i, p) in proof::CAPTURES.iter().enumerate() {
+                let capture = fs::read(root.join(bound::PROOF_FIXTURE).join(format!("{}-capture.json", p.label)))?;
+                ensure!(capture == fs::read(cache.join(bound::CACHES[i]))?, "BTR original {} capture mismatch", p.label);
+                raw.push(capture);
+                compiled.push(fs::read(root.join(bound::PROOF_FIXTURE).join(format!("{}-compiler-output.json", p.label)))?);
+            }
+            ensure!(
+                review
+                    == bound::review(
+                        [&raw[0], &raw[1]],
+                        [&compiled[0], &compiled[1]],
+                        &fs::read(root.join("docs/evidence/btr-operation-proof-20260928-transcripts.json"))?,
+                        &fs::read(root.join("docs/evidence/btr-operation-proof-20260928.json"))?,
+                        &fs::read(root.join(bound::PROOF_FIXTURE).join("primary-sources.json"))?,
+                        &fs::read(root.join("docs/evidence/btr-operation-proof-20260928-compiler.json"))?
+                    )?,
+                "BTR review differs from frozen complete proof"
+            );
             bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
             json!([review])
         } else if mode == Mode::Securities {
@@ -846,6 +958,29 @@ mod offline {
                 .iter_mut()
                 .find(|v| v["contract"] == candidate["contract"])
                 .context("candidate absent from baseline")?;
+            if mode == Mode::Btr {
+                use erc20_balances_tools::btr_role as bound;
+                let mut restored = candidate.clone();
+                ensure!(
+                    restored.as_object_mut().unwrap().remove("enumerable_address_sets").is_some(),
+                    "BTR coupled rule missing"
+                );
+                ensure!(
+                    restored["other_mapping_words"]
+                        .as_object_mut()
+                        .context("BTR legacy words")?
+                        .insert(bound::root(101), json!(2))
+                        .is_none(),
+                    "BTR broad membership retained"
+                );
+                ensure!(
+                    restored["other_slots"].as_array_mut().context("BTR scalar slots")?.pop() == Some(json!(bound::ADMIN_SLOT)),
+                    "only appended PAUSER scalar"
+                );
+                ensure!(restored == *original, "BTR candidate changed unrelated baseline/whitelist fields");
+                *original = candidate.clone();
+                continue;
+            }
             if mode == Mode::Securities {
                 use erc20_balances_tools::securities_role as bound;
                 let mut restored = candidate.clone();
@@ -1001,7 +1136,7 @@ mod offline {
                 "cached block/clock identity mismatch at {height}"
             );
             ensure!(block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32, "non-Extended block");
-            if matches!(mode, Mode::PToken | Mode::Securities | Mode::Gm) {
+            if matches!(mode, Mode::PToken | Mode::Securities | Mode::Gm | Mode::Btr) {
                 ensure!(
                     matches!(block.ver, 4 | 5),
                     "selected coupled replay requires reviewed Extended version4/5 at {height}"
@@ -1037,7 +1172,7 @@ mod offline {
                     .or_default() += tagger_admin_writes(&block)?;
             }
             let mut actual = erc20_balances::project(&block, &layouts).map_err(|e| anyhow::anyhow!("native map failed at {height}: {e}"))?;
-            if matches!(mode, Mode::PToken | Mode::Securities | Mode::Gm) {
+            if matches!(mode, Mode::PToken | Mode::Securities | Mode::Gm | Mode::Btr) {
                 // Each changing boolean belongs to exactly one complete operation
                 // only after the coupled projector succeeds. This is not a claim
                 // that a captured producer exposes operations absent from this window.
@@ -1055,6 +1190,15 @@ mod offline {
                 }
             }
             normalize(&mut actual)?;
+            if mode == Mode::Btr {
+                for (field, count) in btr_auxiliary_writes(&block)? {
+                    *selected_counts
+                        .get_mut(erc20_balances_tools::btr_role::CONTRACT)
+                        .unwrap()
+                        .entry(field)
+                        .or_default() += count;
+                }
+            }
             let mut baseline_actual = erc20_balances::project(&block, &baseline).map_err(|e| anyhow::anyhow!("baseline map failed at {height}: {e}"))?;
             normalize(&mut baseline_actual)?;
             ensure!(actual == baseline_actual, "candidate differs from unchanged current baseline at {height}");
@@ -1266,8 +1410,9 @@ mod offline {
             Some("--ptoken") => Mode::PToken,
             Some("--securities") => Mode::Securities,
             Some("--gm") => Mode::Gm,
+            Some("--btr") => Mode::Btr,
             _ => bail!(
-                "expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft, --ptoken, --securities or --gm, followed by <original package root>"
+                "expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft, --ptoken, --securities, --gm or --btr, followed by <original package root>"
             ),
         };
         let cache = if mode != Mode::TokenCys {
@@ -1307,6 +1452,10 @@ mod offline {
         }
         if mode == Mode::Gm {
             report["scope"] = json!("Two NOT-QUALIFIED GM beacon-proxy candidates replace only their broad root201 role rule with the exact solc0.8.16/Ondo-vendor coherent membership/set template at roots201/251. All finite long-name scalar words, proxy/beacon/implementation bindings and other metadata remain unchanged. All four one-sided legacy source controls are refused. Extended4/5 real frames required. Saved parity is not initial coherence, actual producer role visibility, deployment/proxy/external-client execution, runtime/package or live qualification. Five custom primary source gaps and null creation bindings remain. Canonical values never seed state.");
+        }
+        if mode == Mode::Btr {
+            report["scope"]=json!("One NOT-QUALIFIED BTR role-only candidate replaces broad root101 with the exact independently proved root101/root151 template plus the fixed PAUSER self-admin scalar. Historical431 and whitelist length555/index556 are unchanged. Whitelist admission remains partial: nonzero array mutations refuse while source zero-address add/sole-remove may pass with equal array records omitted or ignored. Extended4/5 and real frames required; no current proxy/init/coherence/producer/package/holder qualification. Custom token primary gap remains; canonical values never seed retained state.");
+            report["whitelist_counter_scope"]=json!("Changed persisted length555 and canonical address-index556 words only, separate from role/admin counters; not complete array visibility or full whitelist operation admission.");
         }
         if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");
@@ -1415,6 +1564,166 @@ mod offline {
                 }
             }
         }
+
+        #[test]
+        fn btr_role_admin_and_partial_whitelist_counters_have_distinct_witnesses() {
+            use erc20_balances_tools::btr_role as bound;
+            let candidates: Value = serde_json::from_str(include_str!("../../../tests/fixtures/btr-coupled-role-candidate/layouts.json")).unwrap();
+            let traces: Value = serde_json::from_str(include_str!("../../../docs/evidence/btr-operation-proof-20260928-transcripts.json")).unwrap();
+            let address = hex::decode(&bound::CONTRACT[2..]).unwrap();
+            let make = |name: &str| {
+                let trace = traces.as_array().unwrap().iter().find(|t| t["name"] == name).unwrap();
+                let call = eth::Call {
+                    address: address.clone(),
+                    begin_ordinal: 1,
+                    end_ordinal: 2000,
+                    keccak_preimages: trace["execution"]["keccaks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|k| {
+                            (
+                                k["output"].as_str().unwrap().trim_start_matches("0x").to_owned(),
+                                k["input"].as_str().unwrap().to_owned(),
+                            )
+                        })
+                        .collect(),
+                    storage_changes: trace["execution"]["writes"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|w| eth::StorageChange {
+                            address: address.clone(),
+                            key: decode_hex(&w["key"]).unwrap(),
+                            old_value: decode_hex(&w["old"]).unwrap(),
+                            new_value: decode_hex(&w["new"]).unwrap(),
+                            ordinal: w["step"].as_u64().unwrap() + 10,
+                        })
+                        .collect(),
+                    ..Default::default()
+                };
+                eth::Block {
+                    ver: 5,
+                    number: 122288046,
+                    hash: vec![7; 32],
+                    header: Some(eth::BlockHeader {
+                        number: 122288046,
+                        parent_hash: vec![6; 32],
+                        state_root: vec![8; 32],
+                        ..Default::default()
+                    }),
+                    detail_level: eth::block::DetailLevel::DetaillevelExtended as i32,
+                    transaction_traces: vec![eth::TransactionTrace {
+                        status: eth::TransactionTraceStatus::Succeeded as i32,
+                        begin_ordinal: 1,
+                        end_ordinal: 2000,
+                        calls: vec![call],
+                        ..Default::default()
+                    }],
+                    ..Default::default()
+                }
+            };
+            let layouts = erc20_balances::layout::parse(&candidates.to_string()).unwrap();
+            for (name, role, length, index, admitted) in [
+                ("role_add_empty", 1, 0, 0, true),
+                ("role_remove_first", 1, 0, 0, true),
+                ("wrapper_minter_add", 1, 0, 0, true),
+                ("role_duplicate", 0, 0, 0, true),
+                ("whitelist_add_zero_empty", 0, 1, 1, true),
+                ("whitelist_remove_zero_sole", 0, 1, 1, true),
+                ("whitelist_duplicate", 0, 0, 0, true),
+                ("whitelist_add_empty", 0, 1, 1, false),
+                ("whitelist_remove_first", 0, 1, 2, false),
+            ] {
+                let b = make(name);
+                assert_eq!(erc20_balances::project(&b, &layouts).is_ok(), admitted, "{name}");
+                assert_eq!(membership_writes(&b, &candidates).unwrap()[bound::CONTRACT], role);
+                let counts = btr_auxiliary_writes(&b).unwrap();
+                assert_eq!(counts["persisted_fixed_pauser_admin_writes"], 0);
+                assert_eq!(counts["persisted_whitelist_length_writes"], length);
+                assert_eq!(counts["persisted_whitelist_index_writes"], index);
+            }
+            let mut b = make("whitelist_add_zero_empty");
+            b.transaction_traces[0].calls[0].storage_changes.push(eth::StorageChange {
+                address: address.clone(),
+                key: hex::decode(&bound::ADMIN_SLOT[2..]).unwrap(),
+                old_value: vec![0; 32],
+                new_value: hex::decode(&bound::ADMIN_VALUE[2..]).unwrap(),
+                ordinal: 1500,
+            });
+            erc20_balances::project(&b, &layouts).unwrap();
+            assert!(btr_auxiliary_writes(&b).unwrap().values().all(|n| *n == 1));
+            for mutation in ["failed", "reverted", "address", "noop", "wide_old", "wide_new", "short_key"] {
+                let mut changed = b.clone();
+                let tx = &mut changed.transaction_traces[0];
+                match mutation {
+                    "failed" => tx.status = eth::TransactionTraceStatus::Failed as i32,
+                    "reverted" => tx.calls[0].state_reverted = true,
+                    _ => {
+                        for w in &mut tx.calls[0].storage_changes {
+                            match mutation {
+                                "address" => w.address = vec![0; 20],
+                                "noop" => w.new_value = w.old_value.clone(),
+                                "wide_old" => w.old_value = vec![0; 33],
+                                "wide_new" => w.new_value = vec![1; 33],
+                                "short_key" => {
+                                    w.key.pop();
+                                }
+                                _ => unreachable!(),
+                            }
+                        }
+                    }
+                }
+                assert!(btr_auxiliary_writes(&changed).unwrap().values().all(|n| *n == 0), "{mutation}");
+            }
+            let mut missing = b.clone();
+            missing.transaction_traces[0].calls[0].keccak_preimages.clear();
+            let counts = btr_auxiliary_writes(&missing).unwrap();
+            assert_eq!(counts["persisted_fixed_pauser_admin_writes"], 1);
+            assert_eq!(counts["persisted_whitelist_length_writes"], 1);
+            assert_eq!(counts["persisted_whitelist_index_writes"], 0);
+            let mut corrupt = b.clone();
+            let key = corrupt.transaction_traces[0].calls[0].keccak_preimages.keys().next().unwrap().clone();
+            corrupt.transaction_traces[0].calls[0].keccak_preimages.insert(key, "ff".repeat(64));
+            assert!(btr_auxiliary_writes(&corrupt).is_err());
+            for value in [vec![0; 32], vec![1; 32]] {
+                let mut changed = b.clone();
+                changed.transaction_traces[0].calls[0].storage_changes.last_mut().unwrap().new_value = value;
+                assert_eq!(btr_auxiliary_writes(&changed).unwrap()["persisted_fixed_pauser_admin_writes"], 0);
+            }
+            // Recomputed but noncanonical/incorrect-parent index preimages must
+            // not count as whitelist membership, even in this diagnostic.
+            for padding in [false, true] {
+                let mut changed = b.clone();
+                let call = &mut changed.transaction_traces[0].calls[0];
+                let root = hex::decode(&bound::root(556)[2..]).unwrap();
+                let (key, image) = call
+                    .keccak_preimages
+                    .iter()
+                    .find(|(_, image)| {
+                        let raw = hex::decode(image.trim_start_matches("0x")).unwrap();
+                        raw.len() == 64 && raw[32..] == root
+                    })
+                    .map(|(k, v)| (k.clone(), v.clone()))
+                    .unwrap();
+                let mut raw = hex::decode(image.trim_start_matches("0x")).unwrap();
+                if padding {
+                    raw[0] = 1;
+                } else {
+                    raw[63] ^= 1;
+                }
+                let replacement = erc20_balances::hash(&raw);
+                call.keccak_preimages.remove(&key);
+                call.keccak_preimages.insert(hex::encode(replacement), hex::encode(raw));
+                for w in &mut call.storage_changes {
+                    if hex::encode(&w.key) == key {
+                        w.key = replacement.to_vec();
+                    }
+                }
+                assert_eq!(btr_auxiliary_writes(&changed).unwrap()["persisted_whitelist_index_writes"], 0);
+            }
+        }
+
         #[test]
         fn securities_counters_separate_complete_operations_from_fixed_admin_writes() {
             use erc20_balances_tools::securities_role as bound;

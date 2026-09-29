@@ -681,7 +681,14 @@ the captured implementation and proxy using official solc 0.8.24, with 39 source
 files and 38 exact dependency pins. It targets the selected OZ 4 coupled role
 operations and independent whitelist set in synthetic accounts. The custom
 token's primary source gap, proxy-dispatch boundary and missing deployed-state
-qualification remain explicit; no BTR ingestion rule or candidate is added.
+qualification remain explicit.
+
+The separate [BTR role-only candidate](docs/btr-coupled-role-candidate.md) narrows
+root101/root151 to the independently proved selected-build template and requires
+the exact PAUSER self-admin value. Whitelist length555/index556 permissions are
+unchanged and partial: nonzero array mutations refuse, while zero-address add or
+sole removal can pass with equal array stores omitted or ignored. Full whitelist
+admission and deployed/producer/package qualification remain separate work.
 
 The [SecuritiesToken Phase A proof](docs/securities-operation-proof.md) binds all
 31 captured sources to official solc 0.8.24 and the exact full implementation
