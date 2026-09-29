@@ -143,6 +143,19 @@ incomplete operations and conservative malformed-state refusals. Recognized
 standalone no-ops refuse; unrecognized equal array words retain ordinary no-op
 handling. Three of eight enumerable profiles now have separate candidates.
 
+The separate [WKEYDAO/GOT host proof](wkey-got-operation-proof.md) binds two
+different complete runtimes and their root-9/root-8 combined role schemas.
+Independent compilation and 1,263 synthetic calls measure ordered roles,
+authorization, getters, cap reduction on burn and source-specific fee arithmetic.
+WKEYDAO construction stops at unsupported CHAINID with full rollback; GOT's
+synthetic constructor returns its exact runtime after the expected stores and
+logs. Neither proves deployed initial coherence or adds creation permission.
+Four shared and two additional GOT dependencies match the immutable upstream
+pin; both custom token primary revisions remain unresolved. No candidate,
+production validator or VM change accompanies this proof, so the remaining
+five-profile migration count is unchanged. A later GOT candidate must remove
+both broad root-8 permissions; WKEYDAO's selected role root is 9.
+
 TOPS's [separate host proof](tops-operation-proof.md) concerns a three-word
 struct array and wrapping LP credits under issue #61, outside this role cohort.
 Original append/getter execution and the unchanged-body cleanup harness do not

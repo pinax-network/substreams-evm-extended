@@ -746,3 +746,5 @@ separate from source execution and replacement-package qualification.
 and exercises synthetic local append/getter paths plus a separate cleanup source
 harness. It adds no array validator or candidate; all six issue #61 exclusions remain.
 The original transfer and constructor require unsupported external calls.
+
+Host-only [WKEYDAO/GOT operation proof](docs/wkey-got-operation-proof.md) binds two separate legacy runtimes and state schemas. Final compilation and 1,263 synthetic operations passed against the same source inventory, with copied evidence and all offline workspace gates. It adds no ingestion candidate or live qualification.
