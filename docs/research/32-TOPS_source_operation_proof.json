@@ -1,0 +1,52 @@
+{
+  "title": "TOPS bounded source/operation proof (Phase A)",
+  "status": "not_qualified_host_proof_passed",
+  "scope": "Host-only exact full-runtime append/getters and separately compiled exact-source cleanup semantics. No array validator/candidate or successful external execution.",
+  "chain_id": 56,
+  "contract": "0xcdf52c0b13c24f32f1d8d4ec6356203a1ef0826a",
+  "capture_sha256": "bed5d7155189f849140fce44c4971a526a139b40b1ac4cc7d83db48b057a4c1a",
+  "source_pin": "OpenZeppelin/openzeppelin-contracts@56a3de2cea907c9a500d32e70c275f68393b7ba6: eight exact dependencies; contracts/v1/token.sol exact captured source, independent maintainer pin unresolved",
+  "compiler_pin": "ethereum/solc-bin@16a99b8c26ed33a91796e209ff6797ee7baf2b0d macosx-amd64 0.8.28+commit.7893614a",
+  "timestamp_spec_pin": "ethereum/execution-specs@3e170675290673a68eeb4652501fb2ae74fea0cb src/ethereum/forks/cancun/vm/instructions/block.py:101-132",
+  "source_url": "https://github.com/OpenZeppelin/openzeppelin-contracts/tree/56a3de2cea907c9a500d32e70c275f68393b7ba6",
+  "full_output_sha256": "653ee0d4f9ac33899d6bcc828f44e18eba517e02882bf09b39114fd3b0d73f7d",
+  "harness_output_sha256": "d250f4f254f7bb50f8c1fb25995e6ba9d154278f510b1ffbfb7858d339b58956",
+  "runtime_keccak256": "0xf4dc8abcac62d4707f5a839731c0e2b3dde17c643accf43299541c421ba0050b",
+  "findings": [
+    "Root31 mapping(address=>LPInfo[]) has three uint256 words; root 32 is available LP credit.",
+    "Cleanup uses wrapping sums and performs no mutation when expiredAmount wraps to zero.",
+    "Aggregate getters use checked addition.",
+    "Exact struct-array push requires old length < 2^64; invalid auto-getter index yields empty REVERT.",
+    "Constructor and transfer require external calls; existing bounded VM stops as HarnessFailure before them.",
+    "Root32 also has separate constructor/liquidity writers; no global always-coupled invariant is claimed."
+  ],
+  "evidence": "erc20/balances/docs/tops-operation-proof.md",
+  "remaining_gates": [
+    "Independent custom-token source pin",
+    "Reviewed production array template and separate candidate/replay",
+    "Current runtime/external dependencies and authorized package/getter/holder qualification"
+  ],
+  "chain_calls": 0,
+  "final_source": "out/tops-operation-proof-20260929/source-04",
+  "final_operations": "out/tops-operation-proof-20260929/operations-07",
+  "calls": {
+    "total": 605,
+    "return": 505,
+    "expected_revert": 98,
+    "explicit_unsupported": 2,
+    "unexpected_invalid_or_harness_failure": 0,
+    "compact_transcripts": 49
+  },
+  "source_inventory_sha256": "a3d755532cdc9c868b2941943e6e42dcc0c469062843d73781e3246c0c456c92",
+  "operation_report_sha256": "e93877adf19cafa0cf36353364160f82a5ce13975c458ee9347fb2fdf278fab3",
+  "workspace_gates": {
+    "status": "passed",
+    "tests": 1113,
+    "suites": 88,
+    "nonempty_suites": 61,
+    "all_target_clippy": true,
+    "wasm_workspace": true,
+    "formatting": true,
+    "logs": "out/tops-operation-proof-20260929/24-workspace-tests.log through 27-final-format.log"
+  }
+}

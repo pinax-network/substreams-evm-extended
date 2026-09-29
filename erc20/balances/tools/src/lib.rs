@@ -36,6 +36,7 @@ pub mod securities_proof;
 pub mod securities_role;
 pub mod survey;
 pub mod tagger_role;
+pub mod tops_proof;
 pub mod trace_context;
 pub mod ybc_rewards;
 

@@ -206,3 +206,42 @@ fn ptoken_vm_zero_sized_memory_ignores_max_offset_and_witness_limit_rolls_back()
     assert_eq!(e.committed, prestate);
     assert!(e.committed_logs.is_empty());
 }
+
+#[test]
+fn explicit_timestamp_preserves_full_word_and_repeated_reads() {
+    // TIMESTAMP twice, with independent word stores and a 64-byte return.
+    let code = hex::decode("425f524260205260405ff3").unwrap();
+    let pre = State::from([(7.into(), 19.into())]);
+    for timestamp in [U256::zero(), U256::one(), U256::one() << 64, U256::one() << 255, U256::MAX] {
+        let e = execute_with_timestamp(&code, &[], 1.into(), 2.into(), &pre, Some(timestamp));
+        assert_eq!(e.exit, Exit::Return([word(timestamp), word(timestamp)].concat()));
+        assert_eq!(e.committed, pre);
+        assert!(e.writes.is_empty() && e.logs.is_empty() && e.reads.is_empty());
+    }
+}
+#[test]
+fn absent_timestamp_stays_unsupported_and_all_failures_rollback() {
+    let code = hex::decode("6001600755425f5260205ff3").unwrap();
+    let pre = State::from([(7.into(), 19.into())]);
+    for e in [
+        execute(&code, &[], 1.into(), 2.into(), &pre),
+        execute_with_self_code_size(&code, &[], 1.into(), 2.into(), &pre, Some(10)),
+        execute_with_timestamp(&code, &[], 1.into(), 2.into(), &pre, None),
+    ] {
+        assert!(matches!(e.exit, Exit::HarnessFailure(ref why) if why == "unsupported opcode 0x42 at pc 5"));
+        assert_eq!(e.committed, pre);
+        assert_eq!(e.writes.len(), 1);
+        assert!(e.committed_logs.is_empty());
+    }
+    let revert = hex::decode("426007555f5ffd").unwrap();
+    let e = execute_with_timestamp(&revert, &[], 1.into(), 2.into(), &pre, Some(U256::MAX));
+    assert_eq!(e.exit, Exit::Revert(vec![]));
+    assert_eq!(e.committed, pre);
+    assert_eq!(e.writes[0].new, U256::MAX);
+    for op in [0x32, 0x43, 0x5a, 0xf1, 0xfa] {
+        assert!(matches!(
+            execute_with_timestamp(&[op], &[], 1.into(), 2.into(), &pre, Some(1.into())).exit,
+            Exit::HarnessFailure(_)
+        ));
+    }
+}

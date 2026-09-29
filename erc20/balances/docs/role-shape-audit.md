@@ -126,6 +126,12 @@ six runtime groups still need their own source-selected migration. Four legitima
 terminal-record profiles and six source-unavailable profiles retain the original
 audit's separate findings; they are not plain membership migrations.
 
+TOPS's [separate host proof](tops-operation-proof.md) concerns a three-word
+struct array and wrapping LP credits under issue #61, outside this role cohort.
+Original append/getter execution and the unchanged-body cleanup harness do not
+make it an enumerable role set. Any future ingestion rule needs its own complete
+operation and producer review; no TOPS candidate is added by that host proof.
+
 Fresh runtime/dependency controls, actual replacement-package/getter output,
 initialized-holder/final-state checks and relevant role-operation observations
 remain promotion gates. No row in this table claims live replacement

@@ -80,6 +80,7 @@ struct Machine<'a> {
     caller: U256,
     address: U256,
     self_code_size: Option<usize>,
+    timestamp: Option<U256>,
     stack: Vec<U256>,
     memory: Vec<u8>,
     state: State,
@@ -266,6 +267,10 @@ impl Machine<'_> {
                     self.keccaks.push(Keccak { step, pc, input, output });
                     self.push(output)?;
                 }
+                0x42 => match self.timestamp {
+                    Some(timestamp) => self.push(timestamp)?,
+                    None => bail!("unsupported opcode 0x42 at pc {pc}"),
+                },
                 0x30 => self.push(self.address)?,
                 0x33 => self.push(self.caller)?,
                 0x34 | 0x3d => self.push(U256::zero())?,
@@ -409,22 +414,47 @@ impl Machine<'_> {
     }
 }
 pub fn execute(code: &[u8], data: &[u8], caller: U256, address: U256, prestate: &State) -> Execution {
-    execute_with_limit(code, data, caller, address, prestate, WITNESS_LIMIT, None)
+    execute_with_limit(code, data, caller, address, prestate, WITNESS_LIMIT, Environment::default())
 }
 /// Explicit local self-account fact, independent of the supplied execution code.
 /// None preserves the original fail-closed behavior for any EXTCODESIZE query.
 pub fn execute_with_self_code_size(code: &[u8], data: &[u8], caller: U256, address: U256, prestate: &State, self_code_size: Option<usize>) -> Execution {
-    execute_with_limit(code, data, caller, address, prestate, WITNESS_LIMIT, self_code_size)
+    execute_with_limit(
+        code,
+        data,
+        caller,
+        address,
+        prestate,
+        WITNESS_LIMIT,
+        Environment {
+            self_code_size,
+            timestamp: None,
+        },
+    )
 }
-fn execute_with_limit(
-    code: &[u8],
-    data: &[u8],
-    caller: U256,
-    address: U256,
-    prestate: &State,
-    witness_limit: usize,
+/// Explicit timestamp, measured in seconds since the Unix epoch (EVM TIMESTAMP).
+/// None is unsupported, including in all preexisting entrypoints. No chain facts
+/// or gas/fork model are inferred. U256 preserves the opcode word domain.
+pub fn execute_with_timestamp(code: &[u8], data: &[u8], caller: U256, address: U256, prestate: &State, timestamp: Option<U256>) -> Execution {
+    execute_with_limit(
+        code,
+        data,
+        caller,
+        address,
+        prestate,
+        WITNESS_LIMIT,
+        Environment {
+            self_code_size: None,
+            timestamp,
+        },
+    )
+}
+#[derive(Default)]
+struct Environment {
     self_code_size: Option<usize>,
-) -> Execution {
+    timestamp: Option<U256>,
+}
+fn execute_with_limit(code: &[u8], data: &[u8], caller: U256, address: U256, prestate: &State, witness_limit: usize, environment: Environment) -> Execution {
     let mut destinations = BTreeSet::new();
     let mut pc = 0;
     while pc < code.len() {
@@ -439,7 +469,8 @@ fn execute_with_limit(
         data,
         caller,
         address,
-        self_code_size,
+        self_code_size: environment.self_code_size,
+        timestamp: environment.timestamp,
         stack: vec![],
         memory: vec![],
         state: prestate.clone(),
@@ -469,5 +500,5 @@ fn execute_with_limit(
 
 #[cfg(test)]
 pub(super) fn small_witness_execution(code: &[u8], prestate: &State) -> Execution {
-    execute_with_limit(code, &[], 0.into(), 0.into(), prestate, 64, None)
+    execute_with_limit(code, &[], 0.into(), 0.into(), prestate, 64, Environment::default())
 }

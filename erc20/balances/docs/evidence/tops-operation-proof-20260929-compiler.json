@@ -1,0 +1,110 @@
+{
+  "args": [
+    "out/tops-operation-proof-20260929/target-isolated/debug/build_tops_proof",
+    "erc20/balances/tests/fixtures/tops-operation-proof/capture.json",
+    "out/tops-operation-proof-20260929/solc-0.8.28-official",
+    "out/tops-operation-proof-20260929/source-04"
+  ],
+  "artifacts": [
+    {
+      "file": "capture.json",
+      "sha256": "bed5d7155189f849140fce44c4971a526a139b40b1ac4cc7d83db48b057a4c1a"
+    },
+    {
+      "file": "original-input.json",
+      "sha256": "1f6f04eb402b6186484be9e748f08f1f523dee13baa18dfc5635ac0607472df8"
+    },
+    {
+      "file": "full-input.json",
+      "sha256": "666be4712e615d75784570368d854c72d5d226fe0a5e6961a12b419094eb2aa2"
+    },
+    {
+      "file": "full-output.json",
+      "sha256": "653ee0d4f9ac33899d6bcc828f44e18eba517e02882bf09b39114fd3b0d73f7d"
+    },
+    {
+      "file": "harness-input.json",
+      "sha256": "5fe1baa7be5a236d3e20436c2c1e4ec4224bee312358e9e7c886b6feab08eacf"
+    },
+    {
+      "file": "harness-output.json",
+      "sha256": "d250f4f254f7bb50f8c1fb25995e6ba9d154278f510b1ffbfb7858d339b58956"
+    },
+    {
+      "file": "TOPSCleanup.sol",
+      "sha256": "1053ef43a3dd61504efe5e7aa22aa8438f68ac98fb0cff16b445a07ab50f3cc3"
+    },
+    {
+      "file": "harness-extraction.json",
+      "sha256": "27028cd594be2312f4cde32cc6e595e9010cef1e575c1ed9c34867ae9ee5d037"
+    },
+    {
+      "file": "primary-sources.json",
+      "sha256": "0e5c56672de6090bf1bb2d404a7d59151b2e2690c236f88aad1dd6c48176340e"
+    },
+    {
+      "file": "solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    {
+      "file": "compiler-version.txt",
+      "sha256": "df9e0e873736454fea76f295ae7f597b21a06ef9db8e44f20465ec7e2522521a"
+    },
+    {
+      "file": "LICENSE-OpenZeppelin",
+      "sha256": "20aebc68b11c063133aa2af0ef4bb29875477c6d16d715718f0daec563938b84"
+    },
+    {
+      "file": "metadata-original.json",
+      "sha256": "86dc8f7a5c56839386bcf34de679f0c6a0cf938ad2c611f6436724a7bd200cda"
+    },
+    {
+      "file": "metadata-fresh.json",
+      "sha256": "86dc8f7a5c56839386bcf34de679f0c6a0cf938ad2c611f6436724a7bd200cda"
+    },
+    {
+      "file": "execution-spec-block.py",
+      "sha256": "299ca6ed3ad79e3a3b2c8992744e84bb70c781beb1af0804a7dc4bfdab1e9801"
+    },
+    {
+      "file": "LICENSE-execution-specs",
+      "sha256": "f81577cb97c59ed748f9117fa839b80e3be0ec605a4b66c234e07468bc011808"
+    }
+  ],
+  "capture_sha256": "bed5d7155189f849140fce44c4971a526a139b40b1ac4cc7d83db48b057a4c1a",
+  "chain_calls": 0,
+  "compiler_manifest_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json",
+  "compiler_output_sha256": "653ee0d4f9ac33899d6bcc828f44e18eba517e02882bf09b39114fd3b0d73f7d",
+  "compiler_sha256": "81515b0e53deaa266d549545ccaac0a5a96e6d4e8201c77f673b2c710976d9ea",
+  "creation_bytes": 26671,
+  "custom_primary_gap": "No exact independent public maintainer source pin was recovered for contracts/v1/token.sol (SPDX Unlicensed). Eight dependency bodies match the pinned OpenZeppelin v5.6.0 commit. Complete saved capture/runtime reconstruction does not establish current deployment or external dependencies.",
+  "distributors_create_nonce_range": [
+    1,
+    10
+  ],
+  "harness_output_sha256": "d250f4f254f7bb50f8c1fb25995e6ba9d154278f510b1ffbfb7858d339b58956",
+  "immutable_ids": 13,
+  "immutable_sites": 91,
+  "main_pair": "capture-bound external factory result, not independently qualified",
+  "metadata_parsed_equal": true,
+  "metadata_raw_equal": true,
+  "primary_exact": 8,
+  "qualified": false,
+  "runtime_bytes": 22323,
+  "runtime_keccak256": "0xf4dc8abcac62d4707f5a839731c0e2b3dde17c643accf43299541c421ba0050b",
+  "scope": "Synthetic local full-runtime append/getters and separately compiled exact-source cleanup semantics only. No external-call emulation; original transfer and constructor remain unsupported. Cleanup harness store order is not deployed-transfer order. No production validator, candidate, package, holder or live qualification.",
+  "source_inventory_sha256": "a3d755532cdc9c868b2941943e6e42dcc0c469062843d73781e3246c0c456c92",
+  "status": "passed",
+  "timestamp_spec": {
+    "license_sha256": "f81577cb97c59ed748f9117fa839b80e3be0ec605a4b66c234e07468bc011808",
+    "license_url": "https://raw.githubusercontent.com/ethereum/execution-specs/3e170675290673a68eeb4652501fb2ae74fea0cb/LICENSE.md",
+    "scope": "opcode stack semantics only; gas/fork model excluded",
+    "sha256": "299ca6ed3ad79e3a3b2c8992744e84bb70c781beb1af0804a7dc4bfdab1e9801",
+    "url": "https://raw.githubusercontent.com/ethereum/execution-specs/3e170675290673a68eeb4652501fb2ae74fea0cb/src/ethereum/forks/cancun/vm/instructions/block.py"
+  },
+  "token_license": "Unlicensed original notice; no relicense",
+  "upstream_license": {
+    "sha256": "20aebc68b11c063133aa2af0ef4bb29875477c6d16d715718f0daec563938b84",
+    "url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/56a3de2cea907c9a500d32e70c275f68393b7ba6/LICENSE"
+  }
+}

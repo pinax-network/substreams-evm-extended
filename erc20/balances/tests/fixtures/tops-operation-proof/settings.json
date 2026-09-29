@@ -1,0 +1,27 @@
+{
+  "viaIR": true,
+  "metadata": {
+    "bytecodeHash": "none"
+  },
+  "libraries": {},
+  "optimizer": {
+    "runs": 1,
+    "details": {
+      "cse": true,
+      "yul": true,
+      "inliner": true,
+      "peephole": true,
+      "yulDetails": {
+        "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOcul jmul:fDnTOcmu",
+        "stackAllocation": true
+      },
+      "deduplicate": true,
+      "orderLiterals": true,
+      "jumpdestRemover": true,
+      "constantOptimizer": true,
+      "simpleCounterForLoopUncheckedIncrement": true
+    }
+  },
+  "evmVersion": "cancun",
+  "remappings": []
+}
