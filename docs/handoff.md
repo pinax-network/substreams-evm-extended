@@ -373,8 +373,8 @@ coherence, aliases and dependency guards. Saved canonical replay checks balance
 parity separately from role-operation visibility and never seeds cold holders
 from reference values. Fresh evidence and failed attempts are under
 `out/securities-coupled-validator-20260928/` in `network-verification-config`.
-The candidate is NOT-QUALIFIED. Thirty of 33 boolean-role profiles now have
-separate candidates; BTR and two GM profiles remain. Actual coherent initial
+The SecuritiesToken candidates are NOT-QUALIFIED. They raised separate
+candidate coverage to thirty of 33 boolean-role profiles. Actual coherent initial
 state, initializer/client/proxy history, producer role witnesses, independent
 source gaps and runtime/package/getter/holder qualification remain open.
 
@@ -396,6 +396,21 @@ the malformed-initializer expectation failure remain under
 `out/gm-operation-proof-20260928/` in `bsc-exclusion-review`. No ingestion rule or
 candidate is added. Actual initial-state, producer, runtime/package/getter and
 holder qualification remain open.
+
+The separate [GM coupled candidates](../erc20/balances/docs/gm-coupled-role-candidate.md)
+replace only the legacy width-two role rule in two profiles. Their independently
+named solc 0.8.16/Ondo-vendored template couples membership root 201 and enumerable
+sets root 251. Complete coherent source operations are required; four one-sided
+outcomes reachable from incoherent synthetic state remain refused. No reachable
+role-admin setter is present, so the candidates add no admin permission.
+All runtime/proxy/beacon/pointer/balance/allowance guards and finite long-name
+payload words remain unchanged. The saved host proof is independently frozen;
+producer visibility, initial coherence and package/getter/holder qualification
+remain open. Fresh artifacts and failed attempts are under
+`out/gm-coupled-validator-20260928/` in `bsc-exclusion-review`.
+Separate NOT-QUALIFIED candidates now cover thirty-two of 33 boolean-role
+profiles; the remaining profile is BTR. Full cohort and historical qualification
+fixtures remain unchanged.
 
 The host ledger now validates exact epoch membership for holder and global
 rows. A transition from epoch 1 to epoch 3 cannot introduce undeclared epoch 2

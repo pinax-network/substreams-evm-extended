@@ -705,5 +705,13 @@ seven unique upstream proxy dependencies and five custom primary-source gaps.
 It compares selected local role/getter paths across the exact compiled and
 captured runtimes, whose declared CBOR metadata differs. Synthetic construction
 returns compiler runtime; on-chain creation stays unbound. External compliance,
-pause logic and beacon dispatch remain excluded; no GM ingestion rule or
-candidate is added.
+pause logic and beacon dispatch remain excluded from that host proof.
+
+The separate [GM coupled candidates](docs/gm-coupled-role-candidate.md) select
+the exact solc0.8.16/Ondo-vendor coherent template for two beacon proxies at
+membership root 201 and set root 251. They reject all four one-sided legacy
+source operations and add no role-admin permission. Every unrelated baseline
+field, including finite long-name payload words and beacon dependencies, remains
+unchanged. Extended 4/5 frame evidence and complete operation witnesses are
+required; initial coherence, actual producer visibility, deployment and external
+client behavior remain outside this offline NOT-QUALIFIED candidate.
