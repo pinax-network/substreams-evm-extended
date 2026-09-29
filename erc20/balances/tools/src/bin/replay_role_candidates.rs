@@ -187,6 +187,7 @@ mod offline {
         PToken,
         Securities,
         Gm,
+        Mai,
         Btr,
         Erc20TokenX,
         WkeyGot,
@@ -207,7 +208,23 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::Wkey2Trx {
+        if mode == Mode::Mai {
+            use erc20_balances_tools::mai_role as bound;
+            for name in ["layouts.json", "source-review.json"] {
+                paths.push(root.join(bound::FIXTURE).join(name));
+            }
+            for (path, _) in bound::ARTIFACTS {
+                paths.push(root.join(path));
+            }
+            for path in [
+                "tests/mai_coupled_operations.rs",
+                "tools/tests/mai_role_candidate.rs",
+                "tools/tests/mai_operation_binding.rs",
+                "tools/tests/mai_operation_cases.rs",
+            ] {
+                paths.push(root.join(path));
+            }
+        } else if mode == Mode::Wkey2Trx {
             use erc20_balances_tools::wkey2_trx_role as bound;
             for name in ["layouts.json", "source-review.json"] {
                 paths.push(root.join(bound::FIXTURE).join(name));
@@ -794,7 +811,9 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if mode == Mode::Wkey2Trx {
+        let candidate_path = root.join(if mode == Mode::Mai {
+            "tests/fixtures/mai-coupled-role-candidate/layouts.json"
+        } else if mode == Mode::Wkey2Trx {
             "tests/fixtures/wkey2-trx-enumerable-candidate/layouts.json"
         } else if mode == Mode::WkeyGot {
             "tests/fixtures/wkey-got-enumerable-candidate/layouts.json"
@@ -825,7 +844,9 @@ mod offline {
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if mode == Mode::Wkey2Trx {
+        let review_path = root.join(if mode == Mode::Mai {
+            "tests/fixtures/mai-coupled-role-candidate/source-review.json"
+        } else if mode == Mode::Wkey2Trx {
             "tests/fixtures/wkey2-trx-enumerable-candidate/source-review.json"
         } else if mode == Mode::WkeyGot {
             "tests/fixtures/wkey-got-enumerable-candidate/source-review.json"
@@ -865,14 +886,23 @@ mod offline {
                     17
                 } else if mode == Mode::Erc20TokenX {
                     3
-                } else if matches!(mode, Mode::Burnmint | Mode::Bas | Mode::Tagger | Mode::Artx | Mode::PToken | Mode::Btr) {
+                } else if matches!(
+                    mode,
+                    Mode::Burnmint | Mode::Bas | Mode::Tagger | Mode::Artx | Mode::PToken | Mode::Btr | Mode::Mai
+                ) {
                     1
                 } else {
                     2
                 },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if mode == Mode::Wkey2Trx {
+        report["source_rechecks"] = if mode == Mode::Mai {
+            use erc20_balances_tools::mai_role as bound;
+            bound::verify_cache(root, cache)?;
+            ensure!(review == bound::review(root)?, "Mai complete frozen raw proof review");
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([review])
+        } else if mode == Mode::Wkey2Trx {
             use erc20_balances_tools::wkey2_trx_role as bound;
             bound::verify_cache(root, cache)?;
             ensure!(review == bound::review(root)?, "wkeyDAO2/TRX complete paired frozen proof review");
@@ -1052,6 +1082,30 @@ mod offline {
                 .iter_mut()
                 .find(|v| v["contract"] == candidate["contract"])
                 .context("candidate absent from baseline")?;
+            if mode == Mode::Mai {
+                use erc20_balances_tools::mai_role as bound;
+                let mut restored = candidate.clone();
+                ensure!(
+                    restored.as_object_mut().unwrap().remove("enumerable_address_sets")
+                        == Some(
+                            json!([{"root":bound::root(1),"membership_root":bound::root(0),"key_types":["bytes32"],"semantics":erc20_balances::layout::MAI_ENUMERABLE_SEMANTICS}])
+                        ),
+                    "exact selected Mai coupled rule"
+                );
+                ensure!(restored["other_mapping_slots"] == json!([bound::root(3)]), "only allowance mapping remains");
+                restored["other_mapping_slots"].as_array_mut().unwrap().insert(0, json!(bound::root(0)));
+                ensure!(
+                    restored["other_mapping_words"]
+                        .as_object_mut()
+                        .context("Mai legacy set words")?
+                        .insert(bound::root(1), json!(2))
+                        .is_none(),
+                    "broad set permission removed"
+                );
+                ensure!(restored == *original, "Mai candidate changes unrelated baseline fields");
+                *original = candidate.clone();
+                continue;
+            }
             if mode == Mode::Wkey2Trx {
                 use erc20_balances_tools::wkey2_trx_role as bound;
                 let address = candidate["contract"].as_str().context("selected address")?;
@@ -1302,7 +1356,7 @@ mod offline {
                 "cached block/clock identity mismatch at {height}"
             );
             ensure!(block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32, "non-Extended block");
-            if matches!(mode, Mode::PToken | Mode::Securities | Mode::Gm | Mode::Btr) {
+            if matches!(mode, Mode::PToken | Mode::Securities | Mode::Gm | Mode::Btr | Mode::Mai) {
                 ensure!(
                     matches!(block.ver, 4 | 5),
                     "selected coupled replay requires reviewed Extended version4/5 at {height}"
@@ -1346,7 +1400,7 @@ mod offline {
                     selected.insert("validated_legacy_role_operations", selected["persisted_legacy_role_length_writes"]);
                 }
             }
-            if matches!(mode, Mode::PToken | Mode::Securities | Mode::Gm | Mode::Btr) {
+            if matches!(mode, Mode::PToken | Mode::Securities | Mode::Gm | Mode::Btr | Mode::Mai) {
                 // Each changing boolean belongs to exactly one complete operation
                 // only after the coupled projector succeeds. This is not a claim
                 // that a captured producer exposes operations absent from this window.
@@ -1584,12 +1638,13 @@ mod offline {
             Some("--ptoken") => Mode::PToken,
             Some("--securities") => Mode::Securities,
             Some("--gm") => Mode::Gm,
+            Some("--mai") => Mode::Mai,
             Some("--btr") => Mode::Btr,
             Some("--erc20tokenx") => Mode::Erc20TokenX,
             Some("--wkey-got") => Mode::WkeyGot,
             Some("--wkey2-trx") => Mode::Wkey2Trx,
             _ => bail!(
-                "expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft, --ptoken, --securities, --gm, --btr, --erc20tokenx, --wkey-got or --wkey2-trx, followed by <original package root>"
+                "expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft, --ptoken, --securities, --gm, --mai, --btr, --erc20tokenx, --wkey-got or --wkey2-trx, followed by <original package root>"
             ),
         };
         let cache = if mode != Mode::TokenCys {
@@ -1627,6 +1682,10 @@ mod offline {
         if mode == Mode::Securities {
             report["scope"] = json!("Seventeen NOT-QUALIFIED SecuritiesToken proxy candidates replace only their broad namespaced role permission with the exact selected solc0.8.24/OZ5.3 coupled template and one explicit zero-only ISSUER admin word. Historical431 remains unchanged. Extended4/5 with real frames is required. Saved parity is not initial coherence, initializer/client/proxy history, producer role visibility, runtime/package or live qualification. Eight primary source gaps and absent on-chain creation/deployment evidence remain. Canonical values never seed state.");
         }
+        if mode == Mode::Mai {
+            report["scope"] = json!("One NOT-QUALIFIED Mai candidate removes only broad membership root0 and set root1 width2, selecting the unoptimized solc0.8.9/OZ4.7.0 complete coherent template. Historical431/qualified425 and all unrelated balance/metadata/runtime fields remain unchanged. All four void-super one-sided successes refuse; known metadata descendants have Mai-only alias protection. Extended4/5 actual frames required. No admin/creation admission, authorization or seed. Custom token primary attribution, deployed initial coherence, real producer visibility and runtime/package/getter/holder qualification remain open. Canonical values never seed retained state.");
+            report["role_counter_scope"] = json!("Changed persisted root0 membership witnesses only; validated coupled operations are counted only after successful complete projection. A witness alone is not an operation or authorization proof.");
+        }
         if mode == Mode::Gm {
             report["scope"] = json!("Two NOT-QUALIFIED GM beacon-proxy candidates replace only their broad root201 role rule with the exact solc0.8.16/Ondo-vendor coherent membership/set template at roots201/251. All finite long-name scalar words, proxy/beacon/implementation bindings and other metadata remain unchanged. All four one-sided legacy source controls are refused. Extended4/5 real frames required. Saved parity is not initial coherence, actual producer role visibility, deployment/proxy/external-client execution, runtime/package or live qualification. Five custom primary source gaps and null creation bindings remain. Canonical values never seed state.");
         }
@@ -1660,6 +1719,138 @@ mod offline {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn mai_counters_require_persisted_root0_witnesses_and_separate_partial_operations() {
+            use erc20_balances_tools::mai_role as bound;
+            let candidates: Value = serde_json::from_str(include_str!("../../../tests/fixtures/mai-coupled-role-candidate/layouts.json")).unwrap();
+            let cases: Vec<Value> = serde_json::from_str(include_str!("../../../docs/evidence/mai-operation-proof-20260929-transcripts.json")).unwrap();
+            let layouts = erc20_balances::layout::parse(&candidates.to_string()).unwrap();
+            let address = hex::decode(&bound::ADDRESS[2..]).unwrap();
+            let make = |name: &str| {
+                let c = cases
+                    .iter()
+                    .find(|c| c["name"] == name && matches!(c["signature"].as_str(), Some("grantRole(bytes32,address)" | "revokeRole(bytes32,address)")))
+                    .unwrap();
+                let call = eth::Call {
+                    address: address.clone(),
+                    begin_ordinal: 1,
+                    end_ordinal: 10000,
+                    keccak_preimages: c["execution"]["keccaks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|k| {
+                            (
+                                k["output"].as_str().unwrap().trim_start_matches("0x").to_owned(),
+                                k["input"].as_str().unwrap().to_owned(),
+                            )
+                        })
+                        .collect(),
+                    storage_changes: c["execution"]["writes"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|w| eth::StorageChange {
+                            address: address.clone(),
+                            key: decode_hex(&w["key"]).unwrap(),
+                            old_value: decode_hex(&w["old"]).unwrap(),
+                            new_value: decode_hex(&w["new"]).unwrap(),
+                            ordinal: w["step"].as_u64().unwrap() + 10,
+                        })
+                        .collect(),
+                    ..Default::default()
+                };
+                eth::Block {
+                    ver: 5,
+                    number: 122288046,
+                    hash: vec![7; 32],
+                    detail_level: eth::block::DetailLevel::DetaillevelExtended as i32,
+                    header: Some(eth::BlockHeader {
+                        number: 122288046,
+                        parent_hash: vec![6; 32],
+                        state_root: vec![8; 32],
+                        ..Default::default()
+                    }),
+                    transaction_traces: vec![eth::TransactionTrace {
+                        status: eth::TransactionTraceStatus::Succeeded as i32,
+                        begin_ordinal: 1,
+                        end_ordinal: 10000,
+                        calls: vec![call],
+                        ..Default::default()
+                    }],
+                    ..Default::default()
+                }
+            };
+            for (name, expected) in [
+                ("grant_empty", 1),
+                ("grant_only_zero", 1),
+                ("remove_first", 1),
+                ("remove_only_zero", 1),
+                ("duplicate", 0),
+            ] {
+                let b = make(name);
+                erc20_balances::project(&b, &layouts).unwrap();
+                let (field, counts) = observed_role_writes(&b, &candidates, Mode::Mai).unwrap();
+                assert_eq!(field, "persisted_role_membership_writes");
+                assert_eq!(counts.len(), 1);
+                assert_eq!(counts[bound::ADDRESS], expected);
+            }
+            for mutation in ["missing", "failed", "reverted", "address", "noop", "wide_old", "wide_new", "short_key"] {
+                let mut changed = make("grant_empty");
+                let tx = &mut changed.transaction_traces[0];
+                match mutation {
+                    "missing" => tx.calls[0].keccak_preimages.clear(),
+                    "failed" => tx.status = eth::TransactionTraceStatus::Failed as i32,
+                    "reverted" => tx.calls[0].state_reverted = true,
+                    _ => {
+                        for w in &mut tx.calls[0].storage_changes {
+                            match mutation {
+                                "address" => w.address = vec![0; 20],
+                                "noop" => w.new_value = w.old_value.clone(),
+                                "wide_old" => w.old_value = vec![0; 33],
+                                "wide_new" => w.new_value = vec![0; 33],
+                                "short_key" => {
+                                    w.key.pop();
+                                }
+                                _ => unreachable!(),
+                            }
+                        }
+                    }
+                }
+                assert_eq!(
+                    observed_role_writes(&changed, &candidates, Mode::Mai).unwrap().1[bound::ADDRESS],
+                    0,
+                    "{mutation}"
+                );
+            }
+            // A witness alone never labels a validated complete operation.
+            for (name, expected) in [("grant_bool_only", 1), ("grant_set_only", 0), ("revoke_bool_only", 1), ("revoke_set_only", 0)] {
+                let b = make(name);
+                assert_eq!(observed_role_writes(&b, &candidates, Mode::Mai).unwrap().1[bound::ADDRESS], expected);
+                assert!(erc20_balances::project(&b, &layouts).is_err());
+            }
+            let mut b = make("grant_empty");
+            let c = &mut b.transaction_traces[0].calls[0];
+            c.storage_changes.clear();
+            let role = [0xaau8; 32];
+            for root in [1, 3] {
+                let outer = [role.as_slice(), hex::decode(&bound::root(root)[2..]).unwrap().as_slice()].concat();
+                let base = erc20_balances::hash(&outer);
+                let inner = [[0u8; 32].as_slice(), base.as_slice()].concat();
+                let key = erc20_balances::hash(&inner);
+                c.keccak_preimages.insert(hex::encode(base), hex::encode(outer));
+                c.keccak_preimages.insert(hex::encode(key), hex::encode(inner));
+                c.storage_changes.push(eth::StorageChange {
+                    address: address.clone(),
+                    key: key.to_vec(),
+                    old_value: vec![],
+                    new_value: vec![1],
+                    ordinal: 8000 + root,
+                });
+            }
+            assert_eq!(observed_role_writes(&b, &candidates, Mode::Mai).unwrap().1[bound::ADDRESS], 0);
+        }
 
         #[test]
         fn wkey2_trx_replay_dispatch_keeps_own_legacy_length_roots() {

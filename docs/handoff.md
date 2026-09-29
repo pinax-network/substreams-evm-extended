@@ -442,8 +442,8 @@ add/sole-remove can pass with omitted or ignored equal array stores. Full direct
 whitelist admission is separate work. Fresh evidence is under
 `out/btr-coupled-validator-20260928/` in `network-verification-config`.
 All candidates remain NOT-QUALIFIED. The enumerable-role follow-up now has
-seven separate candidates described below; Mai still needs its own selected
-coupled migration. Four legitimate
+eight separate candidates described below, including Mai's selected coupled
+migration. Four legitimate
 terminal records and six unresolved-source profiles retain their classifications.
 Source gaps, initial coherence, actual producer visibility and replacement
 runtime/package/getter/initialized-holder qualification remain open.
@@ -506,8 +506,8 @@ count is labeled validated legacy operations. It is neither boolean membership
 nor proof of authorization.
 Both creations remain refused, including GOT's locally successful constructor.
 These two candidates bring enumerable coverage to five profiles; the subsequent
-wkeyDAO2/TRX candidates below bring the current total to seven. Mai still needs
-its selected coupled migration. Custom primary-source gaps,
+wkeyDAO2/TRX candidates below bring the subtotal to seven and Mai completes
+all eight. Custom primary-source gaps,
 coherent initial sets, actual producer visibility and replacement
 runtime/package/getter/initialized-holder qualification remain open.
 
@@ -845,7 +845,7 @@ cause of captured metadata differences remain explicit gaps. Synthetic state
 proves neither deployed initialization nor producer visibility. This proof adds
 no ingestion candidate, schema, dependency or VM change and makes no chain call.
 The separate wkeyDAO2/TRX candidates below bring coverage to seven enumerable
-profiles. Mai still requires candidate work; replacement qualification remains
+profiles and Mai completes all eight. Replacement qualification remains
 open for every profile.
 
 
@@ -895,7 +895,41 @@ and never seeds state from canonical references.
 
 Fresh evidence remains under
 `out/wkeydao2-trx-enumerable-candidate-20260929/` in the Network review worktree.
-Seven of eight enumerable profiles now have separate NOT-QUALIFIED candidates;
-Mai remains. Custom source and metadata-origin gaps, initial array/index
+These two profiles bring the enumerable subtotal to seven; the subsequent Mai
+candidate completes all eight. Custom source and metadata-origin gaps, initial array/index
 coherence, actual producer visibility and replacement runtime/package/getter/
 initialized-holder qualification remain open. No live calls are included.
+
+
+The subsequent [Mai coupled candidate](../erc20/balances/docs/mai-coupled-role-candidate.md)
+replaces only its broad membership-root-0 mapping and root-1 width-two set rule.
+The exact `mai_solc_0_8_9_oz_4_7_0` selector fixes those roots and reuses the
+strict coupled operation generator. Balance root 2, allowance root 3, scalars
+4/5/6 and the original runtime remain exact; restoring both removed entries
+reproduces the complete original profile. No role-admin writer or creation
+permission is added, despite the separate host proof's synthetic constructor
+success.
+
+The host helper pins all 16 raw Phase A artifacts, reconciles exact compiler and
+operation artifact lists and binds their common 237-input source inventory.
+The original raw-input serialization regression and correction are preserved.
+Source-derived projector tests require complete same-frame operations, including
+logical equal stages, and reject the four old void-super one-sided successes,
+dirty words, malformed lengths, cross-frame joins and runtime changes. The
+selected Mai mode requires Extended v4/v5 actual frame bounds.
+
+An adversarial zero-append test exposed an omitted array stage aliasing a
+preimage-witnessed allowance leaf. The preserved red control is fixed by adding
+those descendants to protected locations only for Mai; existing templates and
+ordinary unrelated-noop filtering retain their previous behavior. This is an
+additional refusal, not a new metadata permission. Fresh source, tests and saved
+replay evidence remain under `out/mai-coupled-role-20260929/` in the BSC review
+worktree. Canonical reference observations never seed state.
+
+All 33 boolean-role and all eight enumerable-role profiles now have separate
+NOT-QUALIFIED candidates. The four legitimate terminal records and six
+unresolved-source profiles keep their separate classifications. Mai's custom
+primary revision, deployed initialization and coherent sets, zero unused tails,
+actual producer visibility, and replacement runtime/package/getter/initialized-
+holder qualification remain open. No VM, dependency, protobuf or persisted-effect
+rule changes or live chain calls are included.

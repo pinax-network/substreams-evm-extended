@@ -1,0 +1,110 @@
+{
+  "admin_definition_only": [
+    [
+      "@openzeppelin/contracts/access/AccessControl.sol",
+      214,
+      "function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {"
+    ]
+  ],
+  "admin_write_permission": false,
+  "allowance_root": "0x0000000000000000000000000000000000000000000000000000000000000003",
+  "balance_root": "0x0000000000000000000000000000000000000000000000000000000000000002",
+  "baseline_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+  "capture_sha256": "e5fb99260765d58a5fecdd4d2eccd61c84e6f0032821fc75402f00e93535386b",
+  "compiler": "0.8.9+commit.e5eed63a",
+  "contracts": [
+    "0x35803e77c3163fed8a942536c1c8e0d5bf90f906"
+  ],
+  "creation_admission": false,
+  "custom_primary_gap": "Fourteen complete dependencies match the exact OpenZeppelin 4.7.0 revision. The UNLICENSED custom contracts/Mai.sol has no independently established maintainer revision in the reviewed material. Captured source/compiler/runtime equality does not resolve that source gap or qualify actual deployment, initial coherence, producer visibility or live package/getter/holder behavior.",
+  "frozen_phase_a_artifacts": [
+    {
+      "path": "docs/evidence/mai-operation-proof-20260929.json",
+      "sha256": "dc63c4701919dc758e1484d5d24d9b6912d870c0836077613f1b1d4c3714a926"
+    },
+    {
+      "path": "docs/evidence/mai-operation-proof-20260929-transcripts.json",
+      "sha256": "c0722b4f25f79d0f26ffed1e1259987afb51e0efdb6267f0154c9d32da000685"
+    },
+    {
+      "path": "docs/evidence/mai-operation-proof-20260929-cases.json",
+      "sha256": "c72512bff281b4f9430d4e6206359956db16078311d3ba3d77000896bea48a6f"
+    },
+    {
+      "path": "docs/evidence/mai-operation-proof-20260929-compiler.json",
+      "sha256": "cab29d18fdf543edcc779dcc8ce773b945ffa044a97da1bc541cc04e3d8104a6"
+    },
+    {
+      "path": "docs/evidence/mai-operation-proof-20260929-source-inputs.json",
+      "sha256": "23ff1571cf7808ac328c6ce494ab64dbc35351fda6f84921ff7435004c4234e5"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/primary-sources.json",
+      "sha256": "a835cfc598f289cedc7d5eb47d4faa1fa8808ffe34f168dae9e4ae1d726ad608"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/LICENSE-openzeppelin",
+      "sha256": "8c21a3d62814a86c6e6db50768e5a885a1f586873628e9be79a93f4eb6c18820"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/README.md",
+      "sha256": "e828d0e147748e92529b652de5eb8bb491aea1c9f1d60e97432db0d0344c6677"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/capture.json",
+      "sha256": "e5fb99260765d58a5fecdd4d2eccd61c84e6f0032821fc75402f00e93535386b"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/compiler-input-original.json",
+      "sha256": "649570084d364b09c1c858fec26a1a92dac864b9365a21816857d15a8f7dd88c"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/compiler-input.json",
+      "sha256": "30fc984c545558237be971b646fd4d4f6c236eeb3d815d0b2be7ad2b4bc1a1ed"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/compiler-output.json",
+      "sha256": "18a24ae3680b1b25d1b47c0d0c9a9b9d53dbd5a90c6bd6c003e6a0f5a5a20764"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/compiler-version.txt",
+      "sha256": "42b3b944e56b8dec08f839a426951c22f960b4599c531e72dc3820c6e85f15cc"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/metadata-fresh.json",
+      "sha256": "30382f478302f7d52b3c1223f0d73dc34c22c15f648f18f42853339c8d853b78"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/metadata-original.json",
+      "sha256": "30382f478302f7d52b3c1223f0d73dc34c22c15f648f18f42853339c8d853b78"
+    },
+    {
+      "path": "tests/fixtures/mai-operation-proof/solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    }
+  ],
+  "independent_membership_permission": false,
+  "membership_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "operation_contract": "Complete coherent boolean-plus-set only; all four void-super one-sided successes rejected; source-executed zero equality stages optional; checked logical growth refuses source maximum-length wrap",
+  "optimizer_enabled": false,
+  "producer_structure": {
+    "actual_positive_root_begin_required": true,
+    "real_role_write_visibility": "unqualified",
+    "v3_fallback": false,
+    "versions": [
+      4,
+      5
+    ]
+  },
+  "qualification_assumptions": [
+    "initial role-set coherence",
+    "zero unused tail",
+    "source/runtime attribution",
+    "actual producer completeness"
+  ],
+  "qualified": false,
+  "runtime_keccak256": "0x1134938644214395aba790bf7d50e13027c30b74b4bd09dcbe167c0ccc2cc9e5",
+  "scope": "Offline candidate only; no chain calls, deployment/holder seed, authorization proof, creation admission or live package/getter qualification",
+  "semantics": "mai_solc_0_8_9_oz_4_7_0",
+  "set_root": "0x0000000000000000000000000000000000000000000000000000000000000001"
+}
