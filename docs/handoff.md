@@ -815,3 +815,33 @@ reapplying the seed block or a wrong parent is refused. Derived DSG allowance
 restoration changes neither cold nor checkpoint holder state. This adds no
 production permission, continuous initialized interval or new package/live
 qualification. Bound-bytecode metadata/getter independence remains separate work.
+
+
+The separate [wkeyDAO2/TRX host proof](../erc20/balances/docs/wkeydao2-trx-operation-proof.md)
+binds official solc 0.7.5 and 0.6.6 outputs to both complete captured programs.
+Only the exact 53-byte metadata segments differ; constructor constants after
+those segments and independent argument appends are preserved. Both versions
+execute the same source-derived matrix, and complete paired traces, effects,
+exits and rollback agree after removing only their code identities.
+
+The two contracts remain distinct from WKEYDAO/GOT and issue #61's swkeyDAO2.
+Both constructions stop at unsupported CHAINID and roll back their attempted
+prefixes. TRX grants only its predicate role, never a default administrator;
+self-address caller-suffix controls model a synthetic inner call, not signature
+or external meta-transaction execution. wkeyDAO2 mint/burn and TRX predicate mint
+have no maximum-supply cap; TRX exposes no public burn route.
+Fee callbacks and signature contexts retain explicit unsupported boundaries.
+Four exact TRX compiler-generated SLOAD/SSTORE sites have file ID -1 and no
+source text; pinned compiler output, map spans, PCs and opcodes identify them
+separately from Solidity-attributed effects. All other unmapped effects refuse.
+
+Fresh evidence and failed attempts remain under
+`out/wkeydao2-trx-operation-proof-20260929/` in the BSC review worktree. Four
+whole wkeyDAO2 dependencies match the immutable upstream; TRX's original CRLF
+flattened source has only two full declarations matched after line-ending
+normalization. Custom source origins, the overall flattened license and the
+cause of captured metadata differences remain explicit gaps. Synthetic state
+proves neither deployed initialization nor producer visibility. This proof adds
+no ingestion candidate, schema, dependency or VM change and makes no chain call.
+Five enumerable profiles have candidates; wkeyDAO2, TRX and Mai still require
+separate candidate work and replacement qualification.

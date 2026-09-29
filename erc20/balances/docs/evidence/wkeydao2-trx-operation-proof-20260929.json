@@ -1,0 +1,250 @@
+{
+  "all_case_pairs_exact": true,
+  "args": [
+    "out/wkeydao2-trx-operation-proof-20260929/target-isolated/debug/execute_wkey2_trx_proof",
+    "out/wkeydao2-trx-operation-proof-20260929/source-03",
+    "out/wkeydao2-trx-operation-proof-20260929/operations-03"
+  ],
+  "calls": 2460,
+  "cases_inventory_sha256": "5c3258d8f28a8a2cb4cdd23f5676257f300bacb13c5a2dcc3248b891ea7e8dac",
+  "cbor_excluded_from_executed_pc_immediates_codecopy": true,
+  "chain_calls": 0,
+  "compact_transcripts": 872,
+  "compiler_captured_case_pairs": 1230,
+  "compiler_source_inventory_sha256": "829cc8b9d643071169bf2c4e3c5c71a22c314334b4eb46f4b25aa14d7a9bc977",
+  "constructor_initialization_complete": false,
+  "executed_opcode_counts": {
+    "0x00": 260,
+    "0x01": 9952,
+    "0x02": 148,
+    "0x03": 9742,
+    "0x04": 174,
+    "0x0a": 42,
+    "0x10": 5780,
+    "0x11": 6836,
+    "0x14": 7578,
+    "0x15": 9048,
+    "0x16": 6090,
+    "0x17": 42,
+    "0x19": 196,
+    "0x1b": 4872,
+    "0x1c": 2456,
+    "0x20": 4988,
+    "0x30": 350,
+    "0x33": 976,
+    "0x34": 2440,
+    "0x35": 6350,
+    "0x36": 4760,
+    "0x37": 66,
+    "0x38": 4,
+    "0x39": 540,
+    "0x3b": 2,
+    "0x42": 6,
+    "0x46": 6,
+    "0x50": 19112,
+    "0x51": 5700,
+    "0x52": 16004,
+    "0x54": 4048,
+    "0x55": 940,
+    "0x56": 15304,
+    "0x57": 24010,
+    "0x5a": 4,
+    "0x5b": 27678,
+    "0x60": 64498,
+    "0x61": 41056,
+    "0x62": 712,
+    "0x63": 14584,
+    "0x64": 16,
+    "0x67": 2,
+    "0x6b": 8,
+    "0x6d": 36,
+    "0x70": 16,
+    "0x72": 14,
+    "0x73": 2,
+    "0x7f": 380,
+    "0x80": 25458,
+    "0x81": 16888,
+    "0x82": 8292,
+    "0x83": 6106,
+    "0x84": 2620,
+    "0x85": 328,
+    "0x86": 368,
+    "0x87": 482,
+    "0x88": 34,
+    "0x89": 96,
+    "0x8a": 14,
+    "0x8c": 6,
+    "0x8d": 10,
+    "0x90": 23700,
+    "0x91": 8096,
+    "0x92": 4416,
+    "0x93": 3120,
+    "0x94": 514,
+    "0x95": 64,
+    "0x97": 6,
+    "0xa1": 24,
+    "0xa3": 136,
+    "0xa4": 164,
+    "0xf3": 1686,
+    "0xfd": 488,
+    "0xfe": 12
+  },
+  "explicit_source_invalid_controls": 12,
+  "explicit_unsupported_path_controls": 14,
+  "full_opcode_records": 420956,
+  "mapped_effect_annotations": 10216,
+  "pinned_generated_effect_annotations_without_source_text": 84,
+  "qualified": false,
+  "returned_calls": 1946,
+  "reverted_calls": 488,
+  "scope": "Bounded host execution of compiled and captured wkeyDAO2/TRX programs in synthetic local state. Exact 53-byte CBOR substitutions preserve all other bytes, including creation trailing constants. No production candidate, deployed-state/initial-set qualification, external-call or signature emulator, schema, dependency or VM change. Unsupported opcodes/context are HarnessFailure, distinct from source REVERT/INVALID. No chain calls.",
+  "source_artifacts": [
+    {
+      "file": "solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    {
+      "file": "LICENSE-openzeppelin",
+      "sha256": "5d77daf99ea6e8033e57b449761ab4e9b486c45ef578c387d2805fe98e560f46"
+    },
+    {
+      "file": "wkeydao2/capture.json",
+      "sha256": "1afd2a842f97acb1eb03dca09e802d7dcec1e06eef97533dee2c2b2ebf180df0"
+    },
+    {
+      "file": "wkeydao2/compiler-input-original.json",
+      "sha256": "cdb8ba6d0d41bd83b2949ec75bb8aebba53dc6c26f39b360f7c4e21288cdf988"
+    },
+    {
+      "file": "wkeydao2/compiler-input.json",
+      "sha256": "b9861f820b449ea188eb0cc5287bc7f5e9545cd019af1a25bf35854925c5bf6d"
+    },
+    {
+      "file": "wkeydao2/compiler-output.json",
+      "sha256": "58f88b6f0a6765147a48d19553a6b69172782eb3355845b741a2f4340df51f3c"
+    },
+    {
+      "file": "wkeydao2/compiler-version.txt",
+      "sha256": "025f70e8f8a13b28b6a5b8e369f0360c18bd2106938fdd908ad2afa7bdb823fd"
+    },
+    {
+      "file": "wkeydao2/metadata-original.json",
+      "sha256": "d0ac7cc5f708b8e153afa4096287c2d49c60f4b99af633ef240f17ff1712c773"
+    },
+    {
+      "file": "wkeydao2/metadata-fresh.json",
+      "sha256": "d0ac7cc5f708b8e153afa4096287c2d49c60f4b99af633ef240f17ff1712c773"
+    },
+    {
+      "file": "wkeydao2/primary-sources.json",
+      "sha256": "1b3821934bb55862b5b080ed76d4937b372fc6f32eaa2f1e48a5132dd4fc4b51"
+    },
+    {
+      "file": "wkeydao2/source-licenses.json",
+      "sha256": "ec0253f5b42b44750c909b6ae9b59542830546a5e1ef17eca3713795435d2093"
+    },
+    {
+      "file": "trx/capture.json",
+      "sha256": "e0260fa176be3c3e945de5d82af3c07ab9fec026705dc868b42881d474560ffc"
+    },
+    {
+      "file": "trx/compiler-input-original.json",
+      "sha256": "fbde1ef50ed0fd54f40e29662181a7f1376f62d8299252119b4c6d065feeabff"
+    },
+    {
+      "file": "trx/compiler-input.json",
+      "sha256": "62607ac503f9bdc16e29007537f22de4d37d0f6c7a66720ae25e2ee4bca0343f"
+    },
+    {
+      "file": "trx/compiler-output.json",
+      "sha256": "6d9938caf954382e95f098db0d4d85c6d0733b455079d1d264271e367e2e7bd8"
+    },
+    {
+      "file": "trx/compiler-version.txt",
+      "sha256": "c1c5e1e9465568a7947ea73fdb73fd31a3dd7ba06df1010289b5d847b0a2e28e"
+    },
+    {
+      "file": "trx/metadata-original.json",
+      "sha256": "7b2ac0822096f31021f28a808890c48a8ecd96d50fad8bcbe153a5f58367689d"
+    },
+    {
+      "file": "trx/metadata-fresh.json",
+      "sha256": "7b2ac0822096f31021f28a808890c48a8ecd96d50fad8bcbe153a5f58367689d"
+    },
+    {
+      "file": "trx/primary-sources.json",
+      "sha256": "1da9b80c7625a5e788585f2f91147551c2f30e7678686c5f3891234a866beeeb"
+    },
+    {
+      "file": "trx/source-licenses.json",
+      "sha256": "d31a1c90a2d3b54ab0328801f78ce5c154e668df8431938373187248ce24ff68"
+    },
+    {
+      "file": "report.json",
+      "sha256": "842b71fd927ccbd8332f437d14003e0a27e9a540553e6038292792f40e83af56"
+    },
+    {
+      "file": "source-inventory.json",
+      "sha256": "829cc8b9d643071169bf2c4e3c5c71a22c314334b4eb46f4b25aa14d7a9bc977"
+    }
+  ],
+  "source_gap": "wkeyDAO2 has four exact full OpenZeppelin 3.4.2 dependency files and an unestablished custom AGPL source origin. TRX is one original CRLF flattened file: only its complete AccessControl and EnumerableSet declarations match the pinned upstream after CRLF-to-LF normalization. The whole flattened token, other custom components and overall license are not independently attributed. The reason for both captured CBOR digest differences remains unestablished.",
+  "source_inventory_sha256": "829cc8b9d643071169bf2c4e3c5c71a22c314334b4eb46f4b25aa14d7a9bc977",
+  "source_trees_equal": true,
+  "status": "passed",
+  "targets": [
+    {
+      "address": "0xe0a281deff5c9d8d67af09d39340e134ac81b82e",
+      "runtime_bytes": 8495,
+      "runtime_keccak256": "0x9054d0efc5311cd08c2d5c1204bc9f600f43e301ea5fe6446b4d581c44d6e6a3",
+      "target": "wkeydao2",
+      "variants": [
+        {
+          "calls": 638,
+          "explicit_source_invalid": 3,
+          "explicit_unsupported": 4,
+          "return": 505,
+          "revert": 126,
+          "variant": "compiled"
+        },
+        {
+          "calls": 638,
+          "explicit_source_invalid": 3,
+          "explicit_unsupported": 4,
+          "return": 505,
+          "revert": 126,
+          "variant": "captured"
+        }
+      ],
+      "whole_compiler_output_sha256": "58f88b6f0a6765147a48d19553a6b69172782eb3355845b741a2f4340df51f3c"
+    },
+    {
+      "address": "0xce7de646e7208a4ef112cb6ed5038fa6cc6b12e3",
+      "runtime_bytes": 7088,
+      "runtime_keccak256": "0x84f4834aef7376b01cc68f967cd357e4bfbe13ba2b775757ed1f8e28b67be82c",
+      "target": "trx",
+      "variants": [
+        {
+          "calls": 592,
+          "explicit_source_invalid": 3,
+          "explicit_unsupported": 3,
+          "return": 468,
+          "revert": 118,
+          "variant": "compiled"
+        },
+        {
+          "calls": 592,
+          "explicit_source_invalid": 3,
+          "explicit_unsupported": 3,
+          "return": 468,
+          "revert": 118,
+          "variant": "captured"
+        }
+      ],
+      "whole_compiler_output_sha256": "6d9938caf954382e95f098db0d4d85c6d0733b455079d1d264271e367e2e7bd8"
+    }
+  ],
+  "total_effect_annotations": 10300,
+  "transcripts_sha256": "871d6d72c4785d518179c3afa8bdd13529766fa42043d44bfda0f77fb2d1e637",
+  "unexpected_invalid_or_harness_failure_calls": 0
+}
