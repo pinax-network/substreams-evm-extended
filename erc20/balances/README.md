@@ -747,6 +747,16 @@ and exercises synthetic local append/getter paths plus a separate cleanup source
 harness. It adds no array validator or candidate; all six issue #61 exclusions remain.
 The original transfer and constructor require unsupported external calls.
 
+The separate [wkeyDAO2/TRX enumerable candidates](docs/wkeydao2-trx-enumerable-candidate.md)
+remove only wkeyDAO2 root 8 width 2 and TRX root 6 width 3, using the unchanged
+`oz_3_4_2` validator. Exact compiled/captured paired source evidence and each
+target's actual store PCs are bound, including TRX's generated length store.
+All other profile fields remain unchanged. They add no bool/admin/creation
+permission and remain NOT-QUALIFIED. The complete saved BSC interval
+[122288006,122289030) preserves all 110,139 baseline rows; the focused report
+separates initialized holders, cold observations and zero captured role activity.
+These contracts are distinct from WKEYDAO/GOT and issue #61 swkeyDAO2.
+
 Host-only [WKEYDAO/GOT operation proof](docs/wkey-got-operation-proof.md) binds two separate legacy runtimes and state schemas. Final compilation and 1,263 synthetic operations passed against the same source inventory, with copied evidence and all offline workspace gates. It adds no ingestion candidate or live qualification.
 
 The separate [WKEYDAO/GOT enumerable candidates](docs/wkey-got-enumerable-candidate.md)

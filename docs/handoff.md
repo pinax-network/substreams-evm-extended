@@ -442,8 +442,8 @@ add/sole-remove can pass with omitted or ignored equal array stores. Full direct
 whitelist admission is separate work. Fresh evidence is under
 `out/btr-coupled-validator-20260928/` in `network-verification-config`.
 All candidates remain NOT-QUALIFIED. The enumerable-role follow-up now has
-five separate candidates described below; three profiles across three other
-runtime groups still need source-selected migration. Four legitimate
+seven separate candidates described below; Mai still needs its own selected
+coupled migration. Four legitimate
 terminal records and six unresolved-source profiles retain their classifications.
 Source gaps, initial coherence, actual producer visibility and replacement
 runtime/package/getter/initialized-holder qualification remain open.
@@ -505,8 +505,9 @@ persisted length witnesses. Successful full projection is required before that
 count is labeled validated legacy operations. It is neither boolean membership
 nor proof of authorization.
 Both creations remain refused, including GOT's locally successful constructor.
-Five of eight enumerable profiles now have separate NOT-QUALIFIED candidates;
-wkeyDAO2, TRX and Mai still need their own migration. Custom primary-source gaps,
+These two candidates bring enumerable coverage to five profiles; the subsequent
+wkeyDAO2/TRX candidates below bring the current total to seven. Mai still needs
+its selected coupled migration. Custom primary-source gaps,
 coherent initial sets, actual producer visibility and replacement
 runtime/package/getter/initialized-holder qualification remain open.
 
@@ -843,8 +844,9 @@ normalization. Custom source origins, the overall flattened license and the
 cause of captured metadata differences remain explicit gaps. Synthetic state
 proves neither deployed initialization nor producer visibility. This proof adds
 no ingestion candidate, schema, dependency or VM change and makes no chain call.
-Five enumerable profiles have candidates; wkeyDAO2, TRX and Mai still require
-separate candidate work and replacement qualification.
+The separate wkeyDAO2/TRX candidates below bring coverage to seven enumerable
+profiles. Mai still requires candidate work; replacement qualification remains
+open for every profile.
 
 
 The separate [Mai host proof](../erc20/balances/docs/mai-operation-proof.md)
@@ -872,3 +874,28 @@ UNLICENSED token's primary revision remains unestablished. The host proof adds
 no ingestion candidate, parser template, VM instruction, dependency or protobuf
 change. Producer visibility and replacement runtime/package/getter/initialized-
 holder qualification remain open. No live chain call is part of this work.
+
+
+The subsequent [wkeyDAO2/TRX enumerable candidates](../erc20/balances/docs/wkeydao2-trx-enumerable-candidate.md)
+remove only wkeyDAO2's broad root-8 width-two rule and TRX's root-6 width-three
+rule. The unchanged `oz_3_4_2` validator consumes their complete legacy
+operations, with no membership root, admin permission or creation admission.
+Every balance, allowance, nonce, scalar and runtime field is preserved, and
+restoring the two widths reproduces both full original profiles exactly.
+
+The helper binds the final paired compiled/captured proof, complete raw compiler
+and metadata artifacts, source gaps and original captures. Target-specific
+projector controls use each program's own store sequence, including TRX's
+required generated length store at PC6176. Its attribution remains explicitly
+compiler-generated without Solidity text. Both captured creations still refuse;
+synthetic authorization and no-op calls do not establish deployed set coherence.
+A contract-specific length counter reports validated operations only after a
+successful complete projection. Saved replay retains cold values as unknown
+and never seeds state from canonical references.
+
+Fresh evidence remains under
+`out/wkeydao2-trx-enumerable-candidate-20260929/` in the Network review worktree.
+Seven of eight enumerable profiles now have separate NOT-QUALIFIED candidates;
+Mai remains. Custom source and metadata-origin gaps, initial array/index
+coherence, actual producer visibility and replacement runtime/package/getter/
+initialized-holder qualification remain open. No live calls are included.

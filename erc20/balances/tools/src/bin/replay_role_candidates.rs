@@ -190,6 +190,7 @@ mod offline {
         Btr,
         Erc20TokenX,
         WkeyGot,
+        Wkey2Trx,
     }
     fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
@@ -206,7 +207,23 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::WkeyGot {
+        if mode == Mode::Wkey2Trx {
+            use erc20_balances_tools::wkey2_trx_role as bound;
+            for name in ["layouts.json", "source-review.json"] {
+                paths.push(root.join(bound::FIXTURE).join(name));
+            }
+            for (path, _) in bound::ARTIFACTS {
+                paths.push(root.join(path));
+            }
+            for path in [
+                "tests/wkey2_trx_enumerable_operations.rs",
+                "tools/tests/wkey2_trx_role_candidate.rs",
+                "tools/tests/wkey2_trx_operation_binding.rs",
+                "tools/tests/wkey2_trx_operation_cases.rs",
+            ] {
+                paths.push(root.join(path));
+            }
+        } else if mode == Mode::WkeyGot {
             use erc20_balances_tools::wkey_got_role as bound;
             for name in ["layouts.json", "source-review.json"] {
                 paths.push(root.join(bound::FIXTURE).join(name));
@@ -551,7 +568,12 @@ mod offline {
     }
 
     fn observed_role_writes(block: &eth::Block, candidates: &Value, mode: Mode) -> Result<(&'static str, BTreeMap<String, u64>)> {
-        if mode == Mode::WkeyGot {
+        if mode == Mode::Wkey2Trx {
+            Ok((
+                "persisted_legacy_role_length_writes",
+                erc20_balances_tools::wkey2_trx_role::role_length_writes(block)?,
+            ))
+        } else if mode == Mode::WkeyGot {
             Ok((
                 "persisted_legacy_role_length_writes",
                 erc20_balances_tools::wkey_got_role::role_length_writes(block)?,
@@ -772,7 +794,9 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if mode == Mode::WkeyGot {
+        let candidate_path = root.join(if mode == Mode::Wkey2Trx {
+            "tests/fixtures/wkey2-trx-enumerable-candidate/layouts.json"
+        } else if mode == Mode::WkeyGot {
             "tests/fixtures/wkey-got-enumerable-candidate/layouts.json"
         } else if mode == Mode::Erc20TokenX {
             "tests/fixtures/erc20tokenx-enumerable-candidate/layouts.json"
@@ -801,7 +825,9 @@ mod offline {
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if mode == Mode::WkeyGot {
+        let review_path = root.join(if mode == Mode::Wkey2Trx {
+            "tests/fixtures/wkey2-trx-enumerable-candidate/source-review.json"
+        } else if mode == Mode::WkeyGot {
             "tests/fixtures/wkey-got-enumerable-candidate/source-review.json"
         } else if mode == Mode::Erc20TokenX {
             "tests/fixtures/erc20tokenx-enumerable-candidate/source-review.json"
@@ -846,7 +872,13 @@ mod offline {
                 },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if mode == Mode::WkeyGot {
+        report["source_rechecks"] = if mode == Mode::Wkey2Trx {
+            use erc20_balances_tools::wkey2_trx_role as bound;
+            bound::verify_cache(root, cache)?;
+            ensure!(review == bound::review(root)?, "wkeyDAO2/TRX complete paired frozen proof review");
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([review])
+        } else if mode == Mode::WkeyGot {
             use erc20_balances_tools::wkey_got_role as bound;
             bound::verify_cache(root, cache)?;
             ensure!(review == bound::review(root)?, "WKEYDAO/GOT complete frozen proof review");
@@ -1020,6 +1052,28 @@ mod offline {
                 .iter_mut()
                 .find(|v| v["contract"] == candidate["contract"])
                 .context("candidate absent from baseline")?;
+            if mode == Mode::Wkey2Trx {
+                use erc20_balances_tools::wkey2_trx_role as bound;
+                let address = candidate["contract"].as_str().context("selected address")?;
+                let r = bound::role_root(address).context("selected contract root")?;
+                let mut restored = candidate.clone();
+                ensure!(
+                    restored.as_object_mut().unwrap().remove("enumerable_address_sets")
+                        == Some(json!([{"root":bound::root(r),"key_types":["bytes32"],"semantics":"oz_3_4_2"}])),
+                    "exact target rule without membership_root"
+                );
+                ensure!(
+                    restored["other_mapping_words"]
+                        .as_object_mut()
+                        .context("legacy words")?
+                        .insert(bound::root(r), json!(if address == bound::CONTRACTS[0] { 2 } else { 3 }))
+                        .is_none(),
+                    "candidate retains broad role width"
+                );
+                ensure!(restored == *original, "wkeyDAO2/TRX candidate changes unrelated fields");
+                *original = candidate.clone();
+                continue;
+            }
             if mode == Mode::WkeyGot {
                 use erc20_balances_tools::wkey_got_role as bound;
                 let address = candidate["contract"].as_str().context("selected address")?;
@@ -1254,7 +1308,7 @@ mod offline {
                     "selected coupled replay requires reviewed Extended version4/5 at {height}"
                 );
             }
-            if matches!(mode, Mode::Erc20TokenX | Mode::WkeyGot) {
+            if matches!(mode, Mode::Erc20TokenX | Mode::WkeyGot | Mode::Wkey2Trx) {
                 ensure!(
                     matches!(block.ver, 3..=5),
                     "selected legacy replay requires reviewed Extended version3/4/5 at {height}"
@@ -1287,7 +1341,7 @@ mod offline {
                     .or_default() += tagger_admin_writes(&block)?;
             }
             let mut actual = erc20_balances::project(&block, &layouts).map_err(|e| anyhow::anyhow!("native map failed at {height}: {e}"))?;
-            if matches!(mode, Mode::Erc20TokenX | Mode::WkeyGot) {
+            if matches!(mode, Mode::Erc20TokenX | Mode::WkeyGot | Mode::Wkey2Trx) {
                 for selected in selected_counts.values_mut() {
                     selected.insert("validated_legacy_role_operations", selected["persisted_legacy_role_length_writes"]);
                 }
@@ -1533,8 +1587,9 @@ mod offline {
             Some("--btr") => Mode::Btr,
             Some("--erc20tokenx") => Mode::Erc20TokenX,
             Some("--wkey-got") => Mode::WkeyGot,
+            Some("--wkey2-trx") => Mode::Wkey2Trx,
             _ => bail!(
-                "expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft, --ptoken, --securities, --gm, --btr, --erc20tokenx or --wkey-got, followed by <original package root>"
+                "expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft, --ptoken, --securities, --gm, --btr, --erc20tokenx, --wkey-got or --wkey2-trx, followed by <original package root>"
             ),
         };
         let cache = if mode != Mode::TokenCys {
@@ -1587,6 +1642,10 @@ mod offline {
             report["scope"] = json!("Two NOT-QUALIFIED WKEYDAO/GOT legacy enumerable candidates remove WKEYDAO root9 width3 and both GOT root8 broad permissions. Existing independently source-bound oz_3_4_2 template, historical431/qualified425 and all unrelated metadata/runtime fields remain unchanged. No boolean/admin/creation permission. Both custom source revisions, coherent initial sets, actual producer/preimage/equality visibility and runtime/history/replacement package/getter/holder qualification remain open. GOT synthetic construction does not prove deployed initialization; WKEYDAO unsupported construction rolls back. Legacy v3 fallback preserved, no canonical seeding.");
             report["role_counter_scope"] = json!("Changed persisted outer role-length witnesses only, selected by exact contract-to-root WKEYDAO9/GOT8; labeled validated legacy operations solely after successful full projection. No boolean membership, admin permission or authorization claim.");
         }
+        if mode == Mode::Wkey2Trx {
+            report["scope"] = json!("Two NOT-QUALIFIED wkeyDAO2/TRX legacy enumerable candidates remove only root8 width2/root6 width3. Existing oz_3_4_2, historical431/qualified425 and all unrelated fields stay unchanged. Both compiled/captured program pairs and exact CBOR/creation-tail substitutions are bound; no bool/admin/creation permission. TRX generated length store is explicitly attributed only to pinned compiler output, not invented source text. Both constructors stop at CHAINID. Primary-source gaps, initial coherence, actual producer/preimage/equality visibility and runtime/history/package/getter/holder qualification remain open. Separate from WKEYDAO/GOT and issue61 swkeyDAO2. Legacy v3 fallback preserved; canonical values never seed state.");
+            report["role_counter_scope"] = json!("Changed persisted outer role-length witnesses only, selected by exact contract-to-root wkeyDAO2=8/TRX=6; labeled validated legacy operations only after full successful projection. No boolean membership, admin permission or authorization claim.");
+        }
         if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");
             report["error"] = json!(format!("{error:#}"));
@@ -1601,6 +1660,44 @@ mod offline {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn wkey2_trx_replay_dispatch_keeps_own_legacy_length_roots() {
+            use erc20_balances_tools::wkey2_trx_role as bound;
+            let candidates: Value = serde_json::from_str(include_str!("../../../tests/fixtures/wkey2-trx-enumerable-candidate/layouts.json")).unwrap();
+            assert!(membership_writes(&eth::Block::default(), &candidates).is_err());
+            for address in bound::CONTRACTS {
+                let own = bound::role_root(address).unwrap();
+                for r in [own, 14 - own, 9] {
+                    let mut preimage = vec![0xaa; 32];
+                    preimage.extend(hex::decode(&bound::root(r)[2..]).unwrap());
+                    let key = erc20_balances::hash(&preimage);
+                    let b = eth::Block {
+                        transaction_traces: vec![eth::TransactionTrace {
+                            status: eth::TransactionTraceStatus::Succeeded as i32,
+                            calls: vec![eth::Call {
+                                keccak_preimages: [(hex::encode(key), hex::encode(preimage))].into_iter().collect(),
+                                storage_changes: vec![eth::StorageChange {
+                                    address: hex::decode(&address[2..]).unwrap(),
+                                    key: key.to_vec(),
+                                    old_value: vec![],
+                                    new_value: vec![1],
+                                    ordinal: 50,
+                                }],
+                                ..Default::default()
+                            }],
+                            ..Default::default()
+                        }],
+                        ..Default::default()
+                    };
+                    let (field, counts) = observed_role_writes(&b, &candidates, Mode::Wkey2Trx).unwrap();
+                    assert_eq!(field, "persisted_legacy_role_length_writes");
+                    assert_eq!(counts.len(), 2);
+                    assert_eq!(counts[address], u64::from(r == own));
+                    assert_eq!(counts.values().sum::<u64>(), u64::from(r == own));
+                }
+            }
+        }
 
         #[test]
         fn wkey_got_replay_dispatch_uses_exact_per_contract_legacy_roots() {
