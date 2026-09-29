@@ -1,9 +1,16 @@
 //! Bounded host execution of the selected PToken runtime, not a general EVM.
-//! No external calls, gas/refunds or fork-cost model. Unsupported execution is
-//! a harness failure, never a Solidity revert. Account prestate is synthetic.
+//! Legacy entrypoints have no external calls. An additive context can supply a
+//! bounded external-read transcript, never callee execution or a gas/fork model.
+//! Unsupported execution is a harness failure, never a Solidity revert.
+//! Account prestate and optional context are synthetic.
 use anyhow::{bail, ensure, Context, Result};
 use primitive_types::U256;
 use std::collections::{BTreeMap, BTreeSet};
+#[path = "vm_external.rs"]
+mod external;
+pub use external::{
+    execute_with_read_only_context, ContextExecution, ContextRead, GasExpectation, ReadOnlyContext, ScriptedResult, StaticCallExpectation, StaticCallWitness,
+};
 
 fn boolean(v: bool) -> U256 {
     u8::from(v).into()
@@ -81,6 +88,7 @@ struct Machine<'a> {
     address: U256,
     self_code_size: Option<usize>,
     timestamp: Option<U256>,
+    external: Option<external::ReadMachine>,
     stack: Vec<U256>,
     memory: Vec<u8>,
     state: State,
@@ -272,8 +280,11 @@ impl Machine<'_> {
                     None => bail!("unsupported opcode 0x42 at pc {pc}"),
                 },
                 0x30 => self.push(self.address)?,
+                0x32 if self.external.is_some() => self.read_origin(step, pc)?,
                 0x33 => self.push(self.caller)?,
-                0x34 | 0x3d => self.push(U256::zero())?,
+                0x34 => self.push(U256::zero())?,
+                0x3d => self.push(self.external.as_ref().map_or(0, |c| c.return_data.len()).into())?,
+                0x3e if self.external.is_some() => self.copy_return_data()?,
                 0x35 => {
                     let off = self.pop()?;
                     let mut data = [0; 32];
@@ -358,6 +369,7 @@ impl Machine<'_> {
                 }
                 0x58 => self.push(pc.into())?,
                 0x59 => self.push(self.memory.len().into())?,
+                0x5a if self.external.is_some() => self.read_gas(step, pc)?,
                 0x5b => {}
                 0x5e => {
                     let dst = self.pop()?;
@@ -407,6 +419,7 @@ impl Machine<'_> {
                     return Ok(if op == 0xf3 { Exit::Return(data) } else { Exit::Revert(data) });
                 }
                 0xfe => return Ok(Exit::Invalid),
+                0xfa if self.external.is_some() => self.scripted_staticcall(step, pc)?,
                 _ => bail!("unsupported opcode 0x{op:02x} at pc {pc}"),
             }
         }
@@ -429,6 +442,7 @@ pub fn execute_with_self_code_size(code: &[u8], data: &[u8], caller: U256, addre
         Environment {
             self_code_size,
             timestamp: None,
+            read_only: None,
         },
     )
 }
@@ -446,6 +460,7 @@ pub fn execute_with_timestamp(code: &[u8], data: &[u8], caller: U256, address: U
         Environment {
             self_code_size: None,
             timestamp,
+            read_only: None,
         },
     )
 }
@@ -453,8 +468,20 @@ pub fn execute_with_timestamp(code: &[u8], data: &[u8], caller: U256, address: U
 struct Environment {
     self_code_size: Option<usize>,
     timestamp: Option<U256>,
+    read_only: Option<ReadOnlyContext>,
 }
 fn execute_with_limit(code: &[u8], data: &[u8], caller: U256, address: U256, prestate: &State, witness_limit: usize, environment: Environment) -> Execution {
+    execute_contextual(code, data, caller, address, prestate, witness_limit, environment).execution
+}
+fn execute_contextual(
+    code: &[u8],
+    data: &[u8],
+    caller: U256,
+    address: U256,
+    prestate: &State,
+    witness_limit: usize,
+    environment: Environment,
+) -> ContextExecution {
     let mut destinations = BTreeSet::new();
     let mut pc = 0;
     while pc < code.len() {
@@ -471,6 +498,7 @@ fn execute_with_limit(code: &[u8], data: &[u8], caller: U256, address: U256, pre
         address,
         self_code_size: environment.self_code_size,
         timestamp: environment.timestamp,
+        external: environment.read_only.map(external::ReadMachine::new),
         stack: vec![],
         memory: vec![],
         state: prestate.clone(),
@@ -484,9 +512,20 @@ fn execute_with_limit(code: &[u8], data: &[u8], caller: U256, address: U256, pre
         witness_bytes: 0,
         witness_limit,
     };
-    let exit = vm.run().unwrap_or_else(|e| Exit::HarnessFailure(format!("{e:#}")));
+    let exit = vm
+        .run()
+        .and_then(|exit| {
+            if matches!(exit, Exit::Return(_) | Exit::Revert(_)) {
+                if let Some(context) = &vm.external {
+                    context.complete()?;
+                }
+            }
+            Ok(exit)
+        })
+        .unwrap_or_else(|e| Exit::HarnessFailure(format!("{e:#}")));
     let success = matches!(exit, Exit::Return(_));
-    Execution {
+    let external = vm.external.take();
+    let execution = Execution {
         exit,
         committed: if success { vm.state } else { prestate.clone() },
         committed_logs: if success { vm.logs.clone() } else { vec![] },
@@ -495,7 +534,8 @@ fn execute_with_limit(code: &[u8], data: &[u8], caller: U256, address: U256, pre
         logs: vm.logs,
         keccaks: vm.keccaks,
         trace: vm.trace,
-    }
+    };
+    ContextExecution::new(execution, external)
 }
 
 #[cfg(test)]

@@ -279,3 +279,17 @@ with canonical emitted-value and finite cold-holder accounting. Both remain
 NOT-QUALIFIED; historical431, qualified425 and every role-candidate count above
 remain unchanged. The original source-attribution and live qualification gaps
 remain explicit.
+
+## Separate TOPS original-runtime proof
+
+TOPS's [complete-runtime cleanup proof](tops-runtime-cleanup-proof.md) remains
+outside the role cohort. Its root 31 three-word struct array and independently
+written root 32 credit are not a boolean/enumerable role pair. Explicit synthetic
+origin, time and two external read responses allow the original transfer bytecode
+to reach cleanup; exact local writes, logs, allowance order and rollback are
+checked, including the saved 23-store shape. The older extracted cleanup harness
+retains its source-semantics-only status. External code, gas sufficiency, router
+and independent liquidity-credit behavior remain unqualified. This host-only
+optional context adds no ingestion template/candidate and leaves every cohort
+and role-candidate count unchanged. Any new TOPS storage admission needs its own
+complete operation, producer and qualification review.

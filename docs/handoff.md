@@ -1095,3 +1095,47 @@ nor global holders. Current runtime/source attribution, external dependencies,
 new package/getter and initialized-holder qualification remain open under #5/#21.
 No live source or RPC checks ran. Fresh attempts remain in the Network worktree
 under out/bnbtiger-cookie-candidate-20260929/; original evidence is preserved.
+
+## TOPS original-runtime cleanup proof, 2026-09-29
+
+The [new host proof](../erc20/balances/docs/tops-runtime-cleanup-proof.md) executes
+TOPS's complete 22,323-byte captured runtime through transfer/transferFrom. The
+original source/compiler/creation/runtime binding remains unchanged, including
+91 immutable sites and the separately pinned historical compiler report and
+inventory. All 16 historical artifact byte digests are reconciled. Fresh driver,
+VM, helper and embedded fixture snapshots must match their compiled bytes and
+current inventory before execution; the fresh report does not claim recompilation
+or replace earlier compiler provenance.
+
+A separate optional host VM context supplies canonical ORIGIN, explicit timestamp,
+ordered synthetic GAS words and at most two STATICCALL responses. The exact pair
+getReserves read at PC 7758 and USDT balanceOf(pair) at PC 8143 have separately
+matched destinations, gas, calldata and output sizes. Response copying, complete
+return-data buffers, malformed ABI/revert controls and script consumption are
+bounded and tested. Unknown interactions fail the host boundary even inside a
+source try/catch. Failures retain attempted effects but roll back local state and
+logs. Prior entrypoints/JSON keep their original unsupported behavior; no external
+bytecode or actual gas model runs. The reviewed execution-spec files are pinned
+at 3e170675290673a68eeb4652501fb2ae74fea0cb under CC0 1.0.
+
+The finite matrix covers empty through six-record arrays, expiration equality and
+unsorted later records, overlapping forward compaction, tail clears and repeated
+length updates. Expired sums and LP credits wrap; a sum wrapping to zero skips
+cleanup, while checked aggregate getters can still revert. Transfer balance
+writes/logs and the later finite allowance update are checked together, including
+MAX allowance omission, self/zero/wrapped receiver states and late rollback.
+Add/remove-liquidity branches preserve the attempted cleanup prefix before their
+next unsupported interaction; their independent root 32 arithmetic stays excluded.
+
+The saved block 123561227 / transaction 63 / call 14 control matches all 23 original
+stores: five three-word pops, five length stores, credit and two balance writes.
+The transfer amount is 393140350383254688654 and expired aggregate 14594824580393536426.
+Origin is the recipient LP owner and timestamp the maximum captured expiry;
+external responses and unrelated local state are synthetic. This reproduces the
+saved store sequence/calldata, not the original complete historical transaction.
+The earlier extracted harness stays source-semantics-only. TOPS's primary-source
+gap, external/router/constructor behavior, typed ingestion, actual producer
+visibility, runtime/package/getter and initialized-holder qualification remain
+open under #61/#21. No candidate or production permission is added. Fresh attempts
+remain in the Protocol worktree under out/tops-runtime-cleanup-proof-20260929/;
+failed and preliminary attempts are retained, and no live chain checks ran.

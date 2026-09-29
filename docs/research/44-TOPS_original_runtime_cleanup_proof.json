@@ -1,0 +1,42 @@
+{
+  "title": "TOPS original-runtime cleanup under a bounded synthetic external context",
+  "status": "frozen source-02 and operations-02 passed; host-only finite proof with explicit unsupported boundaries",
+  "qualified": false,
+  "scope": "Host-only original runtime transfer/transferFrom cleanup, exact local effects and rollback. No candidate, production validator, deployment, external dependency, package, holder or live qualification.",
+  "historical_artifact_binding": "Reuse exact prior TOPS capture/compiler/runtime/creation/immutable/AST/Yul/map pins. Retain historical compiler report and inventory as historical; fresh preparation and execution bind the current compiled host sources separately.",
+  "context": "Explicit synthetic origin and timestamp, ordered synthetic GAS values, exact pair getReserves and USDT balanceOf(pair) STATICCALL scripts. No callee execution or gas accounting. CALLVALUE is zero. Unknown interactions fail the harness even inside source try/catch; full script consumption and rollback are mandatory.",
+  "primary_specification": "ethereum/execution-specs@3e170675290673a68eeb4652501fb2ae74fea0cb Cancun environment.py, system.py and control_flow.py; exact CC0 1.0 Universal license retained",
+  "source_gap": "Custom contracts/v1/token.sol has no independently recovered exact public maintainer pin. Eight dependencies remain exactly pinned to OpenZeppelin v5.6.0. Synthetic external responses do not qualify pair or USDT code/state.",
+  "local_controls": "Arrays of zero through six three-word records; expiry equality and prefix cutoff, overlapping compaction, all tail clears and lengths, wrapped expired sum gate/credit, exact balance writes/logs, finite/MAX allowance and late rollback, malformed/reverted external responses, missing/unexpected scripts and explicit router/liquidity boundaries.",
+  "saved_reference": "Block 123561227, transaction 63, call 14: all 23 local captured stores and calldata compared under synthetic origin/time/responses. Not a full historical transaction replay.",
+  "measured_result": {
+    "calls": 400,
+    "returns": 370,
+    "exact_reverts": 21,
+    "explicit_unsupported": 9,
+    "invalid": 0,
+    "opcode_records": 233226,
+    "compact_transcripts": 138,
+    "current_source_files": 291,
+    "same_preparation_execution_inventory": true
+  },
+  "evidence": {
+    "report": "erc20/balances/docs/evidence/tops-runtime-cleanup-proof-20260929.json",
+    "report_sha256": "e30bf492887a71cd69343939b7ba6467a75a3778b8019da2d2335f32e5eedbff",
+    "preparation_sha256": "b9230e2c3f3b80e394fa3a2e43c400a9284a729523ecb7a7376fd5cd87950de3",
+    "source_inventory_sha256": "3496b348d03085d28aeeaa445b3aca9be81b3aa774dbae159e4380eb122bdcb1",
+    "fresh_attempts": "out/tops-runtime-cleanup-proof-20260929/source-02 and operations-02; historical/preliminary failures retained separately"
+  },
+  "offline_validation": {
+    "workspace_tests_passed": 1361,
+    "suites": 134,
+    "nonempty_suites": 88,
+    "failed": 0,
+    "ignored": 0,
+    "all_target_clippy": "passed with warnings denied",
+    "wasm_workspace": "passed",
+    "format_and_staged_whitespace": "passed",
+    "independent_review": "complete original-runtime trace and artifact/source/compact-transcript verification passed"
+  },
+  "remaining_gates": "Complete external/router/constructor behavior, primary custom-source attribution, production operation validation and producer visibility, actual runtime/package/getter and initialized-holder qualification remain separate. No candidate or production permission is added."
+}
