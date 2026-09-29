@@ -1180,3 +1180,56 @@ dependency changes and no live chain checks are part of this candidate. Fresh
 attempts remain under the BSC worktree's out/tops-lpinfo-candidate-20260929;
 source-derived controls, saved replay and their precise coverage are recorded
 in the focused document and frozen evidence without replacing historical proof.
+
+## YBC finite retained raw inputs, 2026-09-29
+
+The [YBC host adapter](../erc20/balances/docs/ybc-retained-inputs.md) adds a separate
+closed retained-input module. The three earlier LBP/BabyDoge/10SET bindings and
+existing YBC arithmetic remain unchanged. YBC's exact token, reward-helper and
+pool runtimes are pinned to their original captures. The token's complete saved
+source/compiler output retains its attribution limits; the helper remains
+reviewed bytecode without recovered source. The captured call sequence touches
+the token and pool. This does not prove every helper path is storage-independent.
+Unreviewed helper storage, pointer excursions or changed code suspend the epoch.
+Restoration alone does not resume it; reset requires a new independently
+initialized checkpoint with the reviewed identities.
+
+The adapter imports the twelve holders at block 122288005 and block 122289029
+as two independent checkpoints. All 3,410 raw captured words, 48 historical
+getter comparisons and thirty separate raw state-override cases retain their
+original evidence. The sixty override getter results include seventeen expected
+reverts; expectations are compared only after decoding raw input. Neither a
+previous calculated amount nor an RPC getter response initializes a retained word.
+
+The finite permitted key registry may include names from both checkpoints. Only
+parent values initialize the earlier replay, and a later observed persisted write
+can establish a new fact. Moving a holder cursor preserves retired known hours,
+never reassigns their values and never supplies absent words as zero. The captured
+reward-bearing cursor change from 1695 to 3135 exposes a different required
+240-hour range; its final checkpoint cannot backfill the earlier state. Required
+input planning uses the incoming canonical clock and staged post-block facts,
+with at most 240 hours and explicit holder/key/effect/undo bounds.
+
+Resolved below-threshold and already-claimed/closed-cycle branches avoid
+unreachable hourly and pool inputs. A future launch retains checked-subtraction
+failure. Raw storage basis, pending reward/stopping hour and observable balance
+are separate metrics, including a known reward followed by balance-addition
+overflow. Missing history, arithmetic/model refusal, unsupported scope and
+suspended code/dependency epochs remain distinct. Evaluation never changes the
+stored claim cursor. Recursively rewarded pool balances remain outside this
+selected historical model.
+
+Block applications stage all effects and calculations atomically. Same-key writes
+require positive increasing ordinals and exact old/new continuity; different keys
+commute at end of block. Checkpoints, exact-clock snapshots and bounded undo retain
+fact provenance and epoch/producer boundaries. Restarts do not import future
+checkpoint values. The saved journal's measured known/unknown coverage and final
+independent comparisons belong in the focused evidence; completing a journal is
+not a claim of continuous getter parity or complete holders.
+
+Fresh attempts remain in the Network worktree under out/ybc-retained-inputs-20260929.
+All historical captures and failed attempts are preserved. This work introduces
+no production layout, VM, persistence, protobuf or dependency change and makes
+no new live calls. Actual deployment/runtime and source/dependency qualification,
+production affected-holder behavior, recursive paths and new package/initialized-
+holder checks remain under #5/#7/#21. OG remains a separate model and scope.

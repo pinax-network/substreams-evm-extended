@@ -53,6 +53,7 @@ pub mod wkey2_trx_proof;
 pub mod wkey2_trx_role;
 pub mod wkey_got_proof;
 pub mod wkey_got_role;
+pub mod ybc_retention;
 pub mod ybc_rewards;
 
 #[cfg(test)]

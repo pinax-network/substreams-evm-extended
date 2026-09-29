@@ -311,3 +311,15 @@ authorization or qualify every router path permitted by inherited fields. Both
 historical layout files and every role-candidate count remain unchanged. The
 separate fixture stays NOT-QUALIFIED, with source, deployed initial state, producer,
 package/getter and initialized-holder gates retained under #61/#21.
+
+## Separate YBC retained-input model
+
+The [YBC host adapter](ybc-retained-inputs.md) retains raw calculated-balance
+inputs for twelve historical holders. Its reward-helper source remains unavailable;
+the bound historical bytecode, storage and getter controls have their existing
+limited scope. Two checkpoint imports and saved state overrides do not establish
+a complete consecutive reward history. Newly required, unobserved hours stay
+unknown, and derived rewards never replace raw facts or advance a stored cursor.
+No role validator, role-candidate count, production layout or historical cohort
+changes. Current deployment, dependency, package and holder qualification remains
+separate from host retention under #5/#7/#21.
