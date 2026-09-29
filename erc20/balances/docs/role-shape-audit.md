@@ -253,3 +253,14 @@ Eight COOKIE dependency bodies match pinned primary sources; its three custom
 sources and the flattened BNBTiger source remain independently unattributed.
 The zero-call-value getter matrix adds no production rule, candidate, VM feature
 or live qualification, and leaves all role-candidate counts unchanged.
+
+## Separate calculated getter retention
+
+The host-only [calculated-retention ledger](calculated-retention.md) covers a finite
+historical LBP/hLBP, BabyDoge and 10SET registry. Its source-bound raw facts,
+current-clock calculations and saved reference comparisons add no profile or metadata
+permission to this role inventory. The 33 boolean and eight enumerable role candidates
+remain separate. Missing raw inputs, model refusals and protected-runtime changes stay
+explicit; no retained getter amount is emitted as a production balance or used to
+initialize raw state. See the focused document for the exact interval and 64
+token-holder-pair boundary.

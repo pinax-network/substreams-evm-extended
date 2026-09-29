@@ -8,6 +8,7 @@ pub mod bnbtiger_cookie_proof;
 pub mod btr_proof;
 pub mod btr_role;
 pub mod burnmint_role;
+pub mod calculated_retention;
 pub mod capture;
 pub mod cli;
 pub mod comparison;

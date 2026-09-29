@@ -1,7 +1,7 @@
 //! Shared decoding for the captured regression and its Rust fixture builder.
 use super::{Globals, Holder};
 use crate::{
-    data::{items, text, uint},
+    data::{binary, items, text, uint},
     survey::mapping_key,
 };
 use anyhow::{ensure, Context, Result};
@@ -21,10 +21,18 @@ pub fn slot(n: u64) -> String {
 
 pub fn checkpoint(rows: &Value) -> Result<State> {
     let mut state = State::new();
-    for row in rows.as_array().context("checkpoint array")? {
+    let rows = rows.as_array().context("checkpoint array")?;
+    // Historical checkpoints carry a common canonical hash. Legacy simulated
+    // arithmetic controls carry no hash; mixing the two is never admissible.
+    let expected_hash = rows.first().and_then(|row| row.get("hash")).map(|v| binary(v, 32)).transpose()?;
+    for row in rows {
+        ensure!(
+            row.get("hash").map(|v| binary(v, 32)).transpose()? == expected_hash,
+            "checkpoint row hash mismatch"
+        );
         ensure!(
             state
-                .insert((text(&row["contract"])?.into(), text(&row["key"])?.into()), uint(&row["word"])?)
+                .insert((binary(&row["contract"], 20)?, binary(&row["key"], 32)?), uint(&row["word"])?)
                 .is_none(),
             "duplicate checkpoint key"
         );
@@ -33,16 +41,18 @@ pub fn checkpoint(rows: &Value) -> Result<State> {
 }
 
 pub fn apply(state: &mut State, updates: &Value) -> Result<()> {
+    let mut staged = state.clone();
     let mut ordinal = None;
     for row in updates.as_array().context("update array")? {
         let next = row["ordinal"].as_u64().context("update ordinal")?;
-        ensure!(ordinal.is_none_or(|prior| next > prior), "ambiguous update ordinal");
+        ensure!(next > 0 && ordinal.is_none_or(|prior| next > prior), "ambiguous update ordinal");
         ordinal = Some(next);
-        let key = (text(&row["contract"])?.into(), text(&row["key"])?.into());
-        let stored = state.get_mut(&key).context("missing tracked checkpoint")?;
+        let key = (binary(&row["contract"], 20)?, binary(&row["key"], 32)?);
+        let stored = staged.get_mut(&key).context("missing tracked checkpoint")?;
         ensure!(*stored == uint(&row["old"])?, "tracked storage discontinuity");
         *stored = uint(&row["new"])?;
     }
+    *state = staged;
     Ok(())
 }
 

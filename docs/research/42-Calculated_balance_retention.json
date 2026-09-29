@@ -1,0 +1,20 @@
+{
+  "title": "Atomic finite retention for historical LBP, BabyDoge and 10SET getter models",
+  "status": "host-only; not production or live qualified",
+  "models": ["LBP", "BabyDoge", "10SET"],
+  "registered_token_holder_pairs": [33, 19, 12],
+  "raw_checkpoint_words": [171, 102, 43],
+  "historical_interval": [122288006, 122289030],
+  "independent_getter_observations": {"total": 923, "parent": 64, "in_interval": 859, "LBP": {"parent": 33, "in_interval": 561, "amount_and_pending_comparisons": 1188}, "BabyDoge": {"parent": 19, "in_interval": 190}, "10SET": {"parent": 12, "in_interval": 108}},
+  "final_replay": {"status": "passed", "blocks": 1024, "interval_evaluations": 65536, "initial_evaluations": 64, "reflection_storage_comparisons": {"parent": 145, "in_interval": 1407}, "protected_storage_effects": 394, "protected_code_effects": 0, "snapshot_continuation_blocks": 512, "undo_replayed_blocks": 16},
+  "report": {"path": "erc20/balances/docs/evidence/calculated-retention-20260929.json", "sha256": "d76a8004b6dc7b6429bfb5a19c49e34de915020f1968edc5cdac519a5b346ee6"},
+  "source_inventory": {"path": "erc20/balances/docs/evidence/calculated-retention-20260929-source-inputs.json", "sha256": "89a777735f7718598019b349b7ba9a92570deb8cca3a8fce33ab1866d75695de"},
+  "derived_journal_sha256": "ebe020cca7b75e562cfe124eb074d275a2c8eb9f69f667099e98e9da3a88876d",
+  "implementation": "erc20/balances/tools/src/calculated_retention.rs",
+  "contract": "erc20/balances/docs/calculated-retention.md",
+  "bindings": "Four complete original source captures, exact saved compiler/runtime substitutions, selected layout fields and LBP exemption/dependency relationships; no fresh compiler or current deployment claim.",
+  "behavior": "Atomic block/group apply, finite reevaluation on every accepted clock, per-fact PB provenance, deterministic raw-input digests, explicit unknown/refusal/suspension, bounded hash-checked undo, exact snapshot import and complete reset-only newer epochs.",
+  "persistence_order": "Use unchanged persisted-effect collection including ordinary storage equality; reject zero/tied/descending same-key ordinals and discontinuities. Distinct keys commute at end of block.",
+  "limits": "Historical parent lacks parent-of-parent hash and producer version. These remain absent only at checkpoint; actual applied blocks require full metadata. No RPC values seed state, no global enumeration, no production protobuf/state cache/schema or dependency changes.",
+  "remaining": "Current runtime/package and interval qualification, source-executed calculated-getter oracles where still required, and any production calculated-balance adapter remain separate."
+}
