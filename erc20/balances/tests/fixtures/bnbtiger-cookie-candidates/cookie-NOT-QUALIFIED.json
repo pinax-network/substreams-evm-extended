@@ -1,0 +1,8 @@
+[
+  {
+    "balance_slot": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "code_hash": "0x258d1c6c6dcac1bfb46886ed147f9445408e9e5420a2c7a9434cd1b60bcf200f",
+    "contract": "0x3505bee89d3b4e351dbd4849241a6b0716ea407f",
+    "metadata_semantics": "cookie_solc_0_6_12"
+  }
+]

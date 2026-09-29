@@ -1,4 +1,5 @@
 pub use crate::mapping_paths::{MappingKeyType, MappingPath, VerifiedMappingPath};
+pub use crate::metadata_words::MetadataSemantics;
 use crate::{hash, hex_bytes, require};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -28,6 +29,9 @@ pub struct Layout {
     /// Explicit key types, exact nesting depth and terminal field offsets.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub other_mapping_paths: Vec<MappingPath>,
+    /// Exact selected-source metadata field/value contract; never a broad word grant.
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "non_null_membership_root")]
+    pub metadata_semantics: Option<String>,
     /// Explicitly reviewed role-member sets with correlated array/index writes.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub enumerable_address_sets: Vec<EnumerableAddressSet>,
@@ -309,6 +313,7 @@ pub struct VerifiedLayout {
     pub other_mapping_slots: BTreeSet<[u8; 32]>,
     pub other_mapping_words: BTreeMap<[u8; 32], u8>,
     pub other_mapping_paths: Vec<VerifiedMappingPath>,
+    pub metadata_semantics: Option<MetadataSemantics>,
     pub enumerable_address_sets: Vec<VerifiedEnumerableAddressSet>,
     pub voting_checkpoints: Option<VerifiedVotingCheckpoints>,
     pub address_lists: BTreeSet<[u8; 32]>,
@@ -371,6 +376,7 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
     layouts
         .into_iter()
         .map(|layout| {
+            let metadata_semantics = crate::metadata_words::parse(&layout)?;
             let contract = fixed(&layout.contract, 20)?;
             require(contract.iter().any(|b| *b != 0), "zero token contract")?;
             require(contracts.insert(contract.clone()), "duplicate token layout")?;
@@ -812,6 +818,7 @@ pub fn parse(params: &str) -> Result<Vec<VerifiedLayout>, Error> {
                 other_mapping_slots,
                 other_mapping_words,
                 other_mapping_paths,
+                metadata_semantics,
                 enumerable_address_sets,
                 voting_checkpoints,
                 address_lists,

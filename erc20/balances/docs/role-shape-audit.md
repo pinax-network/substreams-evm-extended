@@ -264,3 +264,18 @@ remain separate. Missing raw inputs, model refusals and protected-runtime change
 explicit; no retained getter amount is emitted as a production balance or used to
 initialize raw state. See the focused document for the exact interval and 64
 token-holder-pair boundary.
+
+
+## Separate BNBTiger / COOKIE metadata candidates
+
+The subsequent [BNBTiger/COOKIE candidates](bnbtiger-cookie-candidates.md) are
+separate noncohort additions. They bind exact captured code identities and balance
+roots to closed metadata field/value rules; COOKIE checkpoints use address/uint32
+keys and two terminal words. Packed constructor constants and padding remain fixed,
+and unknown or constructor-only writes refuse even when unchanged. These rules
+assert neither complete operations nor caller authorization. Three saved-block
+projections preserve all historical431 payloads and isolate the two additions,
+with canonical emitted-value and finite cold-holder accounting. Both remain
+NOT-QUALIFIED; historical431, qualified425 and every role-candidate count above
+remain unchanged. The original source-attribution and live qualification gaps
+remain explicit.
