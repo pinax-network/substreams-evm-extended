@@ -1,6 +1,6 @@
 //! Exact observed-write witnesses for legacy DSG/OZ3.4.2 and the separately
 //! opted-in PTokenV2 solc0.8.28/OZ5.4, SecuritiesToken solc0.8.24/OZ5.3,
-//! GM solc0.8.16/Ondo-vendor and BTR solc0.8.24/OZ4.9.3 coupled membership/set
+//! GM solc0.8.16/Ondo-vendor, BTR solc0.8.24/OZ4.9.3 and Mai solc0.8.9/OZ4.7.0 coupled membership/set
 //! templates. Names identify selected reviewed builds, not every contract using
 //! a library version.
 //!
@@ -271,6 +271,21 @@ fn namespaces(
                 protected.insert((layout.contract.clone(), *leaf));
             }
         }
+        // The separately selected Mai rule also protects witnessed descendants
+        // of its preserved metadata mappings (allowances at root3). A physical
+        // or inferred equal array stage cannot consume such a known location.
+        // This adds no permission and leaves earlier selected modes unchanged.
+        if layout
+            .enumerable_address_sets
+            .iter()
+            .any(|set| matches!(set.semantics, crate::layout::EnumerableSemantics::Mai { .. }))
+        {
+            for key in preimages.keys() {
+                if layout.other_mapping_slots.iter().any(|root| crate::mapping_has_base(*key, preimages, root)) {
+                    protected.insert((layout.contract.clone(), *key));
+                }
+            }
+        }
         for set in &layout.enumerable_address_sets {
             let membership_root = set.semantics.membership_root();
             // Either side discovers the role. Derived counterparts identify
@@ -486,7 +501,7 @@ fn legacy_candidates(
     found
 }
 
-// Independently proven selected PToken, Securities, coherent GM and BTR templates.
+// Independently proven selected PToken, Securities, coherent GM, BTR and Mai templates.
 // Membership precedes every set mutation. No standalone bool/index/length
 // fragment can supply permission.
 fn coupled_candidates(

@@ -1,0 +1,251 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "out/mai-coupled-role-20260929/replay-01/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "out/mai-coupled-role-20260929/replay-01/candidate-combined-layouts.json",
+      "sha256": "37e825292f054a025aef2a14631856b2645fcfc0cc450e91d6bd30da9ca802a5"
+    },
+    {
+      "path": "out/mai-coupled-role-20260929/replay-01/replay-role-candidates.rs",
+      "sha256": "e0c2be781e8e932864d58c741875f676ac57b04c037a1bf10a13a8894121f159"
+    },
+    {
+      "path": "out/mai-coupled-role-20260929/replay-01/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "out/mai-coupled-role-20260929/replay-01/blocks.jsonl",
+      "sha256": "d416b4e1cc58ff50d30888b2861a14e5e98c0e5969d35137d8e90d4047b436f4"
+    },
+    {
+      "path": "out/mai-coupled-role-20260929/replay-01/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "out/mai-coupled-role-20260929/replay-01/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "out/mai-coupled-role-20260929/replay-01/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "attempted_block": 122289029,
+  "candidate_matches_current_baseline_all_blocks": true,
+  "candidate_profiles": {
+    "0x35803e77c3163fed8a942536c1c8e0d5bf90f906": {
+      "cold_nonzero_reference_observations": 8,
+      "cold_reference_observations": 13,
+      "emitted_rows": 83,
+      "initialized_observed_holders": 49,
+      "persisted_role_membership_writes": 0,
+      "same_block_reference_matches": 83,
+      "validated_coupled_role_operations": 0
+    }
+  },
+  "canonical_reference_interval_and_baseline_binding_verified": true,
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "completed_block_producer_versions": {
+    "5": 1024
+  },
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 99.853123167,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/mai-coupled-role-candidate/layouts.json",
+      "sha256": "1daac0e8887c958aa9d959431c45dea1352bf7d57afb6931da13e4aea8709b7b"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/mai-coupled-role-candidate/source-review.json",
+      "sha256": "d106467f612dae4dead30a367ba3ea6055e5bc8834a7dbccdfb2940b4fa5b617"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_completed_block": 122289029,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 66265,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 110139,
+    "enumerated": [],
+    "first_block": 122288006,
+    "initialized_holders": 33591,
+    "known_zero_holders": 6197,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 33591,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "role_counter_scope": "Changed persisted root0 membership witnesses only; validated coupled operations are counted only after successful complete projection. A witness alone is not an operation or authorization proof.",
+  "scope": "One NOT-QUALIFIED Mai candidate removes only broad membership root0 and set root1 width2, selecting the unoptimized solc0.8.9/OZ4.7.0 complete coherent template. Historical431/qualified425 and all unrelated balance/metadata/runtime fields remain unchanged. All four void-super one-sided successes refuse; known metadata descendants have Mai-only alias protection. Extended4/5 actual frames required. No admin/creation admission, authorization or seed. Custom token primary attribution, deployed initial coherence, real producer visibility and runtime/package/getter/holder qualification remain open. Canonical values never seed retained state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "f8a5debf4322cbdc8860dc75e99e15c3be8769996a5cda3e190ad1764d258f32",
+  "source_rechecks": [
+    {
+      "admin_definition_only": [
+        [
+          "@openzeppelin/contracts/access/AccessControl.sol",
+          214,
+          "function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {"
+        ]
+      ],
+      "admin_write_permission": false,
+      "allowance_root": "0x0000000000000000000000000000000000000000000000000000000000000003",
+      "balance_root": "0x0000000000000000000000000000000000000000000000000000000000000002",
+      "baseline_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+      "capture_sha256": "e5fb99260765d58a5fecdd4d2eccd61c84e6f0032821fc75402f00e93535386b",
+      "compiler": "0.8.9+commit.e5eed63a",
+      "contracts": [
+        "0x35803e77c3163fed8a942536c1c8e0d5bf90f906"
+      ],
+      "creation_admission": false,
+      "custom_primary_gap": "Fourteen complete dependencies match the exact OpenZeppelin 4.7.0 revision. The UNLICENSED custom contracts/Mai.sol has no independently established maintainer revision in the reviewed material. Captured source/compiler/runtime equality does not resolve that source gap or qualify actual deployment, initial coherence, producer visibility or live package/getter/holder behavior.",
+      "frozen_phase_a_artifacts": [
+        {
+          "path": "docs/evidence/mai-operation-proof-20260929.json",
+          "sha256": "dc63c4701919dc758e1484d5d24d9b6912d870c0836077613f1b1d4c3714a926"
+        },
+        {
+          "path": "docs/evidence/mai-operation-proof-20260929-transcripts.json",
+          "sha256": "c0722b4f25f79d0f26ffed1e1259987afb51e0efdb6267f0154c9d32da000685"
+        },
+        {
+          "path": "docs/evidence/mai-operation-proof-20260929-cases.json",
+          "sha256": "c72512bff281b4f9430d4e6206359956db16078311d3ba3d77000896bea48a6f"
+        },
+        {
+          "path": "docs/evidence/mai-operation-proof-20260929-compiler.json",
+          "sha256": "cab29d18fdf543edcc779dcc8ce773b945ffa044a97da1bc541cc04e3d8104a6"
+        },
+        {
+          "path": "docs/evidence/mai-operation-proof-20260929-source-inputs.json",
+          "sha256": "23ff1571cf7808ac328c6ce494ab64dbc35351fda6f84921ff7435004c4234e5"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/primary-sources.json",
+          "sha256": "a835cfc598f289cedc7d5eb47d4faa1fa8808ffe34f168dae9e4ae1d726ad608"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/LICENSE-openzeppelin",
+          "sha256": "8c21a3d62814a86c6e6db50768e5a885a1f586873628e9be79a93f4eb6c18820"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/README.md",
+          "sha256": "e828d0e147748e92529b652de5eb8bb491aea1c9f1d60e97432db0d0344c6677"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/capture.json",
+          "sha256": "e5fb99260765d58a5fecdd4d2eccd61c84e6f0032821fc75402f00e93535386b"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/compiler-input-original.json",
+          "sha256": "649570084d364b09c1c858fec26a1a92dac864b9365a21816857d15a8f7dd88c"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/compiler-input.json",
+          "sha256": "30fc984c545558237be971b646fd4d4f6c236eeb3d815d0b2be7ad2b4bc1a1ed"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/compiler-output.json",
+          "sha256": "18a24ae3680b1b25d1b47c0d0c9a9b9d53dbd5a90c6bd6c003e6a0f5a5a20764"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/compiler-version.txt",
+          "sha256": "42b3b944e56b8dec08f839a426951c22f960b4599c531e72dc3820c6e85f15cc"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/metadata-fresh.json",
+          "sha256": "30382f478302f7d52b3c1223f0d73dc34c22c15f648f18f42853339c8d853b78"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/metadata-original.json",
+          "sha256": "30382f478302f7d52b3c1223f0d73dc34c22c15f648f18f42853339c8d853b78"
+        },
+        {
+          "path": "tests/fixtures/mai-operation-proof/solc-list.json",
+          "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+        }
+      ],
+      "independent_membership_permission": false,
+      "membership_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "operation_contract": "Complete coherent boolean-plus-set only; all four void-super one-sided successes rejected; source-executed zero equality stages optional; checked logical growth refuses source maximum-length wrap",
+      "optimizer_enabled": false,
+      "producer_structure": {
+        "actual_positive_root_begin_required": true,
+        "real_role_write_visibility": "unqualified",
+        "v3_fallback": false,
+        "versions": [
+          4,
+          5
+        ]
+      },
+      "qualification_assumptions": [
+        "initial role-set coherence",
+        "zero unused tail",
+        "source/runtime attribution",
+        "actual producer completeness"
+      ],
+      "qualified": false,
+      "runtime_keccak256": "0x1134938644214395aba790bf7d50e13027c30b74b4bd09dcbe167c0ccc2cc9e5",
+      "scope": "Offline candidate only; no chain calls, deployment/holder seed, authorization proof, creation admission or live package/getter qualification",
+      "semantics": "mai_solc_0_8_9_oz_4_7_0",
+      "set_root": "0x0000000000000000000000000000000000000000000000000000000000000001"
+    }
+  ],
+  "start_inclusive": 122288006,
+  "status": "passed_offline_role_candidate_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0
+}

@@ -47,5 +47,6 @@ evidence of what was read and when, not qualification of any deployment.
 | `36-WkeyDAO2_TRX_operation_proof.json` | Exact compiled/captured paired execution binds two legacy runtimes, preserves metadata and constructor-tail distinctions and explicitly separates four compiler-generated effect sites without Solidity text; no candidate or VM extension | `erc20/balances` host tools, issue #4 |
 | `37-Mai_operation_proof.json` | Exact source-derived cap and no-argument creation bind the selected unoptimized compiler; full local role/token matrix distinguishes old void-super one-sided states, conditional swaps and synthetic constructor success from admission | `erc20/balances` host tools, issue #4 |
 | `38-WkeyDAO2_TRX_enumerable_candidate.json` | Two exact legacy candidates remove only root-8 width-two/root-6 width-three permissions, bind both compiler/captured program variants and TRX generated length-store evidence, and reuse the unchanged complete-operation validator | `erc20/balances`, issue #4 |
+| `39-Mai_coupled_role_candidate.json` | Exact membership0/set1 coupled candidate binds all raw source-proof artifacts, refuses old one-sided successes and guards witnessed allowance aliases while preserving unrelated permissions and qualification limits | `erc20/balances`, issue #4 |
 
 Claims marked with a correction in a file supersede the corresponding claim.

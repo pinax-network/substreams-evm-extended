@@ -62,7 +62,7 @@ published baseline and the other reviewed profiles remain unchanged.
 
 The original inventory and its evidence above remain historical. Separate
 **NOT-QUALIFIED** fixtures now cover all 33 of its boolean-role profiles and
-seven of its eight enumerable-role profiles;
+all eight of its enumerable-role profiles;
 they do not replace the original 431-profile baseline or qualified 425 cohort.
 Each linked report records its complete saved interval, initialized observed
 holders, cold gaps, source bindings and regression controls. Synthetic write
@@ -85,6 +85,7 @@ shapes do not establish executed authorization or real producer visibility.
 | [ERC20TokenX: ORI / FNA / PHI](erc20tokenx-enumerable-candidate.md) | Remove only the broad root-8 width-three permission and select the unchanged `oz_3_4_2` complete-operation rule. No separate membership root or admin permission; all unrelated fields remain unchanged. | Exact shared compiled runtime; complete ORI/FNA source and creation bindings, historical PHI runtime-only attribution and one custom primary-source gap. Creation remains refused, and coherent initial state, producer visibility and replacement qualification remain open. |
 | [WKEYDAO / GOT](wkey-got-enumerable-candidate.md) | Remove WKEYDAO's broad root-9 width rule and both GOT root-8 rules; select the unchanged `oz_3_4_2` complete-operation rule with no membership root, admin or creation permission. All other fields remain unchanged. | Two separately bound runtimes and source-derived operation matrices. Both custom primary revisions, deployed initial coherence, actual producer visibility and replacement qualification remain open; GOT's synthetic constructor success does not admit creation. |
 | [wkeyDAO2 / TRX](wkeydao2-trx-enumerable-candidate.md) | Remove only root-8 width-two/root-6 width-three permissions; reuse the unchanged `oz_3_4_2` complete-operation rule and preserve all other fields. No membership root, admin or creation admission. | Exact paired compiler/captured programs, including TRX generated length-store evidence. Custom provenance, metadata-origin, deployed coherence, producer visibility and replacement qualification remain open. |
+| [Mai](mai-coupled-role-candidate.md) | Replace only broad membership root 0 and width-two set root 1 with the exact solc 0.8.9/OZ 4.7.0 coupled template. Complete boolean/set operations retain source ordering and equality rules; one-sided successes and known allowance-leaf collisions refuse. | Custom primary-source attribution, deployed coherent initial state, zero unused tails, actual producer visibility and replacement qualification remain open. No admin or creation permission; all unrelated profile fields remain exact. |
 
 The prerequisite [PToken operation proof](ptoken-operation-proof.md) executes its
 compiled boolean/set transitions and rollback controls against synthetic state.
@@ -125,8 +126,8 @@ retains its exact source bindings and qualification limits.
 Each candidate needs its own reachability, initialization and dependency review
 before promotion. This classification concerns the configured role field;
 some contracts also contain separate enumerable or dynamic metadata that must
-retain its existing handling. Mai is the remaining enumerable-role profile
-requiring its own selected coupled migration. Four legitimate
+retain its existing handling. The separate candidates now cover all eight
+enumerable-role profiles as well as all 33 boolean profiles. Four legitimate
 terminal-record profiles and six source-unavailable profiles retain the original
 audit's separate findings; they are not plain membership migrations.
 
@@ -160,7 +161,7 @@ candidate removes both broad GOT root-8 permissions and WKEYDAO's root-9 width
 rule, preserving every other field. The existing legacy validator remains
 unchanged, and both captured creations remain refused. These profiles bring
 enumerable coverage to five; the subsequent wkeyDAO2/TRX fixture brings the
-current total to seven. Mai remains.
+subtotal to seven. The subsequent Mai candidate completes all eight.
 
 The separate [wkeyDAO2/TRX host proof](wkeydao2-trx-operation-proof.md) now binds
 both original compiler outputs and captured variants to the same complete local
@@ -188,10 +189,23 @@ The subsequent [wkeyDAO2/TRX candidates](wkeydao2-trx-enumerable-candidate.md)
 reuse the unchanged legacy operation rule at roots 8/6. Only the original
 width-two/width-three declarations are removed; full profile restoration is
 checked. Both compiler/captured source transcripts drive their own projector
-controls, including TRX's exact generated length store. Seven of eight enumerable
-profiles now have candidates, with Mai remaining. Both creations refuse, and
+controls, including TRX's exact generated length store. These two profiles bring
+the subtotal to seven; the subsequent Mai candidate completes all eight. Both creations refuse, and
 provenance, coherent initialization, producer and replacement qualification
 remain independent gates.
+
+
+The subsequent [Mai coupled candidate](mai-coupled-role-candidate.md) removes
+only the original membership mapping root 0 and width-two set rule at root 1.
+Its selected unoptimized template reuses complete coupled transitions and
+source-proven equalities, while refusing all four one-sided void-super successes,
+dirty words and malformed wrapping lengths. It additionally protects witnessed
+allowance descendants from physical or inferred role-array stages, exclusively
+for Mai. Existing templates keep their prior behavior. All 16 frozen proof
+artifacts and compiler/operation links bind the candidate; no admin or creation
+permission is introduced. Full profile restoration leaves every unrelated field
+exact. All eight enumerable profiles now have NOT-QUALIFIED candidates; source,
+coherence, producer and replacement package/getter/holder gates remain open.
 
 TOPS's [separate host proof](tops-operation-proof.md) concerns a three-word
 struct array and wrapping LP credits under issue #61, outside this role cohort.

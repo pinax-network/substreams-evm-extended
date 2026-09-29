@@ -777,3 +777,11 @@ separate from ingestion admission and deployed initialization; both constructor
 paths encounter unsupported CHAINID in the unchanged host VM.
 
 Host-only [Mai operation proof](docs/mai-operation-proof.md) binds its exact solc 0.8.9 runtime, source-derived immutable cap and distinct boolean/set roots. Final compilation and 1,632 local constructor/role/token calls passed against the same source inventory, with copied evidence and all offline workspace gates. It adds no ingestion candidate or live qualification.
+
+The separate [Mai coupled candidate](docs/mai-coupled-role-candidate.md) replaces
+only broad membership root 0 and width-two set root 1 with the explicit
+`mai_solc_0_8_9_oz_4_7_0` operation rule. Complete coherent boolean/set operations
+are required; all four one-sided void-super successes refuse. It preserves
+balance/allowance/scalar/runtime fields and grants no admin or creation
+permission. Source attribution, initial coherence, actual producer visibility
+and replacement qualification remain open.
