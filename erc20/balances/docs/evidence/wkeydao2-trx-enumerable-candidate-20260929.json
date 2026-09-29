@@ -1,0 +1,323 @@
+{
+  "all_1024_clocks_equal_saved_canonical_bound_clocks": true,
+  "artifacts": [
+    {
+      "path": "out/wkeydao2-trx-enumerable-candidate-20260929/replay-01/native-events.jsonl",
+      "sha256": "82289ee3542b5e0870f33f09af0cea3442d691a5494c5a8815d1566932d1e42a"
+    },
+    {
+      "path": "out/wkeydao2-trx-enumerable-candidate-20260929/replay-01/candidate-combined-layouts.json",
+      "sha256": "14b7b040ebeda48e4c0c4b90bd98efe8327942f9db2a5ada1fc442c381de1497"
+    },
+    {
+      "path": "out/wkeydao2-trx-enumerable-candidate-20260929/replay-01/replay-role-candidates.rs",
+      "sha256": "169240c134a65d52e3697f67a5a0a46fab36df5298ecf89a5032f3aeab572366"
+    },
+    {
+      "path": "out/wkeydao2-trx-enumerable-candidate-20260929/replay-01/differences.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "out/wkeydao2-trx-enumerable-candidate-20260929/replay-01/blocks.jsonl",
+      "sha256": "d416b4e1cc58ff50d30888b2861a14e5e98c0e5969d35137d8e90d4047b436f4"
+    },
+    {
+      "path": "out/wkeydao2-trx-enumerable-candidate-20260929/replay-01/per-block.jsonl",
+      "sha256": "60736b56ca95e17f72217dbffda342cfa992ca813569efcaf21f64eae28a360e"
+    },
+    {
+      "path": "out/wkeydao2-trx-enumerable-candidate-20260929/replay-01/native-only-vs-reference.jsonl",
+      "sha256": "e96798b89516677bfaa1c3aa9901aa7cd33a87efcecef66b353cc2fb3db3f74c"
+    },
+    {
+      "path": "out/wkeydao2-trx-enumerable-candidate-20260929/replay-01/reference-only-configured.jsonl",
+      "sha256": "6d6ca6b9c669479e9608a2db29854ea5256858d1aee6d188c28dadc57b38d1ee"
+    }
+  ],
+  "attempted_block": 122289029,
+  "candidate_matches_current_baseline_all_blocks": true,
+  "candidate_profiles": {
+    "0xce7de646e7208a4ef112cb6ed5038fa6cc6b12e3": {
+      "cold_nonzero_reference_observations": 10,
+      "cold_reference_observations": 19,
+      "emitted_rows": 27,
+      "initialized_observed_holders": 18,
+      "persisted_legacy_role_length_writes": 0,
+      "same_block_reference_matches": 27,
+      "validated_legacy_role_operations": 0
+    },
+    "0xe0a281deff5c9d8d67af09d39340e134ac81b82e": {
+      "cold_nonzero_reference_observations": 47,
+      "cold_reference_observations": 63,
+      "emitted_rows": 108,
+      "initialized_observed_holders": 24,
+      "persisted_legacy_role_length_writes": 0,
+      "retained_reference_matches": 1,
+      "same_block_reference_matches": 108,
+      "validated_legacy_role_operations": 0
+    }
+  },
+  "canonical_reference_interval_and_baseline_binding_verified": true,
+  "comparison": "All current Events/Balance protobuf fields and optional contract presence; only balance row ordering normalized by (contract,address).",
+  "completed_block_producer_versions": {
+    "5": 1024
+  },
+  "configured_profiles": 431,
+  "counts": {
+    "blocks": 1024,
+    "canonical_configured_reference_rows": 180415,
+    "canonical_reference_only_retained_matches": 4012,
+    "canonical_reference_only_unknown_cold_holders": 66265,
+    "canonical_rpc_reference_rows_all_tokens": 190651,
+    "canonical_same_block_rows": 110138,
+    "empty_native_blocks": 0,
+    "native_only_vs_canonical_reference_rows": 1,
+    "native_rows": 110139,
+    "native_zero_rows": 15259
+  },
+  "elapsed_seconds": 112.652504667,
+  "first_hash": "0x41468818b386e28f8b3ff65f8f423de03805d6d4a3efd04785fc51bba1db0c67",
+  "first_parent_hash": "0xdf9d02ee1c9e345bfcdb971e488a20f7f51dc03d3d8e2e7bbc8fc9f0bb0814cf",
+  "inputs": [
+    {
+      "path": "erc20/balances/tests/fixtures/bsc-refined450-layouts.json",
+      "sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/wkey2-trx-enumerable-candidate/layouts.json",
+      "sha256": "04e35800d7b38fedf53679f316c50e773fe43b5ddbbc71f237bc7200f729ba26"
+    },
+    {
+      "path": "erc20/balances/tests/fixtures/wkey2-trx-enumerable-candidate/source-review.json",
+      "sha256": "a29211c0ba7f606aa065c10033ab6858cd33342f8ba6c2e2cb09bef2d577f371"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.jsonl",
+      "sha256": "45aae8828305219b39952312612ec4a6ed713383e9e82bbf3fbab66ba329ee9d"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/report.json",
+      "sha256": "cf4b38f2a2c7793e5bbd1be47cea5a35fd50ee574755a13c2fa16b91594fda70"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/refined450-combined/events.clocks.txt",
+      "sha256": "2a282311d129f5e4f1d9bdf31888ab2585666e64d54313fb462616f70c339c10"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/reference.jsonl",
+      "sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9"
+    },
+    {
+      "path": "/Users/denis/Github/substreams-evm-extended/erc20/balances/out/top50-1024/report.json",
+      "sha256": "be1c62a18ee750c2f2f824272566bca9d69942c67f794e88e80f57b34df892c5"
+    }
+  ],
+  "last_completed_block": 122289029,
+  "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+  "mode": "offline_saved_data_only",
+  "network_requests": 0,
+  "new_rpc_balance_controls": 0,
+  "profiles_with_emitted_rows": 430,
+  "retention": {
+    "blocks_applied": 1024,
+    "checkpoint_seeded_holders": 0,
+    "cold_unknown_lookups": 66265,
+    "deployment_seeded_holders": 0,
+    "domain": "Balances",
+    "emitted_rows": 110139,
+    "enumerated": [],
+    "first_block": 122288006,
+    "initialized_holders": 33591,
+    "known_zero_holders": 6197,
+    "last_block": 122289029,
+    "last_hash": "0xf2bf88656f6bf718e734f6a09ad54100446e2a8447aaae2342f243bc8729a39b",
+    "observed_holders": 33591,
+    "stream": null,
+    "suspended_markets": 0,
+    "undone_blocks": 0,
+    "unsupported_contracts": 0,
+    "unsupported_entries": 0
+  },
+  "role_counter_scope": "Changed persisted outer role-length witnesses only, selected by exact contract-to-root wkeyDAO2=8/TRX=6; labeled validated legacy operations only after full successful projection. No boolean membership, admin permission or authorization claim.",
+  "scope": "Two NOT-QUALIFIED wkeyDAO2/TRX legacy enumerable candidates remove only root8 width2/root6 width3. Existing oz_3_4_2, historical431/qualified425 and all unrelated fields stay unchanged. Both compiled/captured program pairs and exact CBOR/creation-tail substitutions are bound; no bool/admin/creation permission. TRX generated length store is explicitly attributed only to pinned compiler output, not invented source text. Both constructors stop at CHAINID. Primary-source gaps, initial coherence, actual producer/preimage/equality visibility and runtime/history/package/getter/holder qualification remain open. Separate from WKEYDAO/GOT and issue61 swkeyDAO2. Legacy v3 fallback preserved; canonical values never seed state.",
+  "source_inputs_unchanged": true,
+  "source_inventory_sha256": "2db161f0411703fe6dca465ee4fa9fa88a31a851a0d4856cd337e23fe62c92e9",
+  "source_rechecks": [
+    {
+      "admin_callsite_count": 0,
+      "baseline_sha256": "e503fae553adf6800b714bea95234c930df2dec21d0727bdd36f51a891734468",
+      "candidate_delta": "wkeyDAO2 removes only root8 width2; TRX removes only root6 width3; no membership_root/admin/creation permission",
+      "chain_id": 56,
+      "comparison_only_normalized_primary_declarations": [
+        0,
+        2
+      ],
+      "compilers": [
+        "0.7.5+commit.eb77ed08",
+        "0.6.6+commit.6c089d02"
+      ],
+      "complete_source_files": [
+        5,
+        1
+      ],
+      "contracts": [
+        "0xe0a281deff5c9d8d67af09d39340e134ac81b82e",
+        "0xce7de646e7208a4ef112cb6ed5038fa6cc6b12e3"
+      ],
+      "creation_scope": "Exact substitutions at 9764/8761 preserve 32/79 trailing bytes before independent 96/192-byte arguments. Both constructor attempts stop at CHAINID and roll back; neither candidate permits creation or establishes initialized roles.",
+      "exact_complete_primary_dependencies": [
+        4,
+        0
+      ],
+      "generated_effect_scope": "TRX 0.6.6 provides no generated source text: only pinned creation SLOAD1372/SSTORE1379 and runtime SLOAD6169/SSTORE6176, exact -1 spans. All other effects have Solidity attribution. No new exception.",
+      "initial_coherence": "Caller qualification assumption; no role cache or inference from no-op; TRX synthetic default-admin/self-suffix context is not deployed authorization or meta-transaction execution",
+      "logical_growth": "Conservative checked refusal; malformed MAX source push wraps",
+      "phase_a": {
+        "artifacts": [
+          {
+            "path": "docs/evidence/wkeydao2-trx-operation-proof-20260929-cases.json",
+            "sha256": "5c3258d8f28a8a2cb4cdd23f5676257f300bacb13c5a2dcc3248b891ea7e8dac"
+          },
+          {
+            "path": "docs/evidence/wkeydao2-trx-operation-proof-20260929-compiler.json",
+            "sha256": "842b71fd927ccbd8332f437d14003e0a27e9a540553e6038292792f40e83af56"
+          },
+          {
+            "path": "docs/evidence/wkeydao2-trx-operation-proof-20260929-source-inputs.json",
+            "sha256": "829cc8b9d643071169bf2c4e3c5c71a22c314334b4eb46f4b25aa14d7a9bc977"
+          },
+          {
+            "path": "docs/evidence/wkeydao2-trx-operation-proof-20260929-transcripts.json",
+            "sha256": "871d6d72c4785d518179c3afa8bdd13529766fa42043d44bfda0f77fb2d1e637"
+          },
+          {
+            "path": "docs/evidence/wkeydao2-trx-operation-proof-20260929.json",
+            "sha256": "e31c76e8a17f75531a2af286a6c04418b663ecd75cd4bd75a628d743169764ef"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/LICENSE-openzeppelin",
+            "sha256": "5d77daf99ea6e8033e57b449761ab4e9b486c45ef578c387d2805fe98e560f46"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/README.md",
+            "sha256": "f00e6a427d6530f157e2920c35d127d72ba273cb00d281372c955b8759d929dc"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/solc-list.json",
+            "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx/capture.json",
+            "sha256": "e0260fa176be3c3e945de5d82af3c07ab9fec026705dc868b42881d474560ffc"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx/compiler-input-original.json",
+            "sha256": "fbde1ef50ed0fd54f40e29662181a7f1376f62d8299252119b4c6d065feeabff"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx/compiler-input.json",
+            "sha256": "62607ac503f9bdc16e29007537f22de4d37d0f6c7a66720ae25e2ee4bca0343f"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx/compiler-output.json",
+            "sha256": "6d9938caf954382e95f098db0d4d85c6d0733b455079d1d264271e367e2e7bd8"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx/compiler-version.txt",
+            "sha256": "c1c5e1e9465568a7947ea73fdb73fd31a3dd7ba06df1010289b5d847b0a2e28e"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx/metadata-fresh.json",
+            "sha256": "7b2ac0822096f31021f28a808890c48a8ecd96d50fad8bcbe153a5f58367689d"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx/metadata-original.json",
+            "sha256": "7b2ac0822096f31021f28a808890c48a8ecd96d50fad8bcbe153a5f58367689d"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx/primary-sources.json",
+            "sha256": "1da9b80c7625a5e788585f2f91147551c2f30e7678686c5f3891234a866beeeb"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx/source-licenses.json",
+            "sha256": "d31a1c90a2d3b54ab0328801f78ce5c154e668df8431938373187248ce24ff68"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/trx-capture.json",
+            "sha256": "e0260fa176be3c3e945de5d82af3c07ab9fec026705dc868b42881d474560ffc"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2/capture.json",
+            "sha256": "1afd2a842f97acb1eb03dca09e802d7dcec1e06eef97533dee2c2b2ebf180df0"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2/compiler-input-original.json",
+            "sha256": "cdb8ba6d0d41bd83b2949ec75bb8aebba53dc6c26f39b360f7c4e21288cdf988"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2/compiler-input.json",
+            "sha256": "b9861f820b449ea188eb0cc5287bc7f5e9545cd019af1a25bf35854925c5bf6d"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2/compiler-output.json",
+            "sha256": "58f88b6f0a6765147a48d19553a6b69172782eb3355845b741a2f4340df51f3c"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2/compiler-version.txt",
+            "sha256": "025f70e8f8a13b28b6a5b8e369f0360c18bd2106938fdd908ad2afa7bdb823fd"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2/metadata-fresh.json",
+            "sha256": "d0ac7cc5f708b8e153afa4096287c2d49c60f4b99af633ef240f17ff1712c773"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2/metadata-original.json",
+            "sha256": "d0ac7cc5f708b8e153afa4096287c2d49c60f4b99af633ef240f17ff1712c773"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2/primary-sources.json",
+            "sha256": "1b3821934bb55862b5b080ed76d4937b372fc6f32eaa2f1e48a5132dd4fc4b51"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2/source-licenses.json",
+            "sha256": "ec0253f5b42b44750c909b6ae9b59542830546a5e1ef17eca3713795435d2093"
+          },
+          {
+            "path": "tests/fixtures/wkey2-trx-operation-proof/wkeydao2-capture.json",
+            "sha256": "1afd2a842f97acb1eb03dca09e802d7dcec1e06eef97533dee2c2b2ebf180df0"
+          }
+        ],
+        "calls": 2460,
+        "compact_transcripts": 872,
+        "compiler_captured_pairs": 1230,
+        "explicit_harness_exclusions": 14,
+        "explicit_invalid": 12,
+        "returned": 1946,
+        "reverted": 488,
+        "source_inputs": 243
+      },
+      "primary_pin": "8e0296096449d9b1cd7c5631e917330635244c37",
+      "producer_structure": "Unchanged legacy v3 fallback and v4/v5 actual positive root begin; real role/preimage/equality visibility unqualified",
+      "qualified": false,
+      "role_roots": [
+        8,
+        6
+      ],
+      "runtime_bytes": [
+        8495,
+        7088
+      ],
+      "runtime_transformations": "One exact 53-byte CBOR replacement per target; no links/immutables/normalization",
+      "runtimes": [
+        "0x9054d0efc5311cd08c2d5c1204bc9f600f43e301ea5fe6446b4d581c44d6e6a3",
+        "0x84f4834aef7376b01cc68f967cd357e4bfbe13ba2b775757ed1f8e28b67be82c"
+      ],
+      "semantics": "oz_3_4_2",
+      "source_gap": "wkeyDAO2 has four exact full OpenZeppelin 3.4.2 dependency files and an unestablished custom AGPL source origin. TRX is one original CRLF flattened file: only its complete AccessControl and EnumerableSet declarations match the pinned upstream after CRLF-to-LF normalization. The whole flattened token, other custom components and overall license are not independently attributed. The reason for both captured CBOR digest differences remains unestablished."
+    }
+  ],
+  "start_inclusive": 122288006,
+  "status": "passed_offline_role_candidate_replay",
+  "stop_exclusive": 122289030,
+  "substreams_firehose_or_sink_commands": 0
+}
