@@ -61,7 +61,8 @@ published baseline and the other reviewed profiles remain unchanged.
 ## Candidate progress
 
 The original inventory and its evidence above remain historical. Separate
-**NOT-QUALIFIED** fixtures now cover all 33 of its boolean-role profiles;
+**NOT-QUALIFIED** fixtures now cover all 33 of its boolean-role profiles and
+three of its eight enumerable-role profiles;
 they do not replace the original 431-profile baseline or qualified 425 cohort.
 Each linked report records its complete saved interval, initialized observed
 holders, cold gaps, source bindings and regression controls. Synthetic write
@@ -81,6 +82,7 @@ shapes do not establish executed authorization or real producer visibility.
 | [SecuritiesToken (17)](securities-coupled-role-candidate.md) | Exact namespaced membership/set operations for the selected solc 0.8.24/OZ 5.3 build; only the fixed ISSUER admin scalar may be written to zero. All other profile fields and guards are retained. | Eight explicit primary-source gaps, absent deployment/creation evidence and unqualified initializer/client/proxy execution. Saved replay does not establish role-operation visibility or coherent initial state. |
 | [GMToken (2)](gm-coupled-role-candidate.md) | Exact selected solc 0.8.16/Ondo-vendored membership201/set251 operations; no role-admin permission, with all beacon/runtime/balance and finite long-name words retained. | Five custom primary-source gaps, exact compiler/captured metadata substitutions and absent on-chain creation binding. Actual initial coherence, producer role visibility and proxy/external-client execution remain unqualified. |
 | [BTRToken](btr-coupled-role-candidate.md) | Exact selected solc 0.8.24/OZ 4.9.3 membership101/set151 operations plus the fixed PAUSER self-admin scalar. All unrelated fields remain unchanged; direct whitelist length/index permissions remain partial. | Custom token primary-source gap, initial coherence, deployed initialization/proxy history and actual producer/package/getter/holder qualification remain open. Full whitelist operation admission is separate work. |
+| [ERC20TokenX: ORI / FNA / PHI](erc20tokenx-enumerable-candidate.md) | Remove only the broad root-8 width-three permission and select the unchanged `oz_3_4_2` complete-operation rule. No separate membership root or admin permission; all unrelated fields remain unchanged. | Exact shared compiled runtime; complete ORI/FNA source and creation bindings, historical PHI runtime-only attribution and one custom primary-source gap. Creation remains refused, and coherent initial state, producer visibility and replacement qualification remain open. |
 
 The prerequisite [PToken operation proof](ptoken-operation-proof.md) executes its
 compiled boolean/set transitions and rollback controls against synthetic state.
@@ -121,20 +123,25 @@ retains its exact source bindings and qualification limits.
 Each candidate needs its own reachability, initialization and dependency review
 before promotion. This classification concerns the configured role field;
 some contracts also contain separate enumerable or dynamic metadata that must
-retain its existing handling. Eight separate enumerable-role profiles across
-six runtime groups still need their own source-selected migration. Four legitimate
+retain its existing handling. Five enumerable-role profiles across five other
+runtime groups still need their own source-selected migration. Four legitimate
 terminal-record profiles and six source-unavailable profiles retain the original
 audit's separate findings; they are not plain membership migrations.
 
 The separate [ERC20TokenX host proof](erc20tokenx-operation-proof.md) measures
-the exact shared ORI/FNA/PHI runtime before a possible three-profile enumerable
-migration. Complete ORI/FNA captures and constructor bytes remain separate from
+the exact shared ORI/FNA/PHI runtime used by the three-profile enumerable
+candidate. Complete ORI/FNA captures and constructor bytes remain separate from
 PHI's historical runtime-only attribution. Four dependencies match exact primary
 sources; the custom token's independent source pin is unresolved. The old
 combined role layout has no separate membership boolean or reachable admin
 setter. Measured self-swaps, equal stores, authorization, raw getters and failure
 boundaries do not initialize the deployed set or qualify producer visibility.
-This proof adds no candidate, so the eight-profile migration count is unchanged.
+The proof itself adds no candidate. The subsequent three-profile fixture above
+reuses the existing validator without changing production code. Its projector
+controls distinguish complete admitted operations from fabricated nested paths,
+incomplete operations and conservative malformed-state refusals. Recognized
+standalone no-ops refuse; unrecognized equal array words retain ordinary no-op
+handling. Three of eight enumerable profiles now have separate candidates.
 
 TOPS's [separate host proof](tops-operation-proof.md) concerns a three-word
 struct array and wrapping LP credits under issue #61, outside this role cohort.

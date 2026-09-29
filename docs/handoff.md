@@ -441,8 +441,9 @@ whitelist admission remains partial: nonzero array mutations refuse; zero-member
 add/sole-remove can pass with omitted or ignored equal array stores. Full direct
 whitelist admission is separate work. Fresh evidence is under
 `out/btr-coupled-validator-20260928/` in `network-verification-config`.
-All candidates remain NOT-QUALIFIED. Eight separate enumerable-role profiles
-across six runtime groups still need source-selected migration; four legitimate
+All candidates remain NOT-QUALIFIED. The enumerable-role follow-up now has
+three separate candidates described below; five profiles across five other
+runtime groups still need source-selected migration. Four legitimate
 terminal records and six unresolved-source profiles retain their classifications.
 Source gaps, initial coherence, actual producer visibility and replacement
 runtime/package/getter/initialized-holder qualification remain open.
@@ -457,9 +458,23 @@ root-8 role operations, self-swaps and equal stores, full-width authorization,
 raw getters and exact return/revert/INVALID behavior. Captured constructor
 attempts stop at unsupported CHAINID before role setup; fee callback and permit
 attempts retain their separate unsupported boundaries and roll back. No VM or
-production permission changes accompany this proof. All eight enumerable-role
-profiles still need separately reviewed candidates and qualification; a source
-matrix does not establish deployed initialization or actual producer visibility.
+production permission changes accompany this proof. A source matrix does not
+establish deployed initialization or actual producer visibility.
+
+The subsequent [ERC20TokenX enumerable candidates](../erc20/balances/docs/erc20tokenx-enumerable-candidate.md)
+cover ORI, FNA and PHI separately. Each removes only the broad three-word
+root-8 permission and selects the unchanged `oz_3_4_2` complete-operation rule,
+without a membership root or role-admin permission. All balance, metadata and
+runtime fields are preserved. Source-derived projector controls cover ordered
+grant/revoke/renounce operations, omitted equal stages, malformed state and
+actual call boundaries. The existing v3 root-call fallback remains unchanged;
+v4/v5 requires positive actual root-call begin ordinals. Recognized standalone
+length/index/admin no-ops refuse, while unrecognized equal array words retain
+ordinary no-op handling. Captured creation remains refused. These separate
+NOT-QUALIFIED candidates cover three of the eight enumerable profiles; five
+profiles across five other runtimes remain. The custom primary-source gap,
+PHI's runtime-only attribution, coherent initialization and actual
+producer/runtime/package/getter/initialized-holder qualification remain open.
 
 The host ledger now validates exact epoch membership for holder and global
 rows. A transition from epoch 1 to epoch 3 cannot introduce undeclared epoch 2
