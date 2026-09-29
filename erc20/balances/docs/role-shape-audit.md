@@ -171,6 +171,17 @@ Custom provenance and metadata-origin gaps remain. This Phase A proof adds no
 candidate and establishes neither deployed initial coherence nor live producer,
 package, getter or initialized-holder qualification.
 
+The separate [Mai host proof](mai-operation-proof.md) now reproduces its complete
+unoptimized solc 0.8.9 output and exact no-argument creation, including fourteen
+pinned OpenZeppelin 4.7 dependencies and one source-derived immutable cap. Its
+synthetic constructor returns the full captured runtime and grants only the
+expected two roles. The older void-super role overrides unconditionally run the
+set operation, so four one-sided bool/set successes remain outside coherent
+coupled admission. Source-selected conditional swaps, ABI refusals, supply/cap
+arithmetic and rollback are measured separately. The custom primary-source gap,
+deployed initialization and producer/package/getter/holder qualification remain.
+This Phase A proof adds no candidate, template or VM extension.
+
 TOPS's [separate host proof](tops-operation-proof.md) concerns a three-word
 struct array and wrapping LP credits under issue #61, outside this role cohort.
 Original append/getter execution and the unchanged-body cleanup harness do not

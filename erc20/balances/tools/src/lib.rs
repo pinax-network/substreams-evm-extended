@@ -19,6 +19,7 @@ pub mod gm_role;
 pub mod inspect;
 pub mod inspect_ranked;
 pub mod lbp_rewards;
+pub mod mai_proof;
 pub mod network;
 pub mod oft_roles;
 pub mod og_model;

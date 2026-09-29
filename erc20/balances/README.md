@@ -765,3 +765,5 @@ match full upstream files; TRX's two normalized declaration matches do not
 establish its whole flattened source origin. Paired local execution remains
 separate from ingestion admission and deployed initialization; both constructor
 paths encounter unsupported CHAINID in the unchanged host VM.
+
+Host-only [Mai operation proof](docs/mai-operation-proof.md) binds its exact solc 0.8.9 runtime, source-derived immutable cap and distinct boolean/set roots. Final compilation and 1,632 local constructor/role/token calls passed against the same source inventory, with copied evidence and all offline workspace gates. It adds no ingestion candidate or live qualification.
