@@ -1,7 +1,7 @@
 //! Exact observed-write witnesses for legacy DSG/OZ3.4.2 and the separately
-//! opted-in PTokenV2 solc0.8.28/OZ5.4 and SecuritiesToken solc0.8.24/OZ5.3
-//! coupled membership/set templates. Names identify selected reviewed builds,
-//! not every contract using a library version.
+//! opted-in PTokenV2 solc0.8.28/OZ5.4, SecuritiesToken solc0.8.24/OZ5.3 and
+//! GM solc0.8.16/Ondo-vendor coupled membership/set templates. Names identify
+//! selected reviewed builds, not every contract using a library version.
 //!
 //! The caller binds the runtime and an outer mapping(bytes32 => RoleData) root.
 //! This rule grants event permissions, never an array range or an inferred key.
@@ -485,9 +485,9 @@ fn legacy_candidates(
     found
 }
 
-// Independently proven selected PToken and Securities compiler templates.
-// Membership precedes every set
-// mutation. No standalone bool/index/length fragment can supply permission.
+// Independently proven selected PToken, Securities and coherent GM templates.
+// Membership precedes every set mutation. No standalone bool/index/length
+// fragment can supply permission.
 fn coupled_candidates(
     role_id: usize,
     head: usize,
