@@ -724,3 +724,14 @@ changed the `common/retention` host API: `seed_checkpoint` and
    236 OpenZeppelin 4.x/5.x operations); only a zero-address member remains
    unobserved. Next: #61, then #2/#3's packaged DSG parity and holder checks. Ethereum and the
    other networks (#8) wait for endpoints.
+
+The [APD/DSG captured ledger controls](../erc20/balances/docs/typed450-offline-review.md#captured-projector-to-ledger-controls)
+use the two original full blocks and independently captured canonical rows. Cold
+application retains five emitted holders and keeps six reference-only values
+unknown, including two nonzero token-owned balances. Separate explicit snapshots
+seed six APD holders at 122288154 and five DSG holders at 122288046, including five
+known zeros in total. Only synthetic successors follow those checkpoint clocks;
+reapplying the seed block or a wrong parent is refused. Derived DSG allowance
+restoration changes neither cold nor checkpoint holder state. This adds no
+production permission, continuous initialized interval or new package/live
+qualification. Bound-bytecode metadata/getter independence remains separate work.

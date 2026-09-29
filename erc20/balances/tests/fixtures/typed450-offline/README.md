@@ -3,7 +3,9 @@
 These two complete Extended blocks are byte-for-byte copies of saved captures:
 APD at 122288154 and DSG at 122288046. No new network observations were made.
 Both candidate layouts remain **unqualified**, outside the published 431-profile
-configuration. DSG role-set writes remain unsupported and guarded.
+configuration. These historical partial fragments leave DSG role-set writes
+unconfigured and guarded. The separate source-bound enumerable opt-in is now
+implemented; these saved fragments do not inherit that later configuration.
 
 The `*-expected.json` files contain **11 rows from the original immutable canonical
 RPC stream**, independently of the storage mapper. Five holders have persisted
@@ -32,3 +34,14 @@ in `proof.json`.
 No fresh raw-word/metadata `eth_call` controls, complete 1024-block qualification,
 packaged live RPC comparison or initialized-holder WASM audit is established by
 these two tests. All live qualification gates remain pending.
+
+The host [projector/ledger integration tests](../../../tools/tests/typed450_retained.rs)
+consume these same unmodified blocks and canonical rows. Cold application makes
+only the five emitted holders known and leaves six reference-only observations
+unknown, including the two nonzero self-balances. Separately, explicit snapshot
+seeds use all eleven canonical values at their actual end-of-block clocks and
+apply only a synthetic successor; five of those values are known zeros. The seed
+block itself and a wrong parent are refused. A separately labeled derived DSG
+allowance-restoration continuation preserves both the cold and seeded holder
+sets. These controls do not backfill earlier blocks or establish a captured
+continuous initialized interval, final RPC snapshot or global-holder coverage.

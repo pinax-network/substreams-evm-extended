@@ -130,3 +130,37 @@ Fresh independent controls, actual packaged-WASM/RPC parity and initialized
 holder/final-state checks remain required before adding either token to a
 qualified cohort. Existing 431-profile fixtures and historical packages are
 unchanged. Live Substreams, Firehose and RPC testing remains paused.
+
+## Captured projector-to-ledger controls
+
+The host [integration tests](../tools/tests/typed450_retained.rs) apply the actual
+projector's output to the shared balance ledger using the two original full
+blocks above. Block and canonical-row hashes are rechecked. These are separate
+from the historical 1,024-block replay and do not alter its cold-holder counts.
+
+| Original snapshot | Cold known holders | Cold reference-only observations | Explicit snapshot seeds | Seeded zeros |
+| --- | ---: | ---: | ---: | ---: |
+| APD, 122288154 | 2 | 4, including one nonzero | 6 | 3 |
+| DSG, 122288046 | 3, including one zero | 2, including one nonzero | 5 | 2 |
+
+A synthetic quiet successor retains the five cold-observed values and cannot
+turn any of the six missing values into zero. In a separate mode, all eleven
+canonical values are explicitly supplied as checkpoints **at their actual saved
+end-of-block hash and height**. The ledger refuses to apply the snapshot's own
+block again or a successor with the wrong parent. A correctly linked synthetic
+successor preserves the eleven values and their checkpoint provenance, while a
+never-observed holder stays unknown. Nothing is seeded before its observation.
+
+A derived DSG continuation retains only its two original successful allowance
+writes, preserving their call/preimage context, and assigns a clearly synthetic
+successor identity. Their old/new values restore the starting allowance. The
+actual projector emits no balance rows, so both the three cold-observed holders
+and the separate five-holder checkpoint remain unchanged. DSG's token-owned
+20,390,672,839 balance stays unknown in cold mode and known only when explicitly
+seeded from the canonical snapshot. APD's token-owned 1,203,955,079,705,976 value
+similarly belongs to its snapshot rather than an inferred cold zero.
+
+This validates captured-output retention and exact checkpoint boundaries. It is
+not a new bound-bytecode getter/metadata proof, captured successor replay, fresh
+final-state RPC snapshot, package/WASM qualification or global holder enumeration.
+Those independent controls and the paused live gates remain open under issue #3.
