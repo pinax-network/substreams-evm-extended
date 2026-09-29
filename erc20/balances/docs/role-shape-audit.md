@@ -217,3 +217,20 @@ Fresh runtime/dependency controls, actual replacement-package/getter output,
 initialized-holder/final-state checks and relevant role-operation observations
 remain promotion gates. No row in this table claims live replacement
 qualification or closes issue #4.
+
+
+## Separate APD / DSG getter controls
+
+APD and DSG are outside this historical 431-profile role inventory. Their
+[bound-runtime getter proof](apd-dsg-getter-controls.md) independently checks
+raw root-0 balances against role, allowance and other admitted metadata states,
+then feeds measured local operation effects to their existing native projector
+layouts. APD full-width roles and renounce confirmation, plus the eleven saved
+DSG role witnesses, remain source-specific. Both complete and omitted equal
+stores are covered; raw membership witnesses alone are not authorization or
+complete-operation evidence. This work adds no candidate to the counts above.
+
+The proof preserves original captured source/runtime bindings and existing
+exclusions. Synthetic getters/operations and two historical runtime boundaries
+leave primary-source attribution, deployed initial coherence, actual producer
+visibility and new package/getter/initialized-holder qualification open.

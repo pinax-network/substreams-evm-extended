@@ -785,3 +785,9 @@ are required; all four one-sided void-super successes refuse. It preserves
 balance/allowance/scalar/runtime fields and grants no admin or creation
 permission. Source attribution, initial coherence, actual producer visibility
 and replacement qualification remain open.
+
+Host-only [APD/DSG getter controls](docs/apd-dsg-getter-controls.md) execute the exact
+saved runtimes against independent balance words and admitted metadata, with
+actual getter read witnesses and native projector controls. They add no production
+permission or live qualification and preserve the existing PR #93 retained-ledger
+controls and original canonical captures.
