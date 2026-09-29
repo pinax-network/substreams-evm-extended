@@ -161,12 +161,29 @@ Across saved BSC [123561000, 123562024), all 8,436 emitted candidate rows match
 the immutable canonical reference. The emitted-only ledger initializes 207
 observed holders; 6,586 reference observations remain cold. The 431-profile
 baseline and qualified 425-profile set are unchanged, and all six exclusions
-remain open under #61. TOPS's nested array path is identified but unimplemented;
+remain open under #61. TOPS's production array path remains unimplemented;
 RADR source and BNC4/sPro/swkeyDAO2 replacement dependencies remain unqualified.
 The associated production fix rejects oversized persisted storage keys and
 values, including no-ops, before configured-token or beacon metadata ignores.
 See the linked report for preserved failed attempts, isolated validation and
 the separate runtime, package and holder gates before candidate promotion.
+
+The separate [TOPS host operation proof](../erc20/balances/docs/tops-operation-proof.md)
+reproduces the complete original compiler output and saved creation/runtime
+binding, including all 13 immutable identities and 91 replacement sites. Eight
+dependencies have exact primary matches; the custom token's independent source
+pin remains unresolved. The original runtime executes append and getter controls
+against synthetic state. An independently compiled harness preserves the exact
+private cleanup body, root-31 three-word records and root-32 credit storage.
+Its cleanup evidence proves source semantics, not the deployed transfer path or
+its write order. It includes prefix compaction, wrapping sums and credits,
+checked getter failures and the no-mutation branch when the expired sum wraps
+to zero. Original constructor and transfer attempts stop before unsupported
+external calls and roll back; they are not successful execution evidence.
+Optional host TIMESTAMP is explicit, with absent context still failing closed.
+The captured five-pop subsequence remains a separately bounded historical
+comparison. This proof adds no production array permission or candidate; all
+six exclusions and their runtime/package/getter/holder gates remain open.
 
 The subsequent [offline issue-audit remediation](audit-remediation-2026-09-21.md)
 tracks retention correctness, executed layout tests, ERC-4626 arithmetic and

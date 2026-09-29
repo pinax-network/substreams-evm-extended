@@ -722,3 +722,10 @@ field, including finite long-name payload words and beacon dependencies, remains
 unchanged. Extended 4/5 frame evidence and complete operation witnesses are
 required; initial coherence, actual producer visibility, deployment and external
 client behavior remain outside this offline NOT-QUALIFIED candidate.
+
+### TOPS host source proof
+
+[TOPS Phase A](docs/tops-operation-proof.md) binds the exact captured source/compiler
+and exercises synthetic local append/getter paths plus a separate cleanup source
+harness. It adds no array validator or candidate; all six issue #61 exclusions remain.
+The original transfer and constructor require unsupported external calls.

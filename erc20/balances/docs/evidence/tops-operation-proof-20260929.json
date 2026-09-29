@@ -1,0 +1,160 @@
+{
+  "args": [
+    "out/tops-operation-proof-20260929/target-isolated/debug/execute_tops_proof",
+    "out/tops-operation-proof-20260929/source-04",
+    "out/tops-operation-proof-20260929/operations-07"
+  ],
+  "calls": 605,
+  "cases_inventory_sha256": "5924c7998907b8a60c5a1ca69ab641aa0332fb36ab77138eb91d76c893248008",
+  "chain_calls": 0,
+  "compact_transcripts": 49,
+  "compiler_source_inventory_sha256": "a3d755532cdc9c868b2941943e6e42dcc0c469062843d73781e3246c0c456c92",
+  "custom_primary_gap": "No exact independent public maintainer source pin was recovered for contracts/v1/token.sol (SPDX Unlicensed). Eight dependency bodies match the pinned OpenZeppelin v5.6.0 commit. Complete saved capture/runtime reconstruction does not establish current deployment or external dependencies.",
+  "executed_opcode_counts": {
+    "0x00": 41,
+    "0x01": 5316,
+    "0x02": 1321,
+    "0x03": 1492,
+    "0x10": 3462,
+    "0x11": 637,
+    "0x12": 603,
+    "0x14": 9254,
+    "0x15": 2653,
+    "0x16": 683,
+    "0x17": 23,
+    "0x19": 694,
+    "0x1b": 704,
+    "0x1c": 608,
+    "0x20": 2091,
+    "0x30": 2,
+    "0x33": 15,
+    "0x34": 604,
+    "0x35": 1552,
+    "0x36": 1208,
+    "0x42": 478,
+    "0x50": 2694,
+    "0x51": 503,
+    "0x52": 4677,
+    "0x54": 4012,
+    "0x55": 437,
+    "0x56": 4681,
+    "0x57": 15488,
+    "0x5a": 2,
+    "0x5b": 7089,
+    "0x5f": 6656,
+    "0x60": 12497,
+    "0x61": 20195,
+    "0x62": 13,
+    "0x63": 9276,
+    "0x65": 2,
+    "0x68": 2,
+    "0x6e": 1,
+    "0x73": 3,
+    "0x75": 2,
+    "0x7b": 1,
+    "0x7f": 5,
+    "0x80": 4982,
+    "0x81": 11848,
+    "0x82": 4110,
+    "0x83": 617,
+    "0x84": 2146,
+    "0x85": 787,
+    "0x86": 546,
+    "0x87": 72,
+    "0x88": 130,
+    "0x89": 223,
+    "0x8a": 262,
+    "0x8b": 1,
+    "0x90": 7039,
+    "0x91": 4461,
+    "0x92": 1727,
+    "0x93": 1070,
+    "0x94": 324,
+    "0x95": 284,
+    "0x96": 25,
+    "0xa3": 1,
+    "0xf3": 464,
+    "0xfd": 98
+  },
+  "explicit_unsupported_calls": 2,
+  "invalid_calls": 0,
+  "per_variant_calls": {
+    "captured_full_runtime": 293,
+    "original_creation_unsupported": 1,
+    "source_cleanup_harness": 311
+  },
+  "qualified": false,
+  "returned_calls": 505,
+  "reverted_calls": 98,
+  "scope": "Synthetic local full-runtime append/getters and separately compiled exact-source cleanup semantics only. No external-call emulation; original transfer and constructor remain unsupported. Cleanup harness store order is not deployed-transfer order. No production validator, candidate, package, holder or live qualification.",
+  "source_artifacts": [
+    {
+      "file": "capture.json",
+      "sha256": "bed5d7155189f849140fce44c4971a526a139b40b1ac4cc7d83db48b057a4c1a"
+    },
+    {
+      "file": "original-input.json",
+      "sha256": "1f6f04eb402b6186484be9e748f08f1f523dee13baa18dfc5635ac0607472df8"
+    },
+    {
+      "file": "full-input.json",
+      "sha256": "666be4712e615d75784570368d854c72d5d226fe0a5e6961a12b419094eb2aa2"
+    },
+    {
+      "file": "full-output.json",
+      "sha256": "653ee0d4f9ac33899d6bcc828f44e18eba517e02882bf09b39114fd3b0d73f7d"
+    },
+    {
+      "file": "harness-input.json",
+      "sha256": "5fe1baa7be5a236d3e20436c2c1e4ec4224bee312358e9e7c886b6feab08eacf"
+    },
+    {
+      "file": "harness-output.json",
+      "sha256": "d250f4f254f7bb50f8c1fb25995e6ba9d154278f510b1ffbfb7858d339b58956"
+    },
+    {
+      "file": "TOPSCleanup.sol",
+      "sha256": "1053ef43a3dd61504efe5e7aa22aa8438f68ac98fb0cff16b445a07ab50f3cc3"
+    },
+    {
+      "file": "harness-extraction.json",
+      "sha256": "27028cd594be2312f4cde32cc6e595e9010cef1e575c1ed9c34867ae9ee5d037"
+    },
+    {
+      "file": "primary-sources.json",
+      "sha256": "0e5c56672de6090bf1bb2d404a7d59151b2e2690c236f88aad1dd6c48176340e"
+    },
+    {
+      "file": "solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    {
+      "file": "compiler-version.txt",
+      "sha256": "df9e0e873736454fea76f295ae7f597b21a06ef9db8e44f20465ec7e2522521a"
+    },
+    {
+      "file": "LICENSE-OpenZeppelin",
+      "sha256": "20aebc68b11c063133aa2af0ef4bb29875477c6d16d715718f0daec563938b84"
+    },
+    {
+      "file": "metadata-original.json",
+      "sha256": "86dc8f7a5c56839386bcf34de679f0c6a0cf938ad2c611f6436724a7bd200cda"
+    },
+    {
+      "file": "metadata-fresh.json",
+      "sha256": "86dc8f7a5c56839386bcf34de679f0c6a0cf938ad2c611f6436724a7bd200cda"
+    },
+    {
+      "file": "execution-spec-block.py",
+      "sha256": "299ca6ed3ad79e3a3b2c8992744e84bb70c781beb1af0804a7dc4bfdab1e9801"
+    },
+    {
+      "file": "LICENSE-execution-specs",
+      "sha256": "f81577cb97c59ed748f9117fa839b80e3be0ec605a4b66c234e07468bc011808"
+    }
+  ],
+  "source_inventory_sha256": "a3d755532cdc9c868b2941943e6e42dcc0c469062843d73781e3246c0c456c92",
+  "source_trees_equal": true,
+  "status": "passed",
+  "transcripts_sha256": "f4f792d1ee0ad68e8d510e11ab2166d13d1f2d495ae32d5e2a817d1086e2011f"
+}
