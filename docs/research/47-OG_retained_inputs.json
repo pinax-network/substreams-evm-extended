@@ -1,0 +1,80 @@
+{
+  "title": "OG retained inputs",
+  "date": "2026-09-29",
+  "issues": [
+    5,
+    7,
+    21
+  ],
+  "status": "host-only retained-input implementation; frozen offline replay passed, not deployment-qualified",
+  "production_qualified": false,
+  "scope": "Separate finite raw-input retention for unchanged OG arithmetic; no live calls or production changes",
+  "checkpoints": 5,
+  "raw_control_cases": 111,
+  "external_observations": {
+    "values": 303,
+    "panic11": 40,
+    "recursive": 48,
+    "total": 391
+  },
+  "unchanged_internal_preview_controls": 10,
+  "saved_replay": {
+    "checkpoint": 122288107,
+    "start": 122288108,
+    "stop_exclusive": 122289030,
+    "blocks": 922,
+    "registered_pairs": 2,
+    "joined_checkpoint_facts": 157,
+    "unchanged_original_facts": 153,
+    "same_boundary_added_pool_cursors": 4,
+    "independently_checked_overlaps": 17,
+    "raw_pool_words_per_boundary": 21,
+    "pool_boundaries": 923,
+    "continuous_holder_getter_parity": false,
+    "persisted_storage_effects": 727,
+    "retained_writes": 274,
+    "pool_raw_word_comparisons": 19383,
+    "evaluations": 1844,
+    "raw_basis_known": 1844,
+    "each_hourly_daily_observable_suspended": 1844,
+    "first_suspended_block": 122288108,
+    "first_guard_ordinal": 843,
+    "saved_last_reason_ordinal": 868,
+    "report_sha256": "b99ed3784a9eb1d4435bde0029cf2c338a658c9eba8a943929cc24eed1511a9b",
+    "source_inventory_sha256": "48816566a80b4ba8f94c776183acfca898efa03f168fb2539a8c97fcfcda723a",
+    "source_inputs": 147,
+    "midpoint_and_portable_full_state_match": true,
+    "bounded_undo_full_ledger_match": true
+  },
+  "bounds": {
+    "hourly_periods": 168,
+    "daily_periods": 1000
+  },
+  "offline_validation": {
+    "tests": 1442,
+    "suites": 144,
+    "nonempty_suites": 96,
+    "failures": 0,
+    "ignored": 0,
+    "clippy_all_targets": "passed",
+    "wasm_workspace": "passed",
+    "formatting": "passed",
+    "independent_original_pb_verification": "passed without using the new adapter"
+  },
+  "limits": [
+    "Conservative eager active-path inputs can be Unknown before unreachable source branches.",
+    "Recursive pool rewards are explicit scope refusals without gas or fabricated ABI.",
+    "Both pool runtimes use explicitly identified byte-identical YBC code evidence; no shared pool state.",
+    "Token/helper source404 and historical producer-script digest mismatch remain explicit.",
+    "Changed helper pointer upper bits suspend; full raw words and unchanged high bits preserved.",
+    "All continuous calculated results suspend on the first block's unreviewed pool writes; matching raw facts do not establish getter parity.",
+    "No initialized global-holder, production layout, package or deployment qualification."
+  ],
+  "files": [
+    "erc20/balances/docs/og-retained-inputs.md",
+    "erc20/balances/tools/src/og_retention/mod.rs",
+    "erc20/balances/tools/src/bin/replay_og_retention.rs",
+    "erc20/balances/docs/evidence/og-retained-inputs-20260929.json",
+    "erc20/balances/docs/evidence/og-retained-inputs-20260929-source-inputs.json"
+  ]
+}
