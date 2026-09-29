@@ -933,3 +933,40 @@ primary revision, deployed initialization and coherent sets, zero unused tails,
 actual producer visibility, and replacement runtime/package/getter/initialized-
 holder qualification remain open. No VM, dependency, protobuf or persisted-effect
 rule changes or live chain calls are included.
+
+
+The [APD/DSG getter proof](../erc20/balances/docs/apd-dsg-getter-controls.md)
+executes their exact saved runtimes against independently chosen raw balance
+words and metadata states. Complete flattened source captures, original compiler
+settings/output, seven APD immutable replacements, exact runtime/creation CBOR
+substitutions and saved parent/final runtime bytes are bound. This verifies
+saved artifacts without a new compiler run. Independent maintainer revisions
+remain unestablished; saved outputs contain no new AST or generated-source bodies.
+The tested effects retain exact PC and captured-source attribution, with any
+unresolved source IDs explicitly distinguished rather than supplied from another
+compilation.
+
+Direct `balanceOf` controls require the selected root-0 word, exactly its storage
+read, and no mutation for observed, second, token-self and zero addresses under
+two callers and zero/small/maximum values. Each admitted metadata group also has
+an actual getter witness. Raw ratio/nonce perturbations are storage controls,
+not setter or permit reachability claims. APD role/renounce/approval/tax/pair
+operations and re-executed DSG role witnesses plus approval/ratio/pair controls
+check independent state, ordered writes, logs and rollback expectations.
+
+Measured persisted effects feed actual native projector controls. Metadata-only
+frames emit no balances; a separate synthetic balance observation agrees with
+an independently recorded getter on the resulting state. Complete and omitted
+equal-write variants remain distinct from real producer visibility. Excluded
+fields, missing witnesses, incomplete role sets and runtime change/restoration
+refuse, with separate reverted-effect controls. Every measured VM invocation is
+recorded before assertions. Source-map gaps and unsupported callback paths remain
+explicit. The original full captures and canonical expectations are unchanged.
+
+Fresh outputs live under `out/apd-dsg-getter-controls-20260929/` in the Protocol
+review worktree. PR93's five cold-observed holders, six still-unknown reference
+keys and separate eleven-holder checkpoints are retained without duplication.
+This host proof adds no production rule, profile, VM feature, schema, dependency
+or live call. Two saved runtime boundaries do not prove continuous history;
+permit signatures, tax-transfer callbacks, constructors, a newly packaged WASM
+comparison and qualified initialized-holder/final-state checks remain open.
