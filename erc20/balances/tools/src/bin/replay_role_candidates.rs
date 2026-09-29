@@ -189,6 +189,7 @@ mod offline {
         Gm,
         Btr,
         Erc20TokenX,
+        WkeyGot,
     }
     fn source_inventory(root: &Path, mode: Mode) -> Result<Value> {
         let repo = root.parent().unwrap().parent().unwrap();
@@ -205,7 +206,19 @@ mod offline {
         source_files(&repo.join("common/retention/src"), &mut paths)?;
         paths.push(root.join("tools/Cargo.toml"));
         paths.push(repo.join("common/retention/Cargo.toml"));
-        if mode == Mode::Erc20TokenX {
+        if mode == Mode::WkeyGot {
+            use erc20_balances_tools::wkey_got_role as bound;
+            for name in ["layouts.json", "source-review.json"] {
+                paths.push(root.join(bound::FIXTURE).join(name));
+            }
+            for (path, _) in bound::ARTIFACTS {
+                paths.push(root.join(path));
+            }
+            paths.push(root.join("tests/wkey_got_enumerable_operations.rs"));
+            paths.push(root.join("tools/tests/wkey_got_role_candidate.rs"));
+            paths.push(root.join("tools/tests/wkey_got_operation_binding.rs"));
+            paths.push(root.join("tools/tests/wkey_got_operation_cases.rs"));
+        } else if mode == Mode::Erc20TokenX {
             use erc20_balances_tools::erc20tokenx_role as bound;
             for name in ["layouts.json", "source-review.json"] {
                 paths.push(root.join(bound::FIXTURE).join(name));
@@ -538,7 +551,12 @@ mod offline {
     }
 
     fn observed_role_writes(block: &eth::Block, candidates: &Value, mode: Mode) -> Result<(&'static str, BTreeMap<String, u64>)> {
-        if mode == Mode::Erc20TokenX {
+        if mode == Mode::WkeyGot {
+            Ok((
+                "persisted_legacy_role_length_writes",
+                erc20_balances_tools::wkey_got_role::role_length_writes(block)?,
+            ))
+        } else if mode == Mode::Erc20TokenX {
             Ok((
                 "persisted_legacy_role_length_writes",
                 erc20_balances_tools::erc20tokenx_role::role_length_writes(block)?,
@@ -754,7 +772,9 @@ mod offline {
         report["canonical_reference_interval_and_baseline_binding_verified"] = json!(true);
         let baseline_text = fs::read_to_string(&fixture)?;
         let baseline = erc20_balances::layout::parse(&baseline_text).map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        let candidate_path = root.join(if mode == Mode::Erc20TokenX {
+        let candidate_path = root.join(if mode == Mode::WkeyGot {
+            "tests/fixtures/wkey-got-enumerable-candidate/layouts.json"
+        } else if mode == Mode::Erc20TokenX {
             "tests/fixtures/erc20tokenx-enumerable-candidate/layouts.json"
         } else if mode == Mode::Gm {
             "tests/fixtures/gm-coupled-role-candidate/layouts.json"
@@ -781,7 +801,9 @@ mod offline {
         } else {
             "tests/fixtures/role-path-candidates/layouts.json"
         });
-        let review_path = root.join(if mode == Mode::Erc20TokenX {
+        let review_path = root.join(if mode == Mode::WkeyGot {
+            "tests/fixtures/wkey-got-enumerable-candidate/source-review.json"
+        } else if mode == Mode::Erc20TokenX {
             "tests/fixtures/erc20tokenx-enumerable-candidate/source-review.json"
         } else if mode == Mode::Gm {
             "tests/fixtures/gm-coupled-role-candidate/source-review.json"
@@ -824,7 +846,13 @@ mod offline {
                 },
             "exact reviewed candidate scope required"
         );
-        report["source_rechecks"] = if mode == Mode::Erc20TokenX {
+        report["source_rechecks"] = if mode == Mode::WkeyGot {
+            use erc20_balances_tools::wkey_got_role as bound;
+            bound::verify_cache(root, cache)?;
+            ensure!(review == bound::review(root)?, "WKEYDAO/GOT complete frozen proof review");
+            bound::verify_candidate(baseline_text.as_bytes(), &candidates)?;
+            json!([review])
+        } else if mode == Mode::Erc20TokenX {
             use erc20_balances_tools::erc20tokenx_role as bound;
             bound::verify_cache(root, cache)?;
             ensure!(review == bound::review(root)?, "ERC20TokenX complete frozen proof review");
@@ -992,6 +1020,36 @@ mod offline {
                 .iter_mut()
                 .find(|v| v["contract"] == candidate["contract"])
                 .context("candidate absent from baseline")?;
+            if mode == Mode::WkeyGot {
+                use erc20_balances_tools::wkey_got_role as bound;
+                let address = candidate["contract"].as_str().context("selected address")?;
+                let r = bound::role_root(address).context("selected contract root")?;
+                let mut restored = candidate.clone();
+                ensure!(
+                    restored.as_object_mut().unwrap().remove("enumerable_address_sets")
+                        == Some(json!([{"root":bound::root(r),"key_types":["bytes32"],"semantics":"oz_3_4_2"}])),
+                    "exact legacy target rule without membership_root"
+                );
+                ensure!(
+                    restored["other_mapping_words"]
+                        .as_object_mut()
+                        .context("legacy words")?
+                        .insert(bound::root(r), json!(3))
+                        .is_none(),
+                    "candidate retains broad role width"
+                );
+                if address == bound::CONTRACTS[1] {
+                    let list = restored["other_mapping_slots"].as_array_mut().context("GOT broad mapping list")?;
+                    ensure!(
+                        list.as_slice() == [json!(bound::root(1)), json!(bound::root(7))],
+                        "exact GOT remaining mappings"
+                    );
+                    list.insert(2, json!(bound::root(8)));
+                }
+                ensure!(restored == *original, "WKEYDAO/GOT candidate changes unrelated fields");
+                *original = candidate.clone();
+                continue;
+            }
             if mode == Mode::Erc20TokenX {
                 use erc20_balances_tools::erc20tokenx_role as bound;
                 let mut restored = candidate.clone();
@@ -1196,7 +1254,7 @@ mod offline {
                     "selected coupled replay requires reviewed Extended version4/5 at {height}"
                 );
             }
-            if mode == Mode::Erc20TokenX {
+            if matches!(mode, Mode::Erc20TokenX | Mode::WkeyGot) {
                 ensure!(
                     matches!(block.ver, 3..=5),
                     "selected legacy replay requires reviewed Extended version3/4/5 at {height}"
@@ -1229,7 +1287,7 @@ mod offline {
                     .or_default() += tagger_admin_writes(&block)?;
             }
             let mut actual = erc20_balances::project(&block, &layouts).map_err(|e| anyhow::anyhow!("native map failed at {height}: {e}"))?;
-            if mode == Mode::Erc20TokenX {
+            if matches!(mode, Mode::Erc20TokenX | Mode::WkeyGot) {
                 for selected in selected_counts.values_mut() {
                     selected.insert("validated_legacy_role_operations", selected["persisted_legacy_role_length_writes"]);
                 }
@@ -1474,8 +1532,9 @@ mod offline {
             Some("--gm") => Mode::Gm,
             Some("--btr") => Mode::Btr,
             Some("--erc20tokenx") => Mode::Erc20TokenX,
+            Some("--wkey-got") => Mode::WkeyGot,
             _ => bail!(
-                "expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft, --ptoken, --securities, --gm, --btr or --erc20tokenx, followed by <original package root>"
+                "expected --burnmint, --point-bedrock, --fhe-b2, --bas, --tagger, --artx, --oft, --ptoken, --securities, --gm, --btr, --erc20tokenx or --wkey-got, followed by <original package root>"
             ),
         };
         let cache = if mode != Mode::TokenCys {
@@ -1524,6 +1583,10 @@ mod offline {
             report["scope"]=json!("Three NOT-QUALIFIED ORI/FNA/PHI legacy enumerable candidates remove only broad root8 width3 and reuse the existing independently source-bound oz_3_4_2 template. Historical431/qualified425 unchanged; no boolean or admin permission. PHI is exact historical whole-runtime attribution only, with no individual source/creation/deployment. Custom source revision, coherent initial sets, actual producer/equality/preimage visibility, runtime/history and replacement package/getter/holder qualification remain open. Legacy v3 fallback preserved; no canonical seeding.");
             report["role_counter_scope"]=json!("Changed persisted outer role-length witnesses only; labeled validated legacy operations solely after successful complete projection. No boolean membership, admin permission or authorization claim.");
         }
+        if mode == Mode::WkeyGot {
+            report["scope"] = json!("Two NOT-QUALIFIED WKEYDAO/GOT legacy enumerable candidates remove WKEYDAO root9 width3 and both GOT root8 broad permissions. Existing independently source-bound oz_3_4_2 template, historical431/qualified425 and all unrelated metadata/runtime fields remain unchanged. No boolean/admin/creation permission. Both custom source revisions, coherent initial sets, actual producer/preimage/equality visibility and runtime/history/replacement package/getter/holder qualification remain open. GOT synthetic construction does not prove deployed initialization; WKEYDAO unsupported construction rolls back. Legacy v3 fallback preserved, no canonical seeding.");
+            report["role_counter_scope"] = json!("Changed persisted outer role-length witnesses only, selected by exact contract-to-root WKEYDAO9/GOT8; labeled validated legacy operations solely after successful full projection. No boolean membership, admin permission or authorization claim.");
+        }
         if let Err(error) = run(&root, &cache, &output, mode, &mut report) {
             report["status"] = json!("failed");
             report["error"] = json!(format!("{error:#}"));
@@ -1538,6 +1601,44 @@ mod offline {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn wkey_got_replay_dispatch_uses_exact_per_contract_legacy_roots() {
+            use erc20_balances_tools::wkey_got_role as bound;
+            let candidates: Value = serde_json::from_str(include_str!("../../../tests/fixtures/wkey-got-enumerable-candidate/layouts.json")).unwrap();
+            assert!(membership_writes(&eth::Block::default(), &candidates).is_err());
+            for address in bound::CONTRACTS {
+                let own = bound::role_root(address).unwrap();
+                for r in [own, 17 - own] {
+                    let mut preimage = vec![0xaa; 32];
+                    preimage.extend(hex::decode(&bound::root(r)[2..]).unwrap());
+                    let key = erc20_balances::hash(&preimage);
+                    let b = eth::Block {
+                        transaction_traces: vec![eth::TransactionTrace {
+                            status: eth::TransactionTraceStatus::Succeeded as i32,
+                            calls: vec![eth::Call {
+                                keccak_preimages: [(hex::encode(key), hex::encode(preimage))].into_iter().collect(),
+                                storage_changes: vec![eth::StorageChange {
+                                    address: hex::decode(&address[2..]).unwrap(),
+                                    key: key.to_vec(),
+                                    old_value: vec![],
+                                    new_value: vec![1],
+                                    ordinal: 50,
+                                }],
+                                ..Default::default()
+                            }],
+                            ..Default::default()
+                        }],
+                        ..Default::default()
+                    };
+                    let (field, counts) = observed_role_writes(&b, &candidates, Mode::WkeyGot).unwrap();
+                    assert_eq!(field, "persisted_legacy_role_length_writes");
+                    assert_eq!(counts.len(), 2);
+                    assert_eq!(counts[address], u64::from(r == own));
+                    assert_eq!(counts.values().sum::<u64>(), u64::from(r == own));
+                }
+            }
+        }
 
         #[test]
         fn legacy_replay_dispatch_does_not_require_or_report_boolean_membership() {

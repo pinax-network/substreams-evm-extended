@@ -442,7 +442,7 @@ add/sole-remove can pass with omitted or ignored equal array stores. Full direct
 whitelist admission is separate work. Fresh evidence is under
 `out/btr-coupled-validator-20260928/` in `network-verification-config`.
 All candidates remain NOT-QUALIFIED. The enumerable-role follow-up now has
-three separate candidates described below; five profiles across five other
+five separate candidates described below; three profiles across three other
 runtime groups still need source-selected migration. Four legitimate
 terminal records and six unresolved-source profiles retain their classifications.
 Source gaps, initial coherence, actual producer visibility and replacement
@@ -471,8 +471,8 @@ actual call boundaries. The existing v3 root-call fallback remains unchanged;
 v4/v5 requires positive actual root-call begin ordinals. Recognized standalone
 length/index/admin no-ops refuse, while unrecognized equal array words retain
 ordinary no-op handling. Captured creation remains refused. These separate
-NOT-QUALIFIED candidates cover three of the eight enumerable profiles; five
-profiles across five other runtimes remain. The custom primary-source gap,
+NOT-QUALIFIED candidates cover three of the eight enumerable profiles. The
+subsequent WKEYDAO/GOT fixture below adds two more. The custom primary-source gap,
 PHI's runtime-only attribution, coherent initialization and actual
 producer/runtime/package/getter/initialized-holder qualification remain open.
 
@@ -492,6 +492,23 @@ candidate or VM extension is added. A later GOT migration must remove both
 broad root-8 rules, and both candidates need separate projector/replay review.
 Fresh evidence remains under `out/wkeydao-got-operation-proof-20260929/` in
 `protocol-invalidation-boundary`; previous attempts are preserved.
+
+The subsequent [WKEYDAO/GOT enumerable candidates](../erc20/balances/docs/wkey-got-enumerable-candidate.md)
+remove only WKEYDAO's broad root-9 width rule and both GOT root-8 permissions.
+Each selects the unchanged legacy complete-operation validator without a
+membership root, admin scalar or creation rule. Allowance/nonce mappings,
+MaxSupply, domain/receiver/ratio scalars and exact runtime guards remain intact.
+Target-specific source-derived projector controls exercise complete operations,
+optional equal stages, frame boundaries and atomic malformed-operation refusal.
+The host counter binds each contract to its own root (9/8) and counts changed
+persisted length witnesses. Successful full projection is required before that
+count is labeled validated legacy operations. It is neither boolean membership
+nor proof of authorization.
+Both creations remain refused, including GOT's locally successful constructor.
+Five of eight enumerable profiles now have separate NOT-QUALIFIED candidates;
+wkeyDAO2, TRX and Mai still need their own migration. Custom primary-source gaps,
+coherent initial sets, actual producer visibility and replacement
+runtime/package/getter/initialized-holder qualification remain open.
 
 The host ledger now validates exact epoch membership for holder and global
 rows. A transition from epoch 1 to epoch 3 cannot introduce undeclared epoch 2

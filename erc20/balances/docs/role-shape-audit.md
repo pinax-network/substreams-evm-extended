@@ -62,7 +62,7 @@ published baseline and the other reviewed profiles remain unchanged.
 
 The original inventory and its evidence above remain historical. Separate
 **NOT-QUALIFIED** fixtures now cover all 33 of its boolean-role profiles and
-three of its eight enumerable-role profiles;
+five of its eight enumerable-role profiles;
 they do not replace the original 431-profile baseline or qualified 425 cohort.
 Each linked report records its complete saved interval, initialized observed
 holders, cold gaps, source bindings and regression controls. Synthetic write
@@ -83,6 +83,7 @@ shapes do not establish executed authorization or real producer visibility.
 | [GMToken (2)](gm-coupled-role-candidate.md) | Exact selected solc 0.8.16/Ondo-vendored membership201/set251 operations; no role-admin permission, with all beacon/runtime/balance and finite long-name words retained. | Five custom primary-source gaps, exact compiler/captured metadata substitutions and absent on-chain creation binding. Actual initial coherence, producer role visibility and proxy/external-client execution remain unqualified. |
 | [BTRToken](btr-coupled-role-candidate.md) | Exact selected solc 0.8.24/OZ 4.9.3 membership101/set151 operations plus the fixed PAUSER self-admin scalar. All unrelated fields remain unchanged; direct whitelist length/index permissions remain partial. | Custom token primary-source gap, initial coherence, deployed initialization/proxy history and actual producer/package/getter/holder qualification remain open. Full whitelist operation admission is separate work. |
 | [ERC20TokenX: ORI / FNA / PHI](erc20tokenx-enumerable-candidate.md) | Remove only the broad root-8 width-three permission and select the unchanged `oz_3_4_2` complete-operation rule. No separate membership root or admin permission; all unrelated fields remain unchanged. | Exact shared compiled runtime; complete ORI/FNA source and creation bindings, historical PHI runtime-only attribution and one custom primary-source gap. Creation remains refused, and coherent initial state, producer visibility and replacement qualification remain open. |
+| [WKEYDAO / GOT](wkey-got-enumerable-candidate.md) | Remove WKEYDAO's broad root-9 width rule and both GOT root-8 rules; select the unchanged `oz_3_4_2` complete-operation rule with no membership root, admin or creation permission. All other fields remain unchanged. | Two separately bound runtimes and source-derived operation matrices. Both custom primary revisions, deployed initial coherence, actual producer visibility and replacement qualification remain open; GOT's synthetic constructor success does not admit creation. |
 
 The prerequisite [PToken operation proof](ptoken-operation-proof.md) executes its
 compiled boolean/set transitions and rollback controls against synthetic state.
@@ -123,7 +124,7 @@ retains its exact source bindings and qualification limits.
 Each candidate needs its own reachability, initialization and dependency review
 before promotion. This classification concerns the configured role field;
 some contracts also contain separate enumerable or dynamic metadata that must
-retain its existing handling. Five enumerable-role profiles across five other
+retain its existing handling. Three enumerable-role profiles across three other
 runtime groups still need their own source-selected migration. Four legitimate
 terminal-record profiles and six source-unavailable profiles retain the original
 audit's separate findings; they are not plain membership migrations.
@@ -141,7 +142,8 @@ reuses the existing validator without changing production code. Its projector
 controls distinguish complete admitted operations from fabricated nested paths,
 incomplete operations and conservative malformed-state refusals. Recognized
 standalone no-ops refuse; unrecognized equal array words retain ordinary no-op
-handling. Three of eight enumerable profiles now have separate candidates.
+handling. These three candidates remain distinct from the subsequent two-profile
+WKEYDAO/GOT fixture.
 
 The separate [WKEYDAO/GOT host proof](wkey-got-operation-proof.md) binds two
 different complete runtimes and their root-9/root-8 combined role schemas.
@@ -151,10 +153,12 @@ WKEYDAO construction stops at unsupported CHAINID with full rollback; GOT's
 synthetic constructor returns its exact runtime after the expected stores and
 logs. Neither proves deployed initial coherence or adds creation permission.
 Four shared and two additional GOT dependencies match the immutable upstream
-pin; both custom token primary revisions remain unresolved. No candidate,
-production validator or VM change accompanies this proof, so the remaining
-five-profile migration count is unchanged. A later GOT candidate must remove
-both broad root-8 permissions; WKEYDAO's selected role root is 9.
+pin; both custom token primary revisions remain unresolved. The proof itself
+adds no candidate, production validator or VM change. Its subsequent two-profile
+candidate removes both broad GOT root-8 permissions and WKEYDAO's root-9 width
+rule, preserving every other field. The existing legacy validator remains
+unchanged, and both captured creations remain refused. Five of eight enumerable
+profiles now have separate NOT-QUALIFIED candidates; wkeyDAO2, TRX and Mai remain.
 
 TOPS's [separate host proof](tops-operation-proof.md) concerns a three-word
 struct array and wrapping LP credits under issue #61, outside this role cohort.
