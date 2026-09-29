@@ -40,6 +40,7 @@ pub mod survey;
 pub mod tagger_role;
 pub mod tops_proof;
 pub mod trace_context;
+pub mod wkey2_trx_proof;
 pub mod wkey_got_proof;
 pub mod wkey_got_role;
 pub mod ybc_rewards;

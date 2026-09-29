@@ -757,3 +757,11 @@ controls preserve distinct metadata and runtime guards. Both remain NOT-QUALIFIE
 initial coherence, custom primary sources and actual producer/package/getter/holder
 qualification remain open. The focused document separates saved replay from
 synthetic source execution.
+
+The separate [wkeyDAO2/TRX Phase A proof](docs/wkeydao2-trx-operation-proof.md)
+binds both complete captures to official solc 0.7.5/0.6.6 and exact declared CBOR
+substitutions, including trailing creation constants. Four wkeyDAO2 dependencies
+match full upstream files; TRX's two normalized declaration matches do not
+establish its whole flattened source origin. Paired local execution remains
+separate from ingestion admission and deployed initialization; both constructor
+paths encounter unsupported CHAINID in the unchanged host VM.

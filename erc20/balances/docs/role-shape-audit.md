@@ -160,6 +160,17 @@ rule, preserving every other field. The existing legacy validator remains
 unchanged, and both captured creations remain refused. Five of eight enumerable
 profiles now have separate NOT-QUALIFIED candidates; wkeyDAO2, TRX and Mai remain.
 
+The separate [wkeyDAO2/TRX host proof](wkeydao2-trx-operation-proof.md) now binds
+both original compiler outputs and captured variants to the same complete local
+operation matrix. Exact metadata replacement preserves all executable bytes and
+trailing constructor constants; both CHAINID constructor prefixes roll back.
+TRX's original CRLF source and predicate-only initialization remain distinct.
+Four exact compiler-generated storage-effect sites lack Solidity source text
+and retain explicit separate attribution; all other unmapped effects refuse.
+Custom provenance and metadata-origin gaps remain. This Phase A proof adds no
+candidate and establishes neither deployed initial coherence nor live producer,
+package, getter or initialized-holder qualification.
+
 TOPS's [separate host proof](tops-operation-proof.md) concerns a three-word
 struct array and wrapping LP credits under issue #61, outside this role cohort.
 Original append/getter execution and the unchanged-body cleanup harness do not

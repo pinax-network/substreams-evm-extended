@@ -1,0 +1,149 @@
+{
+  "args": [
+    "out/wkeydao2-trx-operation-proof-20260929/target-isolated/debug/build_wkey2_trx_proof",
+    "erc20/balances/tests/fixtures/wkey2-trx-operation-proof",
+    "out/wkeydao2-trx-operation-proof-20260929/source-03"
+  ],
+  "artifacts": [
+    {
+      "file": "solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    {
+      "file": "LICENSE-openzeppelin",
+      "sha256": "5d77daf99ea6e8033e57b449761ab4e9b486c45ef578c387d2805fe98e560f46"
+    },
+    {
+      "file": "wkeydao2/capture.json",
+      "sha256": "1afd2a842f97acb1eb03dca09e802d7dcec1e06eef97533dee2c2b2ebf180df0"
+    },
+    {
+      "file": "wkeydao2/compiler-input-original.json",
+      "sha256": "cdb8ba6d0d41bd83b2949ec75bb8aebba53dc6c26f39b360f7c4e21288cdf988"
+    },
+    {
+      "file": "wkeydao2/compiler-input.json",
+      "sha256": "b9861f820b449ea188eb0cc5287bc7f5e9545cd019af1a25bf35854925c5bf6d"
+    },
+    {
+      "file": "wkeydao2/compiler-output.json",
+      "sha256": "58f88b6f0a6765147a48d19553a6b69172782eb3355845b741a2f4340df51f3c"
+    },
+    {
+      "file": "wkeydao2/compiler-version.txt",
+      "sha256": "025f70e8f8a13b28b6a5b8e369f0360c18bd2106938fdd908ad2afa7bdb823fd"
+    },
+    {
+      "file": "wkeydao2/metadata-original.json",
+      "sha256": "d0ac7cc5f708b8e153afa4096287c2d49c60f4b99af633ef240f17ff1712c773"
+    },
+    {
+      "file": "wkeydao2/metadata-fresh.json",
+      "sha256": "d0ac7cc5f708b8e153afa4096287c2d49c60f4b99af633ef240f17ff1712c773"
+    },
+    {
+      "file": "wkeydao2/primary-sources.json",
+      "sha256": "1b3821934bb55862b5b080ed76d4937b372fc6f32eaa2f1e48a5132dd4fc4b51"
+    },
+    {
+      "file": "wkeydao2/source-licenses.json",
+      "sha256": "ec0253f5b42b44750c909b6ae9b59542830546a5e1ef17eca3713795435d2093"
+    },
+    {
+      "file": "trx/capture.json",
+      "sha256": "e0260fa176be3c3e945de5d82af3c07ab9fec026705dc868b42881d474560ffc"
+    },
+    {
+      "file": "trx/compiler-input-original.json",
+      "sha256": "fbde1ef50ed0fd54f40e29662181a7f1376f62d8299252119b4c6d065feeabff"
+    },
+    {
+      "file": "trx/compiler-input.json",
+      "sha256": "62607ac503f9bdc16e29007537f22de4d37d0f6c7a66720ae25e2ee4bca0343f"
+    },
+    {
+      "file": "trx/compiler-output.json",
+      "sha256": "6d9938caf954382e95f098db0d4d85c6d0733b455079d1d264271e367e2e7bd8"
+    },
+    {
+      "file": "trx/compiler-version.txt",
+      "sha256": "c1c5e1e9465568a7947ea73fdb73fd31a3dd7ba06df1010289b5d847b0a2e28e"
+    },
+    {
+      "file": "trx/metadata-original.json",
+      "sha256": "7b2ac0822096f31021f28a808890c48a8ecd96d50fad8bcbe153a5f58367689d"
+    },
+    {
+      "file": "trx/metadata-fresh.json",
+      "sha256": "7b2ac0822096f31021f28a808890c48a8ecd96d50fad8bcbe153a5f58367689d"
+    },
+    {
+      "file": "trx/primary-sources.json",
+      "sha256": "1da9b80c7625a5e788585f2f91147551c2f30e7678686c5f3891234a866beeeb"
+    },
+    {
+      "file": "trx/source-licenses.json",
+      "sha256": "d31a1c90a2d3b54ab0328801f78ce5c154e668df8431938373187248ce24ff68"
+    }
+  ],
+  "chain_calls": 0,
+  "compiler_manifest_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json",
+  "qualified": false,
+  "scope": "Bounded host execution of compiled and captured wkeyDAO2/TRX programs in synthetic local state. Exact 53-byte CBOR substitutions preserve all other bytes, including creation trailing constants. No production candidate, deployed-state/initial-set qualification, external-call or signature emulator, schema, dependency or VM change. Unsupported opcodes/context are HarnessFailure, distinct from source REVERT/INVALID. No chain calls.",
+  "source_gap": "wkeyDAO2 has four exact full OpenZeppelin 3.4.2 dependency files and an unestablished custom AGPL source origin. TRX is one original CRLF flattened file: only its complete AccessControl and EnumerableSet declarations match the pinned upstream after CRLF-to-LF normalization. The whole flattened token, other custom components and overall license are not independently attributed. The reason for both captured CBOR digest differences remains unestablished.",
+  "source_inventory_sha256": "829cc8b9d643071169bf2c4e3c5c71a22c314334b4eb46f4b25aa14d7a9bc977",
+  "status": "passed",
+  "targets": [
+    {
+      "address": "0xe0a281deff5c9d8d67af09d39340e134ac81b82e",
+      "argument_bytes": 96,
+      "capture_sha256": "1afd2a842f97acb1eb03dca09e802d7dcec1e06eef97533dee2c2b2ebf180df0",
+      "captured_runtime_keccak256": "0x9054d0efc5311cd08c2d5c1204bc9f600f43e301ea5fe6446b4d581c44d6e6a3",
+      "compiler_arguments": [
+        "--standard-json"
+      ],
+      "compiler_keccak256": "0xff52724ea7d3e0913219c765b40f311f72fe1e5c95389020a165a1959e57e24f",
+      "compiler_runtime_keccak256": "0x1d6d266a400093ea38fe4dc902d8294c2c5e5d1b5b5a5fd642c003176cf5fad5",
+      "compiler_sha256": "1c100ce86a3167fd4c194290aafec0d3d94fe86c7a1aa0837c1346cc93d8b6ce",
+      "compiler_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/solc-macosx-amd64-v0.7.5+commit.eb77ed08",
+      "creation_bytes": 9849,
+      "creation_bytes_after_cbor": 32,
+      "creation_cbor_offset": 9764,
+      "crlf_normalized_declarations": 0,
+      "exact_primary_files": 4,
+      "full_runtime_creation_reconstruction": true,
+      "original_match_labels": "match",
+      "raw_metadata_equal": true,
+      "runtime_bytes": 8495,
+      "runtime_cbor_offset": 8442,
+      "target": "wkeydao2",
+      "whole_compiler_output_sha256": "58f88b6f0a6765147a48d19553a6b69172782eb3355845b741a2f4340df51f3c"
+    },
+    {
+      "address": "0xce7de646e7208a4ef112cb6ed5038fa6cc6b12e3",
+      "argument_bytes": 192,
+      "capture_sha256": "e0260fa176be3c3e945de5d82af3c07ab9fec026705dc868b42881d474560ffc",
+      "captured_runtime_keccak256": "0x84f4834aef7376b01cc68f967cd357e4bfbe13ba2b775757ed1f8e28b67be82c",
+      "compiler_arguments": [
+        "--standard-json"
+      ],
+      "compiler_keccak256": "0xe7810e0e9d8bdb79087d4a8ae84ea88d33422a37906fad7114531675790fd0f8",
+      "compiler_runtime_keccak256": "0x0b99e93d10a8036a7389cfa7da00783d1c27642ecdc1a3643da964f2e167659c",
+      "compiler_sha256": "45c7f956197ce08b69f793ea610cf1ee65e12b6a518d6160cc28c8eeff41517c",
+      "compiler_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/solc-macosx-amd64-v0.6.6+commit.6c089d02",
+      "creation_bytes": 8893,
+      "creation_bytes_after_cbor": 79,
+      "creation_cbor_offset": 8761,
+      "crlf_normalized_declarations": 2,
+      "exact_primary_files": 0,
+      "full_runtime_creation_reconstruction": true,
+      "original_match_labels": "match",
+      "raw_metadata_equal": true,
+      "runtime_bytes": 7088,
+      "runtime_cbor_offset": 7035,
+      "target": "trx",
+      "whole_compiler_output_sha256": "6d9938caf954382e95f098db0d4d85c6d0733b455079d1d264271e367e2e7bd8"
+    }
+  ],
+  "upstream_license_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/8e0296096449d9b1cd7c5631e917330635244c37/LICENSE"
+}

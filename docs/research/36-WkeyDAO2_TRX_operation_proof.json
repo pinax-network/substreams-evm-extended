@@ -1,0 +1,84 @@
+{
+  "id": 36,
+  "title": "wkeyDAO2 and TRX captured/compiler local operation proof (Phase A)",
+  "issue": 4,
+  "status": "host-only compiled/captured operation proof passed; NOT-QUALIFIED; no candidate",
+  "targets": [
+    {
+      "name": "wkeyDAO2",
+      "address": "0xe0a281deff5c9d8d67af09d39340e134ac81b82e",
+      "role_root": 8,
+      "compiler": "0.7.5+commit.eb77ed08",
+      "runtime_bytes": 8495,
+      "creation_bytes": 9849,
+      "creation_cbor_offset": 9764,
+      "creation_trailing_bytes": 32,
+      "constructor_append_bytes": 96,
+      "sources": 5,
+      "exact_full_upstream_files": 4
+    },
+    {
+      "name": "TRX",
+      "address": "0xce7de646e7208a4ef112cb6ed5038fa6cc6b12e3",
+      "role_root": 6,
+      "compiler": "0.6.6+commit.6c089d02",
+      "runtime_bytes": 7088,
+      "creation_bytes": 8893,
+      "creation_cbor_offset": 8761,
+      "creation_trailing_bytes": 79,
+      "constructor_append_bytes": 192,
+      "sources": 1,
+      "exact_full_upstream_files": 0,
+      "crlf_normalized_declarations": 2
+    }
+  ],
+  "upstream_pin": "OpenZeppelin/openzeppelin-contracts@8e0296096449d9b1cd7c5631e917330635244c37",
+  "compiler_manifest_pin": "ethereum/solc-bin@16a99b8c26ed33a91796e209ff6797ee7baf2b0d",
+  "settings": "Complete original inputs; outputSelection is the only addition",
+  "transformation": "Exactly one 53-byte CBOR replacement in each full runtime and creation plus independent saved constructor append; trailing creation constants preserved",
+  "source_gaps": "Custom wkeyDAO2 AGPL origin; TRX whole flattened/custom origin and overall license; cause of differing captured IPFS digests",
+  "boundaries": "Unchanged VM; exact constructor prefixes stop at CHAINID; TRX self-address caller-suffix controls are not external meta-transaction/signature proof",
+  "distinctions": "Not WKEYDAO/GOT and not issue61 swkeyDAO2",
+  "evidence": "../../erc20/balances/docs/wkeydao2-trx-operation-proof.md",
+  "limits": [
+    "No candidate or production/schema/dependency/VM changes",
+    "No live chain calls or saved-block replay",
+    "Synthetic prestate does not prove deployed initial state or universal operations"
+  ],
+  "preliminary_operation_attempt": "out/wkeydao2-trx-operation-proof-20260929/operations-02",
+  "synthetic_calls": 2460,
+  "compiled_captured_case_pairs": 1230,
+  "returned_calls": 1946,
+  "reverted_calls": 488,
+  "explicit_source_invalid_controls": 12,
+  "explicit_unsupported_path_controls": 14,
+  "opcode_records": 420956,
+  "exact_solidity_effect_annotations": 10216,
+  "pinned_generated_effect_annotations_without_source_text": 84,
+  "generated_source_limit": "Only TRX creation SLOAD1372/SSTORE1379 and runtime SLOAD6169/SSTORE6176 have exact compiler-generated spans without text; target/kind/PC/opcode/span pinned and never labeled Solidity source",
+  "focused_tests": 17,
+  "preserved_attempts": [
+    "source-01 initial compiler run with provisional matrix/executor",
+    "operations-01 preserved raw TRX constructor, failed strict source annotation on compiler-generated file_id -1",
+    "source-02/operations-02 preliminary inventories intentionally differ after explicit generated annotation handling",
+    "Clippy search_is_some warning; equivalent !contains correction"
+  ],
+  "operation_attempt": "out/wkeydao2-trx-operation-proof-20260929/operations-03",
+  "compiler_attempt": "out/wkeydao2-trx-operation-proof-20260929/source-03",
+  "source_inventory_sha256": "829cc8b9d643071169bf2c4e3c5c71a22c314334b4eb46f4b25aa14d7a9bc977",
+  "operation_report_sha256": "e31c76e8a17f75531a2af286a6c04418b663ecd75cd4bd75a628d743169764ef",
+  "compiler_report_sha256": "842b71fd927ccbd8332f437d14003e0a27e9a540553e6038292792f40e83af56",
+  "compiler_execution_source_trees_equal": true,
+  "workspace_tests": {
+    "passed": 1198,
+    "suites": 106,
+    "nonempty_suites": 71,
+    "failed": 0,
+    "ignored": 0
+  },
+  "validation": "Pinned/locked offline workspace tests, Clippy all-targets, formatting and WASM check passed",
+  "reports": [
+    "../../erc20/balances/docs/evidence/wkeydao2-trx-operation-proof-20260929-compiler.json",
+    "../../erc20/balances/docs/evidence/wkeydao2-trx-operation-proof-20260929.json"
+  ]
+}
