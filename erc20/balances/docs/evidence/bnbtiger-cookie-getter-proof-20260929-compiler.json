@@ -1,0 +1,154 @@
+{
+  "args": [
+    "out/bnbtiger-cookie-getter-proof-20260929/target-isolated/release/build_bnbtiger_cookie_proof",
+    "erc20/balances/tests/fixtures/bnbtiger-cookie-getter-proof",
+    "out/bnbtiger-cookie-getter-proof-20260929/source-05"
+  ],
+  "artifacts": [
+    {
+      "file": "solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    {
+      "file": "LICENSE-openzeppelin",
+      "sha256": "5d77daf99ea6e8033e57b449761ab4e9b486c45ef578c387d2805fe98e560f46"
+    },
+    {
+      "file": "LICENSE-uniswap-core",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "file": "LICENSE-uniswap-periphery",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "file": "bnbtiger/capture.json",
+      "sha256": "9fd9afe36b7c9adf159e344ef6e693b15ae37a0703063e153890566a14503242"
+    },
+    {
+      "file": "bnbtiger/compiler-input-original.json",
+      "sha256": "14d0b1b79f254000d4d5ebcdd30707e8d6467ac17cf98add2fab27173e0735ee"
+    },
+    {
+      "file": "bnbtiger/compiler-input.json",
+      "sha256": "32328b00cece1301ef29c56bb42fdb7882f5f0ebe56380f94a443ddc95e90171"
+    },
+    {
+      "file": "bnbtiger/compiler-output.json",
+      "sha256": "aa63df18318d835da823852d3638ce9b6b327fe8cb41b0e4627fb666347c45e8"
+    },
+    {
+      "file": "bnbtiger/compiler-version.txt",
+      "sha256": "16925bd068671dea710ac4ddce1298229fca9aa0df94e2c6fc5980bd58456e5b"
+    },
+    {
+      "file": "bnbtiger/metadata-original.json",
+      "sha256": "39712709b3ab4dca16f7d05f111473460841263990e49c27a243fe6a832a3e46"
+    },
+    {
+      "file": "bnbtiger/metadata-fresh.json",
+      "sha256": "39712709b3ab4dca16f7d05f111473460841263990e49c27a243fe6a832a3e46"
+    },
+    {
+      "file": "bnbtiger/primary-sources.json",
+      "sha256": "cea2e13c83027501c91745ad3935b293fecb54c3bc55035670e2cf676f4be01c"
+    },
+    {
+      "file": "bnbtiger/source-licenses.json",
+      "sha256": "43a2e312f3a9005305eb30de44a43857c47deff59b2a366d1a29c3c995981b98"
+    },
+    {
+      "file": "bnbtiger/writer-review.json",
+      "sha256": "65473b99cd1da18a429cf3c9cf8ad113ee88da68309919c8bca94ac7bdb0b8b8"
+    },
+    {
+      "file": "bnbtiger/solc",
+      "sha256": "4f6f2e6942a09051bbbc850d4fa9b0d907749612cb5db58cac0c87745435070f"
+    },
+    {
+      "file": "cookie/capture.json",
+      "sha256": "ec5f5628b41b1eced18fc284246559422db795d71f5bb3c0dbffe9eec06d58b1"
+    },
+    {
+      "file": "cookie/compiler-input-original.json",
+      "sha256": "cc735a62fc6dc5521ade82a01c7ff275113a4cb7e639d44b29bab03be5e35f82"
+    },
+    {
+      "file": "cookie/compiler-input.json",
+      "sha256": "15d537e90363e8f902e27a6ca73138d4dcfad00f897256f9453a0e5c5bd30e9f"
+    },
+    {
+      "file": "cookie/compiler-output.json",
+      "sha256": "c46a969fa4cbc87004c7cb106acaa5440751001b252f029001ea873ef55b6397"
+    },
+    {
+      "file": "cookie/compiler-version.txt",
+      "sha256": "4c4be572097efc783e35c16382b862402ff6c374dd7a4767039bf002c9b47754"
+    },
+    {
+      "file": "cookie/metadata-original.json",
+      "sha256": "93606dcbeaf588e4f576a796eab142586abccc13edcad52145791c7613989637"
+    },
+    {
+      "file": "cookie/metadata-fresh.json",
+      "sha256": "93606dcbeaf588e4f576a796eab142586abccc13edcad52145791c7613989637"
+    },
+    {
+      "file": "cookie/primary-sources.json",
+      "sha256": "61ef9dfaa7fa5e10ed4e18690b1e3fe2460201db9d3cb12cd7ffe18e8ee20cca"
+    },
+    {
+      "file": "cookie/source-licenses.json",
+      "sha256": "6256031aa42a29bf81f307f54dc6e157f9016e08beff73bc966cfe9d927e7bbf"
+    },
+    {
+      "file": "cookie/writer-review.json",
+      "sha256": "c49e79d60ee9407f7cebb6bcbb9403fc77837573f1e47740885608efe5d77db5"
+    },
+    {
+      "file": "cookie/solc",
+      "sha256": "05ad8afa83df3b51d36fe9a84ea4467b3ed17585c903946985d6e2cd5e95685a"
+    }
+  ],
+  "chain_calls": 0,
+  "licenses": [
+    {
+      "file": "LICENSE-openzeppelin",
+      "sha256": "5d77daf99ea6e8033e57b449761ab4e9b486c45ef578c387d2805fe98e560f46",
+      "url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/8e0296096449d9b1cd7c5631e917330635244c37/LICENSE"
+    },
+    {
+      "file": "LICENSE-uniswap-core",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "url": "https://raw.githubusercontent.com/Uniswap/v2-core/4dd59067c76dea4a0e8e4bfdda41877a6b16dedc/LICENSE"
+    },
+    {
+      "file": "LICENSE-uniswap-periphery",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "url": "https://raw.githubusercontent.com/Uniswap/v2-periphery/ed24991304291297c3b4a52818d02f46a17aa9a2/LICENSE"
+    }
+  ],
+  "qualified": false,
+  "scope": "Bounded host balanceOf execution in explicit synthetic storage, with exact saved source/compiler/runtime binding. No deployed-state or producer qualification, production candidate, creation admission, transfer/router execution, external calls, VM changes or chain calls. Metadata independence does not authorize metadata writes.",
+  "source_gap": "Eight COOKIE dependency bodies exactly match the immutable OpenZeppelin/Uniswap files listed here; this does not establish a unique historical import commit. The original CookieToken, BEP20 and IBEP20 custom origins, and the complete flattened BNBTiger origin, remain unestablished. No source text, line ending, import path or license is normalized.",
+  "source_inventory_sha256": "1eeffd537ace32dcc780eb23c6fc805b6c4edaa28bcdd4935fcd8b5b5da6c978",
+  "status": "passed",
+  "targets": [
+    {
+      "capture_sha256": "9fd9afe36b7c9adf159e344ef6e693b15ae37a0703063e153890566a14503242",
+      "compiler_output_sha256": "aa63df18318d835da823852d3638ce9b6b327fe8cb41b0e4627fb666347c45e8",
+      "compiler_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/solc-macosx-amd64-v0.8.4+commit.c7e474f2",
+      "runtime_keccak256": "0x18f0619e94b94d884d917414ff4248c11e327998aef6a3e7089b9977e6ecef1c",
+      "source_files": 1,
+      "target": "bnbtiger"
+    },
+    {
+      "capture_sha256": "ec5f5628b41b1eced18fc284246559422db795d71f5bb3c0dbffe9eec06d58b1",
+      "compiler_output_sha256": "c46a969fa4cbc87004c7cb106acaa5440751001b252f029001ea873ef55b6397",
+      "compiler_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/solc-macosx-amd64-v0.6.12+commit.27d51765",
+      "runtime_keccak256": "0x258d1c6c6dcac1bfb46886ed147f9445408e9e5420a2c7a9434cd1b60bcf200f",
+      "source_files": 11,
+      "target": "cookie"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ pub mod apd_dsg_controls;
 pub mod artx_role;
 pub mod audit;
 pub mod bas_role;
+pub mod bnbtiger_cookie_proof;
 pub mod btr_proof;
 pub mod btr_role;
 pub mod burnmint_role;

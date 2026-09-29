@@ -234,3 +234,22 @@ The proof preserves original captured source/runtime bindings and existing
 exclusions. Synthetic getters/operations and two historical runtime boundaries
 leave primary-source attribution, deployed initial coherence, actual producer
 visibility and new package/getter/initialized-holder qualification open.
+
+
+## Separate BNBTiger / COOKIE getter controls
+
+BNBTiger and COOKIE are outside this historical 431-profile role inventory.
+Their [host getter proof](bnbtiger-cookie-getter-proof.md) binds the complete
+original sources/settings and freshly regenerated compiler outputs, then pairs
+captured and compiled programs under finite synthetic balance and metadata
+states. Each successful balance query requires its exact root-7 or root-1 word,
+one storage read and no effects. COOKIE's root-15 checkpoints are an
+address/uint32 mapping with two terminal words, not enumerable role storage.
+
+Source writer classifications distinguish runtime, constructor-only and
+external/block/signature-dependent paths. Getter independence does not authorize
+metadata writes, complete mapping-domain coverage or broad packed-word admission.
+Eight COOKIE dependency bodies match pinned primary sources; its three custom
+sources and the flattened BNBTiger source remain independently unattributed.
+The zero-call-value getter matrix adds no production rule, candidate, VM feature
+or live qualification, and leaves all role-candidate counts unchanged.
