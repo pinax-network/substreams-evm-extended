@@ -1,0 +1,14 @@
+{
+  "source_gap": "Eight COOKIE dependency bodies exactly match the immutable OpenZeppelin/Uniswap files listed here; this does not establish a unique historical import commit. The original CookieToken, BEP20 and IBEP20 custom origins, and the complete flattened BNBTiger origin, remain unestablished. No source text, line ending, import path or license is normalized.",
+  "sources": [
+    {
+      "capture_sha256": "b80c4cf306b03b6e0951f656469faaa4c8252585862684bb0067cd8ac8ac6cce",
+      "classification": "unestablished_full_file",
+      "content": null,
+      "path": "BNBTiger.sol",
+      "primary_sha256": null,
+      "url": null
+    }
+  ],
+  "target": "bnbtiger"
+}

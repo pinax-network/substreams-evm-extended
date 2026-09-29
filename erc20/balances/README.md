@@ -791,3 +791,11 @@ saved runtimes against independent balance words and admitted metadata, with
 actual getter read witnesses and native projector controls. They add no production
 permission or live qualification and preserve the existing PR #93 retained-ledger
 controls and original canonical captures.
+
+Host-only [BNBTiger/COOKIE getter proof](docs/bnbtiger-cookie-getter-proof.md)
+rebuilds both complete programs with official solc 0.8.4/0.6.12 and runs paired
+captured/compiler balance getters in finite synthetic states. Exact one-read
+witnesses and field-level writer reviews keep packed runtime fields,
+constructor-only metadata, checkpoint words and external-context limits distinct.
+The proof adds no production candidate or write permission; zero call value and
+selected metadata keys/words do not establish deployed or live qualification.

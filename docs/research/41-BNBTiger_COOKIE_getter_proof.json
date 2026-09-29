@@ -1,0 +1,32 @@
+{
+  "id": 41,
+  "title": "BNBTiger and COOKIE bounded compiled getter proof",
+  "issue": 5,
+  "qualified": false,
+  "scope": "Host-only exact compiler/runtime reconstruction and zero-callvalue raw balance getter controls; no production candidate or metadata permission",
+  "focused_document": "erc20/balances/docs/bnbtiger-cookie-getter-proof.md",
+  "targets": [
+    {"name": "BNBTiger", "address": "0xac68931b666e086e9de380cfdb0fb5704a35dc2d", "balance_root": 7, "source_count": 1, "exact_primary_files": 0, "primary_gaps": 1},
+    {"name": "COOKIE", "address": "0x3505bee89d3b4e351dbd4849241a6b0716ea407f", "balance_root": 1, "source_count": 11, "exact_primary_files": 8, "primary_gaps": 3}
+  ],
+  "evidence_status": "frozen source-05 and operations-01 passed on main 374dce16919c5a2c8fbefdf44473534dbb64450e; all pinned locked offline workspace gates passed",
+  "compiler_report": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929-compiler.json",
+  "compiler_report_sha256": "6f7ab61359902685cfb1465cb18feff12a24c2ec3d27eb654fdafeb33702cef4",
+  "execution_report": "erc20/balances/docs/evidence/bnbtiger-cookie-getter-proof-20260929.json",
+  "execution_report_sha256": "c7645326d19b08fd615df49a6fd66a4c1afe2f8ac44965263975b90e9274f50c",
+  "source_inventory_sha256": "1eeffd537ace32dcc780eb23c6fc805b6c4edaa28bcdd4935fcd8b5b5da6c978",
+  "source_inputs": 269,
+  "calls": 1440,
+  "compiler_capture_pairs": 720,
+  "returns": 1148,
+  "empty_reverts": 292,
+  "opcode_steps": 176752,
+  "balance_reads": 1140,
+  "keccaks": 1140,
+  "stores": 0,
+  "logs": 0,
+  "mapped_effect_spans": 2280,
+  "unmapped_effect_spans": 0,
+  "offline_validation": {"tests_passed": 1284, "suites": 122, "nonempty_suites": 80, "ignored_tests": 0, "format": "passed", "all_target_clippy": "passed", "wasm_workspace_check": "passed"},
+  "limits": ["No deployed-state or producer qualification", "No candidate, parser, protobuf, persist, dependency or VM changes", "No full transfer/router/constructor/signature execution", "Nonzero callvalue excluded", "Selected metadata keys/words only; no dynamic-string or whole packed-scalar admission", "No chain, RPC, Substreams or sink calls"]
+}

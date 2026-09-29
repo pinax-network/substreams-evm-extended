@@ -970,3 +970,43 @@ This host proof adds no production rule, profile, VM feature, schema, dependency
 or live call. Two saved runtime boundaries do not prove continuous history;
 permit signatures, tax-transfer callbacks, constructors, a newly packaged WASM
 comparison and qualified initialized-holder/final-state checks remain open.
+
+
+The [BNBTiger/COOKIE getter
+proof](../erc20/balances/docs/bnbtiger-cookie-getter-proof.md) independently rebuilds
+their complete captured source with the pinned solc 0.8.4 and 0.6.12 binaries and
+original settings. COOKIE retains all eleven source paths, including the original
+absolute Windows paths. Full bytecode, raw compiler metadata, storage layouts, source
+maps and source IDs match; BNBTiger's two DEAD immutable sites and single
+auxiliary-metadata substitution are the only runtime differences. Creation-bytecode
+reconstruction is a byte binding, not constructor execution.
+
+Eight COOKIE OpenZeppelin/Uniswap dependency bodies match immutable primary revisions
+byte for byte, with original notices and licenses retained. The three custom COOKIE
+sources and the flattened BNBTiger source retain independent primary-attribution gaps.
+An exact dependency body does not identify a unique historical import revision.
+
+Captured and unmodified compiled programs execute as pairs in explicit synthetic
+storage. Selected zero/small/maximum words, holder identities and callers must produce
+the exact root-7 BNBTiger or root-1 COOKIE balance word, one storage read and
+preimage, and no effects. Independent perturbations cover each declared metadata field
+shape at selected keys and words, including packed members, both COOKIE checkpoint
+words and hypothetical string payloads. Short/extra/dirty-address ABI behavior is
+checked per compiler. The host VM supplies only zero call value; no nonzero-value or
+transfer/router/constructor behavior is claimed.
+
+A separate complete-source writer inventory distinguishes runtime writers,
+constructor-only fields and paths requiring external or block/signature context.
+Getter independence is not metadata-write permission. COOKIE checkpoints are a nested
+address/uint32 mapping with two terminal words, not an array; its uint32 checkpoint
+count can wrap while safe32 checks the block number. Constructor-only fields sharing
+physical words and unused packed bits need explicit protection in any future
+candidate.
+
+Both tokens remain outside the historical 431-profile inventory and this proof adds no
+candidate, production rule, VM feature, dependency or protobuf change. Runtime
+continuity, producer visibility, source gaps, exact proposed write permissions, saved
+candidate replay and replacement package/getter/initialized-holder qualification
+remain separate. Fresh proof attempts remain under
+out/bnbtiger-cookie-getter-proof-20260929/ in the Network review worktree; no live
+chain calls ran.
