@@ -1,0 +1,69 @@
+{
+  "address": "0x35803e77c3163fed8a942536c1c8e0d5bf90f906",
+  "args": [
+    "out/mai-operation-proof-20260929/target-isolated/debug/build_mai_proof",
+    "erc20/balances/tests/fixtures/mai-operation-proof",
+    "out/mai-operation-proof-20260929/solc-0.8.9-official",
+    "out/mai-operation-proof-20260929/source-02"
+  ],
+  "artifacts": [
+    {
+      "file": "solc-list.json",
+      "sha256": "22e8ba1c7c8d0fc5eb60964083b238d267ea2c1afec9757521fea20c45b206af"
+    },
+    {
+      "file": "compiler-version.txt",
+      "sha256": "42b3b944e56b8dec08f839a426951c22f960b4599c531e72dc3820c6e85f15cc"
+    },
+    {
+      "file": "LICENSE-openzeppelin",
+      "sha256": "8c21a3d62814a86c6e6db50768e5a885a1f586873628e9be79a93f4eb6c18820"
+    },
+    {
+      "file": "capture.json",
+      "sha256": "e5fb99260765d58a5fecdd4d2eccd61c84e6f0032821fc75402f00e93535386b"
+    },
+    {
+      "file": "compiler-input-original.json",
+      "sha256": "649570084d364b09c1c858fec26a1a92dac864b9365a21816857d15a8f7dd88c"
+    },
+    {
+      "file": "compiler-input.json",
+      "sha256": "30fc984c545558237be971b646fd4d4f6c236eeb3d815d0b2be7ad2b4bc1a1ed"
+    },
+    {
+      "file": "compiler-output.json",
+      "sha256": "18a24ae3680b1b25d1b47c0d0c9a9b9d53dbd5a90c6bd6c003e6a0f5a5a20764"
+    },
+    {
+      "file": "metadata-original.json",
+      "sha256": "30382f478302f7d52b3c1223f0d73dc34c22c15f648f18f42853339c8d853b78"
+    },
+    {
+      "file": "metadata-fresh.json",
+      "sha256": "30382f478302f7d52b3c1223f0d73dc34c22c15f648f18f42853339c8d853b78"
+    },
+    {
+      "file": "primary-sources.json",
+      "sha256": "a835cfc598f289cedc7d5eb47d4faa1fa8808ffe34f168dae9e4ae1d726ad608"
+    }
+  ],
+  "chain_calls": 0,
+  "compiler_manifest_url": "https://raw.githubusercontent.com/ethereum/solc-bin/16a99b8c26ed33a91796e209ff6797ee7baf2b0d/macosx-amd64/list.json",
+  "compiler_sha256": "d619d4f5d8fd988bc63262407e749e905ccc8d8ab1ccf0280da1d12b918894ce",
+  "constructor_append_bytes": 0,
+  "creation_bytes": 12772,
+  "custom_source_license": "UNLICENSED; original notice retained",
+  "immutable_cap": "100000000000000000000000000000",
+  "membership_root": 0,
+  "primary_exact": 14,
+  "qualified": false,
+  "runtime_bytes": 11296,
+  "runtime_keccak256": "0x1134938644214395aba790bf7d50e13027c30b74b4bd09dcbe167c0ccc2cc9e5",
+  "scope": "Host-only execution of exact captured Mai runtime and no-argument creation in synthetic local state. No production rule/template/candidate, external-call emulator, VM extension, dependency or schema change. No chain calls or deployment qualification. Unsupported outcomes remain failures unless explicitly measured and named.",
+  "set_root": 1,
+  "source_gap": "Fourteen complete dependencies match the exact OpenZeppelin 4.7.0 revision. The UNLICENSED custom contracts/Mai.sol has no independently established maintainer revision in the reviewed material. Captured source/compiler/runtime equality does not resolve that source gap or qualify actual deployment, initial coherence, producer visibility or live package/getter/holder behavior.",
+  "source_inventory_sha256": "23ff1571cf7808ac328c6ce494ab64dbc35351fda6f84921ff7435004c4234e5",
+  "status": "passed",
+  "upstream_license_url": "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/8c49ad74eae76ee389d038780d407cf90b4ae1de/LICENSE"
+}

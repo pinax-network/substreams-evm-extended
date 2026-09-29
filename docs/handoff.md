@@ -845,3 +845,30 @@ proves neither deployed initialization nor producer visibility. This proof adds
 no ingestion candidate, schema, dependency or VM change and makes no chain call.
 Five enumerable profiles have candidates; wkeyDAO2, TRX and Mai still require
 separate candidate work and replacement qualification.
+
+
+The separate [Mai host proof](../erc20/balances/docs/mai-operation-proof.md)
+reproduces the complete unoptimized solc 0.8.9 output, including fourteen exact
+OpenZeppelin 4.7 dependencies. The original no-argument creation is exact;
+the only runtime substitution is the source-derived immutable cap, 10^29,
+at its single compiler-declared site. In synthetic local state, construction
+returns the complete captured runtime with ten ordered stores and two role logs.
+It grants DEFAULT_ADMIN and MINTER to the recorded caller and mints no supply.
+This local success does not establish deployed initialization.
+
+The source-selected matrix separates membership root 0 from enumerable root 1,
+with balance root 2 and allowance root 3. The older void-super overrides always
+run the set operation, so four incoherent bool/set prestates produce one-sided
+successes that do not establish complete coupled admission. The selected compiler
+uses conditional tail swaps. Malformed maximum-length wrapping, dirty tail
+movement and packed bool behavior stay outside coherent-state guarantees.
+Authorization, exact ABI refusals, infinite allowances, cap/supply arithmetic,
+late failure prefixes and rollback are checked against the original code.
+Burns reduce supply while leaving the immutable cap unchanged.
+
+Fresh evidence and failed attempts remain under
+`out/mai-operation-proof-20260929/` in the Protocol review worktree. The custom
+UNLICENSED token's primary revision remains unestablished. The host proof adds
+no ingestion candidate, parser template, VM instruction, dependency or protobuf
+change. Producer visibility and replacement runtime/package/getter/initialized-
+holder qualification remain open. No live chain call is part of this work.
