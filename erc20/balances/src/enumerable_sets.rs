@@ -1,5 +1,7 @@
 //! Exact observed-write witnesses for legacy DSG/OZ3.4.2 and the separately
-//! opted-in PTokenV2 solc0.8.28/OZ5.4 coupled membership/set template.
+//! opted-in PTokenV2 solc0.8.28/OZ5.4 and SecuritiesToken solc0.8.24/OZ5.3
+//! coupled membership/set templates. Names identify selected reviewed builds,
+//! not every contract using a library version.
 //!
 //! The caller binds the runtime and an outer mapping(bytes32 => RoleData) root.
 //! This rule grants event permissions, never an array range or an inferred key.
@@ -7,8 +9,7 @@
 //! The qualified runtime must establish the empty-unused-tail invariant; a zero
 //! member remains valid. Unknown no-op keys retain the mapper's ordinary policy.
 //! Checked logical growth is a conservative admission restriction: the selected
-//! PToken compiler actually wraps a maximum-length push outside coherent state.
-use crate::layout::EnumerableSemantics;
+//! compilers actually wrap a maximum-length push outside coherent state.
 use crate::{eth, hash, require, word, VerifiedLayout};
 use std::collections::{BTreeMap, BTreeSet};
 use substreams::errors::Error;
@@ -223,10 +224,7 @@ fn protected_roots(layout: &VerifiedLayout) -> BTreeSet<Word> {
     roots.extend(layout.other_mapping_paths.iter().map(|path| path.root));
     roots.extend(&layout.address_lists);
     roots.extend(layout.enumerable_address_sets.iter().map(|set| set.root));
-    roots.extend(layout.enumerable_address_sets.iter().filter_map(|set| match set.semantics {
-        EnumerableSemantics::PToken { membership_root } => Some(membership_root),
-        EnumerableSemantics::Oz342 => None,
-    }));
+    roots.extend(layout.enumerable_address_sets.iter().filter_map(|set| set.semantics.membership_root()));
     roots.extend(layout.proxy.as_ref().map(|proxy| proxy.implementation_slot));
     roots.extend(layout.beacon_proxy.as_ref().map(|proxy| proxy.beacon_slot));
     roots.extend(layout.zero_balance.as_ref().and_then(|rule| rule.storage_slot));
@@ -273,10 +271,7 @@ fn namespaces(
             }
         }
         for set in &layout.enumerable_address_sets {
-            let membership_root = match set.semantics {
-                EnumerableSemantics::Oz342 => None,
-                EnumerableSemantics::PToken { membership_root } => Some(membership_root),
-            };
+            let membership_root = set.semantics.membership_root();
             // Either side discovers the role. Derived counterparts identify
             // fragments but never replace a missing permission preimage.
             let mut outer = BTreeSet::new();
@@ -306,6 +301,13 @@ fn namespaces(
                 }
                 if let Some(base) = membership {
                     for key in [base, plus(base, ONE), plus(plus(base, ONE), ONE)] {
+                        // Only the selected Securities initializer's fixed
+                        // ISSUER admin scalar is a separate metadata capability.
+                        // It stays protected from operation aliases and remains
+                        // a store barrier; it is never a membership stage.
+                        if Some(key) == set.semantics.fixed_admin_slot() {
+                            continue;
+                        }
                         require(
                             names.insert((role.account.clone(), key), Namespace::Forbidden).is_none(),
                             "ambiguous membership namespace",
@@ -483,7 +485,8 @@ fn legacy_candidates(
     found
 }
 
-// Exact selected PToken compiler template. Membership precedes every set
+// Independently proven selected PToken and Securities compiler templates.
+// Membership precedes every set
 // mutation. No standalone bool/index/length fragment can supply permission.
 fn coupled_candidates(
     role_id: usize,
@@ -766,27 +769,39 @@ pub(crate) fn validate(
     if accounts.is_empty() {
         return Ok(BTreeSet::new());
     }
-    if layouts.iter().any(|l| {
-        l.enumerable_address_sets
-            .iter()
-            .any(|s| matches!(s.semantics, EnumerableSemantics::PToken { .. }))
-    }) {
+    if layouts
+        .iter()
+        .any(|l| l.enumerable_address_sets.iter().any(|s| s.semantics.membership_root().is_some()))
+    {
         require(
             matches!(block.ver, 4 | 5),
-            "selected PToken enumerable template requires Extended producer version4 or5",
+            "selected coupled enumerable template requires Extended producer version4 or5",
         )?;
     }
     let coupled_accounts = layouts
         .iter()
-        .filter(|l| {
-            l.enumerable_address_sets
-                .iter()
-                .any(|s| matches!(s.semantics, EnumerableSemantics::PToken { .. }))
-        })
+        .filter(|l| l.enumerable_address_sets.iter().any(|s| s.semantics.membership_root().is_some()))
         .map(|l| l.contract.clone())
         .collect();
     let collected = collect(block, &accounts, &coupled_accounts)?;
     let events = &collected.events;
+    let fixed_admin: BTreeSet<_> = layouts
+        .iter()
+        .flat_map(|layout| {
+            layout
+                .enumerable_address_sets
+                .iter()
+                .filter_map(move |set| set.semantics.fixed_admin_slot().map(|slot| (layout.contract.clone(), slot)))
+        })
+        .collect();
+    for event in events {
+        if fixed_admin.contains(&(event.account.clone(), event.slot.key)) {
+            require(
+                event.slot.new == ZERO,
+                "selected Securities ISSUER admin write must set DEFAULT_ADMIN_ROLE zero",
+            )?;
+        }
+    }
     let Namespaces { roles, names, protected } = namespaces(layouts, preimages, balance_candidates)?;
     let mut sequences = BTreeMap::<(usize, Vec<u8>), Vec<usize>>::new();
     for (id, event) in events.iter().enumerate() {

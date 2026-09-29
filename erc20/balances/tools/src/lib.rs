@@ -31,6 +31,7 @@ pub mod role_operations;
 pub mod rpc;
 pub mod runtime_status;
 pub mod securities_proof;
+pub mod securities_role;
 pub mod survey;
 pub mod tagger_role;
 pub mod trace_context;
