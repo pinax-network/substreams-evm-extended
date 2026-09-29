@@ -126,6 +126,16 @@ six runtime groups still need their own source-selected migration. Four legitima
 terminal-record profiles and six source-unavailable profiles retain the original
 audit's separate findings; they are not plain membership migrations.
 
+The separate [ERC20TokenX host proof](erc20tokenx-operation-proof.md) measures
+the exact shared ORI/FNA/PHI runtime before a possible three-profile enumerable
+migration. Complete ORI/FNA captures and constructor bytes remain separate from
+PHI's historical runtime-only attribution. Four dependencies match exact primary
+sources; the custom token's independent source pin is unresolved. The old
+combined role layout has no separate membership boolean or reachable admin
+setter. Measured self-swaps, equal stores, authorization, raw getters and failure
+boundaries do not initialize the deployed set or qualify producer visibility.
+This proof adds no candidate, so the eight-profile migration count is unchanged.
+
 TOPS's [separate host proof](tops-operation-proof.md) concerns a three-word
 struct array and wrapping LP credits under issue #61, outside this role cohort.
 Original append/getter execution and the unchanged-body cleanup harness do not

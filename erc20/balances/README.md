@@ -723,6 +723,14 @@ unchanged. Extended 4/5 frame evidence and complete operation witnesses are
 required; initial coherence, actual producer visibility, deployment and external
 client behavior remain outside this offline NOT-QUALIFIED candidate.
 
+The [ERC20TokenX Phase A proof](docs/erc20tokenx-operation-proof.md) separately
+binds complete ORI/FNA captures to official solc 0.7.5 and all 7,896 shared
+runtime bytes. PHI is attributed only through its exact historical runtime;
+its own source/creation record remains absent. Four OZ 3.4.2 dependencies match
+exactly, while the custom token's primary revision is unestablished. Local role
+measurement does not enable a candidate or infer constructor success: the
+unchanged host VM stops at unsupported CHAINID before initial role setup.
+
 ### TOPS host source proof
 
 [TOPS Phase A](docs/tops-operation-proof.md) binds the exact captured source/compiler

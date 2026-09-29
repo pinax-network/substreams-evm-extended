@@ -11,6 +11,7 @@ pub mod cli;
 pub mod comparison;
 pub mod coverage;
 pub mod data;
+pub mod erc20tokenx_proof;
 pub mod fhe_b2_roles;
 pub mod gm_proof;
 pub mod gm_role;
