@@ -809,6 +809,13 @@ selected metadata keys/words do not establish deployed or live qualification.
 
 The host-only [calculated retention adapter](docs/calculated-retention.md) retains finite raw checkpoints for the existing LBP, BabyDoge and 10SET models with atomic apply, explicit provenance, bounded undo and reset-only epochs. It does not emit production calculated balances or qualify a new live interval.
 
+The separate [YBC retained-input adapter](docs/ybc-retained-inputs.md) imports the
+two original twelve-holder raw checkpoints and thirty saved override maps. It
+keeps raw basis, pending reward and observable amount distinct, preserves missing
+hourly state and suspended dependencies, and never seeds an earlier replay with
+final-checkpoint values. The existing three adapters and pure YBC arithmetic are
+unchanged; helper-source and production/package qualification remain open.
+
 The separate [BNBTiger/COOKIE metadata candidates](docs/bnbtiger-cookie-candidates.md)
 append two NOT-QUALIFIED profiles outside the historical 431/425 cohorts. Exact
 source/runtime modes validate packed field constants, unused padding, typed

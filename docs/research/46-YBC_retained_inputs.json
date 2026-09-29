@@ -1,0 +1,53 @@
+{
+  "title": "YBC retained raw inputs",
+  "status": "offline_saved_replay_passed",
+  "qualified": false,
+  "issues": [5, 7],
+  "scope": "Closed host-only YBC raw-input ledger. Existing three PR105 model bindings and pure YBC arithmetic unchanged. OG deferred.",
+  "documentation": "erc20/balances/docs/ybc-retained-inputs.md",
+  "historical_boundaries": [122288005, 122289029],
+  "registered_holders": 12,
+  "raw_words_per_checkpoint": 1705,
+  "historical_getter_comparisons": 48,
+  "independent_override_cases": 30,
+  "override_getter_comparisons": 60,
+  "exact_override_reverts": 17,
+  "saved_replay_interval": [122288006, 122289030],
+  "saved_replay_status": "passed",
+  "saved_replay_report": "erc20/balances/docs/evidence/ybc-retained-inputs-20260929.json",
+  "saved_replay_report_sha256": "21529fa98f1ec4bee23aed0144c1dc2f0276351708855ed6fd27aecd21903028",
+  "source_inventory_sha256": "2e05f9e4e3f43932cdfb08e2eeb1b7b6a32dc82ddf43726e304df21c7c5ffb05",
+  "saved_replay": {
+    "blocks": 1024,
+    "producer_version": 5,
+    "registered_holders": 12,
+    "evaluations": 12288,
+    "raw_basis_known": 12288,
+    "pending_and_observable_known_each": 11380,
+    "pending_and_observable_unknown_each": 908,
+    "first_unknown_block": 122288122,
+    "holder_with_missing_hours": "0x2aafce28b5552e216811fb5a1cb015178a29b461",
+    "selected_storage_effects": 264,
+    "retained_writes": 181,
+    "final_raw_matches": 746,
+    "final_captured_raw_words_absent": 959,
+    "final_evaluable_balances_matching_independent_getters": 11,
+    "final_unknown_balances": 1
+  },
+  "validation": {
+    "focused_tests_passed": 20,
+    "workspace_tests_passed": 1416,
+    "workspace_test_suites": 141,
+    "nonempty_suites": 93,
+    "failed_or_ignored": 0,
+    "format": "passed",
+    "all_target_clippy": "passed",
+    "wasm_workspace_check": "passed"
+  },
+  "limits": [
+    "End checkpoint values never initialize earlier retained state; key names alone are not facts.",
+    "Captured checkpoints and overrides do not establish continuous historical getter parity.",
+    "Reward-helper source is unavailable; no invented source origin or universal runtime claim.",
+    "No production, VM, protobuf, dependency, arithmetic, sink or live-call changes."
+  ]
+}
