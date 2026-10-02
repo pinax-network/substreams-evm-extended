@@ -12,12 +12,16 @@ is `[]`. Blocks without the required Extended data are rejected.
 [Native balances](native/balances/README.md) is a second one-map package with
 the same protobuf: `Balance.contract` is absent and `amount` is the final
 persisted native balance of every account changed in the block. It ports the
-historical RPC-free native reducer and replays saved BSC blocks offline; no
-SPKG is committed and live qualification is pending.
+historical RPC-free native reducer. It was live-qualified on BSC on 2026-09-23,
+and that build is committed as `spkg/native-balances-v0.1.0.spkg`.
 
 The [native ClickHouse sink supplied by the Substreams CLI](erc20/balances/clickhouse/README.md)
-consumes the protobuf directly. This workspace contains no `db_out` module,
-custom ClickHouse/PostgreSQL sink, or database-change dependency.
+consumes the protobuf directly. The one exception is the temporary
+[legacy `evm-balances` patch](evm-balances/README.md). It is a 1:1 port of
+substreams-evm's `db_out` v0.3.4 for the existing `substreams-sink-sql`
+ClickHouse deployment on BSC, with the native input replaced by the qualified
+Extended map. Apart from it, this workspace contains no `db_out` module, custom
+ClickHouse/PostgreSQL sink, or database-change dependency.
 
 Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (state,
 evidence, open findings, next steps) and the procedures in [`skills/`](skills/README.md).
@@ -37,6 +41,7 @@ The shared schema stays in the repository-root `proto/` crate:
 - `erc20/balances/`: Extended-block ERC-20 balance module and native audit tools.
 - `erc20/events/`: standard ERC-20 Transfer and Approval log evidence.
 - `native/balances/`: Extended-block native balance module and offline replay tool.
+- `evm-balances/`: temporary legacy `db_out` patch (substreams-evm v0.3.4) and its differential check against the deployed package.
 - `aave/balance-state/`: Aave V3 aToken holder basis and reserve state module.
 - `compound-v2/balance-state/`: Compound v2 cToken shares, market words, cash and rate-model dependency module.
 - `erc4626/balance-state/`: ERC-4626 vault shares, total supply and source-bound conversion inputs (Aave static aToken, Savings DAI, OpenZeppelin).

@@ -9,7 +9,8 @@ consumer ledger and `conformance` reference models, and the packages
 `aave/actions`, `compound-v2/balance-state`, `compound-v3/balance-state`,
 `lido/balance-state`, `erc4626/balance-state`, `evm/executions` and
 `dex/pool-state`, each with
-its native Rust diagnostic tools where they exist.
+its native Rust diagnostic tools where they exist, plus the temporary legacy
+`evm-balances` patch.
 
 ## Production boundary
 
@@ -33,6 +34,17 @@ its native Rust diagnostic tools where they exist.
 - Do not add `db_out`, database-change modules or custom sinks. External native
   sinks consume the existing protobuf; local sink state belongs under `out/`.
 - Host-side qualification can use RPC. Production balance processing cannot.
+- The one exception is `evm-balances/`. It is a temporary port of
+  substreams-evm `evm-balances` v0.3.4 for the existing legacy
+  `substreams-sink-sql` ClickHouse deployment on BSC, and is removed after the
+  next release. Keep it 1:1 with upstream:
+  - `src/`, the `common/` subset and `clickhouse/schema.*.sql` stay verbatim;
+  - the ERC-20 input stays the unchanged RPC `erc20-balances-v0.3.4.spkg`;
+  - the native input stays the qualified `spkg/native-balances-v0.1.0.spkg`;
+  - `evm-balances-tools` must pass.
+
+  Do not add `db_out` anywhere else or extend this package. Read
+  `evm-balances/README.md`.
 
 ## Diagnostics and evidence
 

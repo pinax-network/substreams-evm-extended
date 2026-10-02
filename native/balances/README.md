@@ -105,8 +105,13 @@ make -C native/balances replay     # offline replay over captured blocks
 ```
 
 `make pack` and `make run` read `SUBSTREAMS_API_KEY` from the environment;
-live parity reads `RPC_URL`. No SPKG of this package is committed; the
-qualified build is identified by its hash below.
+live parity reads `RPC_URL`.
+
+The live-qualified build below is committed as `spkg/native-balances-v0.1.0.spkg`.
+The [legacy `evm-balances` patch](../../evm-balances/README.md) imports it.
+`substreams pack` embeds this README, so a pack after any README edit has a
+new SPKG digest but the same WASM (`48d89d28…`) and module hash (`5a2a2e0c…`). `make pack` writes to `out/`, so it never replaces the
+committed file.
 
 ## Live qualification (BSC, 2026-09-23)
 
@@ -192,10 +197,15 @@ treating `contract = ''` as native. The sink's `_blocks_` markers list blocks
 with nonempty output only; completeness requires the stream's clock or cursor.
 This has not been exercised for this package.
 
+Until the next release, the existing legacy `substreams-sink-sql` ClickHouse
+deployment consumes this map through the
+[legacy `evm-balances` patch](../../evm-balances/README.md). It keeps
+substreams-evm's `db_out` v0.3.4 and its `native_balances` table unchanged.
+
 ## Boundaries
 
 No RPC, no candidate discovery, no transfer events, no supply or burn
-interpretation, no wallet labels, no `db_out`, no custom sink, no global holder
+interpretation, no wallet labels, no `db_out` in this package, no custom sink, no global holder
 enumeration. Initialization of untouched accounts, exact checkpoints, reorg
 completeness and the complete-block clock contract are shared under
 [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7).

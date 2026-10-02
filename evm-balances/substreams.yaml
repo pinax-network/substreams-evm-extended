@@ -1,0 +1,42 @@
+specVersion: v0.1.0
+package:
+  name: evm_balances
+  version: v0.3.4-extended
+  url: https://github.com/pinax-network/substreams-evm-extended
+  description: ERC-20 & Native Balances (native from Firehose Extended blocks)
+
+imports:
+  # SQL Sink Substreams
+  database_changes: ../spkg/substreams-database-change-v2.0.0.spkg
+  sql: ../spkg/substreams-sink-sql-protodefs-v1.0.7.spkg
+
+  # Native: RPC-free Extended-block reducer, the live-qualified BSC build
+  # (spkg sha256 fbb46fc7…, wasm 48d89d28…). Replaces evm-native-balances-v0.3.4.
+  native_balances: ../spkg/native-balances-v0.1.0.spkg
+
+  # ERC-20: unchanged substreams-evm RPC package (byte-identical copy)
+  erc20_balances: ../spkg/erc20-balances-v0.3.4.spkg
+
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ../target/wasm32-unknown-unknown/release/db_evm_balances.wasm
+
+modules:
+  - name: db_out
+    kind: map
+    inputs:
+      - params: string
+      - source: sf.substreams.v1.Clock
+      - map: native_balances:map_events
+      - map: erc20_balances:map_events
+    output:
+      type: proto:sf.substreams.sink.database.v1.DatabaseChanges
+
+network: bsc
+
+params:
+  db_out: "hex"  # Supported encodings: hex, tron_base58
+  # Extended producer versions qualified for BSC native balances; any other
+  # Block.ver stops the stream instead of emitting guessed balances.
+  native_balances:map_events: '{"producer_versions":[5]}'
