@@ -253,3 +253,167 @@ mod wrapper_backing {
         assert_eq!(native.len(), 2);
     }
 }
+
+mod clickhouse_bridge {
+    use crate::clickhouse::{expected, sink_ddl, sink_rows, Reduced};
+    use sha2::{Digest, Sha256};
+    use std::{fs, path::Path};
+
+    fn reduced(number: u64, timestamp: u32, rows: &[(&str, &str)]) -> Reduced {
+        Reduced {
+            number,
+            hash: format!("{number:064x}"),
+            timestamp,
+            rows: rows.iter().map(|(a, v)| (a.to_string(), v.to_string())).collect(),
+        }
+    }
+
+    /// Open/close by block, high/low by exact numeric value, one transaction per row.
+    #[test]
+    fn bars_follow_the_legacy_aggregation_view() {
+        let blocks = [
+            reduced(10, 60, &[("0xa", "9"), ("0xb", "1")]),
+            reduced(11, 61, &[("0xa", "10")]),
+            reduced(12, 120, &[("0xa", "0")]),
+        ];
+        let (latest, bars) = expected(&blocks);
+        assert_eq!((latest["0xa"].block_num, latest["0xa"].balance.as_str()), (12, "0"));
+        assert_eq!(latest["0xa"].block_hash, format!("0x{:064x}", 12));
+        let minute = &bars[&(1, 60, "0xa".to_string())];
+        assert_eq!(
+            (
+                minute.open.as_str(),
+                minute.close.as_str(),
+                minute.high.as_str(),
+                minute.low.as_str(),
+                minute.transactions
+            ),
+            ("9", "10", "10", "9", 2)
+        );
+        let day = &bars[&(1440, 0, "0xa".to_string())];
+        assert_eq!(
+            (day.min_block_num, day.max_block_num, day.high.as_str(), day.low.as_str(), day.transactions),
+            (10, 12, "10", "0", 3)
+        );
+        assert_eq!(bars[&(1, 120, "0xa".to_string())].transactions, 1);
+        assert!(!bars.contains_key(&(1, 120, "0xb".to_string())));
+    }
+
+    #[test]
+    fn sink_rows_mark_only_blocks_with_output_with_unprefixed_hashes() {
+        let mut version = 0;
+        let (markers, rows) = sink_rows(&[reduced(1, 5, &[("0xa", "1"), ("0xb", "2")]), reduced(2, 6, &[])], &mut version);
+        let markers: Vec<serde_json::Value> = markers.lines().map(|l| serde_json::from_str(l).unwrap()).collect();
+        let rows: Vec<serde_json::Value> = rows.lines().map(|l| serde_json::from_str(l).unwrap()).collect();
+        assert_eq!(markers.len(), 1);
+        assert_eq!(markers[0]["hash"], format!("{:064x}", 1));
+        assert_eq!(rows.len(), 2);
+        assert_eq!((rows[1]["_row_id_"].as_u64(), rows[1]["contract"].as_str()), (Some(1), Some("")));
+        assert_eq!(version, 1);
+    }
+
+    /// The four legacy files are byte-identical to substreams-evm@cb8607f
+    /// `db-evm-balances-clickhouse` (the evm-balances v0.3.4 build); the native
+    /// table is lines 29–51 of its `schema.1.table.balances.sql`.
+    #[test]
+    fn legacy_schema_files_are_verbatim_from_substreams_evm() {
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../clickhouse");
+        for (file, sha256) in [
+            ("schema.0.blocks.sql", "b2ff361c74cd0f8a501c16c70e47375ce7ffa26e9d3927f429c89645ebbec2c5"),
+            (
+                "schema.1.table.native-balances.sql",
+                "b87bf25beb18fe85ec95e75017bdb3e4b4221ea6cdbc5d11427fc28dbc379ed6",
+            ),
+            (
+                "schema.2.mv.historical-native-balances.sql",
+                "3f0274ccb2c01c6c54e56e3c63f1a1ed1c5c88395183f3cc59ada5cbb5e0b6f8",
+            ),
+            (
+                "schema.3.view.historical-native-balances.sql",
+                "f6aa09d25133dbc8e7b46bc743fc95cf950a4bfd868f10f4a616a56d4647a017",
+            ),
+        ] {
+            assert_eq!(hex::encode(Sha256::digest(fs::read(dir.join(file)).unwrap())), sha256, "{file}");
+        }
+    }
+
+    /// The captured sink DDL is replayed without its TTL; schema.5 adds it back.
+    #[test]
+    fn captured_sink_ddl_is_replayed_without_its_ttl() {
+        let tables = Path::new(env!("CARGO_MANIFEST_DIR")).join("../clickhouse/evidence/setup-native-sink-tables.jsonl");
+        let balance = sink_ddl(&tables, "Balance").unwrap();
+        assert!(balance.starts_with("CREATE TABLE native.Balance (`_block_number_` UInt64"), "{balance}");
+        assert!(balance.contains("ORDER BY (_block_number_, _row_id_) SETTINGS"), "{balance}");
+        assert!(!balance.contains("TTL"));
+        assert!(sink_ddl(&tables, "_blocks_")
+            .unwrap()
+            .starts_with("CREATE TABLE native._blocks_ (`number` UInt64"));
+    }
+}
+
+mod db_out_parity {
+    use crate::{
+        clickhouse::{legacy_rows, Reduced},
+        db_out_parity::{compare, db_out, fixture_case, package_checks, synthetic_cases},
+        spkg::Package,
+    };
+    use std::path::{Path, PathBuf};
+
+    fn root() -> PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")
+    }
+
+    fn package(path: &str) -> Package {
+        Package::read(&root().join(path)).unwrap()
+    }
+
+    const REFERENCE: &str = "spkg/reference/evm-clickhouse-balances-v0.3.4.spkg";
+    const CANDIDATE: &str = "spkg/native-balances-v0.2.0.spkg";
+    const QUALIFIED: &str = "spkg/native-balances-v0.1.0.spkg";
+
+    #[test]
+    fn committed_package_carries_the_qualified_map_and_a_native_db_out() {
+        let checks = package_checks(
+            &package(REFERENCE),
+            &package(CANDIDATE),
+            &package(QUALIFIED),
+            &root().join("native/balances/clickhouse"),
+        )
+        .unwrap();
+        let failed: Vec<_> = checks.iter().filter(|c| !c.passed).collect();
+        assert!(failed.is_empty(), "{failed:#?}");
+    }
+
+    /// The deployed substreams-evm db_out with an empty ERC-20 input and the
+    /// native package's db_out agree on the committed block and edge cases.
+    #[test]
+    fn db_out_matches_the_deployed_upstream_db_out() {
+        let (reference, candidate) = (db_out(&package(REFERENCE)).unwrap(), db_out(&package(CANDIDATE)).unwrap());
+        let block = compare(&reference, &candidate, &[fixture_case(&root()).unwrap()]).unwrap();
+        assert!(block.differing.is_empty(), "{:#?}", block.differing);
+        assert_eq!((block.table_changes["native_balances"], block.table_changes["blocks"]), (82, 1));
+        let cases = synthetic_cases();
+        let edge = compare(&reference, &candidate, &cases).unwrap();
+        assert!(edge.differing.is_empty(), "{:#?}", edge.differing);
+        assert_eq!(edge.identical, cases.len());
+        // Invalid params, a row without a timestamp and an unknown genesis block.
+        assert_eq!(edge.identical_panics, 3);
+    }
+
+    #[test]
+    fn legacy_rows_carry_the_db_out_columns() {
+        let block = Reduced {
+            number: 7,
+            hash: "ab".repeat(32),
+            timestamp: 1_790_000_000,
+            rows: vec![("0x".to_string() + &"01".repeat(20), "5".into())],
+        };
+        let tables = legacy_rows(std::slice::from_ref(&block)).unwrap();
+        let row: serde_json::Value = serde_json::from_str(tables["native_balances"].trim()).unwrap();
+        assert_eq!(
+            row,
+            serde_json::json!({"address": format!("0x{}", "01".repeat(20)), "balance": "5", "block_hash": format!("0x{}", "ab".repeat(32)), "block_num": "7", "timestamp": "1790000000"})
+        );
+        assert_eq!(tables["blocks"].lines().count(), 1);
+    }
+}

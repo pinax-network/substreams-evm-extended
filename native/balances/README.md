@@ -7,6 +7,12 @@ added or renumbered. `Balance.contract` is **absent** for native amounts and
 `Balance.amount` is the account's balance after the last persisted change in
 the block, as an exact decimal `uint256` string.
 
+The package also carries a native-only legacy `db_out`, built as its own WASM
+binary so `map_events` stays the qualified build. One package therefore serves
+both ClickHouse paths, the Substreams CLI's native sink and the legacy
+`substreams-sink-sql`, so they can run side by side and be compared
+([ClickHouse](#clickhouse)).
+
 This package ports the reducer of the historical `evm-balances-storage`
 prototype ([source](https://github.com/pinax-network/substreams-evm/blob/311f9005cc8606e9cb1034562b97cf7281f30c99/evm-balances-storage/src/lib.rs))
 without its WBNB hardcode, custom protobuf, extra maps, `db_out` or Python
@@ -99,14 +105,23 @@ system-call ordinals are broken, is refused at parse time.
 ## Build and test
 
 ```sh
-cargo test --locked -p native-balances -p native-balances-tools -p evm-persist
-make -C native/balances build      # release WASM only; no network
+cargo test --locked -p native-balances -p native-balances-db-out -p native-balances-tools -p evm-persist
+make -C native/balances build      # both release WASM binaries; no network
 make -C native/balances replay     # offline replay over captured blocks
+make -C native/balances pack       # out/native-balances-v0.2.0.spkg
 ```
 
 `make pack` and `make run` read `SUBSTREAMS_API_KEY` from the environment;
-live parity reads `RPC_URL`. No SPKG of this package is committed; the
-qualified build is identified by its hash below.
+live parity reads `RPC_URL`. `make pack` writes to `out/`, so it never replaces
+a committed package. Two packages are committed:
+
+| Package | Modules | Use |
+| --- | --- | --- |
+| `spkg/native-balances-v0.1.0.spkg` (`fbb46fc7…`) | `map_events` | the live-qualified build below, kept as evidence |
+| `spkg/native-balances-v0.2.0.spkg` | `map_events` (same WASM `48d89d28…`, module `5a2a2e0c…`), `db_out` (module `960dbd06…`) | deploy, either ClickHouse path |
+
+`substreams pack` embeds this README, so a pack after any README edit has a
+new SPKG digest but the same module hashes.
 
 ## Live qualification (BSC, 2026-09-23)
 
@@ -181,21 +196,33 @@ ERC-20 campaign's block cache, not a native-specific RPC audit: only block
 37,086-check native audit ([legacy qualification](../../erc20/balances/docs/legacy-qualification.md))
 applies to the removed prototype package, not to this one.
 
-## Native sink
+## ClickHouse
 
-The [native ClickHouse sink](../../erc20/balances/clickhouse/README.md) derives
-one `Balance` table from `Events.balances`. Its mapping stores optional
-`contract` as `String`, so an absent native contract and an empty ERC-20
-contract are not distinguishable in SQL. Consume native and ERC-20 packages
-into separate databases or tables, or bind rows by package identity, before
-treating `contract = ''` as native. The sink's `_blocks_` markers list blocks
-with nonempty output only; completeness requires the stream's clock or cursor.
-This has not been exercised for this package.
+[`clickhouse/`](clickhouse/README.md) deploys `native-balances-v0.2.0.spkg`
+either way into the same legacy substreams-evm native tables (`native_balances`,
+`historical_native_balances`, `blocks`):
+
+- **Native sink.** `substreams sink clickhouse … map_events` writes `Balance`
+  and `_blocks_`. Materialized views feed the legacy tables, and a TTL expires
+  the base rows.
+- **Legacy sink.** `substreams-sink-sql` runs `db_out`, which is substreams-evm
+  `evm-balances` v0.3.4's `db_out` without its ERC-20 input. Its output equals
+  the deployed upstream `db_out` given an empty ERC-20 input
+  (`native-balances-tools db-out-parity`).
+
+The CLI sink's mapping stores optional `contract` as `String`, so an absent
+native contract and an empty ERC-20 contract are not distinguishable in SQL.
+Keep native and ERC-20 packages in separate databases. The sink's `_blocks_`
+markers list blocks with nonempty output only; completeness requires the
+stream's clock or cursor.
+
+Both paths are verified offline on the saved-control and live windows. Neither
+has been streamed live.
 
 ## Boundaries
 
 No RPC, no candidate discovery, no transfer events, no supply or burn
-interpretation, no wallet labels, no `db_out`, no custom sink, no global holder
+interpretation, no wallet labels, no ERC-20 or `db_out` logic beyond the legacy native tables, no custom sink, no global holder
 enumeration. Initialization of untouched accounts, exact checkpoints, reorg
 completeness and the complete-block clock contract are shared under
 [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7).

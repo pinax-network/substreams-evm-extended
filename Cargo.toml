@@ -9,6 +9,8 @@ members = [
   "erc20/events",
   "native/balances",
   "native/balances/tools",
+  "native/balances/db_out",
+  "native/balances/db_out/common",
   "aave/actions",
   "aave/actions/tools",
   "aave/balance-state",
@@ -36,6 +38,8 @@ license = "Apache-2.0"
 substreams = "0.7.0"
 substreams-abis = { git = "https://github.com/pinax-network/substreams-abis.git", tag = "v1.5.0" }
 substreams-ethereum = "0.11.1"
+# Only the native legacy db_out uses this; same version as substreams-evm evm-balances.
+substreams-database-change = "3.0.0"
 prost = "0.13"
 prost-types = "0.13"
 

@@ -1245,3 +1245,34 @@ The saved continuation starts from the earliest holder checkpoint at block 12228
 Raw basis, hourly reward/stopping hour, independently requested daily reward and observable balance are distinct. Combined balance preserves checked raw-plus-hourly addition before accepting the daily result; the separately requested daily metric is still evaluated independently. Evaluation never advances an on-chain cursor or replaces a raw word with a derived amount. Hourly planning is bounded to 168 periods and the conservative daily planner to 1,000 periods; the daily stop depends on three positive contribution conditions, not three elapsed days. Missing later planned inputs can conservatively precede a source early stop or arithmetic failure. Unsupported recursive pool entry remains an explicit scope refusal.
 
 Persisted raw effects require clock/hash continuity and same-key ordering. Runtime or dependency excursions suspend the epoch, including a restoration to reviewed identities. Changed helper pointer words also suspend even if only upper bits change, because the historical source lookup failed and upper-bit independence is unproved. Unchanged bound words with nonzero upper bits remain accepted; the token pointer keeps its separate masked-address policy. Atomic apply, a separately initialized new-epoch reset, bounded undo and digest-bound snapshots preserve raw origins and prevent future checkpoint seeding. No production layout, VM, persistence, protobuf or dependency change is part of this host reference. Actual deployment/source/dependency, initialized-holder, affected-holder extraction, replacement package and live checks remain under #5/#7/#21.
+
+## Native balances in ClickHouse, both sink paths, 2026-10-03
+
+The owner chose native balances only, with ERC-20 kept as a separate
+implementation. `spkg/native-balances-v0.2.0.spkg` serves two paths, to run
+and compare side by side, including in production:
+- the Substreams CLI's native ClickHouse sink on `map_events`. Bridge
+  materialized views feed the legacy substreams-evm native tables, and a TTL
+  (default 7 days) expires the base `Balance` rows;
+- a native-only legacy `db_out` (substreams-evm v0.3.4's, without ERC-20) for
+  `substreams-sink-sql`. It is a separate binary, so `map_events` keeps the
+  qualified WASM `48d89d28…` and module `5a2a2e0c…`.
+
+[`native/balances/clickhouse/`](../native/balances/clickhouse/README.md) holds:
+- the four legacy schema files, verbatim from `cb8607f`;
+- the bridge and TTL SQL;
+- Makefile targets for both paths;
+- a partition-copy backfill and a path comparison query.
+
+AGENTS.md records the single `db_out` exception.
+
+Evidence:
+- `db-out-parity`: the deployed upstream `db_out` with an empty ERC-20 input
+  equals ours on 9,086 cases (fields by name).
+- Real setups of both paths on a local server.
+- `clickhouse-bridge`: both paths' tables are equal to each other and to
+  independent values on the saved-control window (76,139 RPC-verified rows)
+  and the live window, before and after the TTL merge.
+
+No live stream or sink run happened. PR #111's `evm-balances` patch is
+superseded.
