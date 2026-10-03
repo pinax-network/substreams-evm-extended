@@ -1,12 +1,11 @@
 -- Base data retention. Each `Balance` row is copied into native_balances and
 -- the aggregation state when it is inserted, so the sink's own table only
--- serves audits and rebuilds. Rows expire `ttl_days` after their block time,
--- at background merges; materialized views never see these deletions.
+-- serves audits and rebuilds. Rows expire `ttl_days` after their block time and
+-- are removed by background TTL merges (soon after insert for old blocks, as in
+-- a backfill); materialized views never see these deletions.
 --
--- Pass the retention as a query parameter, e.g.
---   clickhouse client "$SUBSTREAMS_SINK_DSN" --param_ttl_days=7 --queries-file schema.5.ttl.sql
+-- `ttl_days` is a query parameter: `make setup TTL_DAYS=7`, or
+--   clickhouse client "$SUBSTREAMS_SINK_DSN" --param_ttl_days=7 --queries-file schema.sql
 --
--- `_blocks_` keeps no TTL: it is small (one row per block with output) and the
--- bridge reads it for block hashes. Blocks older than the retention, as in a
--- backfill, expire from `Balance` at the next TTL merge after loading.
+-- `_blocks_` keeps no TTL: it is the block table, one small row per block with output.
 ALTER TABLE Balance MODIFY TTL _block_timestamp_ + INTERVAL {ttl_days:UInt32} DAY;

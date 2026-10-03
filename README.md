@@ -17,14 +17,10 @@ and that build is committed as `spkg/native-balances-v0.1.0.spkg`.
 
 The [native ClickHouse sink supplied by the Substreams CLI](erc20/balances/clickhouse/README.md)
 consumes the protobuf directly. For native balances,
-[`native/balances/clickhouse`](native/balances/clickhouse/README.md) loads the
-legacy substreams-evm native tables two ways from one package:
-- the CLI sink with materialized views and a base-data TTL;
-- a native-only legacy `db_out` for `substreams-sink-sql`.
-
-The two can run side by side and be compared. Apart from that `db_out`, this
-workspace contains no database-change module or custom ClickHouse/PostgreSQL
-sink.
+[`native/balances/clickhouse`](native/balances/clickhouse/README.md) adds the
+legacy substreams-evm native tables, fed by a materialized view, and a TTL on
+the sink's base rows. This workspace contains no `db_out` module, custom
+ClickHouse/PostgreSQL sink, or database-change dependency.
 
 Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (state,
 evidence, open findings, next steps) and the procedures in [`skills/`](skills/README.md).

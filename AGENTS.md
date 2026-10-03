@@ -32,16 +32,6 @@ its native Rust diagnostic tools where they exist.
   Read `dex/pool-state/README.md`; extraction is not pool or price admission.
 - Do not add `db_out`, database-change modules or custom sinks. External native
   sinks consume the existing protobuf; local sink state belongs under `out/`.
-- The one exception is `native/balances`. It carries a native-only legacy
-  `db_out` for the existing `substreams-sink-sql` ClickHouse deployment, so
-  both sink paths can run and be compared in production:
-  - `db_out` is substreams-evm `evm-balances` v0.3.4's `db_out` without
-    ERC-20, built as its own binary (`native/balances/db_out`), so
-    `map_events` stays the qualified WASM;
-  - keep its sources, the vendored encoding subset and
-    `native/balances/clickhouse/schema.0–3` verbatim, and keep
-    `native-balances-tools db-out-parity` passing;
-  - ERC-20 stays a separate implementation with no `db_out`.
 - Host-side qualification can use RPC. Production balance processing cannot.
 
 ## Diagnostics and evidence

@@ -21,14 +21,8 @@ proto = { path = "../../../proto" }
 prost = { workspace = true }
 substreams-ethereum = { workspace = true }
 ureq = { version = "2.12", default-features = false, features = ["tls", "json"] }
-substreams = { workspace = true }
-substreams-database-change = { workspace = true }
-prost-types = { workspace = true }
-native-balances-db-out = { path = "../db_out" }
-# Interprets packaged WASM for db_out parity; `auto-dispatch` falls back to loop
-# dispatch in unoptimized builds, which keeps the host stack flat.
-wasmi = { version = "2", default-features = false, features = ["stable", "std", "validate", "auto-dispatch"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 tempfile = "3"
 erc20-balances = { path = "../../../erc20/balances" }
+substreams = { workspace = true }

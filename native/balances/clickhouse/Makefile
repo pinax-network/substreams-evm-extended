@@ -1,57 +1,38 @@
-# Native balances into ClickHouse, two ways from the same package:
-# * native sink (`setup`, `run`): the Substreams CLI's ClickHouse sink loads
-#   map_events into `Balance`/`_blocks_`; schema.4 attaches the legacy
-#   substreams-evm native tables and views, schema.5 sets the base-data TTL.
-# * legacy sink (`legacy-setup`, `legacy-run`): substreams-sink-sql runs db_out
-#   into the same legacy tables (schema.0–3, embedded in the package).
-# SUBSTREAMS_SINK_DSN (clickhouse://user:password@host:9000/db) selects the
-# database; use one database per path. It is never printed.
-REPO := ../../..
-SUBSTREAMS ?= substreams
-CLICKHOUSE ?= clickhouse
-SINK_SQL ?= substreams-sink-sql
-PACKAGE ?= $(REPO)/spkg/native-balances-v0.2.0.spkg
+# Native balances into ClickHouse with the Substreams CLI's native sink (no
+# db_out). The sink loads map_events into `Balance` and `_blocks_`; schema.1–3
+# add the legacy substreams-evm native tables and views, schema.4 feeds them
+# from `Balance`, schema.5 sets the base-data TTL. `_blocks_` is the block table.
 ENDPOINT ?= bsc.substreams.pinax.network:443
+START_BLOCK ?= 122288006
+STOP_BLOCK ?= +100
 TTL_DAYS ?= 7
-STATE ?= $(CURDIR)/localdata/bsc-native-balances
-START ?=
-STOP ?= 0
-# Empty runs the legacy sink without a stop block.
-LEGACY_STOP ?=
+PACKAGE ?= ../../../spkg/native-balances-v0.1.0.spkg
+STATE ?= localdata
+# Read by the sink and `clickhouse client` from the environment, so a password
+# is never echoed.
+export SUBSTREAMS_SINK_DSN ?= clickhouse://default:@localhost:9000/default
+.DEFAULT_GOAL := schema
 
-.PHONY: setup sink-setup schema run legacy-setup legacy-run check-dsn
-
-check-dsn:
-	@test -n "$$SUBSTREAMS_SINK_DSN" || (echo 'Set SUBSTREAMS_SINK_DSN to the target ClickHouse database' >&2; exit 1)
-
-# Order matters: the views must exist before the sink's first insert.
-setup: sink-setup schema
-
-sink-setup: check-dsn
-	mkdir -p "$(STATE)/meta"
-	$(SUBSTREAMS) sink clickhouse setup "$(PACKAGE)" map_events --bytes-encoding 0xhex --sink-info-folder "$(STATE)/meta"
-
-schema: check-dsn
-	@for f in $$(ls schema.*.sql | sort); do \
-		echo "applying $$f"; \
-		$(CLICKHOUSE) client "$$SUBSTREAMS_SINK_DSN" --param_ttl_days=$(TTL_DAYS) --multiquery --queries-file "$$f" || exit 1; \
+.PHONY: schema
+schema:
+	@echo "-- This file is generated. Do not edit." > schema.sql
+	@echo "" >> schema.sql
+	@for f in $$(ls schema.*.sql 2>/dev/null | sort); do \
+		cat "$$f" >> schema.sql; \
+		echo "" >> schema.sql; \
 	done
 
-run: check-dsn
-	@test -n "$(START)" || (echo 'Set START to a producer-version-5 block' >&2; exit 1)
-	$(SUBSTREAMS) sink clickhouse "$(PACKAGE)" map_events -e "$(ENDPOINT)" -s "$(START)" -t "$(STOP)" \
+# The sink's tables first, then schema.sql: the view must exist before the
+# sink's first insert.
+.PHONY: setup
+setup: schema
+	@mkdir -p $(STATE)/meta
+	substreams sink clickhouse setup $(PACKAGE) map_events --bytes-encoding 0xhex --sink-info-folder $(STATE)/meta
+	clickhouse client "$$SUBSTREAMS_SINK_DSN" --param_ttl_days=$(TTL_DAYS) --multiquery --queries-file schema.sql
+
+# STOP_BLOCK=0 streams without a stop block.
+.PHONY: dev
+dev:
+	substreams sink clickhouse $(PACKAGE) map_events -e $(ENDPOINT) -s $(START_BLOCK) -t $(STOP_BLOCK) \
 	  --final-blocks-only --bytes-encoding 0xhex \
-	  --sink-info-folder "$(STATE)/meta" --cursor-file-path "$(STATE)/cursor.txt" --spool-dir "$(STATE)/spool"
-
-# substreams-sink-sql expects the database to exist; create it through the
-# server's `default` database, keeping any `?options` of the DSN.
-legacy-setup: check-dsn
-	@rest="$${SUBSTREAMS_SINK_DSN##*/}"; db="$${rest%%\?*}"; \
-	  $(CLICKHOUSE) client "$${SUBSTREAMS_SINK_DSN%/*}/default$${rest#"$$db"}" --query "CREATE DATABASE IF NOT EXISTS \`$$db\`" < /dev/null
-	$(SINK_SQL) setup "$$SUBSTREAMS_SINK_DSN" "$(PACKAGE)"
-
-legacy-run: check-dsn
-	@test -n "$(START)" || (echo 'Set START to a producer-version-5 block' >&2; exit 1)
-	$(SINK_SQL) run "$$SUBSTREAMS_SINK_DSN" "$(PACKAGE)" -e "$(ENDPOINT)" "$(START):$(LEGACY_STOP)" \
-	  --final-blocks-only --on-module-hash-mistmatch=warn
-
+	  --sink-info-folder $(STATE)/meta --cursor-file-path $(STATE)/cursor.txt --spool-dir $(STATE)/spool
