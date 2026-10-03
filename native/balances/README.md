@@ -100,13 +100,17 @@ system-call ordinals are broken, is refused at parse time.
 
 ```sh
 cargo test --locked -p native-balances -p native-balances-tools -p evm-persist
-make -C native/balances build      # release WASM only; no network
-make -C native/balances replay     # offline replay over captured blocks
+make -C native/balances build      # workspace release WASM; no network
+make -C native/balances pack       # spkg/native-balances-v0.1.0.spkg
+make -C native/balances gui        # or `prod`; streams from ENDPOINT
 ```
 
-`make pack` and `make run` read `SUBSTREAMS_API_KEY` from the environment;
+`make gui` and `make prod` read `SUBSTREAMS_API_KEY` from the environment;
 live parity reads `RPC_URL`. No SPKG of this package is committed; the
-qualified build is identified by its hash below.
+qualified build is identified by its WASM (`48d89d28…`) and module hash
+(`5a2a2e0c…`) below. `substreams pack` embeds this README, so a pack after a
+README edit has a new SPKG digest but the same module.
+[`clickhouse/`](clickhouse/README.md) runs the local manifest.
 
 ## Live qualification (BSC, 2026-09-23)
 
@@ -190,7 +194,12 @@ contract are not distinguishable in SQL. Consume native and ERC-20 packages
 into separate databases or tables, or bind rows by package identity, before
 treating `contract = ''` as native. The sink's `_blocks_` markers list blocks
 with nonempty output only; completeness requires the stream's clock or cursor.
-This has not been exercised for this package.
+
+[`clickhouse/`](clickhouse/README.md) deploys this package with the CLI's
+native sink. A materialized view feeds the legacy substreams-evm native tables
+(`native_balances`, `historical_native_balances`) from `Balance`, `_blocks_`
+serves as the block table, and a TTL expires the base rows. It has not been
+streamed live yet.
 
 ## Boundaries
 
