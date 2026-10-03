@@ -20,8 +20,8 @@
 //! `balanceOf` is `principal > 0 ? principal * accruedSupplyIndex / 1e15 : 0`
 //! where the accrued index projects the stored index to the evaluation
 //! timestamp with the market's rates; an idle block moves every supplier's
-//! balance without any write. The map emits inputs only; the consumer or
-//! `conformance::comet` evaluates.
+//! balance without any write. The map emits inputs only; the consumer
+//! evaluates (reference model: `conformance::comet` at `6dade89`).
 //!
 //! Fail closed: producer versions other than 4 and 5, unresolved Comet writes,
 //! tied or discontinuous writes and inconsistent parameters fail the block or

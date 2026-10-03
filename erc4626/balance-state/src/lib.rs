@@ -1,7 +1,8 @@
 //! One RPC-free `map_events` for explicitly qualified ERC-4626 vault epochs,
 //! emitting `evm.balance_state.v1.Events`. The vault's ERC-20 `balanceOf` is
 //! the share count (`HolderBasis` SHARES); the underlying claim is a
-//! conversion the consumer evaluates with `conformance::erc4626` from the
+//! conversion the consumer evaluates (reference model: `conformance::erc4626`
+//! at `6dade89`, removed with the host tools) from the
 //! dependency rows of the bound model:
 //!
 //! | model | conversion inputs carried |
