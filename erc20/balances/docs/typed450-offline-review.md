@@ -133,7 +133,7 @@ unchanged. Live Substreams, Firehose and RPC testing remains paused.
 
 ## Captured projector-to-ledger controls
 
-The host [integration tests](../tools/tests/typed450_retained.rs) apply the actual
+The host [integration tests](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/tests/typed450_retained.rs) apply the actual
 projector's output to the shared balance ledger using the two original full
 blocks above. Block and canonical-row hashes are rechecked. These are separate
 from the historical 1,024-block replay and do not alter its cold-holder counts.

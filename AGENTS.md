@@ -3,13 +3,16 @@
 This repository contains EVM Substreams that consume Firehose **Extended**
 blocks. The Rust workspace members are the shared protobuf crate, the shared
 `common/persist` persisted-effect rules, the `common/epochs` schedule helper,
-the host-only `common/retention`
-consumer ledger and `conformance` reference models, and the packages
-`erc20/balances`, `erc20/events`, `native/balances`, `aave/balance-state`,
-`aave/actions`, `compound-v2/balance-state`, `compound-v3/balance-state`,
-`lido/balance-state`, `erc4626/balance-state`, `evm/executions` and
-`dex/pool-state`, each with
-its native Rust diagnostic tools where they exist.
+and the packages `erc20/balances`, `erc20/events`, `native/balances`,
+`aave/balance-state`, `aave/actions`, `compound-v2/balance-state`,
+`compound-v3/balance-state`, `lido/balance-state`, `erc4626/balance-state`,
+`evm/executions` and `dex/pool-state`.
+
+The repository holds Substreams package code only: map crates, manifests,
+SQL, Makefiles, regression tests and fixtures. Host-side diagnostic tools,
+reference models and harnesses were removed on 2026-10-03. They remain in git
+history at `6dade89`, which the dated evidence documents refer to. Do not add
+new tool crates or CLI harnesses.
 
 ## Production boundary
 
@@ -34,10 +37,11 @@ its native Rust diagnostic tools where they exist.
   sinks consume the existing protobuf; local sink state belongs under `out/`.
 - Host-side qualification can use RPC. Production balance processing cannot.
 
-## Diagnostics and evidence
+## Evidence
 
-- Keep diagnostic code, regression tests and scripts in Rust. Host tools and
-  their dependencies must remain excluded from the WASM ingestion path.
+- Verify new work ad hoc (for example in clickhouse-local or with scratch
+  queries), and report the method and results in the pull request. Keep
+  regression tests in Rust inside the package crates.
 - Preserve captured fixtures, source/runtime bindings, failed attempts and
   historical evidence. Use fresh output directories for new live checks.
 - The IVSpikes-associated pool-state migration is offline only. Its new
@@ -56,4 +60,3 @@ its native Rust diagnostic tools where they exist.
 Use the pinned Rust toolchain and lockfile. Offline validation consists of
 formatting, workspace library/binary tests, Clippy for all targets, and a WASM
 workspace check. Live RPC, stream and holder checks are separate from offline CI.
-See `erc20/balances/README.md` for commands and qualification limits.

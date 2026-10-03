@@ -5,7 +5,7 @@ A single RPC-free `map_events` reads Firehose Extended blocks and emits
 for explicitly qualified Compound III (Comet) market epochs. It does not
 emit `evm.balances.v1`; the market's observable `balanceOf` / `borrowBalanceOf`
 is evaluated by the consumer from the rows below at a canonical block clock,
-using the exact model in [`conformance::comet`](../../conformance/src/comet.rs).
+using the exact model in [`conformance::comet`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/src/comet.rs).
 
 ## What is emitted
 
@@ -115,7 +115,7 @@ the market suspended, and a newer BOUND must discard retained basis after
 suspension even with compatible storage (`basis_carryover = true`); fresh
 observations or a verified checkpoint are required. See the
 [contract](../../docs/balance-state-contract.md) and the synthetic
-[projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
+[projector-to-consumer tests](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/tests/projector_invalidation.rs).
 
 This emission revision has offline synthetic validation only. Previously
 saved replay results and live package digests describe their original builds;

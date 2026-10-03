@@ -36,7 +36,7 @@ The [report](evidence/role-path-candidates-20260921.json) and
 [source inventory](evidence/role-path-candidates-20260921-source-inputs.json)
 record the entire BSC interval **[122288006, 122289030)**. The reproducible
 host binary is
-[`replay_role_candidates`](../tools/src/bin/replay_role_candidates.rs).
+[`replay_role_candidates`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/src/bin/replay_role_candidates.rs).
 Its as-run source, block hashes/digests, complete output, combined candidate
 config and per-block comparisons remain in
 `out/role-path-candidates-20260921/`.

@@ -6,8 +6,9 @@
 //! `exchangeRateStored` converts shares with the stored market words
 //! (`GlobalState` totals, borrow index, accrual block, reserve factor, initial
 //! rate) and the cross-contract cash. `balanceOfUnderlying` accrues first;
-//! the map never accrues and never converts. The consumer evaluates with
-//! `conformance::compound_v2` at a canonical block clock.
+//! the map never accrues and never converts. The consumer evaluates at a
+//! canonical block clock (reference model: `conformance::compound_v2` at
+//! `6dade89`).
 //!
 //! Cash is `underlying.balanceOf(cToken)` for CErc20 and the cToken's native
 //! balance for CEther. Both are cross-contract inputs that move without any

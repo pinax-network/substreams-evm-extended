@@ -7,7 +7,7 @@ A matching direct-mapping sample on an excluded holder does not establish the
 getter used by ordinary holders. Neither token is added to the production
 layout fixture by this work.
 
-The Rust [host model](../tools/src/reflection.rs) implements that reviewed
+The Rust [host model](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/src/reflection.rs) implements that reviewed
 calculation with integer division, the deployed supply-fallback order and
 expected reverts. Inputs are independently initialized storage words. Missing
 global state, array elements or member balances are errors, never assumed zero.
@@ -66,7 +66,7 @@ duplicate entries, underflow fallbacks, empty supplies, uint256 boundaries and
 the early return for excluded holders. They modify simulated storage only;
 neither deployed code is replaced and no transaction is sent.
 
-Captured [Rust tests](../tools/src/reflection/tests.rs) replay the independent
+Captured [Rust tests](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/src/reflection/tests.rs) replay the independent
 historical inputs, controlled outcomes and 12 passive transitions. They also
 reject missing or inconsistent initialization. These model tests do not claim
 packaged-WASM reflection support.

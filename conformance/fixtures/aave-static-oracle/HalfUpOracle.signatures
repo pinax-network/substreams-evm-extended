@@ -1,6 +1,0 @@
-Function signatures:
-70a08231: balanceOf(address)
-b21e41b7: divHalf(uint256,uint256)
-8919b194: linear(uint256,uint40)
-7b128b20: mulHalf(uint256,uint256)
-c7c1971e: normalizedIncome()

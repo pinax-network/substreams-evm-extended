@@ -88,8 +88,8 @@ words in the evidence report.
 
 Implementation and captured regressions:
 
-- [Host arithmetic](../tools/src/og_model.rs) and [raw-state decoder](../tools/src/og_model/fixture.rs)
-- [Rust regressions](../tools/src/og_model/tests.rs)
+- [Host arithmetic](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/src/og_model.rs) and [raw-state decoder](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/src/og_model/fixture.rs)
+- [Rust regressions](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/src/og_model/tests.rs)
 - [Historical snapshots](../tests/fixtures/og-model/historical.json) and [RPC controls](../tests/fixtures/og-model/controls.json)
 - [Preview snapshots and controls](../tests/fixtures/og-model/preview.json)
 - [Initial evidence](evidence/og450-host-model.json) and [preview evidence and bytecode excerpts](evidence/og450-preview-model.json)

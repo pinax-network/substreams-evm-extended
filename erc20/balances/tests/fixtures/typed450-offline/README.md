@@ -35,7 +35,7 @@ No fresh raw-word/metadata `eth_call` controls, complete 1024-block qualificatio
 packaged live RPC comparison or initialized-holder WASM audit is established by
 these two tests. All live qualification gates remain pending.
 
-The host [projector/ledger integration tests](../../../tools/tests/typed450_retained.rs)
+The host [projector/ledger integration tests](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/tests/typed450_retained.rs)
 consume these same unmodified blocks and canonical rows. Cold application makes
 only the five emitted holders known and leaves six reference-only observations
 unknown, including the two nonzero self-balances. Separately, explicit snapshot

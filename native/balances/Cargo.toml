@@ -18,5 +18,7 @@ serde_json = "1"
 
 [dev-dependencies]
 hex = "0.4"
+# Cross-checks the ERC-20 side of WBNB wrapping in tests; map_events is exported only on WASM.
+erc20-balances = { path = "../../erc20/balances" }
 prost = { workspace = true }
 prost-types = { workspace = true }

@@ -6,7 +6,7 @@ pure YBC arithmetic unchanged. This is not a production layout, sink, complete
 holder index or new live qualification.
 
 The [model and historical evidence](ybc-reward-model.md) remain the arithmetic
-prerequisite. The [new raw fixtures](../tools/tests/fixtures/ybc-retention) copy
+prerequisite. The [new raw fixtures](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/tests/fixtures/ybc-retention) copy
 both complete storage snapshots, the separate getter report, all original raw
 state-override maps, token source capture, three runtime byte arrays and the
 reviewed helper calls. Every original is checked by raw SHA before parsing.

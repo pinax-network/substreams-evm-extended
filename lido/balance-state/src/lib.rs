@@ -8,8 +8,8 @@
 //! The map emits the holder shares (`HolderBasis` SHARES), the three packed
 //! words those global inputs live in, the contract version, the derived total
 //! pooled ether when every input was written in-block, and the `TokenRebased`
-//! report evidence. It never computes a balance; the consumer evaluates with
-//! `conformance::lido` at a canonical clock. A report changes every holder's
+//! report evidence. It never computes a balance; the consumer evaluates it at
+//! a canonical clock (reference model: `conformance::lido` at `6dade89`). A report changes every holder's
 //! balance without any holder write; a holder without a row is unknown.
 //!
 //! Ownership comes from verified Keccak preimages of the `shares` mapping in

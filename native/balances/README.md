@@ -99,14 +99,14 @@ system-call ordinals are broken, is refused at parse time.
 ## Build and test
 
 ```sh
-cargo test --locked -p native-balances -p native-balances-tools -p evm-persist
+cargo test --locked -p native-balances -p evm-persist
 make -C native/balances build      # workspace release WASM; no network
 make -C native/balances pack       # spkg/native-balances-v0.1.0.spkg
 make -C native/balances gui        # or `prod`; streams from ENDPOINT
 ```
 
-`make gui` and `make prod` read `SUBSTREAMS_API_KEY` from the environment;
-live parity reads `RPC_URL`. No SPKG of this package is committed; the
+`make gui` and `make prod` read `SUBSTREAMS_API_KEY` from the environment.
+No SPKG of this package is committed; the
 qualified build is identified by its WASM (`48d89d28…`) and module hash
 (`5a2a2e0c…`) below. `substreams pack` embeds this README, so a pack after a
 README edit has a new SPKG digest but the same module.
@@ -117,8 +117,10 @@ README edit has a new SPKG digest but the same module.
 The packed map (`spkg` sha256 `fbb46fc7…`, wasm `48d89d28…`, default
 parameters `{"producer_versions":[5]}`) was streamed with
 `--final-blocks-only` from `bsc.substreams.pinax.network` and checked with
-`native-balances-tools live-parity`, which binds each block number to its
-canonical hash and batches `eth_getBalance(address, {blockHash})`:
+the host tool `native-balances-tools live-parity`
+([source at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/native/balances/tools); removed since). It binds
+each block number to its canonical hash and batches
+`eth_getBalance(address, {blockHash})`:
 
 - **Saved controls** ([report](docs/evidence/live-parity-bsc-2026-09-23-saved-controls.json)):
   the 1,024 contiguous saved blocks 122,288,006–122,289,029. The packaged
@@ -141,14 +143,13 @@ canonical hash and batches `eth_getBalance(address, {blockHash})`:
 make -C native/balances pack   # or substreams pack into a fresh out/ dir
 substreams run -e bsc.substreams.pinax.network:443 <spkg> map_events -s <start> -t <stop> \
   --final-blocks-only -o jsonl --bytes-encoding hex > events.jsonl
-cargo run --locked -p native-balances-tools -- live-parity --events events.jsonl --spkg <spkg> \
-  --endpoint bsc.substreams.pinax.network:443 --full-from <a> --full-to <b> --sample-every 10 --output <fresh dir>
 ```
 
 **Retention from a checkpoint** ([report](docs/evidence/live-retention-checkpoint-bsc-2026-09-23.json)):
-`native-balances-tools retention-check` seeds `eth_getBalance` for 14,172
-accounts at block 123,548,069 into the `common/retention` ledger, applies the
-next 300 packaged blocks and compares every retained value with RPC at four
+the host tool `native-balances-tools retention-check` (removed since) seeded
+`eth_getBalance` for 14,172 accounts at block 123,548,069 into the
+`common/retention` ledger, applied the
+next 300 packaged blocks and compared every retained value with RPC at four
 block hashes: 56,688/56,688 equal, including 1,252 accounts that were never
 emitted in the window and kept their checkpoint value.
 
@@ -171,10 +172,11 @@ reverted frames, failed transactions, reverted system calls, the failed-
 transaction reason guard, producer-version and parameter parsing, and the
 absent-contract wire encoding.
 
-The host replay tool (`native/balances/tools`) reduces directories of captured
-`<height>.pb` blocks, links consecutive block hashes, checks that each
+The host replay tool (`native/balances/tools`, [source at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/native/balances/tools);
+removed since) reduced directories of captured
+`<height>.pb` blocks, linked consecutive block hashes, checked that each
 account's `old_amount` equals its previously emitted amount whenever every
-intervening block was replayed, and compares against saved oracles. Its
+intervening block was replayed, and compared against saved oracles. Its
 reports over the locally retained BSC captures are in
 [`docs/evidence/`](docs/evidence/) and summarized in the
 [persisted-effect matrix](docs/persisted-effects.md): 1,439 version-5 blocks,

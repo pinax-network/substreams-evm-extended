@@ -8,7 +8,7 @@ state or establish complete holder coverage.
 
 The [evidence manifest](evidence/ybc-reward-model.json) binds the historical
 inputs, expectations, reviewed runtimes and read-only controls. The
-[model](../tools/src/ybc_rewards.rs) uses checked uint256 arithmetic and explicit
+[model](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/src/ybc_rewards.rs) uses checked uint256 arithmetic and explicit
 state inputs. It makes no RPC calls. Captured expectations live in
 [`tests/fixtures/ybc-rewards`](../tests/fixtures/ybc-rewards).
 

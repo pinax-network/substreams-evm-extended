@@ -1,6 +1,6 @@
 # Saved-block scans
 
-Outputs of the ad-hoc scanners in [`tools/scratch-scan`](../../../tools/scratch-scan/README.md)
+Outputs of the ad-hoc scanners in [`tools/scratch-scan`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/tools/scratch-scan/README.md)
 over the locally cached BSC Extended blocks (`erc20/balances/out/*`).
 
 | File | Scanner | Blocks | Result |

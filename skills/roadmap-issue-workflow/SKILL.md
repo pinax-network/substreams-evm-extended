@@ -17,9 +17,10 @@ description: How roadmap issues in pinax-network/substreams-evm-extended move fr
    kebab-case branch name. Another agent commits on `codex/*` branches; pull
    before branching and never rebase their work.
 3. **Implement** following `skills/balance-state-package` (or the package's own
-   README for other kinds). Keep diagnostics in Rust; keep host tools out of
-   the WASM path (`#[cfg(target_arch = "wasm32")] mod handler` for maps,
-   `#![cfg(not(target_arch = "wasm32"))]` for host crates).
+   README for other kinds). Add package code only, no host tool crates; keep
+   regression tests in the package crate and the map handler behind
+   `#[cfg(target_arch = "wasm32")] mod handler`. Verify ad hoc and report the
+   method and results in the PR.
 4. **Validate** exactly what CI runs:
    `cargo fmt --all -- --check`, `cargo test --locked --workspace --lib --bins --tests`,
    `cargo clippy --locked --workspace --all-targets -- -D warnings`,

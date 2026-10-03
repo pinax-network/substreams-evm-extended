@@ -9,12 +9,12 @@ packages. A consumer that answers "what is the balance of X at block N" adds
 come from, which cases must stay distinct, how continuity, gaps and forks are
 handled, and how completeness is reported. Nothing here adds an RPC call to a
 map. The rules are implemented for host-side consumers in
-[`common/retention`](../common/retention/src/lib.rs) (`evm-retention`) and, for
+[`common/retention`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/src/lib.rs) (`evm-retention`) and, for
 the ERC-20 qualification tools, in the earlier
-[`HolderState`](../erc20/balances/tools/src/coverage.rs) ledger.
-The host-only [`ProtocolLedger`](../common/retention/README.md) additionally
+[`HolderState`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/src/coverage.rs) ledger.
+The host-only [`ProtocolLedger`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/README.md) additionally
 retains protocol globals, full model/dependency bindings and block timestamps
-for the [reference evaluator](../conformance/src/retained.rs). It is bounded
+for the [reference evaluator](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/src/retained.rs). It is bounded
 qualification tooling, not a sink.
 
 ## 1. Supported initialization origins
@@ -75,14 +75,14 @@ Anything else is **unknown**. In particular:
 
 ## 3. Retention scenarios that must hold
 
-Covered by [`common/retention/src/tests.rs`](../common/retention/src/tests.rs)
+Covered by [`common/retention/src/tests.rs`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/src/tests.rs)
 with synthetic rows, and by saved-data replays where noted:
 
 | Scenario | Rule | Evidence |
 | --- | --- | --- |
 | Empty output blocks | entries unchanged; `updated` stays at the last emitted block; the block still advances the clock | unit test; native replay of 1,439 saved BSC blocks with 86,564 cross-block continuity checks ([evidence](../native/balances/docs/evidence/replay-bsc-v5.json)) |
-| Passive / reflection / reward changes | a global update touches no holder entry. Primitive `Ledger` validates but does not retain globals; `ProtocolLedger` retains their exact observations, model bindings and clocks so the reference bridge can evaluate an initialized holder on idle/global-only blocks. Missing inputs stay unknown; log observations never substitute for stored values and derived values expire after their own block | [retained-input tests](../conformance/tests/retained.rs), including the captured Aave reserve-index oracle and actual Lido projector output; ERC-20 `captured_pending_rewards_make_a_correct_checkpoint_stale_without_balance_writes` |
-| Migrations / upgrades | `INVALIDATED` or `SUSPENDED` suspends lookups and `REAFFIRMED` does not resume them. A strictly newer `BOUND` resumes the market but drops suspended basis regardless of carryover: the invalidation block can omit state, so the old basis is stale. Epoch rows apply in `(ordinal, kind)` order; old-epoch rows from older producers apply before `BOUND` and are dropped too, while fresh successor observations establish known holders. Undo restores dropped entries, suspension and epoch. Stale/future epochs are refused; ERC-20 fails closed instead | unit tests and all five real projectors in [`projector_invalidation.rs`](../common/retention/tests/projector_invalidation.rs); `runtime_qualification_rejects_changed_proxy_target_or_implementation_code` |
+| Passive / reflection / reward changes | a global update touches no holder entry. Primitive `Ledger` validates but does not retain globals; `ProtocolLedger` retains their exact observations, model bindings and clocks so the reference bridge can evaluate an initialized holder on idle/global-only blocks. Missing inputs stay unknown; log observations never substitute for stored values and derived values expire after their own block | [retained-input tests](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/tests/retained.rs), including the captured Aave reserve-index oracle and actual Lido projector output; ERC-20 `captured_pending_rewards_make_a_correct_checkpoint_stale_without_balance_writes` |
+| Migrations / upgrades | `INVALIDATED` or `SUSPENDED` suspends lookups and `REAFFIRMED` does not resume them. A strictly newer `BOUND` resumes the market but drops suspended basis regardless of carryover: the invalidation block can omit state, so the old basis is stale. Epoch rows apply in `(ordinal, kind)` order; old-epoch rows from older producers apply before `BOUND` and are dropped too, while fresh successor observations establish known holders. Undo restores dropped entries, suspension and epoch. Stale/future epochs are refused; ERC-20 fails closed instead | unit tests and all five real projectors in [`projector_invalidation.rs`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/tests/projector_invalidation.rs); `runtime_qualification_rejects_changed_proxy_target_or_implementation_code` |
 | Burn / mint transitions | `Known(v)` → `Known("0")` and `Unknown` → `Known(v)` are transitions between distinct states; `since` records the first known block | unit test |
 | Final-state snapshot | `compare` reports matches, known-zero matches, mismatches, unknown, unknown-nonzero, unsupported and suspended separately; status is `bounded_parity`, `coverage_gap`, `mismatch`, or `no_reference` for an empty reference | unit test; typed-path baseline replay below |
 
@@ -134,7 +134,7 @@ wrong holder locations, scales, model epochs or dependency sets. Invalidation
 gaps drop both basis and globals on rebinding even when storage is compatible.
 Primitive basis counts, active-model basis counts and actual getter results
 are separate: an active basis can still lack a global input. See the
-[host reference API](../common/retention/README.md) for these rules and its
+[host reference API](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/README.md) for these rules and its
 memory and qualification limits.
 
 ## 5. Reporting completeness

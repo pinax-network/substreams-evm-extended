@@ -66,29 +66,19 @@ qualification before claiming their SQL representation is lossless.
 
 ## Bounded smoke validation
 
-With an existing local server on native port 9000 and HTTP port 8123:
+A Rust example of the host tool
+([`native_clickhouse_smoke`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/examples/native_clickhouse_smoke.rs);
+removed on 2026-10-03) ran this check through the CLI. It:
+- created a fresh `erc20_storage_smoke_*` database and verified the generated
+  schema;
+- ingested a short first window, resumed from the same cursor, and replayed
+  the identical full window from a separate state directory;
+- checked seven independently captured RPC expectations, including several
+  holders in one block, zeros and amounts larger than uint64.
 
-```sh
-make smoke
-```
-
-The Rust example invokes the native CLI for every write. Its HTTP requests are
-read-only. It creates only a fresh `erc20_storage_smoke_*` database, verifies the
-generated schema, ingests a short first window, resumes from the same cursor,
-and replays the identical full window using a separate state directory. It
-checks seven independently captured RPC expectations, including several holders
-in one block, zeros, and amounts larger than uint64. Previous row versions must
-remain unchanged during resume; after replay, `FINAL` must return exactly the
-same seven balances. Failed attempts, schema, rows, logs and cursor hashes stay
-in the requested output directory. No database is automatically dropped.
-
-`CH_USER` and `CH_PASSWORD` optionally select local credentials. `SUBSTREAMS`
-can point to a checksummed release binary. The smoke output directory must be
-fresh; set `SMOKE_OUTPUT` for another attempt. The check is deliberately fixed to
-the reviewed 144-block sample; it is not a production streaming command.
-Alternate fixture paths must contain the exact reviewed layouts and RPC
-expectations; their hashes are checked before starting the CLI or contacting
-ClickHouse. Replay versions are compared numerically as Int64 values.
+Previous row versions had to stay unchanged during resume; after replay,
+`FINAL` had to return exactly the same seven balances. The check was fixed to
+the reviewed 144-block sample; it was not a production streaming command.
 
 The [captured local result](evidence/report.json) used CLI 1.22.0 and ClickHouse
 25.8.1.3064. All seven balances matched, including two zeros and a 22-digit amount.
@@ -101,7 +91,7 @@ unobserved tokens or production interruption/recovery scenarios.
 
 ## Current package (2026-09-23)
 
-`make smoke` with `spkg/erc20-balances-v0.1.0.spkg` (`532b571f…`), CLI build
+The smoke check with `spkg/erc20-balances-v0.1.0.spkg` (`532b571f…`), CLI build
 `be35ad3` and the same local ClickHouse 25.8.1.3064 returned
 `native_clickhouse_parity` ([report](evidence/live-2026-09-23/report.json)).
 The same seven balances matched, resume preserved the earlier row versions and

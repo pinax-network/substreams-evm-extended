@@ -7,9 +7,8 @@ STATE ?= $(CURDIR)/localdata/bsc-balances
 ENDPOINT ?= bsc.substreams.pinax.network:443
 START ?= 122288006
 STOP ?= 122288150
-SMOKE_OUTPUT ?= erc20/balances/out/native-clickhouse-smoke
 
-.PHONY: setup run smoke
+.PHONY: setup run
 setup:
 	@test -n "$$SUBSTREAMS_SINK_DSN" || (echo 'Set SUBSTREAMS_SINK_DSN to an isolated ClickHouse database' >&2; exit 1)
 	mkdir -p "$(STATE)/meta"
@@ -21,7 +20,3 @@ run:
 	  -p "map_events=$$(cat "$(LAYOUTS)")" --final-blocks-only --bytes-encoding 0xhex \
 	  --sink-info-folder "$(STATE)/meta" --cursor-file-path "$(STATE)/cursor.txt" --spool-dir "$(STATE)/spool" \
 	  --spool-max-size 1GiB --spool-max-idle 100ms --decode-batch-size 1
-
-smoke:
-	cd "$(REPO)" && cargo run --locked -p erc20-balances-tools --example native_clickhouse_smoke -- \
-	  --package "$(abspath $(PACKAGE))" --substreams "$(SUBSTREAMS)" --endpoint "$(ENDPOINT)" --output "$(SMOKE_OUTPUT)"

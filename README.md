@@ -35,20 +35,18 @@ The shared schema stays in the repository-root `proto/` crate:
 - `proto/v1/aave_actions.proto`: Aave lending-action evidence schema (`aave/actions`).
 - `proto/v1/dex-pool-state.proto` and `proto/v1/dex/`: wire-compatible V2/V3 closing-state messages (`dex/pool-state`), without unrelated ABI event projections.
 - `proto/src/pb/`: shared generated Rust types.
-- `common/retention/`: host-side retained holder state (origins, unknown vs known zero, undo, completeness report; [spec](docs/initialization-and-completeness.md)).
 - `common/persist/`: shared persisted-effect rules for Extended blocks.
-- `erc20/balances/`: Extended-block ERC-20 balance module and native audit tools.
+- `erc20/balances/`: Extended-block ERC-20 balance module.
 - `erc20/events/`: standard ERC-20 Transfer and Approval log evidence.
-- `native/balances/`: Extended-block native balance module and offline replay tool.
+- `native/balances/`: Extended-block native balance module.
 - `aave/balance-state/`: Aave V3 aToken holder basis and reserve state module.
 - `compound-v2/balance-state/`: Compound v2 cToken shares, market words, cash and rate-model dependency module.
 - `erc4626/balance-state/`: ERC-4626 vault shares, total supply and source-bound conversion inputs (Aave static aToken, Savings DAI, OpenZeppelin).
 - `lido/balance-state/`: Lido stETH holder shares, packed global words, derived pooled ether and report evidence module.
 - `compound-v3/balance-state/`: Compound III (Comet) signed principal and market index module.
 - `aave/actions/`: Aave V3 Pool lending-action evidence.
-- `evm/executions/`: call trees, logs, code changes and SetCode authorizations, with an offline replay and producer-capability tool.
+- `evm/executions/`: call trees, logs, code changes and SetCode authorizations.
 - [`dex/pool-state/`](dex/pool-state/README.md): one RPC-free `map_events` for complete Extended-block V2 reserves and ordered V3 changes; no price or pool-admission policy.
-- `conformance/`: host-only exact integer reference models (Aave V3, Comet, Compound v2, Lido stETH, ERC-4626 models).
 
 Keeping the schema separate from the module gives future Extended modules the
 same protobuf contract without copying generated types.
@@ -71,10 +69,13 @@ cargo test --workspace --lib --bins --tests --locked
 make -C erc20/balances pack
 ```
 
-All executable diagnostics and regression tests are Rust. The
-[audit tools](erc20/balances/README.md#compare-and-audit)
-compare actual packaged output with hash-pinned RPC results and separately
-check initialized holders. RPC is used for qualification, not inside the map.
+The repository holds package code only; regression tests are Rust, inside the
+package crates. The host tools that produced the qualification evidence
+(packaged-output comparison with hash-pinned RPC results, initialized-holder
+checks, offline replays, reference models) were removed on 2026-10-03. The
+dated evidence documents refer to them as they were at
+[`6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534).
+RPC is used for qualification, not inside the maps.
 
 ## Coverage
 

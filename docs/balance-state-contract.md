@@ -211,7 +211,7 @@ The cutoff is block-local because the maps are stateless. A later heartbeat
 or a restored pointer does not prove that an earlier invalidation was safe;
 consumers must retain the suspension until a qualified newer epoch is bound.
 The synthetic projector-to-ledger tests in
-[`common/retention/tests/projector_invalidation.rs`](../common/retention/tests/projector_invalidation.rs)
+[`common/retention/tests/projector_invalidation.rs`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/tests/projector_invalidation.rs)
 exercise all five packages, row counts, restored/equal-value pointers, unknown
 writes on both sides, shared code dependencies, suspension, successor binding,
 undo and replacement blocks. They do not qualify any runtime or package live.

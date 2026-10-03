@@ -27,7 +27,7 @@ mapping, or pinned proxy:
 | --- | --- | --- |
 | `contract` | 20-byte `0x` hex | Token contract |
 | `balance_slot` | 32-byte `0x` hex | Mapping base for reviewed unsigned balances |
-| `code_hash` | 32-byte `0x` hex | Qualified runtime Keccak-256, checked by the Rust audit tools |
+| `code_hash` | 32-byte `0x` hex | Qualified runtime Keccak-256, checked by the (since removed) Rust audit tools |
 | `balance_bits` | Optional integer, 8–256 in whole bytes | Explicitly reviewed unsigned getter width at byte offset zero; omission retains all 256 bits. Cannot combine with other balance formulas or an immutable-empty mapping |
 | `deployment` | Optional object | `block` and 32-byte `block_hash` pin first CREATE for a direct mapping or minimal proxy, without a zero-word fallback |
 | `other_slots` | Optional array of 32-byte `0x` hex | Explicitly qualified non-balance scalar slots |
@@ -51,7 +51,7 @@ The caller must establish that the configured projection equals `balanceOf` for 
 pinned runtime. Matching a few samples or finding a mapping-shaped write alone
 is insufficient. The mapper cannot infer preexisting code identity from a block
 without code changes: independently qualify the starting runtime before using
-it outside the audit tools. Persisted code changes to configured contracts
+it outside the (since removed) audit tools. Persisted code changes to configured contracts
 fail, including changes back to the expected runtime, except a qualified first
 CREATE described below. For a configured proxy,
 the tools also check the implementation storage word and implementation runtime
@@ -281,8 +281,8 @@ the public schema is already maintained by the shared `proto` crate.
 The first build of this renamed package is committed (SPKG `532b571f…`, WASM
 `005a2d3d…`, module hash `4a64d86d…`) and was run on 1,024 live BSC blocks on
 2026-09-23: see [current package on live BSC](docs/live-package-bsc-2026-09-23.md).
-A later rebuild is a new artifact and does not inherit those checks. The build,
-audit and native sink defaults all use this path and never substitute an older
+A later rebuild is a new artifact and does not inherit those checks. The build
+and native sink defaults use this path and never substitute an older
 artifact. The storage-named SPKGs remain historical evidence, while
 `spkg/erc20-balances-v0.3.4.spkg` is the immutable RPC reference. See
 [rename provenance](../../docs/migration.md#module-rename).
@@ -294,152 +294,25 @@ failed transactions, real captured blocks, RPC failures and schema compatibility
 Captured WBNB `deposit()`/`withdraw()` transactions without any `Transfer`
 event, including reverted frames and a Permit2-mediated transfer, are the
 [non-Transfer mutation corpus](docs/non-transfer-mutations.md).
-The native tools' HTTP/SQLite dependencies do not enter the mapper's WASM.
 
-## Compare and audit
+## Qualification tooling (removed)
 
-The regression layout file below is an **explicit test input**, containing the
-previously qualified BSC WBNB layout. It is not a default or built-in token list.
-Replace it with your qualified layouts. Current live qualification uses BSC.
+Layouts were qualified with the host tool `erc20-balances-tools`
+([source at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools)), removed on 2026-10-03 with
+the other host tools. Its commands:
+- `audit-rpc` and `compare`: packaged output against hash-pinned
+  `balanceOf` and against the RPC reference `erc20-balances-v0.3.4.spkg`;
+- `probe-erc20`: native layout discovery from captured blocks;
+- `rank-tokens`, `capture-blocks` and `test-ranked`: ranked-token parity;
+- `inspect-ranked`, `recheck-rpc` and `inspect-balance`: inspection;
+- `holder-coverage`, `runtime-status` and `refusal-scan`.
 
-```sh
-cargo run --locked -p erc20-balances-tools -- audit-rpc \
-  --layouts erc20/balances/tests/fixtures/verified-layouts.json \
-  --start 122260950 --blocks 64 \
-  --output erc20/balances/out/single-map-audit
-
-cargo run --locked -p erc20-balances-tools -- compare \
-  --layouts erc20/balances/tests/fixtures/verified-layouts.json \
-  --start 122260950 --blocks 64 \
-  --output erc20/balances/out/single-map-comparison
-```
-
-Both commands capture only `map_events`. The comparison reference is
-`erc20-balances-v0.3.4.spkg`. Runtime identity is verified at both range boundaries
-for every configured token. `audit-rpc` checks **every emitted end-of-block
-balance** with EIP-1898 `blockHash` / `requireCanonical: true`. The shared Events
-schema has no old values or source hash; old/new extraction ordering is tested
-natively, while live audit binds finalized capture heights to RPC headers and
-rechecks their continuity/stability. It trusts provider finality, not independent
-consensus proofs.
-
-The CLI omits empty Events from JSONL, and emitted rows do not carry block IDs.
-The Rust capture tool requires the original CLI delivery count to cover the
-whole requested range, then captures block clocks for the same package and
-parameters. Every clock must be consecutive and match a canonical RPC header,
-including when every block emits. Only then is an absent Events message recorded
-as an empty list. Original output, clocks and their digests are retained.
-Truncated delivery, gaps, duplicate clocks, forks and wrong hashes still fail;
-absent holder balances are never filled with zero.
-
-All observed rows, value differences and coverage gaps are retained in SQLite;
-reference-only holders never seed candidate state. Raw captures, RPC checks and
-JSON reports remain in each new output directory, including partial failures.
-Comparison exits zero only for bounded value and row-coverage parity. RPC audit
-exits zero only when all emitted values pass and at least one was checked.
-
-All RPC-facing host commands accept the same paired options:
-`--network <substreams-name> --expected-chain-id <decimal-id>`. This includes
-ranking, capture, comparison, audit, runtime status, discovery, holder coverage,
-source inspection, ranked inspection and RPC rechecks. Omitting **both** options
-deliberately preserves the historical `bsc` / `56` configuration; supplying only
-one is refused. Network identity is never inferred from an endpoint URL.
-
-Before data requests, each command checks `eth_chainId` against the configured
-ID. Reports record `network`, `expected_chain_id` and the observed `rpc_chain_id`;
-`chain_id` is recorded only after equality is verified. A wrong chain leaves an
-incomplete report and does not proceed to balance, runtime or capture work.
-Recorded chain identities in input rankings, surveys and source metadata must
-agree. Rankings must retain their chain ID, which historical rankings already
-recorded. Older survey/inspection reports without chain metadata still require
-their saved block hashes to match the selected canonical RPC; this does not
-retroactively qualify the old report for another chain.
-
-Use `--endpoint` for the Substreams or Firehose host and optional port. The BSC
-configuration retains its BSC endpoint defaults and RPC default
-`https://bsc.rpc.pinax.network`. Every other configuration requires an explicit
-`RPC_URL` and, for commands that capture streams/blocks, an explicit `--endpoint`.
-The selected network is also passed to the Substreams CLI. That CLI option is
-configuration, not evidence of the stream's chain: actual delivered clocks and
-captured block hashes must still match the chain-checked RPC.
-
-RPC authentication uses `RPC_API_KEY` when set. The historical fallback to
-`SUBSTREAMS_API_KEY` is restricted to the exact HTTPS BSC Pinax RPC origin
-(default port or explicit port 443, optional trailing slash). Custom RPC URLs
-require their own explicit `RPC_API_KEY` if authentication is needed. The
-Substreams CLI uses its normal authentication. Credentials remain in environment
-variables, never in network names, capture endpoint paths or report fields.
-
-For example, a future authorized Base runtime check would add
-`--network base --expected-chain-id 8453` and set `RPC_URL` to its independently
-chosen Base endpoint. This configuration work does **not** qualify Base,
-Ethereum, HyperEVM or Arc layouts, producers, packages or sinks, and does not
-resume their live checks under [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
-
-The offline `refusal-scan` accepts the same identity options, but its report uses
-`network_binding: caller_configured_offline_blocks_have_no_chain_id` and omits
-verified `chain_id`/`rpc_chain_id`. Extended block protobufs contain no chain ID;
-offline replay cannot authenticate a caller's network label.
-
-## Native layout discovery
-
-Discovery operates directly on captured `sf.ethereum.type.v2.Block` protobuf
-files in the Rust tool. It is excluded from WASM, has no map handler and creates
-no Substreams cache:
-
-```sh
-cargo run --locked -p erc20-balances-tools -- probe-erc20 \
-  --block-file erc20/balances/tests/fixtures/bsc-122260950.pb \
-  --output erc20/balances/out/native-discovery
-```
-
-Repeat `--block-file` for consecutive blocks. These must be full Extended block
-fixtures, not JSON-RPC blocks. Hypotheses are checked with historical `balanceOf`
-and remain diagnostics; no layout is automatically promoted into parameters.
-See [qualification](docs/qualification.md) and [ERC-20 expansion](docs/erc20-expansion.md).
-
-## Test the busiest tokens from the RPC stream
-
-The Rust tools can select tokens from actual `erc20/balances` output and test
-their storage on earlier/later active block samples. They create no additional
-Substreams modules or caches. See the [first top-ten results](docs/top-token-parity.md).
-
-```sh
-cargo run --locked -p erc20-balances-tools -- rank-tokens \
-  --blocks 512 --top 10 --output erc20/balances/out/ranking
-
-cargo run --locked -p erc20-balances-tools -- capture-blocks \
-  --ranking erc20/balances/out/ranking/report.json \
-  --samples-per-token 8 --output erc20/balances/out/active-blocks
-
-cargo run --locked -p erc20-balances-tools -- test-ranked \
-  --ranking erc20/balances/out/ranking/report.json \
-  --block-dir erc20/balances/out/active-blocks \
-  --layouts erc20/balances/tests/fixtures/verified-layouts.json \
-  --output erc20/balances/out/ranked-parity
-```
-
-`rank-tokens` defaults to a window just before the finalized BSC head; `--start`
-makes it reproducible. Ranking counts emitted balance rows, not market cap or
-transfer count. `capture-blocks` uses the `firecore` CLI with gzip and canonical
-block IDs; both it and `substreams` must be on PATH. Configure their endpoints
-with `--endpoint`; RPC credentials follow the environment variables above.
-
-The test selects a mapping hypothesis from the earlier half of each token's
-sampled active blocks, then freezes it for the later half. It checks every
-observed candidate value before and after the block with hash-pinned `balanceOf`.
-Mismatches also trigger a hash-pinned `eth_getStorageAt` check. The actual native
-mapper is replayed with caller-supplied reviewed layouts when available; other
-tokens use **unqualified diagnostic inputs with empty ignore lists**. Unknown
-writes remain mapper errors, never automatically become ignored storage.
-
-Each report separates hypothesis values from strict mapper output and missing
-reference rows. No state is carried across missing sampled blocks, no RPC row
-seeds the mapper, and no hypothesis is promoted into configuration. A completed
-investigation with gaps or mismatches exits nonzero; `bounded_parity` alone exits
-zero and still does not establish universal token semantics. Preserve the entire
-output directory: JSONL observations and checks are referenced by their SHA-256
-digests in the report. Repeat `--block-dir` to add more captured samples.
+The evidence below, the dated documents in `docs/` and the fixture READMEs
+refer to them, and their commands run at that commit. Their usage, network-identity
+options and guarantees are documented in the
+[README at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/README.md#compare-and-audit). The
+regression layout files in `tests/fixtures/` are explicit test inputs, not
+defaults or built-in token lists.
 
 ## Reviewed candidates and holder state
 
@@ -610,65 +483,19 @@ list. The original campaign fixtures and reports retain their original scope.
 This extension accepts qualified list appends without using membership to infer
 balances, and keeps the same one-map interface and empty production defaults.
 
-```sh
-cargo run --locked -p erc20-balances-tools -- inspect-ranked \
-  --survey erc20/balances/out/ranked-parity/report.json \
-  --output erc20/balances/out/zero-path-review
-```
+The ranked inspection, RPC recheck, holder-coverage and balance-inspection
+commands behind this evidence were part of the removed host tool. They are
+documented in the
+[README at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/README.md#reviewed-candidates-and-holder-state).
+Holder-coverage checkpoints were test-only historical RPC reads: reference
+amounts were compared, never inserted into consumer state, and they are not a
+complete global holder snapshot.
 
-The original survey and checks must remain together, with their recorded digest.
-The probe selects post-block holders and can revisit earlier unresolved RPC
-responses using the current decoder. Contracts without a mapping candidate stay
-explicitly untested. Use repeated `--contract` filters to narrow a sweep.
-
-`recheck-rpc --checks <rpc-checks.jsonl> --output <new-directory>` diagnoses prior
-unresolved checks without overwriting them. `test-ranked` accepts repeated
-`--contract` filters for focused retests of selected ranked tokens and records the
-selection in its report. Token RPC output follows the reference ABI decoder: a
-complete leading uint256 word is required and trailing return bytes are accepted.
-
-The `holder-coverage` Rust command compares a cold consumer with one initialized
-from a **test-only historical RPC checkpoint**. It requires consecutive captured
-blocks and a ranking that includes them:
-
-```sh
-cargo run --locked -p erc20-balances-tools -- holder-coverage \
-  --ranking erc20/balances/out/ranking/report.json \
-  --block-dir erc20/balances/out/consecutive-blocks \
-  --layouts erc20/balances/tests/fixtures/bsc-reviewed-layouts.json \
-  --output erc20/balances/out/holder-state-test
-```
-
-It records the setup RPC reads and checkpoint hash, then applies actual map
-outputs without consulting RPC for balances during processing. Reference amounts
-are only compared, never inserted into consumer state. The test checkpoint covers
-only addresses queried in that bounded reference window; it is not a complete
-global holder snapshot or a deployed sink. Full cold-start coverage still needs
-a trusted checkpoint or complete history, plus a consumer that retains updates.
-
-`inspect-balance --contract ... --address ... --balance-slot ... --block ...
---output ...` diagnoses a mapping at a canonical block using `debug_traceCall`
-and read-only state overrides for zero, 1, 123 and uint256 max. Optional
-`--source <Sourcify-v2-response.json>` verifies that the source record's runtime
-matches the historical runtime before saving its layout/provenance. Overrides
-simulate `eth_call`; no transaction is sent.
-
-For large getters, `--compact-trace` omits per-step memory, storage snapshots
-and return data while retaining stack and call-depth attribution. This option
-also works with `inspect-ranked`; compact traces cannot recover mapping
-preimages from memory. Successful word controls remain recorded if a later
-control reverts. The [YBC diagnostic](docs/ybc-reward-trace.md) recovers a real
-reward-bearing trace and preserves its expected maximal-word overflow.
-The subsequent [YBC arithmetic model](docs/ybc-reward-model.md) explains all six
-known raw-word mismatches, with 24 historical snapshots and 30 read-only control
-cases retained as Rust fixtures. YBC remains outside production qualification.
-
-For a project-published deployment artifact, use `--deployment-artifact <json>`
-with `--artifact-url <immutable-source-url>` instead of `--source`. The tool binds
-the artifact address and runtime to historical RPC and checks each literal
-source's hash. `--zero-dependency-slot <32-byte-hex>` also probes the scalar
-dependency with zero, 17 and uint256 max while controlling the holder word.
-These controls are evidence for review, not automatic layout qualification.
+The [YBC diagnostic](docs/ybc-reward-trace.md) recovers a real reward-bearing
+trace and preserves its expected maximal-word overflow. The subsequent
+[YBC arithmetic model](docs/ybc-reward-model.md) explains all six known raw-word
+mismatches, with 24 historical snapshots and 30 read-only control cases
+retained as Rust fixtures. YBC remains outside production qualification.
 
 The [PTokenV2 Phase A operation proof](docs/ptoken-operation-proof.md) regenerates
 one exact captured runtime/creation with official solc 0.8.28 and checks 382

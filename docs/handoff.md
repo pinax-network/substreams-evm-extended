@@ -48,7 +48,7 @@ Tests cover synthetic lifecycle cases and one captured Aave Pool-index oracle
 with synthetic holder/bootstrap inputs. This is a host reference implementation
 with full-state undo snapshots, not a production sink or package qualification.
 See [initialization](initialization-and-completeness.md) and
-[conformance](../conformance/README.md) for supported metrics and limits.
+[conformance](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/README.md) for supported metrics and limits.
 
 The Compound adapters keep raw shares/signed principal, stored conversions,
 projected claims and index values distinct, with explicit result units. Actual
@@ -73,7 +73,7 @@ the pinned current CToken, 2019 CToken/WhitePaper and legacy jump-rate sources.
 They distinguish legacy returned errors and unchanged state from current
 reverts, and preserve revision-specific same-block behavior. The full isolated
 workspace run passed 769 tests. See the
-[oracle report](../conformance/fixtures/compound-v2-oracle/README.md) for exact
+[oracle report](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/fixtures/compound-v2-oracle/README.md) for exact
 harness substitutions, official compiler/source/artifact hashes and limits.
 Logs, earlier failures and an initial compiler build with unverified provenance
 remain under `out/compound-checked-20260928/` in the
@@ -81,7 +81,7 @@ remain under `out/compound-checked-20260928/` in the
 compiler regeneration. This is arithmetic evidence for #14/#16, not deployed
 runtime, holder, getter or package qualification.
 
-The [Comet source oracle](../conformance/fixtures/comet-oracle/README.md)
+The [Comet source oracle](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/fixtures/comet-oracle/README.md)
 adds 1,515 model comparisons and two ABI-width refusal controls against pinned
 compiled source. It preserves whole rate, utilization, both-index and getter
 functions, with controlled rate/principal storage and an explicit timestamp;
@@ -94,7 +94,7 @@ the existing oracles. Logs/builds live under `out/comet-oracle-20260928/` in
 attempts remain preserved. No deployed runtime, Ethereum interval, initialized
 holder or package qualification is inferred from this arithmetic evidence.
 
-The [Lido source oracle](../conformance/fixtures/lido-oracle/README.md)
+The [Lido source oracle](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/fixtures/lido-oracle/README.md)
 reproduces three accepted-input mismatches against the pinned Solidity 0.4.24
 getter bodies: the holder and external-share products wrap to uint256 before
 division, while the final pooled-ether addition uses checked `SafeMath.add`.
@@ -121,7 +121,7 @@ per case over blocks 10–11. Logs and reproduced failures are under
 This changes host reference evaluation only and makes no claim that these
 zero states were observed on-chain or qualify a deployment.
 
-The [SavingsDai source oracle](../conformance/fixtures/sdai-oracle/README.md)
+The [SavingsDai source oracle](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/fixtures/sdai-oracle/README.md)
 executes the pinned `_rpow`, `_divup`, conversions, previews and `maxWithdraw`
 with controlled Pot scalar inputs, a holder value and an explicit clock.
 It preserves their source arithmetic and branch order. A source-domain
@@ -136,7 +136,7 @@ failures and isolated validation remain under `out/sdai-oracle-20260928/` in
 `network-verification-config`. These synthetic input and source-execution
 controls do not qualify Pot storage history, a deployed vault or a package.
 
-The [Aave/static-aToken source oracles](../conformance/fixtures/aave-static-oracle/README.md)
+The [Aave/static-aToken source oracles](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/fixtures/aave-static-oracle/README.md)
 add 5,103 compiled comparisons across the selected current Floor and v3.4
 HalfUp Aave getters, reserve normalization/liquidity updates and static-token
 conversion, preview and withdrawal-limit paths. The stored index now checks
@@ -603,7 +603,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 | `erc4626/balance-state` | `evm.balance_state.v1` | #24 | **live 2026-09-23 (BSC static aToken)**: 162/162 shares, `convertToAssets` and `rate()` via conformance, 297 reserve words, 63 supplies over 2,064 blocks ([evidence](../erc4626/balance-state/docs/evidence/live-parity-bsc-stata-2026-09-23.json)); sDAI and OZ epochs are Ethereum placeholders (#8) | **compiler-verified** (StaticATokenLM 0.8.20, SavingsDai 0.8.17, Pot 0.6.12, OZ constants) |
 | `common/persist` | library | – | shared copy of `erc20/balances` persistence rules; fixtures reused | – |
 | `common/retention` | host library | #7 open | atomic application, exact checkpoint/stream identity, undo and retained protocol-input evaluation; synthetic lifecycle controls and separately bounded BSC evidence ([spec](initialization-and-completeness.md)) | – |
-| `conformance` | host library | #16 open | Aave/static-aToken, Compound v2, Comet, Lido, OZ and SavingsDai have compiled pinned-source controls with explicit harness limits, alongside the captured Aave index oracle ([details](../conformance/README.md)); deployment/package qualification remains separate | – |
+| `conformance` | host library | #16 open | Aave/static-aToken, Compound v2, Comet, Lido, OZ and SavingsDai have compiled pinned-source controls with explicit harness limits, alongside the captured Aave index oracle ([details](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/README.md)); deployment/package qualification remains separate | – |
 | `dex/pool-state` | `dex` protos | (other agent, PR #40) | see its README | – |
 
 The initial implementation pass merged PRs #25–#39 and #40, followed by
@@ -625,7 +625,7 @@ listed separately in that tracker.
 | Saved-block scans | [`evidence/scans/`](evidence/scans/README.md) |
 | Storage-slot provenance and the solc verification plan | [`storage-layout-provenance.md`](storage-layout-provenance.md) |
 | Open review findings | [`review-findings-2026-09-21.md`](review-findings-2026-09-21.md) |
-| Ad-hoc block scanners (trim, probe, aave, stata) | [`../tools/scratch-scan/`](../tools/scratch-scan/README.md) |
+| Ad-hoc block scanners (trim, probe, aave, stata) | [`../tools/scratch-scan/`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/tools/scratch-scan/README.md) |
 | Per-package replay tools | `native/balances/tools`, `aave/balance-state/tools`, `erc20/balances/tools` |
 | Skills (procedures) | [`../skills/`](../skills/README.md) |
 
@@ -1265,4 +1265,37 @@ Repository additions are SQL, a Makefile and docs only; no tool code. Setup was
 run on a local server. Sink-shaped rows from the saved-control and live windows
 reproduced independently verified tables in clickhouse-local. Nothing was
 streamed live.
+
+## Host tools removed, 2026-10-03
+
+At the owner's request the repository now holds Substreams package code only.
+Removed:
+- the tool crates of `erc20/balances`, `native/balances`, `aave/actions`,
+  `aave/balance-state`, `evm/executions` and `erc4626/balance-state`;
+- `conformance`, `common/retention` and `tools/scratch-scan`;
+- the `live-qualification` and `offline-evidence-replay` skills.
+
+They remain at [`6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534).
+The dated sections above, the evidence documents and the fixture READMEs
+describe work done with them, and their commands run at that commit. Links
+into the removed directories point there.
+
+New work verifies ad hoc and reports results in its pull request. The package
+crates keep their own regression tests: 739 workspace tests after the removal.
+
+Five removed tool tests checked package behavior on committed fixtures that
+nothing else covered, so they now live in the package crates:
+- `erc20/balances/src/fixture_parity_tests.rs`:
+  - the reviewed core layouts on block 122260950 equal the saved RPC
+    reference rows;
+  - all 107 committed layout sets still parse;
+- `native/balances/src/tests.rs`: the three WBNB wrapper cases (deposit,
+  withdrawal, reverted deposit), checking native and ERC-20 balances
+  together.
+
+The rest tested the tools themselves and were not ported:
+- RPC batching, capture delivery and surveys;
+- runtime qualification, ranking and SQLite reports;
+- the EVM operation-proof executor;
+- the consumer-side retention ledgers and the `conformance` reference math.
 
