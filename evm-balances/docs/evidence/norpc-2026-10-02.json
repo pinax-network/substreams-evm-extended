@@ -7,8 +7,8 @@
     "db_out_wasm_sha256": "738727994b616914ae6ca5d9dc60d33d364d9e5852fe4221d81ffbf8e452c357"
   },
   "candidate": {
-    "path": "spkg/evm-clickhouse-balances-v0.3.4-extended.spkg",
-    "spkg_sha256": "eec66cad6e59da7ee469e2f2fa1eda6c4a00edcca8f8d9db29176946fdce4a4b",
+    "path": "spkg/evm-clickhouse-balances-v0.3.4-extended-norpc.spkg",
+    "spkg_sha256": "0201bce42c9084b5f42c238b92aafb9582232efd1c5af18bc6277fbc2d9ae5fd",
     "db_out_wasm_sha256": "555aa847ab931037c57ff3016b4ccc8168cecf1bb4a465e8a204c9d516a0d787"
   },
   "built_wasm": {
@@ -61,34 +61,34 @@
       "candidate": "bsc"
     },
     {
-      "name": "db:erc20_balances:map_balance_changes unchanged",
+      "name": "ERC-20 map wasm is the live-run build",
       "passed": true,
-      "reference": "wasm=ba2171020da21c7092f410a88a201a34ca40bcec5f0ca31e1bc3b171ecbc0176 entry=map_balance_changes initial=0 inputs=[\"map:db:erc20_balances:erc20_transfers:map_events\", \"map:db:erc20_balances:erc20_tokens:map_events\"] output=proto:evm.balances.v1.BalanceChanges",
-      "candidate": "wasm=ba2171020da21c7092f410a88a201a34ca40bcec5f0ca31e1bc3b171ecbc0176 entry=map_balance_changes initial=0 inputs=[\"map:db:erc20_balances:erc20_transfers:map_events\", \"map:db:erc20_balances:erc20_tokens:map_events\"] output=proto:evm.balances.v1.BalanceChanges"
+      "reference": "005a2d3d22d10c5c61fa36b00adea1c0b5e9c55536a553c14b9f423d09546099",
+      "candidate": "005a2d3d22d10c5c61fa36b00adea1c0b5e9c55536a553c14b9f423d09546099"
     },
     {
-      "name": "db:erc20_balances:map_events unchanged",
+      "name": "ERC-20 map params equal the expected layouts",
       "passed": true,
-      "reference": "wasm=ba2171020da21c7092f410a88a201a34ca40bcec5f0ca31e1bc3b171ecbc0176 entry=map_events initial=0 inputs=[\"params:100\", \"map:db:erc20_balances:map_balance_changes\"] output=proto:evm.balances.v1.Events",
-      "candidate": "wasm=ba2171020da21c7092f410a88a201a34ca40bcec5f0ca31e1bc3b171ecbc0176 entry=map_events initial=0 inputs=[\"params:100\", \"map:db:erc20_balances:map_balance_changes\"] output=proto:evm.balances.v1.Events"
+      "reference": "425 profiles, sha256 f8f0fa8fb0135667f50279a9a09d435dbb34fc09b1c017dc89d0ac18370da997",
+      "candidate": "[\"params\", \"source\"], 466481 bytes of params, equal: true"
     },
     {
-      "name": "db:erc20_balances:erc20_transfers:map_events unchanged",
+      "name": "ERC-20 map output type",
       "passed": true,
-      "reference": "wasm=1f1ad2ff3065042a0049c6495f4ba483fb49ea26569899b9b8d6e98954c2ef37 entry=map_events initial=0 inputs=[\"source:sf.ethereum.type.v2.Block\"] output=proto:erc20.transfers.v1.Events",
-      "candidate": "wasm=1f1ad2ff3065042a0049c6495f4ba483fb49ea26569899b9b8d6e98954c2ef37 entry=map_events initial=0 inputs=[\"source:sf.ethereum.type.v2.Block\"] output=proto:erc20.transfers.v1.Events"
+      "reference": "proto:evm.balances.v1.Events",
+      "candidate": "proto:evm.balances.v1.Events"
     },
     {
-      "name": "db:erc20_balances:erc20_tokens:map_events unchanged",
+      "name": "no ERC-20 RPC modules",
       "passed": true,
-      "reference": "wasm=933d1c858498db51692897120c2472a5e71f300e269ecc20f3aefe3154b6cd4f entry=map_events initial=0 inputs=[\"source:sf.ethereum.type.v2.Block\"] output=proto:erc20.tokens.v1.Events",
-      "candidate": "wasm=933d1c858498db51692897120c2472a5e71f300e269ecc20f3aefe3154b6cd4f entry=map_events initial=0 inputs=[\"source:sf.ethereum.type.v2.Block\"] output=proto:erc20.tokens.v1.Events"
+      "reference": "[]",
+      "candidate": "[]"
     },
     {
-      "name": "RPC imports only in the ERC-20 modules",
+      "name": "no module imports an RPC host function",
       "passed": true,
-      "reference": "{\"db:erc20_balances:erc20_tokens:map_events\", \"db:erc20_balances:map_balance_changes\", \"db:erc20_balances:map_events\"}",
-      "candidate": "{\"db:erc20_balances:erc20_tokens:map_events\", \"db:erc20_balances:map_balance_changes\", \"db:erc20_balances:map_events\"}"
+      "reference": "reference: {\"db:erc20_balances:erc20_tokens:map_events\", \"db:erc20_balances:map_balance_changes\", \"db:erc20_balances:map_events\", \"db:native_balances:map_balance_changes\", \"db:native_balances:map_events\"}",
+      "candidate": "{}"
     },
     {
       "name": "native map wasm is the qualified build",
@@ -149,35 +149,19 @@
       }
     },
     {
-      "name": "native/balances/out/live-2026-09-23/events/saved-122288006.jsonl (synthetic clocks)",
-      "input_sha256": "7f5a38ceffbad10da02ff68d9386a4e68eb34c737f69ee72be395b35dd9a1007",
+      "name": "committed BSC block 122260950 with Extended ERC-20 rows",
       "comparison": {
-        "cases": 1024,
-        "identical": 1024,
+        "cases": 1,
+        "identical": 1,
         "differing": [],
         "identical_panics": 0,
         "empty_outputs": 0,
         "table_changes": {
-          "blocks": 1024,
-          "native_balances": 76139
+          "blocks": 1,
+          "erc20_balances": 154,
+          "native_balances": 82
         },
-        "outputs_sha256": "42a7370c7da5c7e6a92ce07f113326a0d5053c15b827df37efe67ed7689252d2"
-      }
-    },
-    {
-      "name": "native/balances/out/live-2026-09-23/events/live-123548070.jsonl (synthetic clocks)",
-      "input_sha256": "8d0f87434674317a980c3c2b7edc7257d99da52b709183e1181ce205657e42d2",
-      "comparison": {
-        "cases": 4999,
-        "identical": 4999,
-        "differing": [],
-        "identical_panics": 0,
-        "empty_outputs": 0,
-        "table_changes": {
-          "blocks": 4999,
-          "native_balances": 670873
-        },
-        "outputs_sha256": "a6febfcd8d6cb269947085a6b6ef6a45fe953c3acf6a9ba278aa5917e0334730"
+        "outputs_sha256": "7f61c73d965f5bb62b1f51abfe84ad64ba0b941f11da20069910658742d2ca91"
       }
     },
     {
@@ -187,12 +171,13 @@
         "identical": 95,
         "differing": [],
         "identical_panics": 0,
-        "empty_outputs": 2,
+        "empty_outputs": 0,
         "table_changes": {
-          "blocks": 93,
+          "blocks": 95,
+          "erc20_balances": 4951,
           "native_balances": 926
         },
-        "outputs_sha256": "8b799ad2bab0421b2ed684bbb17a1b7ec1749f8f67c1c78d99bbf6c8c400b8fb"
+        "outputs_sha256": "c9210a092e0242350718bad59de0814fa005f2e0a73a57bb8bffedf2cd28c9a6"
       }
     }
   ],
@@ -1633,6 +1618,73 @@
       "erc20/balances/tests/fixtures/xvs/cf6bb5389c92bdda8a3747ddb454cb7a64626c63-122288254.pb",
       "native reducer refused block 122288254: discontinuous native balance changes within block"
     ]
+  ],
+  "pipeline": {
+    "blocks_dir": "erc20/balances/out/live-2026-09-23/firehose-blocks",
+    "engine_erc20_events": "erc20/balances/out/live-2026-09-23/compare/events.jsonl",
+    "engine_erc20_events_sha256": "79ccea19692c8e9af98b830b7863dda30846d227ba6703e80cfbdbd10486cfb5",
+    "replay": {
+      "blocks": 1024,
+      "first_block": 123561000,
+      "last_block": 123562023,
+      "first_refusal": null,
+      "refused_blocks": 0,
+      "native_rows": 168199,
+      "erc20_rows": 253503,
+      "erc20_tokens": 320,
+      "native_host_mismatches": [],
+      "erc20_host_mismatches": [],
+      "erc20_engine_mismatches": [],
+      "erc20_engine_blocks_compared": 1024,
+      "db_out_identical": 1024,
+      "db_out_differing": [],
+      "table_changes": {
+        "blocks": 1024,
+        "erc20_balances": 253503,
+        "native_balances": 168199
+      },
+      "db_out_outputs_sha256": "1751d47b629a82b7d6c4eea094407bd6adb6468f58b18c3decbc2d82ee3e400a"
+    }
+  },
+  "coverage": [
+    {
+      "rpc_reference": "erc20/balances/out/ranks201-250-ranking/reference.jsonl",
+      "rpc_reference_sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9",
+      "coverage": {
+        "blocks_with_output": 1024,
+        "first_block": 122288006,
+        "last_block": 122289029,
+        "configured_profiles": 425,
+        "rows": 190651,
+        "configured_rows": 177658,
+        "rows_percent": 93.2,
+        "tokens": 1696,
+        "configured_tokens": 425,
+        "tokens_percent": 25.1,
+        "holder_pairs": 70303,
+        "configured_holder_pairs": 61318,
+        "holder_pairs_percent": 87.2
+      }
+    },
+    {
+      "rpc_reference": "erc20/balances/out/live-2026-09-23/compare/reference.jsonl",
+      "rpc_reference_sha256": "0b9c49491f7ed4e698045aabc368bc668ff64cb3ff47618cef56897ecc5c7d30",
+      "coverage": {
+        "blocks_with_output": 1024,
+        "first_block": 123561000,
+        "last_block": 123562023,
+        "configured_profiles": 425,
+        "rows": 538758,
+        "configured_rows": 376418,
+        "rows_percent": 69.9,
+        "tokens": 3428,
+        "configured_tokens": 324,
+        "tokens_percent": 9.5,
+        "holder_pairs": 167959,
+        "configured_holder_pairs": 88534,
+        "holder_pairs_percent": 52.7
+      }
+    }
   ],
   "limits": "Executes both packaged db_out WASM binaries on identical inputs in an interpreter implementing the four Substreams host imports; it does not run the Substreams engine, the native or ERC-20 maps' RPC behaviour, or the SQL sink."
 }

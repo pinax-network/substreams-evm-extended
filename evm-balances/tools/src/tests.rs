@@ -7,10 +7,16 @@ use std::{
 use prost::Message;
 use substreams_database_change::pb::database::{table_change::PrimaryKey, DatabaseChanges};
 
-use crate::{compare, corpus, spkg::Package};
+use crate::{
+    compare::{self, Erc20Input},
+    corpus, pipeline,
+    spkg::{sha256_hex, Package},
+};
 
 const REFERENCE: &str = "spkg/reference/evm-clickhouse-balances-v0.3.4.spkg";
 const CANDIDATE: &str = "spkg/evm-clickhouse-balances-v0.3.4-extended.spkg";
+const NORPC: &str = "spkg/evm-clickhouse-balances-v0.3.4-extended-norpc.spkg";
+const LIVE_LAYOUTS: &str = "erc20/balances/tests/fixtures/bsc-live425-layouts.json";
 
 fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
@@ -20,14 +26,51 @@ fn packages() -> (Package, Package) {
     (Package::read(&root().join(REFERENCE)).unwrap(), Package::read(&root().join(CANDIDATE)).unwrap())
 }
 
+fn norpc() -> Package {
+    Package::read(&root().join(NORPC)).unwrap()
+}
+
+fn live_layouts() -> corpus::Erc20Layouts {
+    corpus::read_layouts(&root().join(LIVE_LAYOUTS)).unwrap()
+}
+
 #[test]
 fn committed_package_keeps_the_reference_wiring_sink_and_erc20_modules() {
     let (reference, candidate) = packages();
-    let checks = compare::artifact_checks(&reference, &candidate).unwrap();
+    let checks = compare::artifact_checks(&reference, &candidate, &Erc20Input::Reference).unwrap();
     let failed: Vec<_> = checks.iter().filter(|c| !c.passed).collect();
     assert!(failed.is_empty(), "{failed:#?}");
-    // Three ERC-20 modules of the RPC package plus db_out, sink, schema and native checks.
+    // All four ERC-20 modules of the RPC package are compared.
     assert_eq!(checks.iter().filter(|c| c.name.starts_with(compare::ERC20_PREFIX)).count(), 4);
+}
+
+#[test]
+fn committed_norpc_package_imports_no_rpc_and_embeds_the_live_layouts() {
+    let (reference, _) = packages();
+    let layouts = live_layouts();
+    assert_eq!(layouts.parsed.len(), 425);
+    let checks = compare::artifact_checks(&reference, &norpc(), &Erc20Input::Extended { layouts: layouts.json }).unwrap();
+    let failed: Vec<_> = checks.iter().filter(|c| !c.passed).collect();
+    assert!(failed.is_empty(), "{failed:#?}");
+    assert!(checks.iter().any(|c| c.name == "no module imports an RPC host function"));
+}
+
+#[test]
+fn both_packages_carry_the_same_db_out_binary() {
+    let wasm = |p: &Package| sha256_hex(p.binary(p.module(compare::DB_OUT).unwrap()).unwrap());
+    assert_eq!(wasm(&packages().1), wasm(&norpc()));
+}
+
+/// The no-RPC package's own native and ERC-20 WASM maps run on the committed
+/// full block as the engine chains them; both `db_out`s agree on the result.
+#[test]
+fn norpc_package_replays_the_committed_block_end_to_end() {
+    let (reference, _) = packages();
+    let block = root().join(corpus::FIXTURE_BLOCK);
+    let replay = pipeline::replay(&reference, &norpc(), &[block], &live_layouts().parsed, None).unwrap();
+    assert!(replay.passed(), "{replay:#?}");
+    assert_eq!((replay.native_rows, replay.erc20_rows), (82, 154));
+    assert_eq!(replay.table_changes["erc20_balances"], 154);
 }
 
 /// `make -C evm-balances/clickhouse schema` concatenates `schema.*.sql` in

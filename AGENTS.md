@@ -39,7 +39,10 @@ its native Rust diagnostic tools where they exist, plus the temporary legacy
   `substreams-sink-sql` ClickHouse deployment on BSC, and is removed after the
   next release. Keep it 1:1 with upstream:
   - `src/`, the `common/` subset and `clickhouse/schema.*.sql` stay verbatim;
-  - the ERC-20 input stays the unchanged RPC `erc20-balances-v0.3.4.spkg`;
+  - the ERC-20 input stays the unchanged RPC `erc20-balances-v0.3.4.spkg`.
+    The no-RPC variant (`*.norpc.yaml`) instead uses the live-run
+    `spkg/erc20-balances-v0.1.0.spkg` with exactly
+    `erc20/balances/tests/fixtures/bsc-live425-layouts.json`;
   - the native input stays the qualified `spkg/native-balances-v0.1.0.spkg`;
   - `evm-balances-tools` must pass.
 

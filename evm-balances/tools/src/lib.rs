@@ -5,6 +5,8 @@
 pub mod cli;
 pub mod compare;
 pub mod corpus;
+pub mod coverage;
+pub mod pipeline;
 pub mod spkg;
 pub mod wasm;
 

@@ -20,5 +20,6 @@ substreams = { workspace = true }
 substreams-ethereum = { workspace = true }
 substreams-database-change = { workspace = true }
 native-balances = { path = "../../native/balances" }
+erc20-balances = { path = "../../erc20/balances" }
 proto = { path = "../../proto" }
 wasmi = { version = "2", default-features = false, features = ["stable", "std", "validate", "auto-dispatch"] }

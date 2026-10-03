@@ -12,6 +12,7 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context, Result};
+use erc20_balances::layout::VerifiedLayout;
 use prost::Message;
 use proto::pb::evm::balances::v1 as pb;
 use serde::Deserialize;
@@ -55,6 +56,25 @@ pub fn clock_of(block: &eth::Block) -> Result<Clock> {
         number: block.number,
         timestamp: header.timestamp,
     })
+}
+
+/// Layouts for the Extended ERC-20 map, as raw JSON (for package checks) and parsed.
+pub struct Erc20Layouts {
+    pub json: serde_json::Value,
+    pub parsed: Vec<VerifiedLayout>,
+}
+
+pub fn read_layouts(path: &Path) -> Result<Erc20Layouts> {
+    let text = fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
+    Ok(Erc20Layouts {
+        json: serde_json::from_str(&text).with_context(|| format!("parsing {}", path.display()))?,
+        parsed: erc20_balances::layout::parse(&text).map_err(|e| anyhow!("{}: {e}", path.display()))?,
+    })
+}
+
+/// The Extended ERC-20 map's output for `block` with these layouts.
+pub fn erc20_events(block: &eth::Block, layouts: &[VerifiedLayout]) -> Result<pb::Events> {
+    erc20_balances::project(block, layouts).map_err(|e| anyhow!("ERC-20 map refused block {}: {e}", block.number))
 }
 
 /// The native map's output for `block`, as the packaged module computes it.
@@ -120,28 +140,49 @@ pub fn fixture_case(root: &Path) -> Result<Case> {
 /// A file that did not become a case, with the reason.
 pub type Refused = (PathBuf, String);
 
-/// Every `*.pb` under `dir`. Files that are not blocks, or blocks the native
-/// reducer refuses, are returned separately with the reason rather than
-/// replaced by an empty input.
-pub fn block_dir_cases(dir: &Path) -> Result<(Vec<Case>, Vec<Refused>)> {
-    let mut paths = Vec::new();
-    collect_pb(dir, &mut paths)?;
-    paths.sort();
+/// The complete captured block with both RPC-free inputs: the native map and
+/// the Extended ERC-20 map with `layouts`.
+pub fn extended_fixture_case(root: &Path, layouts: &[VerifiedLayout]) -> Result<Case> {
+    let block = read_block(&root.join(FIXTURE_BLOCK))?;
+    Ok(Case {
+        name: format!("{FIXTURE_BLOCK} (Extended ERC-20)"),
+        params: "hex".into(),
+        clock: clock_of(&block)?,
+        native: native_events(&block)?,
+        erc20: erc20_events(&block, layouts)?,
+    })
+}
+
+/// Every `*.pb` under `dir`, with the Extended ERC-20 map's output when
+/// `erc20` layouts are given. Files that are not blocks, or blocks a map
+/// refuses, are returned separately with the reason rather than replaced by
+/// an empty input.
+pub fn block_dir_cases(dir: &Path, erc20: Option<&[VerifiedLayout]>) -> Result<(Vec<Case>, Vec<Refused>)> {
     let (mut cases, mut refused) = (Vec::new(), Vec::new());
-    for path in paths {
-        let reduced = read_block(&path).and_then(|block| Ok((clock_of(&block)?, native_events(&block)?)));
-        match reduced {
-            Ok((clock, native)) => cases.push(Case {
+    for path in sorted_pb(dir)? {
+        let case = read_block(&path).and_then(|block| {
+            Ok(Case {
                 name: path.display().to_string(),
                 params: "hex".into(),
-                clock,
-                native,
-                erc20: pb::Events::default(),
-            }),
+                clock: clock_of(&block)?,
+                native: native_events(&block)?,
+                erc20: erc20.map(|layouts| erc20_events(&block, layouts)).transpose()?.unwrap_or_default(),
+            })
+        });
+        match case {
+            Ok(case) => cases.push(case),
             Err(e) => refused.push((path, format!("{e:#}"))),
         }
     }
     Ok((cases, refused))
+}
+
+/// Every `*.pb` under `dir`, sorted by path.
+pub fn sorted_pb(dir: &Path) -> Result<Vec<PathBuf>> {
+    let mut paths = Vec::new();
+    collect_pb(dir, &mut paths)?;
+    paths.sort();
+    Ok(paths)
 }
 
 fn collect_pb(dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
@@ -177,13 +218,11 @@ struct JsonlBalance {
     amount: String,
 }
 
-/// Native `map_events` output recorded with `substreams run -o jsonl
-/// --bytes-encoding hex`. The recording carries no clock, so each case gets a
-/// SYNTHETIC one (hash = sha256 of the number, 450 ms cadence); both packages
-/// receive the same clock.
-pub fn jsonl_cases(path: &Path) -> Result<Vec<Case>> {
+/// `map_events` output recorded with `substreams run -o jsonl --bytes-encoding
+/// hex`, by block. Blocks without output are absent.
+pub fn read_jsonl_events(path: &Path) -> Result<Vec<(u64, pb::Events)>> {
     let file = fs::File::open(path).with_context(|| format!("opening {}", path.display()))?;
-    let mut cases = Vec::new();
+    let mut out = Vec::new();
     for (index, line) in BufReader::new(file).lines().enumerate() {
         let line: JsonlLine = serde_json::from_str(&line?).with_context(|| format!("{}:{}", path.display(), index + 1))?;
         let balances = line
@@ -198,15 +237,25 @@ pub fn jsonl_cases(path: &Path) -> Result<Vec<Case>> {
                 })
             })
             .collect::<Result<_>>()?;
-        cases.push(Case {
-            name: format!("{}@{}", path.display(), line.block),
-            params: "hex".into(),
-            clock: synthetic_clock(line.block),
-            native: pb::Events { balances },
-            erc20: pb::Events::default(),
-        });
+        out.push((line.block, pb::Events { balances }));
     }
-    Ok(cases)
+    Ok(out)
+}
+
+/// Native `map_events` recordings. They carry no clock, so each case gets a
+/// SYNTHETIC one (hash = sha256 of the number, 450 ms cadence); both packages
+/// receive the same clock.
+pub fn jsonl_cases(path: &Path) -> Result<Vec<Case>> {
+    Ok(read_jsonl_events(path)?
+        .into_iter()
+        .map(|(block, native)| Case {
+            name: format!("{}@{block}", path.display()),
+            params: "hex".into(),
+            clock: synthetic_clock(block),
+            native,
+            erc20: pb::Events::default(),
+        })
+        .collect())
 }
 
 pub fn synthetic_clock(number: u64) -> Clock {

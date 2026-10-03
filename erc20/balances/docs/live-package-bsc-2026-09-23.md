@@ -118,7 +118,9 @@ three times before failing; other statuses still fail at once.
 ## Scope and limits
 
 The interval is 123,561,000–123,562,023 on BSC, the configured set is the
-425 profiles in the kept layout file (`f8f0fa8f…`), and holder claims cover
+425 profiles in the kept layout file (`f8f0fa8f…`, committed on 2026-10-02 as
+[`bsc-live425-layouts.json`](../tests/fixtures/bsc-live425-layouts.json) for
+the [no-RPC evm-balances variant](../../../evm-balances/README.md#no-rpc-variant)), and holder claims cover
 only holders observed in that interval. Matching samples do not establish
 universal token support or a global holder set. The six excluded profiles
 are neither requalified nor removed from the historical fixture.

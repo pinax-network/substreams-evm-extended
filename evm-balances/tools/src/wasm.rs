@@ -3,7 +3,7 @@
 //! entrypoint receives `(ptr, len)` pairs and the result arrives through
 //! `env.output`. Each call gets a fresh instance, as each block does.
 
-use std::path::Path;
+use std::{collections::BTreeSet, path::Path};
 
 use anyhow::{anyhow, Context, Result};
 use wasmi::{Caller, Engine, Extern, Linker, Module, Store, Val};
@@ -132,6 +132,12 @@ impl MapModule {
         outcome.trapped = trapped;
         Ok(outcome)
     }
+}
+
+/// Host modules a binary imports from, e.g. `env`, `logger` or `rpc`.
+pub fn import_modules(wasm: &[u8]) -> Result<BTreeSet<String>> {
+    let module = Module::new(&Engine::default(), wasm).map_err(|e| anyhow!("parsing module: {e}"))?;
+    Ok(module.imports().map(|import| import.module().to_string()).collect())
 }
 
 fn read(caller: &Caller<'_, Host>, ptr: i32, len: i32) -> Result<Vec<u8>, wasmi::Error> {

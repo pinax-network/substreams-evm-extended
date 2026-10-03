@@ -1267,3 +1267,19 @@ fixture blocks. The package keeps the reference wiring, sink config, schema
 MD5 `024d2130…` and all four ERC-20 module hashes. The partition-copy
 backfill procedure was checked in clickhouse-local. Nothing was streamed or
 sunk live.
+
+The owner then asked to try a pure no-RPC version. `*.norpc.yaml` packages
+the same `db_out` with the live-run ERC-20 storage map (`532b571f…`) and the
+committed 425-profile live set (`bsc-live425-layouts.json`). No packaged
+binary imports RPC.
+
+Its ERC-20 coverage of the RPC reference stream:
+
+| Window | Rows | Holder pairs | Active tokens |
+| --- | --- | --- | --- |
+| In-sample | 93.2% | 87.2% | 25.1% |
+| Eight days later | 69.9% | 52.7% | 9.5% |
+
+Unconfigured tokens' balances go stale after a cutover. A refusal on any
+configured token also stops native balances, because both feed one `db_out`.
+See the [variant's limits](../evm-balances/README.md#no-rpc-variant).

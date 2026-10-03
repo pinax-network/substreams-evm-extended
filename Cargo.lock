@@ -626,6 +626,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "erc20-balances",
  "hex",
  "native-balances",
  "prost 0.13.5",

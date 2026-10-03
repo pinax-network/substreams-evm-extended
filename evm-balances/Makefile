@@ -13,6 +13,11 @@ build:
 pack: build
 	substreams pack -o ../spkg/{spkgDefaultName}
 
+# Same db_out with both inputs RPC-free: native and ERC-20 from Extended blocks.
+.PHONY: pack-norpc
+pack-norpc: build
+	substreams pack substreams.norpc.yaml -o ../spkg/{spkgDefaultName}
+
 # Offline: compare the committed package with the deployed substreams-evm v0.3.4.
 .PHONY: compare
 compare:

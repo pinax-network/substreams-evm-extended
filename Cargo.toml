@@ -46,3 +46,23 @@ prost-types = "0.13"
 
 [profile.release]
 lto = true
+
+# evm-balances-tools tests interpret packaged WASM. Unoptimized wasmi is minutes
+# slower, and its tail-call dispatch needs release-like codegen to keep the
+# host stack flat.
+[profile.dev.package.wasmi]
+opt-level = 3
+debug-assertions = false
+overflow-checks = false
+[profile.dev.package.wasmi_core]
+opt-level = 3
+debug-assertions = false
+overflow-checks = false
+[profile.dev.package.wasmi_ir]
+opt-level = 3
+debug-assertions = false
+overflow-checks = false
+[profile.dev.package.wasmi_collections]
+opt-level = 3
+debug-assertions = false
+overflow-checks = false

@@ -20,6 +20,10 @@ schema:
 pack: schema
 	substreams pack -o ../../spkg/{spkgDefaultName}
 
+.PHONY: pack-norpc
+pack-norpc: schema
+	substreams pack substreams.norpc.yaml -o ../../spkg/{spkgDefaultName}
+
 .PHONY: dev
 dev: pack
 	substreams-sink-sql run $(DSN) substreams.yaml -e $(ENDPOINT) $(START_BLOCK): --undo-buffer-size 0 --on-module-hash-mistmatch=warn --batch-block-flush-interval 1 --live-block-flush-interval 1 --infinite-retry --development-mode

@@ -140,6 +140,14 @@ impl Module {
             .collect()
     }
 
+    /// The value of the module's `params` input, if it has one.
+    pub fn params(&self) -> Option<&str> {
+        self.inputs.iter().find_map(|input| match &input.kind {
+            Some(InputKind::Params(n)) => Some(n.value.as_str()),
+            _ => None,
+        })
+    }
+
     pub fn output_type(&self) -> &str {
         self.output.as_ref().map(|o| o.r#type.as_str()).unwrap_or_default()
     }
