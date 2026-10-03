@@ -12,8 +12,8 @@ is `[]`. Blocks without the required Extended data are rejected.
 [Native balances](native/balances/README.md) is a second one-map package with
 the same protobuf: `Balance.contract` is absent and `amount` is the final
 persisted native balance of every account changed in the block. It ports the
-historical RPC-free native reducer. It was live-qualified on BSC on 2026-09-23,
-and that build is committed as `spkg/native-balances-v0.1.0.spkg`.
+historical RPC-free native reducer. It was live-qualified on BSC on 2026-09-23
+(WASM `48d89d28…`, module `5a2a2e0c…`).
 
 The [native ClickHouse sink supplied by the Substreams CLI](erc20/balances/clickhouse/README.md)
 consumes the protobuf directly. For native balances,

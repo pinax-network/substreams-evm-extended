@@ -1251,12 +1251,12 @@ Persisted raw effects require clock/hash continuity and same-key ordering. Runti
 The owner chose native balances only, loaded by the Substreams CLI's native
 ClickHouse sink with no `db_out`. ERC-20 is a separate implementation.
 [`native/balances/clickhouse/`](../native/balances/clickhouse/README.md)
-deploys the committed, live-qualified `spkg/native-balances-v0.1.0.spkg`
-(`fbb46fc7…`). After the sink's own setup, it adds:
+runs the sink on the local manifest, whose build is the live-qualified map
+(WASM `48d89d28…`, module `5a2a2e0c…`). After the sink's own setup, it adds:
 - the legacy native tables and aggregation views, verbatim from
   substreams-evm@`cb8607f`;
 - one materialized view from `Balance` into `native_balances`;
-- a TTL on `Balance`, default 7 days.
+- a 7-day TTL on `Balance`.
 
 `_blocks_` serves as the block table, and `native_balances.block_hash` stays
 empty. History backfills from the RPC-era database by partition copy.

@@ -1,11 +1,8 @@
--- Base data retention. Each `Balance` row is copied into native_balances and
--- the aggregation state when it is inserted, so the sink's own table only
--- serves audits and rebuilds. Rows expire `ttl_days` after their block time and
--- are removed by background TTL merges (soon after insert for old blocks, as in
--- a backfill); materialized views never see these deletions.
---
--- `ttl_days` is a query parameter: `make setup TTL_DAYS=7`, or
---   clickhouse client "$SUBSTREAMS_SINK_DSN" --param_ttl_days=7 --queries-file schema.sql
+-- Base data retention: 7 days. Each `Balance` row is copied into
+-- native_balances and the aggregation state when it is inserted, so the sink's
+-- own table only serves audits and rebuilds. Rows expire 7 days after their
+-- block time and are removed by background TTL merges (soon after insert for
+-- old blocks, as in a backfill); materialized views never see these deletions.
 --
 -- `_blocks_` keeps no TTL: it is the block table, one small row per block with output.
-ALTER TABLE Balance MODIFY TTL _block_timestamp_ + INTERVAL {ttl_days:UInt32} DAY;
+ALTER TABLE Balance MODIFY TTL _block_timestamp_ + INTERVAL 7 DAY;

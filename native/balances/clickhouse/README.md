@@ -11,9 +11,10 @@ Balance ──mv_sink_native_balances──▶ native_balances ──mv_historic
 _blocks_  (block table: number, hash, timestamp)
 ```
 
-The package is `spkg/native-balances-v0.1.0.spkg`: the live-qualified BSC build
-(`fbb46fc7…`, WASM `48d89d28…`, module `5a2a2e0c…`, params
-`{"producer_versions":[5]}`).
+The sink runs the local manifest, `native/balances/substreams.yaml`, built from
+source. That is the live-qualified BSC map: WASM `48d89d28…`, module
+`5a2a2e0c…`, params `{"producer_versions":[5]}`. `make build` (the workspace
+WASM build) reproduces that WASM.
 
 | File | Creates | Source |
 | --- | --- | --- |
@@ -33,10 +34,12 @@ the evm-balances v0.3.4 build). `make schema` concatenates these files into
 ```sh
 export SUBSTREAMS_SINK_DSN='clickhouse://<user>:<password>@<host>:9000/<database>'
 export SUBSTREAMS_API_KEY=...
-make -C native/balances/clickhouse setup TTL_DAYS=7
+make -C native/balances/clickhouse setup
 make -C native/balances/clickhouse dev START_BLOCK=<block> STOP_BLOCK=0
 ```
 
+- **Build first.** `setup` and `dev` first build the release WASM that the
+  manifest references.
 - **`setup` order.** `setup` runs the sink's own setup, then applies
   `schema.sql`. The view must exist before the sink's first insert, because a
   materialized view sees only rows inserted after it exists. Re-running it is
@@ -85,8 +88,8 @@ is about 1.25–1.5 GB a day. Each row is copied into `native_balances` and the
 aggregation state when it is inserted, so the base table only serves audits
 and rebuilds.
 
-`schema.5.ttl.sql` sets `TTL _block_timestamp_ + INTERVAL {ttl_days} DAY`
-(`TTL_DAYS`, default 7, about 9–11 GB):
+`schema.5.ttl.sql` sets `TTL _block_timestamp_ + INTERVAL 7 DAY` (about
+9–11 GB of base data):
 - **Expiry.** Background TTL merges remove expired rows, soon after insert for
   old blocks such as a backfill. The view never sees these deletions.
 - **No TTL on `_blocks_`.** It is small, about 14 MB a day.
