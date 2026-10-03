@@ -1281,5 +1281,21 @@ describe work done with them, and their commands run at that commit. Links
 into the removed directories point there.
 
 New work verifies ad hoc and reports results in its pull request. The package
-crates keep their own regression tests: 734 workspace tests after the removal.
+crates keep their own regression tests: 739 workspace tests after the removal.
+
+Five removed tool tests checked package behavior on committed fixtures that
+nothing else covered, so they now live in the package crates:
+- `erc20/balances/src/fixture_parity_tests.rs`:
+  - the reviewed core layouts on block 122260950 equal the saved RPC
+    reference rows;
+  - all 107 committed layout sets still parse;
+- `native/balances/src/tests.rs`: the three WBNB wrapper cases (deposit,
+  withdrawal, reverted deposit), checking native and ERC-20 balances
+  together.
+
+The rest tested the tools themselves and were not ported:
+- RPC batching, capture delivery and surveys;
+- runtime qualification, ranking and SQLite reports;
+- the EVM operation-proof executor;
+- the consumer-side retention ledgers and the `conformance` reference math.
 
