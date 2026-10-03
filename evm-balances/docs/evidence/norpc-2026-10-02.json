@@ -1,0 +1,1690 @@
+{
+  "status": "passed",
+  "tool": "evm-balances-tools",
+  "reference": {
+    "path": "spkg/reference/evm-clickhouse-balances-v0.3.4.spkg",
+    "spkg_sha256": "063a0d3f2278231a0454b692325c10a9a10f8e17a45d8479f63fa1b2f8757230",
+    "db_out_wasm_sha256": "738727994b616914ae6ca5d9dc60d33d364d9e5852fe4221d81ffbf8e452c357"
+  },
+  "candidate": {
+    "path": "spkg/evm-clickhouse-balances-v0.3.4-extended-norpc.spkg",
+    "spkg_sha256": "0201bce42c9084b5f42c238b92aafb9582232efd1c5af18bc6277fbc2d9ae5fd",
+    "db_out_wasm_sha256": "555aa847ab931037c57ff3016b4ccc8168cecf1bb4a465e8a204c9d516a0d787"
+  },
+  "built_wasm": {
+    "name": "candidate db_out equals target/wasm32-unknown-unknown/release/db_evm_balances.wasm",
+    "passed": true,
+    "reference": "555aa847ab931037c57ff3016b4ccc8168cecf1bb4a465e8a204c9d516a0d787",
+    "candidate": "555aa847ab931037c57ff3016b4ccc8168cecf1bb4a465e8a204c9d516a0d787"
+  },
+  "artifact_checks": [
+    {
+      "name": "db_out inputs",
+      "passed": true,
+      "reference": "[\"params:hex\", \"source:sf.substreams.v1.Clock\", \"map:db:native_balances:map_events\", \"map:db:erc20_balances:map_events\"]",
+      "candidate": "[\"params:hex\", \"source:sf.substreams.v1.Clock\", \"map:db:native_balances:map_events\", \"map:db:erc20_balances:map_events\"]"
+    },
+    {
+      "name": "db_out output type",
+      "passed": true,
+      "reference": "proto:sf.substreams.sink.database.v1.DatabaseChanges",
+      "candidate": "proto:sf.substreams.sink.database.v1.DatabaseChanges"
+    },
+    {
+      "name": "db_out entrypoint and initial block",
+      "passed": true,
+      "reference": "db_out 0",
+      "candidate": "db_out 0"
+    },
+    {
+      "name": "sink module",
+      "passed": true,
+      "reference": "db_out",
+      "candidate": "db_out"
+    },
+    {
+      "name": "sink engine",
+      "passed": true,
+      "reference": "2",
+      "candidate": "2"
+    },
+    {
+      "name": "sink schema sha256",
+      "passed": true,
+      "reference": "ed1c3bff14ca0464a029bf753923557cb8b05a6296fbb63e26e3d00456db10ce",
+      "candidate": "ed1c3bff14ca0464a029bf753923557cb8b05a6296fbb63e26e3d00456db10ce"
+    },
+    {
+      "name": "network",
+      "passed": true,
+      "reference": "mainnet",
+      "candidate": "bsc"
+    },
+    {
+      "name": "ERC-20 map wasm is the live-run build",
+      "passed": true,
+      "reference": "005a2d3d22d10c5c61fa36b00adea1c0b5e9c55536a553c14b9f423d09546099",
+      "candidate": "005a2d3d22d10c5c61fa36b00adea1c0b5e9c55536a553c14b9f423d09546099"
+    },
+    {
+      "name": "ERC-20 map params equal the expected layouts",
+      "passed": true,
+      "reference": "425 profiles, sha256 f8f0fa8fb0135667f50279a9a09d435dbb34fc09b1c017dc89d0ac18370da997",
+      "candidate": "[\"params\", \"source\"], 466481 bytes of params, equal: true"
+    },
+    {
+      "name": "ERC-20 map output type",
+      "passed": true,
+      "reference": "proto:evm.balances.v1.Events",
+      "candidate": "proto:evm.balances.v1.Events"
+    },
+    {
+      "name": "no ERC-20 RPC modules",
+      "passed": true,
+      "reference": "[]",
+      "candidate": "[]"
+    },
+    {
+      "name": "no module imports an RPC host function",
+      "passed": true,
+      "reference": "reference: {\"db:erc20_balances:erc20_tokens:map_events\", \"db:erc20_balances:map_balance_changes\", \"db:erc20_balances:map_events\", \"db:native_balances:map_balance_changes\", \"db:native_balances:map_events\"}",
+      "candidate": "{}"
+    },
+    {
+      "name": "native map wasm is the qualified build",
+      "passed": true,
+      "reference": "48d89d28d21b972307385c5e973fc4fe55d9160a4606f900a480318becbe6230",
+      "candidate": "48d89d28d21b972307385c5e973fc4fe55d9160a4606f900a480318becbe6230"
+    },
+    {
+      "name": "native map inputs",
+      "passed": true,
+      "reference": "[\"params:{\\\"producer_versions\\\":[5]}\", \"source:sf.ethereum.type.v2.Block\"]",
+      "candidate": "[\"params:{\\\"producer_versions\\\":[5]}\", \"source:sf.ethereum.type.v2.Block\"]"
+    },
+    {
+      "name": "native map output type",
+      "passed": true,
+      "reference": "proto:evm.balances.v1.Events",
+      "candidate": "proto:evm.balances.v1.Events"
+    },
+    {
+      "name": "no other modules",
+      "passed": true,
+      "reference": "[]",
+      "candidate": "[]"
+    }
+  ],
+  "corpora": [
+    {
+      "name": "committed BSC block 122260950 with RPC ERC-20 rows",
+      "comparison": {
+        "cases": 1,
+        "identical": 1,
+        "differing": [],
+        "identical_panics": 0,
+        "empty_outputs": 0,
+        "table_changes": {
+          "blocks": 1,
+          "erc20_balances": 18,
+          "native_balances": 82
+        },
+        "outputs_sha256": "f9ca9217dfd26f5d4b6e3234562760426695836bd08d08daca66754272e8a60b"
+      }
+    },
+    {
+      "name": "synthetic edge cases",
+      "comparison": {
+        "cases": 14,
+        "identical": 14,
+        "differing": [],
+        "identical_panics": 3,
+        "empty_outputs": 5,
+        "table_changes": {
+          "blocks": 9,
+          "erc20_balances": 6,
+          "native_balances": 13
+        },
+        "outputs_sha256": "930cd5452a87afbfbb6df1d2c60e5fb10fc64c7ac86f2148eea12dc0bebb4584"
+      }
+    },
+    {
+      "name": "committed BSC block 122260950 with Extended ERC-20 rows",
+      "comparison": {
+        "cases": 1,
+        "identical": 1,
+        "differing": [],
+        "identical_panics": 0,
+        "empty_outputs": 0,
+        "table_changes": {
+          "blocks": 1,
+          "erc20_balances": 154,
+          "native_balances": 82
+        },
+        "outputs_sha256": "7f61c73d965f5bb62b1f51abfe84ad64ba0b941f11da20069910658742d2ca91"
+      }
+    },
+    {
+      "name": "erc20/balances/tests/fixtures",
+      "comparison": {
+        "cases": 95,
+        "identical": 95,
+        "differing": [],
+        "identical_panics": 0,
+        "empty_outputs": 0,
+        "table_changes": {
+          "blocks": 95,
+          "erc20_balances": 4951,
+          "native_balances": 926
+        },
+        "outputs_sha256": "c9210a092e0242350718bad59de0814fa005f2e0a73a57bb8bffedf2cd28c9a6"
+      }
+    }
+  ],
+  "refused_blocks": [
+    [
+      "erc20/balances/tests/fixtures/apm450/1d5beb0a44c4283b993665ca3f8b5d4a74088293-122288056.pb",
+      "native reducer refused block 122288056: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/apm450/1d5beb0a44c4283b993665ca3f8b5d4a74088293-122288187.pb",
+      "native reducer refused block 122288187: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/apm450/1d5beb0a44c4283b993665ca3f8b5d4a74088293-122288465.pb",
+      "native reducer refused block 122288465: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/apm450/1d5beb0a44c4283b993665ca3f8b5d4a74088293-122288603.pb",
+      "native reducer refused block 122288603: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/beacon-admin-followup/rank204-122288047.pb",
+      "native reducer refused block 122288047: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/beacon-admin-followup/rank210-122288016.pb",
+      "native reducer refused block 122288016: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/beacon-admin-followup/rank224-122288026.pb",
+      "native reducer refused block 122288026: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/beacon-admin-followup/rank239-122288099.pb",
+      "native reducer refused block 122288099: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/beacon-admin-followup/rank248-122288036.pb",
+      "native reducer refused block 122288036: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/bridge450/40af8fd127dcd302d7ffa6f37cf5a002e54ac68c-122288137.pb",
+      "native reducer refused block 122288137: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/bridge450/5d3a1ff2b6bab83b63cd9ad0787074081a52ef34-122288010.pb",
+      "native reducer refused block 122288010: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/bsc-121114122-failed-setcode.pb",
+      "decoding erc20/balances/tests/fixtures/bsc-121114122-failed-setcode.pb: failed to decode Protobuf message: Block.ver: invalid wire type: LengthDelimited (expected Varint)"
+    ],
+    [
+      "erc20/balances/tests/fixtures/bsc-121114153-failed-setcode.pb",
+      "decoding erc20/balances/tests/fixtures/bsc-121114153-failed-setcode.pb: failed to decode Protobuf message: Block.ver: invalid wire type: LengthDelimited (expected Varint)"
+    ],
+    [
+      "erc20/balances/tests/fixtures/clone-fallback/c4c5f33e3860e1ad31d52fd377cc39f74784d19f-122288040.pb",
+      "native reducer refused block 122288040: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/dia-holder-append/block.pb",
+      "native reducer refused block 122037457: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct-bytecode/62-122288270.pb",
+      "native reducer refused block 122288270: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct-gaps/22a2c54b15287472f4adbe7587226e3c998cdd96-122288023.pb",
+      "native reducer refused block 122288023: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct-gaps/c12efb9e4a1a753e7f6523482c569793c2271dbb-122288115.pb",
+      "native reducer refused block 122288115: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct-source/31-122288028.pb",
+      "native reducer refused block 122288028: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct-source/34-122288021.pb",
+      "native reducer refused block 122288021: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct-source/45-122288055.pb",
+      "native reducer refused block 122288055: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/14ecf81fe387d040b30a43ed02f7790d99f1687c-122288311.pb",
+      "native reducer refused block 122288311: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/25d887ce7a35172c62febfd67a1856f20faebb00-122288508.pb",
+      "native reducer refused block 122288508: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/284567a85a34ffe6b9e961a2d1c22403fa16245c-122288227.pb",
+      "native reducer refused block 122288227: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/4c56bfe68660fde3d6e42433d27b6be9b0dbaae7-122288362.pb",
+      "native reducer refused block 122288362: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/5d3a12c42e5372b2cc3264ab3cdcf660a1555238-122288069.pb",
+      "native reducer refused block 122288069: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/6261963ebe9ff014aad10ecc3b0238d4d04e8353-122288318.pb",
+      "native reducer refused block 122288318: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/6eb6e8974264bee01c160f1770a38f8e6de1a3b1-122288207.pb",
+      "native reducer refused block 122288207: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/701add4311e85c1f9c1549319fe2c476bc8a1b8b-122288058.pb",
+      "native reducer refused block 122288058: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/87acfa3fd7a6e0d48677d070644d76905c2bdc00-122288070.pb",
+      "native reducer refused block 122288070: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/93cd5c8a2ca11029b06e490ecdc7812b768e9999-122288283.pb",
+      "native reducer refused block 122288283: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/9bafc8d4b487cebff201721702507a3e2c67ad79-122288021.pb",
+      "native reducer refused block 122288021: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/a9616e5e23ec1582c2828b025becf3ef610e266f-122288052.pb",
+      "native reducer refused block 122288052: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/c0bd0084b803ffdf327e04005572f86341a86d6f-122288311.pb",
+      "native reducer refused block 122288311: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/d55c9fb62e176a8eb6968f32958fefdd0962727e-122288215.pb",
+      "native reducer refused block 122288215: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/d5eaaac47bd1993d661bc087e15dfb079a7f3c19-122288071.pb",
+      "native reducer refused block 122288071: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct400/fbb001bbb96112acca7f44629623e485fcaa5168-122288041.pb",
+      "native reducer refused block 122288041: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct450/14d6c649292c5c9790c5196d1a9ea039307947a1-122288256.pb",
+      "native reducer refused block 122288256: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct450/1a1e69f1e6182e2f8b9e8987e83c016ac9444444-122288504.pb",
+      "native reducer refused block 122288504: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct450/2a846aaaf896ef393ccb76398c1d96ea97374444-122288338.pb",
+      "native reducer refused block 122288338: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct450/3477725399b706efabce710fcc54271db8b00c49-122288022.pb",
+      "native reducer refused block 122288022: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/direct450/44440f83419de123d7d411187adb9962db017d03-122288862.pb",
+      "native reducer refused block 122288862: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/etz-swap-removal/block.pb",
+      "native reducer refused block 122279966: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/1bca65f5d4422e48a1ba923cd19028a5d6267777-122288065.pb",
+      "native reducer refused block 122288065: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/2ab8a4dd2191989ac2898006df350b236d2b7777-122288143.pb",
+      "native reducer refused block 122288143: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/3ee4df61bd4f867e349beae8bfe07bc31b4850fb-122288480.pb",
+      "native reducer refused block 122288480: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/4c067de26475e1cefee8b8d1f6e2266b33a2372e-122288111.pb",
+      "native reducer refused block 122288111: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/848e2b1cb00dc439a15b03b8c3194e7d08917777-122288341.pb",
+      "native reducer refused block 122288341: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/93f9388979267fbf13dd7859f000d249f4cf7777-122288241.pb",
+      "native reducer refused block 122288241: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/a7440029eca41deabd8775ef1d6086b37d4df8d6-122288219.pb",
+      "native reducer refused block 122288219: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/c9d825e83aada475bd4d38c8ca984ed746277777-122288072.pb",
+      "native reducer refused block 122288072: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/d7b0bffa3bfaea34421d3df19896add7d1887777-122288009.pb",
+      "native reducer refused block 122288009: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family400/f756c6e7d137a68d6d649254f7d4da74fd487777-122288172.pb",
+      "native reducer refused block 122288172: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/3a51dae2dc3d901a2cefed3ad128116bf31c7777-122288116.pb",
+      "native reducer refused block 122288116: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/489ce5fb31523516f3fb4aacd597508c80edffff-122288164.pb",
+      "native reducer refused block 122288164: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/4f4a59ac165c6f05ed771df3530741494b1c7777-122288042.pb",
+      "native reducer refused block 122288042: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/75b364916b65f1e8959fa0210a6922c2ee237777-122288126.pb",
+      "native reducer refused block 122288126: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/78fa3e1df7c461103ff1f13d4ed6dd3e17657777-122288059.pb",
+      "native reducer refused block 122288059: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/8eaa5dd62c64212f1313717dc83ea23a32068888-122288126.pb",
+      "native reducer refused block 122288126: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/a394dcea3fd3847fd793afbfd163e2e3858b7c65-122288036.pb",
+      "native reducer refused block 122288036: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/a697e272a73744b343528c3bc4702f2565b2f422-122288065.pb",
+      "native reducer refused block 122288065: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/c6ccafa8e69a47fde69b18aa01c7324c9ada7777-122288028.pb",
+      "native reducer refused block 122288028: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/d8348b96c8f23e1e24c0f40f495823c98f8e7777-122288381.pb",
+      "native reducer refused block 122288381: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/e4bc08e213afb818a124da2240e8c9e65d9b7777-122288314.pb",
+      "native reducer refused block 122288314: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/f609e7c374ee82001c3c9834c63d8c8cc6ed7777-122288015.pb",
+      "native reducer refused block 122288015: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/family450/fb6115445bff7b52feb98650c87f44907e58f802-122288069.pb",
+      "native reducer refused block 122288069: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/final-proxies/56-122288018.pb",
+      "native reducer refused block 122288018: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/hlbp-active/104727184.pb",
+      "native reducer refused block 104727184: Extended producer version not qualified for native balances"
+    ],
+    [
+      "erc20/balances/tests/fixtures/hlbp-quiet/block.pb",
+      "native reducer refused block 122288019: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/lp400-full/29e8f7b1195cae4f761815bdec29200e15566983-122288114.pb",
+      "native reducer refused block 122288114: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/lp400-full/528f7144a1ad78e05c7226ffbcbef9ee9223f382-122288114.pb",
+      "native reducer refused block 122288114: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/lp400-full/b72973bdf9abf343be53ff9ac47c3a8305a5c8ee-122288114.pb",
+      "native reducer refused block 122288114: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/03f65216f340bac39c8d1911288b1c7ca071e9c3-122288020.pb",
+      "native reducer refused block 122288020: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/28e69efcf168813113e039341cba335d1303167e-122288047.pb",
+      "native reducer refused block 122288047: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/28e69efcf168813113e039341cba335d1303167e-122288619.pb",
+      "native reducer refused block 122288619: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/299ad4299da5b2b93fba4c96967b040c7f611099-122288058.pb",
+      "native reducer refused block 122288058: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/61fac5f038515572d6f42d4bcb6b581642753d50-122288069.pb",
+      "native reducer refused block 122288069: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/8105743e8a19c915a604d7d9e7aa3a060a4c2c32-122288061.pb",
+      "native reducer refused block 122288061: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/8dedf84656fa932157e27c060d8613824e7979e3-122288052.pb",
+      "native reducer refused block 122288052: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/a0c56a8c0692bd10b3fa8f8ba79cf5332b7107f9-122288082.pb",
+      "native reducer refused block 122288082: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/c414bc4cacbb02fad961742431bed76c5c86d1c8-122288022.pb",
+      "native reducer refused block 122288022: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/more-qualified/c58c1117da964aebe91fef88f6f5703e79bda574-122288277.pb",
+      "native reducer refused block 122288277: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/next-candidates/91-122288271.pb",
+      "native reducer refused block 122288271: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/next-candidates/99-122288032.pb",
+      "native reducer refused block 122288032: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/next-proxies/57-122288014.pb",
+      "native reducer refused block 122288014: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/om400/1abe0ec4829f606c392327fb7dc9c9a5733dd9f4-122288113.pb",
+      "native reducer refused block 122288113: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/packed400/b2a16cd87de7c214231d8b1a38392b4b85178d26-122288282.pb",
+      "native reducer refused block 122288282: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/packed400/b8c472cf9e8b1b7b497df3a52cd5cea70b8a402c-122288065.pb",
+      "native reducer refused block 122288065: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending-direct/11116f6fc6145fe83e1e11f363210f90e2761111-122288034.pb",
+      "native reducer refused block 122288034: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending-direct/1e8341f392fecf9133048e6c786885af55441bcf-122288022.pb",
+      "native reducer refused block 122288022: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending-direct/31b5be085af875b675392f5b37a1d0b8c3860222-122288074.pb",
+      "native reducer refused block 122288074: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending-direct/47121d525ca3a8f01a524b6b834974e21ae1215f-122288022.pb",
+      "native reducer refused block 122288022: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending-direct/d41f0b310149885eb0825f9d47bb413a0d84d073-122288099.pb",
+      "native reducer refused block 122288099: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending-direct/d9d3dad2efed7ee99f1363fac549f5e476f19a5a-122288021.pb",
+      "native reducer refused block 122288021: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending-direct/dc5a3af2c85cf20837e4ea08a0bb6c9cc5157fb0-122288184.pb",
+      "native reducer refused block 122288184: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending-direct/f9eab3a60ad73d9e02040134f580205f6925c775-122288030.pb",
+      "native reducer refused block 122288030: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending-direct/ff0157ce99c9b3a1be63e02ec85f0fcf29df8447-122288015.pb",
+      "native reducer refused block 122288015: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/011ebe7d75e2c9d1e0bd0be0bef5c36f0a90075f-122288101.pb",
+      "native reducer refused block 122288101: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/31138562aeb9706c7612e85d789581a21b5980a2-122288032.pb",
+      "native reducer refused block 122288032: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/40aaf75454036bed56f3266ccf18f6b7befd6aca-122288031.pb",
+      "native reducer refused block 122288031: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/43c934a845205f0b514417d757d7235b8f53f1b9-122288049.pb",
+      "native reducer refused block 122288049: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/46f2564e0fa8248d15125e7e54173cfbdef91be7-122288069.pb",
+      "native reducer refused block 122288069: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/5964aa3df3b5a60ab2b2904841d102f4c14e342c-122288020.pb",
+      "native reducer refused block 122288020: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/61a10e8556bed032ea176330e7f17d6a12a10000-122288257.pb",
+      "native reducer refused block 122288257: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/6ec90334d89dbdc89e08a133271be3d104128edb-122288026.pb",
+      "native reducer refused block 122288026: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/7427bd9542e64d1ac207a540cfce194b7390a07f-122288058.pb",
+      "native reducer refused block 122288058: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/79e3c71023383e4106b67253b6981345ec0ddb17-122288014.pb",
+      "native reducer refused block 122288014: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/7ae3843bb12ebf48364d3bea495770b201857a9e-122288044.pb",
+      "native reducer refused block 122288044: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/8247e82aa4c113e5d49abcdd4dda8b7d54579c24-122288058.pb",
+      "native reducer refused block 122288058: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/b9e1fd5a02d3a33b25a14d661414e6ed6954a721-122288070.pb",
+      "native reducer refused block 122288070: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/c19d38925f9f645337b1d1f37baf3c0647a48e50-122288097.pb",
+      "native reducer refused block 122288097: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/c78dabf21594c76ad98a0b3ed103fcfcd9499999-122288018.pb",
+      "native reducer refused block 122288018: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/e28cd11c99af2df76bb8ada4cd0ef3904378280f-122288035.pb",
+      "native reducer refused block 122288035: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending300/feb339236d25d3e415f280189bc7c2fbab6ae9ef-122288175.pb",
+      "native reducer refused block 122288175: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/1a21d5a58d56ba2b9e75f1213de82aaa95434444-122288006.pb",
+      "native reducer refused block 122288006: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/2eb568406ff9eb85d41d23dbe052f3d4a26b197f-122288007.pb",
+      "native reducer refused block 122288007: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/4168253d740edfa77de31dadd8532e228de83f15-122288075.pb",
+      "native reducer refused block 122288075: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/500a02a20b0b0a3f3efccfc0559543f5743bd1c4-122288055.pb",
+      "native reducer refused block 122288055: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/52ad4d6329ca7d4bb31ae859ede4bf60116a5483-122288022.pb",
+      "native reducer refused block 122288022: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/5b0b5ed3b7d29813ac0c9c4890f5bf1fc4302b0e-122288321.pb",
+      "native reducer refused block 122288321: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/5f4bde007dc06b867f86ebfe4802e34a1ffeed63-122288720.pb",
+      "native reducer refused block 122288720: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/67118ec0bbc3f1e743009cecaf00a9ca3d358888-122288024.pb",
+      "native reducer refused block 122288024: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/76096218ea7e6e1a3c6a549c88e2928c633b5f63-122288026.pb",
+      "native reducer refused block 122288026: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/8ed9e41e954a5c7832ee281321a3576e2ef7d519-122288044.pb",
+      "native reducer refused block 122288044: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/91152b4ef635403efbae860edd0f8c321d7c035d-122288070.pb",
+      "native reducer refused block 122288070: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/bc5ff7fe4d1b928423cf6c54bfa5f907130b4024-122288372.pb",
+      "native reducer refused block 122288372: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/pending350/e747e54783ba3f77a8e5251a3cba19ebe9c0e197-122288117.pb",
+      "native reducer refused block 122288117: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/permit450/8a063a9ff4de28dcb87117cc759be6ce70e09f81-122288013.pb",
+      "native reducer refused block 122288013: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/permit450/b86126b872e3f23bc62d6a4a3152ec65202a2073-122288204.pb",
+      "native reducer refused block 122288204: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/proxy400/722294f6c97102fb0ddb5b907c8d16bdeab3f6d9-122288077.pb",
+      "native reducer refused block 122288077: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/proxy400/9b6a1d4fa5d90e5f2d34130053978d14cd301d58-122288199.pb",
+      "native reducer refused block 122288199: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/public450/b10cb07ca2cdac77fbb5707f6690301f9d036f45-122288067.pb",
+      "native reducer refused block 122288067: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/public450/f4c8e32eadec4bfe97e0f595add0f4450a863a11-122288111.pb",
+      "native reducer refused block 122288111: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranked-proxies/0a8d6c86e1bce73fe4d0bd531e1a567306836ea5-122288014.pb",
+      "native reducer refused block 122288014: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranked-proxies/2859e4544c4bb03966803b044a93563bd2d0dd4d-122288054.pb",
+      "native reducer refused block 122288054: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranked-proxies/30117e4bc17d7b044194b76a38365c53b72f7d49-122288019.pb",
+      "native reducer refused block 122288019: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranked-proxies/570a5d26f7765ecb712c0924e4de545b89fd43df-122288008.pb",
+      "native reducer refused block 122288008: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranked-proxies/595deaad1eb5476ff1e649fdb7efc36f1e4679cc-122288069.pb",
+      "native reducer refused block 122288069: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranked-proxies/ba2ae424d960c26247dd6c32edc70b295c744c43-122288070.pb",
+      "native reducer refused block 122288070: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranked-proxies/ea37a8de1de2d9d10772eeb569e28bfa5cb17707-122288006.pb",
+      "native reducer refused block 122288006: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/066baa58160c39c569cd25db27e2a1f7b1b47777-122288014.pb",
+      "native reducer refused block 122288014: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/0e4f6209ed984b21edea43ace6e09559ed051d48-122288011.pb",
+      "native reducer refused block 122288011: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/0f0df6cb17ee5e883eddfef9153fc6036bdb4e37-122288032.pb",
+      "native reducer refused block 122288032: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/1d28d989f9e3ccb8b15d0cec601734514f958e4d-122288048.pb",
+      "native reducer refused block 122288048: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/32f1518baace69e85b9e5ff844ebd617c52573ac-122288021.pb",
+      "native reducer refused block 122288021: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/3d4f0513e8a29669b960f9dbca61861548a9a760-122288038.pb",
+      "native reducer refused block 122288038: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/405fbc9004d857903bfd6b3357792d71a50726b0-122288052.pb",
+      "native reducer refused block 122288052: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/43e871ab77e5caa52440df6d14476afab519491e-122288013.pb",
+      "native reducer refused block 122288013: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/4af1d41cd9dd950dca43984b43aaa2a8702714ac-122288036.pb",
+      "native reducer refused block 122288036: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/4b3d30992f003c8167699735f5ab2831b2a087d3-122288022.pb",
+      "native reducer refused block 122288022: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/4d41a5d412f4ef44a35b9f53b06db65ede249493-122288218.pb",
+      "native reducer refused block 122288218: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/53ec33cd4fa46b9eced9ca3f6db626c5ffcd55cc-122288012.pb",
+      "native reducer refused block 122288012: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/5dbde81fce337ff4bcaaee4ca3466c00aecae274-122288054.pb",
+      "native reducer refused block 122288054: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/5fdcf85d132edb88ee0d073cdb42168bcf724444-122288044.pb",
+      "native reducer refused block 122288044: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/60e98bdd5dac46b6ed392e39f15f742cdd3c571f-122288030.pb",
+      "native reducer refused block 122288030: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/64a6c4c1c558be705c66ee60cd4ad5f2cc2c7777-122288034.pb",
+      "native reducer refused block 122288034: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/66239b70133773a72a0d589e5564e88a50cd39e7-122288031.pb",
+      "native reducer refused block 122288031: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/7083609fce4d1d8dc0c979aab8c869ea2c873402-122288287.pb",
+      "native reducer refused block 122288287: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/87ae267002cd1ea0ec86bf3601d4a8ad76a47777-122288019.pb",
+      "native reducer refused block 122288019: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/904567252d8f48555b7447c67dca23f0372e16be-122288010.pb",
+      "native reducer refused block 122288010: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/92516e0ddf1ddbf7fab1b79cac26689fdc5ba8e6-122288010.pb",
+      "native reducer refused block 122288010: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/aa4de3b6196ea6d1b5c4ed3980ed908888888888-122288022.pb",
+      "native reducer refused block 122288022: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/afcc12e4040615e7afe9fb4330eb3d9120acac05-122288028.pb",
+      "native reducer refused block 122288028: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/b994882a1b9bd98a71dd6ea5f61577c42848b0e8-122288011.pb",
+      "native reducer refused block 122288011: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/be9d156892e55e7154bcd3cb0fea677f9d3103e1-122288018.pb",
+      "native reducer refused block 122288018: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/c51a9250795c0186a6fb4a7d20a90330651e4444-122288103.pb",
+      "native reducer refused block 122288103: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/d5df4d260d7a0145f655bcbf3b398076f21016c7-122288012.pb",
+      "native reducer refused block 122288012: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/da7ad9dea9397cffddae2f8a052b82f1484252b3-122288069.pb",
+      "native reducer refused block 122288069: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/dfe1308fb3ef1dc2f87b4ffaef5ebdf80be1e4ea-122288026.pb",
+      "native reducer refused block 122288026: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/f3d5b4c34ed623478cc5141861776e6cf7ae3a1e-122288259.pb",
+      "native reducer refused block 122288259: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks101-150/fe189e97832da1573e4e4ff034f4ffc3a15c7777-122288039.pb",
+      "native reducer refused block 122288039: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/10a81042268c8fd4daaf9c6cb82070b2b30d9bdc-122288038.pb",
+      "native reducer refused block 122288038: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/301358fe371e940bf316c5cccc53a2672de97777-122288086.pb",
+      "native reducer refused block 122288086: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/31872b7e2b0f856035381f86c195dbef1059028c-122288014.pb",
+      "native reducer refused block 122288014: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/32b133ca38c9b410a053f2bcfeea83831c3bcfe0-122288058.pb",
+      "native reducer refused block 122288058: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/32b133ca38c9b410a053f2bcfeea83831c3bcfe0-122288948.pb",
+      "native reducer refused block 122288948: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/35803e77c3163fed8a942536c1c8e0d5bf90f906-122288023.pb",
+      "native reducer refused block 122288023: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/3b4de3c7855c03bb9f50ea252cd2c9fa1125ab07-122288063.pb",
+      "native reducer refused block 122288063: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/3ee2200efb3400fabb9aacf31297cbdd1d435d47-122288008.pb",
+      "native reducer refused block 122288008: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/40b8129b786d766267a7a118cf8c07e31cdb6fde-122288094.pb",
+      "native reducer refused block 122288094: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/477c2c0459004e3354ba427fa285d7c053203c0e-122288009.pb",
+      "native reducer refused block 122288009: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/4fa7c69a7b69f8bc48233024d546bc299d6b03bf-122288040.pb",
+      "native reducer refused block 122288040: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/6bdcce4a559076e37755a78ce0c06214e59e4444-122288016.pb",
+      "native reducer refused block 122288016: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/6ced5c6d3f913b48d59fa07abbfe9060c409087c-122288045.pb",
+      "native reducer refused block 122288045: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/707f0f4a39a4a26239f7d00463b15ab5656861f9-122288017.pb",
+      "native reducer refused block 122288017: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/70f2eadf1ca1969ff42b0c78e9da519e8937cbaf-122288070.pb",
+      "native reducer refused block 122288070: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/7138b48df7d98d7e3cc221bfe7192d0a178182d8-122288015.pb",
+      "native reducer refused block 122288015: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/7997a69c22fb4e0e76bffe0e809c172c32e87777-122288035.pb",
+      "native reducer refused block 122288035: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/8ac96df1d3dbd7c99a54cb4e50599ce129015e50-122288031.pb",
+      "native reducer refused block 122288031: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/8b9ee39195ea99d6ddd68030f44131116bc218f6-122288015.pb",
+      "native reducer refused block 122288015: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/97693439ea2f0ecdeb9135881e49f354656a911c-122288055.pb",
+      "native reducer refused block 122288055: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/99e604dc70502b982128cfc3591e757ef0069837-122288015.pb",
+      "native reducer refused block 122288015: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/a9ee28c80f960b889dfbd1902055218cba016f75-122288170.pb",
+      "native reducer refused block 122288170: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/c07e1300dc138601fa6b0b59f8d0fa477e690589-122288019.pb",
+      "native reducer refused block 122288019: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/c8fb80fcc03f699c70ff0cc08c09106288888888-122288018.pb",
+      "native reducer refused block 122288018: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/c9882def23bc42d53895b8361d0b1edc7570bc6a-122288047.pb",
+      "native reducer refused block 122288047: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/cf3232b85b43bca90e51d38cc06cc8bb8c8a3e36-122288029.pb",
+      "native reducer refused block 122288029: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/d28e716fa02543962b3129f9e4d919c65f434444-122288029.pb",
+      "native reducer refused block 122288029: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/df002282c1474c9592780618adda7eaa99998abd-122288077.pb",
+      "native reducer refused block 122288077: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks151-200/fb5b838b6cfeedc2873ab27866079ac55363d37e-122288047.pb",
+      "native reducer refused block 122288047: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/043ef81a999af3112f09401874ebd46ef183ac8a-122288041.pb",
+      "native reducer refused block 122288041: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/06f7aeabc9c37d457922a9368f291c5d57c07777-122288137.pb",
+      "native reducer refused block 122288137: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/0ae9db80b34a310e01aa9f16843236b9837c7777-122288209.pb",
+      "native reducer refused block 122288209: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/208bf3e7da9639f1eaefa2de78c23396b0682025-122288080.pb",
+      "native reducer refused block 122288080: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/365ddef35668dfeb7a5f6b2fe53ed71bda147777-122288135.pb",
+      "native reducer refused block 122288135: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/4a11ba40d7ca4f8c34a8a7bea53269c179999999-122288064.pb",
+      "native reducer refused block 122288064: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/4be35ec329343d7d9f548d42b0f8c17fffe07db4-122288111.pb",
+      "native reducer refused block 122288111: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/4ef9d3062c7f6eba4aae4990c5036598c6eff4ec-122288036.pb",
+      "native reducer refused block 122288036: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/65b98b81f2525efd6c3f49c44de56db7ea662551-122288015.pb",
+      "native reducer refused block 122288015: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/6ef2ffb38d64afe18ce782da280b300e358cfeaf-122288112.pb",
+      "native reducer refused block 122288112: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/783c3f003f172c6ac5ac700218a357d2d66ee2a2-122288028.pb",
+      "native reducer refused block 122288028: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/9123400446a56176eb1b6be9ee5cf703e409f492-122288048.pb",
+      "native reducer refused block 122288048: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/95669a6589a81a6704bab1020722d0c405841885-122288049.pb",
+      "native reducer refused block 122288049: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/9b0cb617503a1b7484089125dd2c2fe6bcb37777-122288077.pb",
+      "native reducer refused block 122288077: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/9be61a38725b265bc3eb7bfdf17afdfc9d26c130-122288317.pb",
+      "native reducer refused block 122288317: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/a227cc36938f0c9e09ce0e64dfab226cad739447-122288069.pb",
+      "native reducer refused block 122288069: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/ac23b90a79504865d52b49b327328411a23d4db2-122288026.pb",
+      "native reducer refused block 122288026: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/b0ad9c2313b9719ea0ccd43d7e7e1fd07e7cbd90-122288057.pb",
+      "native reducer refused block 122288057: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/b0b92de23baa85fb06208277e925ced53edab482-122288150.pb",
+      "native reducer refused block 122288150: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/b0c2ab5af4028461ace3f6e1c33a4ee1404e7777-122288021.pb",
+      "native reducer refused block 122288021: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/b10cc888cb2cce7036f4c7ecad8a57da16161338-122288031.pb",
+      "native reducer refused block 122288031: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/c61eb549acf4a05ed6e3fe0966f5e213b23541ce-122288033.pb",
+      "native reducer refused block 122288033: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/ca750ef65f295bbecd685abf54e82caf297bdb61-122288036.pb",
+      "native reducer refused block 122288036: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/d41fdb03ba84762dd66a0af1a6c8540ff1ba5dfb-122288179.pb",
+      "native reducer refused block 122288179: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/d97d097a89113fa59b76c572e5b2eb647e8eefaf-122288036.pb",
+      "native reducer refused block 122288036: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/da033999bb6165e64db01bd9be14b40f5653092e-122288015.pb",
+      "native reducer refused block 122288015: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/e50e3d1a46070444f44df911359033f2937fcc13-122288057.pb",
+      "native reducer refused block 122288057: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/f2ec508422174ee564de98187db9359d318afb6b-122288036.pb",
+      "native reducer refused block 122288036: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/f8a0bf9cf54bb92f17374d9e9a321e6a111a51bd-122288011.pb",
+      "native reducer refused block 122288011: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/f9ef878545214f0e2907b978318f4228515c27af-122288008.pb",
+      "native reducer refused block 122288008: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/fb50c8871472d7eb7ed4513f99c0f165a6c67777-122288053.pb",
+      "native reducer refused block 122288053: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks201-250/fc27580f7e395b1bc7ae0ac336f8277078077777-122288315.pb",
+      "native reducer refused block 122288315: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/08332a515cb2a57884176e887b682e7da2eb114e-122288044.pb",
+      "native reducer refused block 122288044: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/16e98d05616977563cb8c8c7fdcc7577d68d7777-122288123.pb",
+      "native reducer refused block 122288123: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/194b302a4b0a79795fb68e2adf1b8c9ec5ff8d1f-122288038.pb",
+      "native reducer refused block 122288038: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/1f12b85aac097e43aa1555b2881e98a51090e9a6-122288103.pb",
+      "native reducer refused block 122288103: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/227c0028392e2f9c78ecfb3faac8953674c77777-122288056.pb",
+      "native reducer refused block 122288056: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/3c6256f234ba638e5883c46b3fedb00ea2e66b8a-122288138.pb",
+      "native reducer refused block 122288138: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/4c9027e10c5271efca82379d3123917ae3f2374e-122288013.pb",
+      "native reducer refused block 122288013: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/55ad16bd573b3365f43a9daeb0cc66a73821b4a5-122288186.pb",
+      "native reducer refused block 122288186: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/600d601d8b9eb5de5ac90fefc68d0d08801bfd3f-122288031.pb",
+      "native reducer refused block 122288031: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/7d1a8dbb40b7b5518ef69b93a6faeba91eea7777-122288132.pb",
+      "native reducer refused block 122288132: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/81d3a238b02827f62b9f390f947d36d4a5bf89d2-122288046.pb",
+      "native reducer refused block 122288046: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/826923122a8521be36358bdc53d3b4362b6f46e5-122288017.pb",
+      "native reducer refused block 122288017: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/8db780f5e1238bf3fc0e14c099b98bb63362d16e-122288053.pb",
+      "native reducer refused block 122288053: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/947950bcc74888a40ffa2593c5798f11fc9124c4-122288048.pb",
+      "native reducer refused block 122288048: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/a2b726b1145a4773f68593cf171187d8ebe4d495-122288006.pb",
+      "native reducer refused block 122288006: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/a578937c120a2f16ed4dc75729872644d3b77777-122288137.pb",
+      "native reducer refused block 122288137: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/a5c8e1513b6a08334b479fe4d71f1253259469be-122288033.pb",
+      "native reducer refused block 122288033: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/a71add46ea4fbf0058b36e6baa39530f8e48b103-122288067.pb",
+      "native reducer refused block 122288067: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/bcd3edb5efea0a6d2034f387fa452632e5df7777-122288091.pb",
+      "native reducer refused block 122288091: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/bf4e83e491ccc99920949dabf826720094087777-122288123.pb",
+      "native reducer refused block 122288123: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/c1d308b258e21ed5f3ddc50351d21d2809337777-122288026.pb",
+      "native reducer refused block 122288026: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/c32cc70741c3a8433dcbcb5ade071c299b55ffc8-122288189.pb",
+      "native reducer refused block 122288189: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/ce7de646e7208a4ef112cb6ed5038fa6cc6b12e3-122288016.pb",
+      "native reducer refused block 122288016: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/d46537a14be3fee6782cf4f51d10cdaf23be3366-122288047.pb",
+      "native reducer refused block 122288047: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/d98438889ae7364c7e2a3540547fad042fb24642-122288195.pb",
+      "native reducer refused block 122288195: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/e1a36696ca712c6101becaba3ef3fd688c367777-122288123.pb",
+      "native reducer refused block 122288123: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/e6cae4094352a670c3eb0fcbda17c898b71c7f2a-122288280.pb",
+      "native reducer refused block 122288280: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/e9bc5c6a86caa44fd7b469bf3cc7c563e4f77777-122288006.pb",
+      "native reducer refused block 122288006: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/edd9f422bc4d8e55c93a4e2fe64615f8dab27223-122288249.pb",
+      "native reducer refused block 122288249: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/f465ba490f05dbd6f9b1e21f1b1ffb78fb627777-122288137.pb",
+      "native reducer refused block 122288137: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/fea292e5ea4510881bdb840e3cec63abd43f936f-122288021.pb",
+      "native reducer refused block 122288021: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks251-300/ff7d6a96ae471bbcd7713af9cb1feeb16cf56b41-122288049.pb",
+      "native reducer refused block 122288049: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/031b41e504677879370e9dbcf937283a8691fa7f-122288095.pb",
+      "native reducer refused block 122288095: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/034ac777ecee4d87cccc224dd714076866adfadb-122288347.pb",
+      "native reducer refused block 122288347: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/086f405146ce90135750bbec9a063a8b20a8bffb-122288081.pb",
+      "native reducer refused block 122288081: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/0d064a5f5d3fba0dc751c478e98ec1d7407ac0d8-122288204.pb",
+      "native reducer refused block 122288204: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/17eafd08994305d8ace37efb82f1523177ec70ee-122288154.pb",
+      "native reducer refused block 122288154: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/18d0e455b3491e09210292d3953157a4bf104444-122288317.pb",
+      "native reducer refused block 122288317: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/18ea4df6a9cde2472f2321a4ec77da106498a66e-122288244.pb",
+      "native reducer refused block 122288244: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/19640000000ba88d36206beb10d0e86011c8d08c-122288052.pb",
+      "native reducer refused block 122288052: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/1b282603099647e2ec3461b2714acf38009d66b6-122288023.pb",
+      "native reducer refused block 122288023: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/334d1942e89584daa30a89f2de8d5d5def7e7777-122288054.pb",
+      "native reducer refused block 122288054: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/444045b0ee1ee319a660a5e3d604ca0ffa35acaa-122288084.pb",
+      "native reducer refused block 122288084: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/4d2d32d8652058bf98c772953e1df5c5c85d9f45-122288031.pb",
+      "native reducer refused block 122288031: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/5c999e15b71de2bb8e651f0f999fb0bc321a0dfe-122288701.pb",
+      "native reducer refused block 122288701: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/5f980533b994c93631a639deda7892fc49995839-122288150.pb",
+      "native reducer refused block 122288150: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/673b5618bdb2c363e01ea164d894dd36b0582777-122288037.pb",
+      "native reducer refused block 122288037: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/6894cde390a3f51155ea41ed24a33a4827d3063d-122288125.pb",
+      "native reducer refused block 122288125: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/6925ba4f502eb081cdfaaddcdaf92394343e4040-122288050.pb",
+      "native reducer refused block 122288050: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/6bc3855827fa6ee1229c937a26bb9fca1a0ffbf0-122288072.pb",
+      "native reducer refused block 122288072: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/7d1481568c72891bb87a964c3a6e6213bd73d114-122288377.pb",
+      "native reducer refused block 122288377: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/7fc21d196dcaafc1381679b15cf756eb8ed67777-122288433.pb",
+      "native reducer refused block 122288433: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/800d454a087fac862d6336e46136e95d6a074fe1-122288041.pb",
+      "native reducer refused block 122288041: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/87aa6aeb62ff128aaa96e275d7b24cd12a72aba1-122288030.pb",
+      "native reducer refused block 122288030: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/95c9b514566fbd224dc2037f5914eb8ab91c9201-122288220.pb",
+      "native reducer refused block 122288220: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/9840652dc04fb9db2c43853633f0f62be6f00f98-122288252.pb",
+      "native reducer refused block 122288252: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/a04fb32ed0d0068e65df14c10dde57e868627777-122288008.pb",
+      "native reducer refused block 122288008: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/aa036928c9c0df07d525b55ea8ee690bb5a628c1-122288209.pb",
+      "native reducer refused block 122288209: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/ab6b429c73c22ecabc763635dace7efac524993c-122288026.pb",
+      "native reducer refused block 122288026: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/b2089a7069861c8d90c8da3aacab8e9188c0c531-122288031.pb",
+      "native reducer refused block 122288031: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/d12ecbd5f508106ec242881530767ff15a6a7549-122288012.pb",
+      "native reducer refused block 122288012: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/d888e9d5d6af1fe304c33906217ff6a108952e41-122288038.pb",
+      "native reducer refused block 122288038: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/df9e1a85db4f985d5bb5644ad07d9d7ee5673b5e-122288733.pb",
+      "native reducer refused block 122288733: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/eed8be061b2c0b9474e3a0df1f8a3e4293ff6666-122288095.pb",
+      "native reducer refused block 122288095: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/f49725118cb0707b8706ffffe895f3ab16da7777-122288218.pb",
+      "native reducer refused block 122288218: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/f545af97ea5405f6eb4b396b571338ef15357777-122288196.pb",
+      "native reducer refused block 122288196: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/ranks301-350/fb93ee8152dd0a0e6f4b49c66c06d800cf1db72d-122288175.pb",
+      "native reducer refused block 122288175: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/01fbed06a70eb1b4a0b43dbc6a94f99944cd7777-122288019.pb",
+      "native reducer refused block 122288019: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/0fdbf7d2bac2010f599a5fa4d3771e573ef8ccc9-122288043.pb",
+      "native reducer refused block 122288043: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/21caef8a43163eea865baee23b9c2e327696a3bf-122288021.pb",
+      "native reducer refused block 122288021: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/5ce033b2bfca3af30b3e8c8457deaf776a8b695a-122288029.pb",
+      "native reducer refused block 122288029: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/5ce033b2bfca3af30b3e8c8457deaf776a8b695a-122288448.pb",
+      "native reducer refused block 122288448: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/5ce033b2bfca3af30b3e8c8457deaf776a8b695a-122288504.pb",
+      "native reducer refused block 122288504: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/b0f09ea9ae0515c3551080d4a745c8115aa30e37-122288181.pb",
+      "native reducer refused block 122288181: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/b3a05ac48786ab5a051f387f7e2116ab21d1b1ef-122288008.pb",
+      "native reducer refused block 122288008: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/d09ec4e899427f5b58a7215493b7289d94590425-122288016.pb",
+      "native reducer refused block 122288016: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/remaining-ranked/e210c0583c1071714eded2d8beeab05ab5bb7777-122288010.pb",
+      "native reducer refused block 122288010: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/role-width/22a2c54b15287472f4adbe7587226e3c998cdd96-122288023.pb",
+      "native reducer refused block 122288023: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/role-width/544028231562a43b106fbceca722b65cb5c861b0-122288030.pb",
+      "native reducer refused block 122288030: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/roles450/ae7484d162ba80b340eba7769a7a67838b1c16c1-122288743.pb",
+      "native reducer refused block 122288743: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/securities-proxy/02fca66c-122288036.pb",
+      "native reducer refused block 122288036: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/seven400/686fb50f922632056f120db56f1581ec8b7511e3-122288041.pb",
+      "native reducer refused block 122288041: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/seven400/7107a4501492f71cac93b3bdf50eae3acbf2c743-122288007.pb",
+      "native reducer refused block 122288007: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/seven400/956efa3eb3d5910e52884ff231ce99f538ab7d5f-122288044.pb",
+      "native reducer refused block 122288044: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/seven400/a37eded373c5cdf88644db7c6b89f222e756afb2-122288091.pb",
+      "native reducer refused block 122288091: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/seven400/c9c8050639c4cc0df159e0e47020d6e392191407-122288039.pb",
+      "native reducer refused block 122288039: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/seven400/ca56094722450016f280c4fd6a333e5c36903827-122288109.pb",
+      "native reducer refused block 122288109: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/seven400/f08d1886e2a69dfabd22a45eed8e1407b338b97e-122288170.pb",
+      "native reducer refused block 122288170: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/shareholder-removal/block.pb",
+      "native reducer refused block 122264505: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/short450/5591a8e9a5001f6052d9d749518ae1e6287b7955-122288251.pb",
+      "native reducer refused block 122288251: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/short450/5b0c8df579af6f32f8c6d2b0d908d68c54acac39-122288078.pb",
+      "native reducer refused block 122288078: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/simple450/1868d0c4d8cabf094d76f5293cf2b2662e8cee43-122288084.pb",
+      "native reducer refused block 122288084: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/simple450/750aed042ce71808bc1af9d06b5f2fa17edea3c7-122288176.pb",
+      "native reducer refused block 122288176: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/sparse400/19943c027d8deb171e91315cfcb446b9dcc16d25-122288114.pb",
+      "native reducer refused block 122288114: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/sparse400/403d4d10b6de8d0cc9429ff17b689ea1b0c770b7-122288114.pb",
+      "native reducer refused block 122288114: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/sparse400/e9e6c90c5b4d94b12e3ffff7b0b74de7b177fb51-122288114.pb",
+      "native reducer refused block 122288114: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/standard450/0510101ec6c49d24ed911f0011e22a0d697ee776-122288036.pb",
+      "native reducer refused block 122288036: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/standard450/4338665cbb7b2485a8855a139b75d5e34ab0db94-122288103.pb",
+      "native reducer refused block 122288103: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/standard450/4b0f1812e5df2a09796481ff14017e6005508003-122288030.pb",
+      "native reducer refused block 122288030: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/standard450/78a5e9dde0e1c411251abf2ee6728aace1e1f957-122288009.pb",
+      "native reducer refused block 122288009: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/swkey/009b797edf9acc666a36020c4509c6095de51408-122288174.pb",
+      "native reducer refused block 122288174: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/top50-final/46-122288006.pb",
+      "native reducer refused block 122288006: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/tops-clone-followup/rank220-122288727.pb",
+      "native reducer refused block 122288727: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/tops-clone-followup/rank236-119571736.pb",
+      "native reducer refused block 119571736: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/tops-clone-followup/rank236-122288055.pb",
+      "native reducer refused block 122288055: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/trade450/20d6015660b3fe52e6690a889b5c51f69902ce0e-122288056.pb",
+      "native reducer refused block 122288056: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/trade450/3494dfe19b721dac6c5c8d7470c8f89548177777-122288305.pb",
+      "native reducer refused block 122288305: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/trade450/3494dfe19b721dac6c5c8d7470c8f89548177777-122288793.pb",
+      "native reducer refused block 122288793: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/trade450/3494dfe19b721dac6c5c8d7470c8f89548177777-122288855.pb",
+      "native reducer refused block 122288855: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/trade450/6cd3025f851f36e74937d4e652f6ae9d4b2e88cf-122288189.pb",
+      "native reducer refused block 122288189: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting/71-51995162.pb",
+      "native reducer refused block 51995162: Extended producer version not qualified for native balances"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting/93-58585250.pb",
+      "native reducer refused block 58585250: Extended producer version not qualified for native balances"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting/93-58597371.pb",
+      "native reducer refused block 58597371: Extended producer version not qualified for native balances"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting/93-58597372.pb",
+      "native reducer refused block 58597372: Extended producer version not qualified for native balances"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting/93-58597373.pb",
+      "native reducer refused block 58597373: Extended producer version not qualified for native balances"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting-proxy-followup/rank208-122288014.pb",
+      "native reducer refused block 122288014: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting-proxy-followup/rank212-122288184.pb",
+      "native reducer refused block 122288184: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting-proxy-followup/rank214-122288090.pb",
+      "native reducer refused block 122288090: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting-proxy-followup/rank214-57207279.pb",
+      "native reducer refused block 57207279: Extended producer version not qualified for native balances"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting-proxy-followup/rank222-122288041.pb",
+      "native reducer refused block 122288041: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting-proxy-followup/rank240-104975334.pb",
+      "native reducer refused block 104975334: Extended producer version not qualified for native balances"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting-proxy-followup/rank240-122288057.pb",
+      "native reducer refused block 122288057: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting-proxy-followup/rank246-122259869.pb",
+      "native reducer refused block 122259869: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/voting-proxy-followup/rank246-122288083.pb",
+      "native reducer refused block 122288083: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/vsd/122288057.pb",
+      "native reducer refused block 122288057: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/vsd/122288093.pb",
+      "native reducer refused block 122288093: discontinuous native balance changes within block"
+    ],
+    [
+      "erc20/balances/tests/fixtures/xvs/cf6bb5389c92bdda8a3747ddb454cb7a64626c63-122288254.pb",
+      "native reducer refused block 122288254: discontinuous native balance changes within block"
+    ]
+  ],
+  "pipeline": {
+    "blocks_dir": "erc20/balances/out/live-2026-09-23/firehose-blocks",
+    "engine_erc20_events": "erc20/balances/out/live-2026-09-23/compare/events.jsonl",
+    "engine_erc20_events_sha256": "79ccea19692c8e9af98b830b7863dda30846d227ba6703e80cfbdbd10486cfb5",
+    "replay": {
+      "blocks": 1024,
+      "first_block": 123561000,
+      "last_block": 123562023,
+      "first_refusal": null,
+      "refused_blocks": 0,
+      "native_rows": 168199,
+      "erc20_rows": 253503,
+      "erc20_tokens": 320,
+      "native_host_mismatches": [],
+      "erc20_host_mismatches": [],
+      "erc20_engine_mismatches": [],
+      "erc20_engine_blocks_compared": 1024,
+      "db_out_identical": 1024,
+      "db_out_differing": [],
+      "table_changes": {
+        "blocks": 1024,
+        "erc20_balances": 253503,
+        "native_balances": 168199
+      },
+      "db_out_outputs_sha256": "1751d47b629a82b7d6c4eea094407bd6adb6468f58b18c3decbc2d82ee3e400a"
+    }
+  },
+  "coverage": [
+    {
+      "rpc_reference": "erc20/balances/out/ranks201-250-ranking/reference.jsonl",
+      "rpc_reference_sha256": "ebfff9a998618b3e7e9f7802d20d49c9890f7295de189315393e636a65fc88d9",
+      "coverage": {
+        "blocks_with_output": 1024,
+        "first_block": 122288006,
+        "last_block": 122289029,
+        "configured_profiles": 425,
+        "rows": 190651,
+        "configured_rows": 177658,
+        "rows_percent": 93.2,
+        "tokens": 1696,
+        "configured_tokens": 425,
+        "tokens_percent": 25.1,
+        "holder_pairs": 70303,
+        "configured_holder_pairs": 61318,
+        "holder_pairs_percent": 87.2
+      }
+    },
+    {
+      "rpc_reference": "erc20/balances/out/live-2026-09-23/compare/reference.jsonl",
+      "rpc_reference_sha256": "0b9c49491f7ed4e698045aabc368bc668ff64cb3ff47618cef56897ecc5c7d30",
+      "coverage": {
+        "blocks_with_output": 1024,
+        "first_block": 123561000,
+        "last_block": 123562023,
+        "configured_profiles": 425,
+        "rows": 538758,
+        "configured_rows": 376418,
+        "rows_percent": 69.9,
+        "tokens": 3428,
+        "configured_tokens": 324,
+        "tokens_percent": 9.5,
+        "holder_pairs": 167959,
+        "configured_holder_pairs": 88534,
+        "holder_pairs_percent": 52.7
+      }
+    }
+  ],
+  "limits": "Executes both packaged db_out WASM binaries on identical inputs in an interpreter implementing the four Substreams host imports; it does not run the Substreams engine, the native or ERC-20 maps' RPC behaviour, or the SQL sink."
+}

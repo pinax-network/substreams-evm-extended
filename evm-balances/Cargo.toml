@@ -1,0 +1,27 @@
+[package]
+name = "db-evm-balances"
+description = { workspace = true }
+edition = { workspace = true }
+version = { workspace = true }
+license = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+# `src/` is a verbatim copy of substreams-evm `db-evm-balances` (see README).
+# The SDK's `map` macro generates raw-pointer decoding that this workspace's
+# `-D warnings` Clippy run would reject; the lint is allowed here instead of
+# editing the copied source.
+[lints.clippy]
+not_unsafe_ptr_arg_deref = "allow"
+
+[dependencies]
+substreams = { workspace = true }
+substreams-ethereum = { workspace = true }
+substreams-database-change = { workspace = true }
+
+proto = { path = "../proto" }
+common = { package = "evm-balances-common", path = "common" }
+
+prost = { workspace = true }
+prost-types = { workspace = true }

@@ -1245,3 +1245,41 @@ The saved continuation starts from the earliest holder checkpoint at block 12228
 Raw basis, hourly reward/stopping hour, independently requested daily reward and observable balance are distinct. Combined balance preserves checked raw-plus-hourly addition before accepting the daily result; the separately requested daily metric is still evaluated independently. Evaluation never advances an on-chain cursor or replaces a raw word with a derived amount. Hourly planning is bounded to 168 periods and the conservative daily planner to 1,000 periods; the daily stop depends on three positive contribution conditions, not three elapsed days. Missing later planned inputs can conservatively precede a source early stop or arithmetic failure. Unsupported recursive pool entry remains an explicit scope refusal.
 
 Persisted raw effects require clock/hash continuity and same-key ordering. Runtime or dependency excursions suspend the epoch, including a restoration to reviewed identities. Changed helper pointer words also suspend even if only upper bits change, because the historical source lookup failed and upper-bit independence is unproved. Unchanged bound words with nonzero upper bits remain accepted; the token pointer keeps its separate masked-address policy. Atomic apply, a separately initialized new-epoch reset, bounded undo and digest-bound snapshots preserve raw origins and prevent future checkpoint seeding. No production layout, VM, persistence, protobuf or dependency change is part of this host reference. Actual deployment/source/dependency, initialized-holder, affected-holder extraction, replacement package and live checks remain under #5/#7/#21.
+
+## Legacy evm-balances db_out patch, 2026-10-02
+
+The owner asked for a non-breaking patch of BSC balances on the existing legacy
+`substreams-sink-sql` ClickHouse deployment. A solution without `db_out` follows
+after the next release. [`evm-balances/`](../evm-balances/README.md) ports
+substreams-evm `db_out` v0.3.4 1:1:
+- `src/`, the `common` subset and the six schema files are verbatim from
+  `cb8607f`;
+- the native input is the committed, live-qualified `native-balances-v0.1.0.spkg`
+  (`fbb46fc7…`);
+- the ERC-20 input stays the unchanged RPC `erc20-balances-v0.3.4.spkg`.
+
+AGENTS.md records this as the single, temporary `db_out` exception.
+
+`evm-balances-tools` runs the deployed upstream `db_out` WASM and the port in
+`wasmi`. Outputs are byte-identical on the committed block, 14 edge cases, the
+1,024-block saved-control and 4,999-block live native recordings, and 95
+fixture blocks. The package keeps the reference wiring, sink config, schema
+MD5 `024d2130…` and all four ERC-20 module hashes. The partition-copy
+backfill procedure was checked in clickhouse-local. Nothing was streamed or
+sunk live.
+
+The owner then asked to try a pure no-RPC version. `*.norpc.yaml` packages
+the same `db_out` with the live-run ERC-20 storage map (`532b571f…`) and the
+committed 425-profile live set (`bsc-live425-layouts.json`). No packaged
+binary imports RPC.
+
+Its ERC-20 coverage of the RPC reference stream:
+
+| Window | Rows | Holder pairs | Active tokens |
+| --- | --- | --- | --- |
+| In-sample | 93.2% | 87.2% | 25.1% |
+| Eight days later | 69.9% | 52.7% | 9.5% |
+
+Unconfigured tokens' balances go stale after a cutover. A refusal on any
+configured token also stops native balances, because both feed one `db_out`.
+See the [variant's limits](../evm-balances/README.md#no-rpc-variant).

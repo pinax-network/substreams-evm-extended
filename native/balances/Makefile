@@ -2,12 +2,15 @@ ENDPOINT ?= bsc.substreams.pinax.network:443
 START_BLOCK ?= 122260950
 STOP_BLOCK ?= +64
 PARAMS ?= {"producer_versions":[5]}
-SPKG := ../../spkg/native-balances-v0.1.0.spkg
+# Local builds stay under out/; spkg/native-balances-v0.1.0.spkg is the committed,
+# live-qualified build (fbb46fc7…) that the legacy evm-balances patch imports.
+SPKG := out/native-balances-v0.1.0.spkg
 .DEFAULT_GOAL := pack
 .PHONY: build pack test run replay
 build:
 	cargo build --locked -p native-balances --target wasm32-unknown-unknown --release
 pack: build
+	@mkdir -p $(dir $(SPKG))
 	substreams pack substreams.yaml -o $(SPKG)
 test:
 	cargo test --locked -p native-balances -p native-balances-tools -p evm-persist
