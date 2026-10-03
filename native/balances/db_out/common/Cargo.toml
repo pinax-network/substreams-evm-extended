@@ -1,0 +1,14 @@
+[package]
+name = "evm-balances-common"
+description = "Verbatim subset of substreams-evm `common` used by the native legacy db_out"
+edition = { workspace = true }
+version = { workspace = true }
+license = { workspace = true }
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+substreams = { workspace = true }
+bs58 = "0.5"
+sha2 = "0.10"

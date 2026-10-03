@@ -1,9 +1,13 @@
 specVersion: v0.1.0
 package:
   name: native_balances
-  version: v0.1.0
+  version: v0.2.0
   url: https://github.com/pinax-network/substreams-evm-extended
-  description: RPC-free native account balances from persisted Extended block state.
+  description: RPC-free native account balances from persisted Extended block state, for the native ClickHouse sink (map_events) or the legacy SQL sink (db_out).
+imports:
+  # SQL sink protobufs for db_out's DatabaseChanges output and the sink config.
+  database_changes: ../../spkg/substreams-database-change-v2.0.0.spkg
+  sql: ../../spkg/substreams-sink-sql-protodefs-v1.0.7.spkg
 protobuf:
   files: [balances.proto]
   importPaths: [../../proto/v1]
@@ -11,6 +15,10 @@ binaries:
   default:
     type: wasm/rust-v1
     file: ../../target/wasm32-unknown-unknown/release/native_balances.wasm
+  # A separate binary keeps the qualified map_events WASM byte-identical.
+  db_out:
+    type: wasm/rust-v1
+    file: ../../target/wasm32-unknown-unknown/release/native_balances_db_out.wasm
 modules:
   - name: map_events
     kind: map
@@ -19,8 +27,31 @@ modules:
       - source: sf.ethereum.type.v2.Block
     output:
       type: proto:evm.balances.v1.Events
+  # substreams-evm evm-balances v0.3.4 db_out without its ERC-20 input, for the
+  # existing legacy substreams-sink-sql deployment. See clickhouse/README.md.
+  - name: db_out
+    kind: map
+    binary: db_out
+    inputs:
+      - params: string
+      - source: sf.substreams.v1.Clock
+      - map: map_events
+    output:
+      type: proto:sf.substreams.sink.database.v1.DatabaseChanges
+# Legacy substreams-sink-sql only. `substreams sink clickhouse` is given
+# map_events explicitly and builds its own tables (clickhouse/README.md).
+sink:
+  module: db_out
+  type: sf.substreams.sink.sql.v1.Service
+  config:
+    # Generated from clickhouse/schema.0–3 by `make schema`.
+    schema: "./clickhouse/schema.sql"
+    engine: clickhouse
+    postgraphile_frontend:
+      enabled: false
 params:
   # Only the Extended producer version replayed from saved BSC fixtures. Other
   # producer versions and networks require their own qualification (#8).
   map_events: '{"producer_versions":[5]}'
+  db_out: "hex"  # Supported encodings: hex, tron_base58
 network: bsc

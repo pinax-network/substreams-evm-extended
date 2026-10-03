@@ -12,12 +12,19 @@ is `[]`. Blocks without the required Extended data are rejected.
 [Native balances](native/balances/README.md) is a second one-map package with
 the same protobuf: `Balance.contract` is absent and `amount` is the final
 persisted native balance of every account changed in the block. It ports the
-historical RPC-free native reducer and replays saved BSC blocks offline; no
-SPKG is committed and live qualification is pending.
+historical RPC-free native reducer. It was live-qualified on BSC on 2026-09-23,
+and that build is committed as `spkg/native-balances-v0.1.0.spkg`.
 
 The [native ClickHouse sink supplied by the Substreams CLI](erc20/balances/clickhouse/README.md)
-consumes the protobuf directly. This workspace contains no `db_out` module,
-custom ClickHouse/PostgreSQL sink, or database-change dependency.
+consumes the protobuf directly. For native balances,
+[`native/balances/clickhouse`](native/balances/clickhouse/README.md) loads the
+legacy substreams-evm native tables two ways from one package:
+- the CLI sink with materialized views and a base-data TTL;
+- a native-only legacy `db_out` for `substreams-sink-sql`.
+
+The two can run side by side and be compared. Apart from that `db_out`, this
+workspace contains no database-change module or custom ClickHouse/PostgreSQL
+sink.
 
 Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (state,
 evidence, open findings, next steps) and the procedures in [`skills/`](skills/README.md).

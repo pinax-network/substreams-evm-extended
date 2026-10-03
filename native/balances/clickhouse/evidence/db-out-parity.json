@@ -1,0 +1,190 @@
+{
+  "built_wasm": {
+    "actual": "abac279e299da664a5a460803c1044f89f2bf048a5ea66fa374e1f1d61096a57",
+    "expected": "abac279e299da664a5a460803c1044f89f2bf048a5ea66fa374e1f1d61096a57",
+    "name": "packaged db_out equals the local build",
+    "passed": true
+  },
+  "candidate": {
+    "db_out_wasm_sha256": "abac279e299da664a5a460803c1044f89f2bf048a5ea66fa374e1f1d61096a57",
+    "path": "spkg/native-balances-v0.2.0.spkg",
+    "spkg_sha256": "ecafb0fd88141a7c4d76f6f88c25ab5af4db6ebc34715511bae1f4d146242ffd"
+  },
+  "corpora": [
+    {
+      "comparison": {
+        "cases": 1,
+        "differing": [],
+        "empty_outputs": 0,
+        "identical": 1,
+        "identical_panics": 0,
+        "outputs_sha256": "afff9f0c857713c0bdf96c02023be71991dc563f2e705711e7eb04d60152e607",
+        "table_changes": {
+          "blocks": 1,
+          "native_balances": 82
+        }
+      },
+      "name": "committed BSC block 122260950"
+    },
+    {
+      "comparison": {
+        "cases": 14,
+        "differing": [],
+        "empty_outputs": 5,
+        "identical": 14,
+        "identical_panics": 3,
+        "outputs_sha256": "ae7727daf7dd22984a73d840a83979342dae4b8d6755aff1f042db5fbefdd94b",
+        "table_changes": {
+          "blocks": 9,
+          "native_balances": 13
+        }
+      },
+      "name": "synthetic edge cases"
+    },
+    {
+      "comparison": {
+        "cases": 1024,
+        "differing": [],
+        "empty_outputs": 0,
+        "identical": 1024,
+        "identical_panics": 0,
+        "outputs_sha256": "6ca60edb1c1999f2cd47fe9fbc34aec11827d121e65574eccc639eb473219e74",
+        "table_changes": {
+          "blocks": 1024,
+          "native_balances": 76139
+        }
+      },
+      "input_sha256": "7f5a38ceffbad10da02ff68d9386a4e68eb34c737f69ee72be395b35dd9a1007",
+      "name": "native/balances/out/live-2026-09-23/events/saved-122288006.jsonl (synthetic clocks)"
+    },
+    {
+      "comparison": {
+        "cases": 4999,
+        "differing": [],
+        "empty_outputs": 0,
+        "identical": 4999,
+        "identical_panics": 0,
+        "outputs_sha256": "cad1083c7c5d7c771a717b5aa194eb258589db411395fa261e18919e3d494c85",
+        "table_changes": {
+          "blocks": 4999,
+          "native_balances": 670873
+        }
+      },
+      "input_sha256": "8d0f87434674317a980c3c2b7edc7257d99da52b709183e1181ce205657e42d2",
+      "name": "native/balances/out/live-2026-09-23/events/live-123548070.jsonl (synthetic clocks)"
+    },
+    {
+      "comparison": {
+        "cases": 1024,
+        "differing": [],
+        "empty_outputs": 0,
+        "identical": 1024,
+        "identical_panics": 0,
+        "outputs_sha256": "e5ac6f667784e2b975d3d354a120e4595cfbf692c3d0d9f10f864d508563fe0c",
+        "table_changes": {
+          "blocks": 1024,
+          "native_balances": 76139
+        }
+      },
+      "name": "erc20/balances/out/top50-full-holder-blocks"
+    },
+    {
+      "comparison": {
+        "cases": 1024,
+        "differing": [],
+        "empty_outputs": 0,
+        "identical": 1024,
+        "identical_panics": 0,
+        "outputs_sha256": "e9e5ba8e40d6a4224623c6c34827899531884c619bc21881d1ce615060590ea6",
+        "table_changes": {
+          "blocks": 1024,
+          "native_balances": 168199
+        }
+      },
+      "name": "erc20/balances/out/live-2026-09-23/firehose-blocks"
+    }
+  ],
+  "limits": "Executes both packaged db_out WASM binaries on identical inputs (the reference with an empty ERC-20 input) in an interpreter implementing the four Substreams host imports. Panic locations are not compared. It does not run the Substreams engine or the SQL sink.",
+  "package_checks": [
+    {
+      "actual": "48d89d28d21b972307385c5e973fc4fe55d9160a4606f900a480318becbe6230",
+      "expected": "48d89d28d21b972307385c5e973fc4fe55d9160a4606f900a480318becbe6230",
+      "name": "map_events wasm is the qualified build",
+      "passed": true
+    },
+    {
+      "actual": "([\"params:{\\\"producer_versions\\\":[5]}\", \"source:sf.ethereum.type.v2.Block\"], \"proto:evm.balances.v1.Events\", \"map_events\")",
+      "expected": "([\"params:{\\\"producer_versions\\\":[5]}\", \"source:sf.ethereum.type.v2.Block\"], \"proto:evm.balances.v1.Events\", \"map_events\")",
+      "name": "map_events equals the qualified package's",
+      "passed": true
+    },
+    {
+      "actual": "params:{\"producer_versions\":[5]}",
+      "expected": "params:{\"producer_versions\":[5]}",
+      "name": "map_events params",
+      "passed": true
+    },
+    {
+      "actual": "[\"params:hex\", \"source:sf.substreams.v1.Clock\", \"map:map_events\"]",
+      "expected": "[\"params:hex\", \"source:sf.substreams.v1.Clock\", \"map:map_events\"]",
+      "name": "db_out inputs: the reference's without ERC-20",
+      "passed": true
+    },
+    {
+      "actual": "proto:sf.substreams.sink.database.v1.DatabaseChanges",
+      "expected": "proto:sf.substreams.sink.database.v1.DatabaseChanges",
+      "name": "db_out output type",
+      "passed": true
+    },
+    {
+      "actual": "db_out 0",
+      "expected": "db_out 0",
+      "name": "db_out entrypoint and initial block",
+      "passed": true
+    },
+    {
+      "actual": "true",
+      "expected": "true",
+      "name": "db_out has its own binary",
+      "passed": true
+    },
+    {
+      "actual": "db_out",
+      "expected": "db_out",
+      "name": "sink module",
+      "passed": true
+    },
+    {
+      "actual": "2",
+      "expected": "2",
+      "name": "sink engine",
+      "passed": true
+    },
+    {
+      "actual": "0566d859451be7fad8eddd3b6003562d0304cdba418c7e55fa670247d0722efd",
+      "expected": "0566d859451be7fad8eddd3b6003562d0304cdba418c7e55fa670247d0722efd",
+      "name": "sink schema is the verbatim legacy files",
+      "passed": true
+    },
+    {
+      "actual": "[]",
+      "expected": "[]",
+      "name": "no module imports an RPC host function",
+      "passed": true
+    },
+    {
+      "actual": "bsc",
+      "expected": "bsc",
+      "name": "network",
+      "passed": true
+    }
+  ],
+  "reference": {
+    "db_out_wasm_sha256": "738727994b616914ae6ca5d9dc60d33d364d9e5852fe4221d81ffbf8e452c357",
+    "path": "spkg/reference/evm-clickhouse-balances-v0.3.4.spkg",
+    "spkg_sha256": "063a0d3f2278231a0454b692325c10a9a10f8e17a45d8479f63fa1b2f8757230"
+  },
+  "refused_blocks": [],
+  "status": "passed",
+  "tool": "native-balances-tools db-out-parity"
+}
