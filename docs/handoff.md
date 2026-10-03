@@ -1246,6 +1246,26 @@ Raw basis, hourly reward/stopping hour, independently requested daily reward and
 
 Persisted raw effects require clock/hash continuity and same-key ordering. Runtime or dependency excursions suspend the epoch, including a restoration to reviewed identities. Changed helper pointer words also suspend even if only upper bits change, because the historical source lookup failed and upper-bit independence is unproved. Unchanged bound words with nonzero upper bits remain accepted; the token pointer keeps its separate masked-address policy. Atomic apply, a separately initialized new-epoch reset, bounded undo and digest-bound snapshots preserve raw origins and prevent future checkpoint seeding. No production layout, VM, persistence, protobuf or dependency change is part of this host reference. Actual deployment/source/dependency, initialized-holder, affected-holder extraction, replacement package and live checks remain under #5/#7/#21.
 
+## Native balances in ClickHouse, 2026-10-03
+
+The owner chose native balances only, loaded by the Substreams CLI's native
+ClickHouse sink with no `db_out`. ERC-20 is a separate implementation.
+[`native/balances/clickhouse/`](../native/balances/clickhouse/README.md)
+runs the sink on the local manifest, whose build is the live-qualified map
+(WASM `48d89d28…`, module `5a2a2e0c…`). After the sink's own setup, it adds:
+- the legacy native tables and aggregation views, verbatim from
+  substreams-evm@`cb8607f`;
+- one materialized view from `Balance` into `native_balances`;
+- a 7-day TTL on `Balance`.
+
+`_blocks_` serves as the block table, and `native_balances.block_hash` stays
+empty. History backfills from the RPC-era database by partition copy.
+
+Repository additions are SQL, a Makefile and docs only; no tool code. Setup was
+run on a local server. Sink-shaped rows from the saved-control and live windows
+reproduced independently verified tables in clickhouse-local. Nothing was
+streamed live.
+
 ## Host tools removed, 2026-10-03
 
 At the owner's request the repository now holds Substreams package code only.
