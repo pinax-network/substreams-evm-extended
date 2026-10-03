@@ -256,9 +256,9 @@ Ethereum mainnet, `docs.lido.fi/deployed-contracts` (protocol version v4.0.1) an
   `totalPooledEther = internalEther + floor(((externalShares × internalEther) mod 2^256) / internalShares)`
   is a separate getter value: substituting its already-truncated ratio
   `totalPooledEther / totalShares` can change the observable holder balance
-  ([exact reference model](../conformance/src/lido.rs)). The final total addition
+  ([exact reference model](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/src/lido.rs)). The final total addition
   is checked; spec revision 4 omits only the derived total on overflow and
-  retains all six observed inputs. The [compiled source controls](../conformance/fixtures/lido-oracle/README.md)
+  retains all six observed inputs. The [compiled source controls](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/fixtures/lido-oracle/README.md)
   exercise accepted packed inputs, without claiming deployed reachability.
   CL balances reach
   the execution layer through accounting reports; unchanged holders are

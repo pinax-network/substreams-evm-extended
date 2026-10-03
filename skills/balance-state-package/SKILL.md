@@ -10,7 +10,7 @@ description: How to add or change a protocol balance-state package (one RPC-free
 A protocol whose observable `balanceOf` depends on shared state (an index, an
 exchange rate, packed totals) or whose ERC-20 amount is not the stored basis.
 The map emits the **inputs** (holder basis + global words + bindings); the
-consumer evaluates with the `conformance` crate at a canonical clock. Never
+consumer evaluates them at a canonical clock. Never
 emit a computed balance and never replace `evm.balances.v1` `Balance.amount`.
 
 ## Layout of a package (copy `compound-v3/balance-state` or `lido/balance-state`)
@@ -99,8 +99,7 @@ writes that reduce to `old == new` and must be reviewed. Read the pinned source 
   the pinned form, parameters and their provenance level (see
   `docs/storage-layout-provenance.md`), fail-closed rules (table), validation
   commands, what the tests cover and what remains live-gated, issue link.
-- Update the root `README.md` package list, `docs/follow-up.md`, and the
-  `conformance/README.md` table when a model is added.
+- Update the root `README.md` package list and `docs/follow-up.md`.
 
 ## Test checklist (synthetic; every item below has been missed at least once)
 
@@ -129,9 +128,6 @@ writes that reduce to `old == new` and must be reviewed. Read the pinned source 
   changed layouts/dependencies, same-value pointer and code triggers, shared
   dependencies, ordinary-noop continuity, discarded prefixes, cold versus zero,
   fresh constants, quiet heartbeats, max ordinals, and undo/checkpoint replay
-- conformance: exact values on both sides of a kink, long elapsed time, checked
-  cast/overflow error arms, revert-on-negation extremes, missing input is an
-  error never zero
 
 ## Validation
 

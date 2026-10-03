@@ -11,7 +11,7 @@ emit `evm.balances.v1`. Three metrics stay distinct:
 | stETH `balanceOf` | `((shares × internalEther) mod 2^256) / internalShares` (version 4 getter, rounded down) | `GlobalState` packed words |
 | redemption / wstETH | separate models (withdrawal-queue NFTs, wstETH units) | not emitted here |
 
-The consumer evaluates with [`conformance::lido`](../../conformance/src/lido.rs)
+The consumer evaluates with [`conformance::lido`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/src/lido.rs)
 at a canonical block clock. A `TokenRebased` report changes every holder's
 balance without any holder write; the map emits the report's global words and
 the log evidence, never fabricated holder rows. A holder without a row is
@@ -45,7 +45,7 @@ all six stored input fields. This changes neither contract version 4 nor its
 model ID. A retained holder balance can still be evaluated from those inputs
 because `balanceOf` uses the internal rate directly.
 
-The [compiled source oracle](../../conformance/fixtures/lido-oracle/README.md)
+The [compiled source oracle](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/fixtures/lido-oracle/README.md)
 checks these boundaries against pinned functions and actual projector rows.
 Its inputs and relocated storage are synthetic; it does not establish that
 the extreme packed states are reachable in a deployed Lido instance.
@@ -166,7 +166,7 @@ the market suspended, and a newer BOUND must discard retained basis after
 suspension even with compatible storage (`basis_carryover = true`); fresh
 observations or a verified checkpoint are required. See the
 [contract](../../docs/balance-state-contract.md) and the synthetic
-[projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
+[projector-to-consumer tests](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/tests/projector_invalidation.rs).
 
 `TokenRebased` log evidence is retained only before the cutoff, with its
 original ordinal, transaction and log metadata. Post-cutoff logs are neither

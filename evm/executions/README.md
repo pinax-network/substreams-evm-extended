@@ -147,9 +147,9 @@ outside the named set (raw value kept, `OTHER` when unnamed). Producer
 semantics on other chains are qualified under
 [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
 
-The host-only replay tool (`tools/`, excluded from the WASM path) projects
-every saved block, checks one clock per block, determinism and the storage
-context rule, and tabulates producer capabilities. Over all 41 cached BSC
+The host-only replay tool (`tools/`, [source at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/evm/executions/tools);
+removed since) projected every saved block, checked one clock per block,
+determinism and the storage context rule, and tabulated producer capabilities. Over all 41 cached BSC
 directories ([report](docs/evidence/replay-bsc-v4-v5.json)): 1,509 distinct
 blocks (71 version 4, 1,438 version 5) project with **0 errors**, including
 the receipt/trace log agreement check on 116,951 transactions (1,075,108
@@ -158,9 +158,7 @@ re-projections and 0 storage-context violations. This is saved-data evidence,
 not a package qualification.
 
 ```sh
-cargo test --locked -p evm-executions -p evm-executions-tools
-cargo run --release --locked -p evm-executions-tools -- replay \
-  --blocks <dir> [--blocks <dir> ...] --producer-versions 4,5 --output evm/executions/out/replay
+cargo test --locked -p evm-executions
 make -C evm/executions build
 ```
 

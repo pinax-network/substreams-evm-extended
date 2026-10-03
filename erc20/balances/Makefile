@@ -10,6 +10,6 @@ build:
 pack: build
 	substreams pack substreams.yaml -o $(SPKG)
 test:
-	cargo test --locked -p erc20-balances -p erc20-balances-tools
+	cargo test --locked -p erc20-balances
 run: pack
 	substreams run $(SPKG) map_events -p 'map_events=$(LAYOUTS)' -e $(ENDPOINT) -s $(START_BLOCK) -t $(STOP_BLOCK) --final-blocks-only -o jsonl

@@ -5,7 +5,7 @@ A single RPC-free `map_events` reads Firehose Extended blocks and emits
 for explicitly qualified Aave V3 aToken epochs. It does not emit
 `evm.balances.v1`; the aToken's observable `balanceOf` is evaluated by the
 consumer from the rows below at a canonical block clock, using the exact
-model in [`conformance::aave`](../../conformance/src/aave.rs).
+model in [`conformance::aave`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/src/aave.rs).
 
 ## What is emitted
 
@@ -106,7 +106,7 @@ the market suspended, and a newer BOUND must discard retained basis after
 suspension even with compatible storage (`basis_carryover = true`); fresh
 observations or a verified checkpoint are required. See the
 [contract](../../docs/balance-state-contract.md) and the synthetic
-[projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
+[projector-to-consumer tests](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/tests/projector_invalidation.rs).
 
 This emission revision has offline synthetic validation only. Previously
 saved replay results and live package digests describe their original builds;
@@ -162,8 +162,7 @@ Reverted frames and failed transactions never produce rows
   ([report](docs/evidence/replay-bsc-v5-rev4.json)).
 
 ```sh
-cargo test --locked -p aave-balance-state -p aave-balance-state-tools -p conformance
-cargo run --locked -p aave-balance-state-tools -- replay --blocks <dir> --params tests/fixtures/bsc-aave-v3-epochs.json --output out/replay
+cargo test --locked -p aave-balance-state
 ```
 
 ## Live qualification (BSC, 2026-09-22)
@@ -183,7 +182,8 @@ solc 0.8.27 ([layout](../../docs/evidence/storage-layouts/aave-v3-origin@8305565
 
 The historical packed map from 2026-09-22 (`spkg` sha256 `a6db4088…`, wasm `7611bbf1…`)
 was streamed from `bsc.substreams.pinax.network` and every emitted row was
-checked with `aave-balance-state-tools live-parity` against RPC getters at
+checked with the host tool `aave-balance-state-tools live-parity`
+([source at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/aave/balance-state/tools); removed since) against RPC getters at
 the row's exact block hash ([report](docs/evidence/live-parity-bsc-2026-09-22-rev3.json);
 events sha256 `9d1c5978…`, byte-identical to the pre-`rustfmt` build
 `baef8568…` of [rev2](docs/evidence/live-parity-bsc-2026-09-22-rev2.json)):
@@ -213,8 +213,6 @@ block. Earlier reports for superseded packages are kept
 make -C aave/balance-state pack
 substreams run -e bsc.substreams.pinax.network:443 <spkg> map_events -s <N> -t +1 \
   -p "map_events=$(jq -c . aave/balance-state/epochs/bsc-aave-v3.json)" -o jsonl --bytes-encoding hex > events.jsonl
-cargo run --locked -p aave-balance-state-tools -- live-parity --events events.jsonl \
-  --params aave/balance-state/epochs/bsc-aave-v3.json --spkg <spkg> --endpoint bsc.substreams.pinax.network:443 --output <fresh dir>
 ```
 
 This qualifies the stated blocks and the holders written in them. It does

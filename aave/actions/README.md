@@ -78,9 +78,10 @@ the packed map (`spkg` sha256 `ca6c9cb0…`, wasm `acd5a4e0…`, parameters
 from `bsc.substreams.pinax.network` over 2,397 blocks: the 2,000 contiguous
 blocks 123,553,459–123,555,458, every other block of the preceding 20,000
 with a bound Pool event, and the five blocks with a `LiquidationCall` in
-the preceding 600,000 blocks. `aave-actions-tools live-parity` decodes the Pool's
+the preceding 600,000 blocks. The host tool `aave-actions-tools live-parity`
+([source at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/aave/actions/tools); removed since) decoded the Pool's
 receipt logs from `eth_getLogs` with the compiled ABI (not the map's
-decoder) and matches them by transaction hash and block log index in both
+decoder) and matched them by transaction hash and block log index in both
 directions: **459/459** receipt logs equal a persisted row field by field
 (148 `Supply`, 290 `Withdraw`, 7 `Borrow`, 7 `Repay`, 5 `LiquidationCall`,
 2 `FlashLoan`), no row without a log, no log without a row; 2,397 clocks
@@ -90,13 +91,11 @@ of reverted frames are not in receipts and are covered by the captured router
 fixture only.
 
 ```sh
-cargo test --locked -p aave-actions -p aave-actions-tools
+cargo test --locked -p aave-actions
 make -C aave/actions build
 # live, credentials in the environment only (SUBSTREAMS_API_KEY, RPC_URL)
 substreams run -e bsc.substreams.pinax.network:443 <spkg> map_events -s <N> -t +1 \
   -p "map_events=$(jq -c . aave/actions/tests/fixtures/bsc-aave-v3-pool.json)" -o jsonl --bytes-encoding hex > events.jsonl
-cargo run --locked -p aave-actions-tools -- --events events.jsonl --params aave/actions/tests/fixtures/bsc-aave-v3-pool.json \
-  --spkg <spkg> --endpoint bsc.substreams.pinax.network:443 --output <fresh dir>
 ```
 
 ## Boundaries

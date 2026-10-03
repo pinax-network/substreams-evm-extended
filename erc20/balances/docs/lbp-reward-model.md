@@ -68,7 +68,7 @@ The cases cover:
 The decay calculation ports the verified source's PRBMath fixed-point
 logarithm/exponent path. Repeated multiplication or floating-point exponentials
 would change rounding. The adjacent-day decay and division order also follow
-the deployed source. The [PRBMath MIT notice](../tools/src/lbp_rewards/PRBMath-LICENSE)
+the deployed source. The [PRBMath MIT notice](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools/src/lbp_rewards/PRBMath-LICENSE)
 is retained with the port; [upstream license](https://github.com/PaulRBerg/prb-math/blob/main/LICENSE.md).
 
 ## What production support still needs

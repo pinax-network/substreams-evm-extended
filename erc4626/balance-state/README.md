@@ -15,7 +15,7 @@ EIP-4626 fixes interface semantics only: `convertTo*` round down and may be
 inexact, `preview*` include fees, `max*` include limits. A standard interface
 implies neither a storage layout nor a `totalAssets` implementation, so each
 vault binds to one model and one implementation, and the consumer evaluates
-with [`conformance::erc4626`](../../conformance/src/erc4626.rs). A historical
+with [`conformance::erc4626`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/src/erc4626.rs). A historical
 Deposit/Withdraw ratio is never a conversion.
 
 ## Models and their dependency rows
@@ -166,7 +166,7 @@ the market suspended, and a newer BOUND must discard retained basis after
 suspension even with compatible storage (`basis_carryover = true`); fresh
 observations or a verified checkpoint are required. See the
 [contract](../../docs/balance-state-contract.md) and the synthetic
-[projector-to-consumer tests](../../common/retention/tests/projector_invalidation.rs).
+[projector-to-consumer tests](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/common/retention/tests/projector_invalidation.rs).
 
 This emission revision has offline synthetic validation only. Previously
 saved replay results and live package digests describe their original builds;
@@ -184,7 +184,8 @@ historical 2026-09-23 packed map (`spkg` sha256 `cb9dc6b2…`, wasm `b7d1055e…
 `bsc.substreams.pinax.network` over 2,064 blocks (the activation block, the
 2,000 contiguous blocks 114,858,030–114,860,029 and every block with a vault
 log between 114,857,790 and 123,557,790; the vault had none in the last
-400,000 blocks) and checked with `erc4626-balance-state-tools` at each
+400,000 blocks) and checked with the host tool `erc4626-balance-state-tools`
+([source at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc4626/balance-state/tools); removed since) at each
 row's block hash ([report](docs/evidence/live-parity-bsc-stata-2026-09-23.json)):
 162 share rows for 11 holders equal `balanceOf`, and the conversion evaluated
 by `conformance::erc4626::StataTokenLm` from the same-block reserve words
@@ -230,7 +231,7 @@ initializing block (Initializable word, long name, namespace words). `conformanc
 rounding, zero supply with and without offset, `rpow` half-up rounding and
 overflow, paused-reserve `maxWithdraw`, and uint256 overflow. OZ regression
 tests execute 1,224 conversion/preview calls against compiled pinned Solidity
-using an offline Rust interpreter; see [oracle provenance and regeneration](../../conformance/fixtures/oz-v5-oracle.md).
+using an offline Rust interpreter; see [oracle provenance and regeneration](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/conformance/fixtures/oz-v5-oracle.md).
 This covers fullprecision results, checked additions/offsets, and ceil overflow.
 It does not supply missing withdrawal-limit/liquidity inputs or qualify any
 deployed runtime or newly built package. See issue
