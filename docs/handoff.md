@@ -1,5 +1,8 @@
 # Session handoff (2026-09-21): roadmap state, evidence, and how to continue
 
+**2026-10-05:** `erc20/balances` is inference only; its layout path is at
+`9b41c7f`. See [ERC-20 layouts removed](#erc-20-layouts-removed-2026-10-05).
+
 **Current issue status (2026-09-28):** use [Follow-up work](follow-up.md).
 The earlier remediation is merged in #46, subsequent hardening/BSC evidence
 is merged through #62, and 13 issues remain open for explicit acceptance gaps.
@@ -13,7 +16,7 @@ RPC and stream endpoints. The loopback CLI regression covers every RPC command;
 it does not resume or qualify any network under #8. Authentication fallback is
 restricted to the canonical HTTPS BSC Pinax RPC origin; custom providers need an
 explicit RPC key if they require authentication. See the
-[host verification instructions](../erc20/balances/README.md).
+[host verification instructions](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/README.md#compare-and-audit).
 
 The five protocol balance-state extractors now use an exclusive invalidation
 cutoff and omit partial end-of-block state for invalidated markets. Pre-cutoff
@@ -153,7 +156,7 @@ The final regeneration and preserved red tests/earlier attempts are under
 `out/aave-static-oracles-20260928/source-04/` and its parent in
 `bsc-exclusion-review`. No production extractor or VM change is involved.
 
-The [offline six-exclusion review](../erc20/balances/docs/bsc-exclusions-offline-2026-09-28.md)
+The [offline six-exclusion review](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/bsc-exclusions-offline-2026-09-28.md)
 preserves the original TAKE/RADR/TOPS refused transactions and prepares only a
 TAKE guard-slot candidate. Exact complete source-capture hashes bind saved
 compiler/runtime reconstruction; this is not a new compiler or chain run.
@@ -162,7 +165,7 @@ the immutable canonical reference. The emitted-only ledger initializes 207
 observed holders; 6,586 reference observations remain cold. The 431-profile
 baseline and qualified 425-profile set are unchanged, and all six exclusions
 remain open under #61. TOPS's array path was not implemented by this initial
-review; the later [bounded candidate](../erc20/balances/docs/tops-lpinfo-candidate.md)
+review; the later [bounded candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/tops-lpinfo-candidate.md)
 remains NOT-QUALIFIED. RADR source and BNC4/sPro/swkeyDAO2 replacement
 dependencies remain unqualified.
 The associated production fix rejects oversized persisted storage keys and
@@ -170,7 +173,7 @@ values, including no-ops, before configured-token or beacon metadata ignores.
 See the linked report for preserved failed attempts, isolated validation and
 the separate runtime, package and holder gates before candidate promotion.
 
-The separate [TOPS host operation proof](../erc20/balances/docs/tops-operation-proof.md)
+The separate [TOPS host operation proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/tops-operation-proof.md)
 reproduces the complete original compiler output and saved creation/runtime
 binding, including all 13 immutable identities and 91 replacement sites. Eight
 dependencies have exact primary matches; the custom token's independent source
@@ -194,7 +197,7 @@ bounded legacy-profile candidate migration. Consult that record for the
 follow-up implementation and validation; the historical evidence below keeps
 its original scope.
 
-The [BurnMint role candidate](../erc20/balances/docs/burnmint-role-candidate.md)
+The [BurnMint role candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/burnmint-role-candidate.md)
 extends #4's offline per-profile review to
 `0xac23b90a79504865d52b49b327328411a23d4db2`. Its root-5 rule permits only the
 source-bound `[bytes32 role, address member]` mapping word. All other profile
@@ -210,7 +213,7 @@ comparison. New artifacts and validation remain under
 `out/burnmint-role-20260928/` in `bsc-exclusion-review`; the report preserves
 the exact interval, observed-holder counts and remaining promotion gates.
 
-The separate [Point/Bedrock role candidates](../erc20/balances/docs/point-bedrock-role-candidates.md)
+The separate [Point/Bedrock role candidates](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/point-bedrock-role-candidates.md)
 narrow only the legacy role rules at roots 0 and 5 to the exact two-key
 membership path. Complete cached captures bind all 23 source files, compiler
 inputs/outputs, layouts and saved runtimes without immutable substitutions or
@@ -229,7 +232,7 @@ neither has a persisted role-membership write in this window. No candidate is
 promoted or independently qualified by these source-shape and historical
 replay controls.
 
-The separate [FHE/B2 role candidates](../erc20/balances/docs/fhe-b2-role-candidates.md)
+The separate [FHE/B2 role candidates](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/fhe-b2-role-candidates.md)
 bind all 51 source files to exact public commits. Their dedicated verifier
 reconstructs only the seven FHE and eight B2 immutable words, independently
 computing EIP-712/ShortString values and B2's cap while preserving original
@@ -246,7 +249,7 @@ remain under
 `out/fhe-b2-role-20260928/` in `network-verification-config`; neither candidate
 is promoted by source-shape tests or saved compiler reconstruction.
 
-The separate [BAS role candidate](../erc20/balances/docs/bas-role-candidate.md)
+The separate [BAS role candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/bas-role-candidate.md)
 replaces only root 6's legacy width with exact membership and the single
 source-derived PAUSER admin word. Its constructor sets that word; other role
 admins remain guarded. Fixed-slot permission does not enforce authorization,
@@ -261,7 +264,7 @@ validation and replay artifacts are under `out/bas-role-20260928/` in
 `bsc-exclusion-review`; `source-03/` preserves the final preparation source.
 The candidate remains NOT-QUALIFIED, and both published cohorts are unchanged.
 
-The separate [Tagger role candidate](../erc20/balances/docs/tagger-role-candidate.md)
+The separate [Tagger role candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/tagger-role-candidate.md)
 preserves the source's owner-authorized arbitrary-role admin setter through
 an exact outer `[bytes32]` path at offset 1, alongside root 6's nested
 membership path. Owner bypass of membership checks and self-only renouncement
@@ -277,7 +280,7 @@ artifacts are under `out/tagger-role-20260928/` in
 `network-verification-config`; historical package evidence does not qualify
 this candidate or establish actual admin/member operation visibility.
 
-The separate [Artx role candidate](../erc20/balances/docs/artx-role-candidate.md)
+The separate [Artx role candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/artx-role-candidate.md)
 narrows only root 151 to exact membership, preserving the proxy's runtime,
 implementation address/hash, EIP-1967 pointer guard and all unrelated storage.
 It introduces no admin permission. Both complete captures bind 35 input files;
@@ -293,7 +296,7 @@ active. Preparation, failed attempts and validation artifacts are under
 `out/artx-role-20260928/` in `bsc-exclusion-review`; the candidate and both
 unchanged historical cohorts retain their separate qualification boundaries.
 
-The separate [Kgen/Deep candidates](../erc20/balances/docs/oft-role-candidates.md)
+The separate [Kgen/Deep candidates](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/oft-role-candidates.md)
 narrow only the plain role namespaces: root 10 membership for Kgen, and
 ERC-7201 membership plus three fixed initializer admin words for Deep.
 Kgen's forwarder-array and both tokens' long option bytes retain their existing
@@ -311,7 +314,7 @@ failed attempts and validation are retained under `out/oft-role-candidates-20260
 `bsc-exclusion-review`. Both candidates remain NOT-QUALIFIED, with actual
 runtime/package/holder and producer role-operation gates outstanding.
 
-The host-only [PToken operation proof](../erc20/balances/docs/ptoken-operation-proof.md)
+The host-only [PToken operation proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/ptoken-operation-proof.md)
 is the source-execution prerequisite for the subsequent coupled-role rule.
 Official solc 0.8.28 reproduces the complete saved runtime and creation bytes
 with original settings and only an output-selection addition. Twenty pinned
@@ -326,7 +329,7 @@ no production validator or profile. Failed attempts and full traces remain
 under `out/ptoken-coupled-role-20260928/` in
 `network-verification-config`.
 
-The subsequent [PToken coupled candidate](../erc20/balances/docs/ptoken-coupled-role-candidate.md)
+The subsequent [PToken coupled candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/ptoken-coupled-role-candidate.md)
 links root-5 membership and the root-6 set under an explicit selected-runtime
 semantics value. Both roots are reserved; complete ordered same-frame operations
 must consume every recognized record. Only source-proven zero-member equality
@@ -343,7 +346,7 @@ The candidate remains NOT-QUALIFIED: source provenance, real initial-set
 coherence, actual producer visibility and runtime/package/getter/holder gates
 remain open. Historical cohorts and Phase A evidence are unchanged.
 
-The separate [BTR host operation proof](../erc20/balances/docs/btr-operation-proof.md)
+The separate [BTR host operation proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/btr-operation-proof.md)
 reconstructs both saved implementation and proxy artifacts using official solc
 0.8.24 and the complete original inputs. Thirty implementation dependencies and
 eight proxy dependencies match their pinned primary sources; the custom
@@ -362,7 +365,7 @@ Fresh attempts, full traces and failed attempts remain under
 `out/btr-operation-proof-20260928/` in `bsc-exclusion-review`. Actual initial state,
 runtime/package/getter/holder qualification and producer visibility remain open.
 
-The separate [SecuritiesToken host proof](../erc20/balances/docs/securities-operation-proof.md)
+The separate [SecuritiesToken host proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/securities-operation-proof.md)
 rebuilds the complete selected implementation with official solc 0.8.24 and
 all 31 captured sources. Twenty-three bodies match immutable primary revisions;
 three differing BEP bodies and five unresolved token/client sources remain
@@ -378,7 +381,7 @@ metadata and runtime/package/holder qualification remain separate requirements.
 Source builds, execution traces and failed attempts are preserved under
 `out/securities-operation-proof-20260928/` in `network-verification-config`.
 
-The separate [SecuritiesToken coupled candidate](../erc20/balances/docs/securities-coupled-role-candidate.md)
+The separate [SecuritiesToken coupled candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/securities-coupled-role-candidate.md)
 adds source-selected solc 0.8.24/OZ 5.3 operation admission for seventeen
 otherwise identical historical profiles. It replaces broad membership width
 with complete same-frame boolean/set operations. The one source-fixed ISSUER
@@ -399,7 +402,7 @@ candidate coverage to thirty of 33 boolean-role profiles. Actual coherent initia
 state, initializer/client/proxy history, producer role witnesses, independent
 source gaps and runtime/package/getter/holder qualification remain open.
 
-The separate [GMToken host proof](../erc20/balances/docs/gm-operation-proof.md)
+The separate [GMToken host proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/gm-operation-proof.md)
 rebuilds the implementation and both proxy captures with official solc 0.8.16.
 Its 34 source records cover 27 unique source/path profiles: fifteen exact Ondo
 vendor dependencies, seven unique upstream proxy dependencies and five custom
@@ -418,7 +421,7 @@ the malformed-initializer expectation failure remain under
 candidate is added. Actual initial-state, producer, runtime/package/getter and
 holder qualification remain open.
 
-The separate [GM coupled candidates](../erc20/balances/docs/gm-coupled-role-candidate.md)
+The separate [GM coupled candidates](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/gm-coupled-role-candidate.md)
 replace only the legacy width-two role rule in two profiles. Their independently
 named solc 0.8.16/Ondo-vendored template couples membership root 201 and enumerable
 sets root 251. Complete coherent source operations are required; four one-sided
@@ -433,7 +436,7 @@ These candidates raised separate NOT-QUALIFIED coverage to thirty-two of 33
 boolean-role profiles. Full cohort and historical qualification
 fixtures remain unchanged.
 
-The separate [BTR role-only candidate](../erc20/balances/docs/btr-coupled-role-candidate.md)
+The separate [BTR role-only candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/btr-coupled-role-candidate.md)
 completes candidate migration for all 33 boolean-role profiles. It replaces only
 the broad root-101 membership permission with complete root-101/root-151 operations
 and the exact PAUSER self-admin scalar. Every persisted admin write must set the
@@ -450,7 +453,7 @@ terminal records and six unresolved-source profiles retain their classifications
 Source gaps, initial coherence, actual producer visibility and replacement
 runtime/package/getter/initialized-holder qualification remain open.
 
-The separate [ERC20TokenX host proof](../erc20/balances/docs/erc20tokenx-operation-proof.md)
+The separate [ERC20TokenX host proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/erc20tokenx-operation-proof.md)
 binds ORI and FNA's complete source/creation records to the shared 7,896-byte
 runtime without substitutions. PHI has only an exact historical runtime capture;
 its absent individual source and creation records remain explicit. Four pinned
@@ -463,7 +466,7 @@ attempts retain their separate unsupported boundaries and roll back. No VM or
 production permission changes accompany this proof. A source matrix does not
 establish deployed initialization or actual producer visibility.
 
-The subsequent [ERC20TokenX enumerable candidates](../erc20/balances/docs/erc20tokenx-enumerable-candidate.md)
+The subsequent [ERC20TokenX enumerable candidates](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/erc20tokenx-enumerable-candidate.md)
 cover ORI, FNA and PHI separately. Each removes only the broad three-word
 root-8 permission and selects the unchanged `oz_3_4_2` complete-operation rule,
 without a membership root or role-admin permission. All balance, metadata and
@@ -478,7 +481,7 @@ subsequent WKEYDAO/GOT fixture below adds two more. The custom primary-source ga
 PHI's runtime-only attribution, coherent initialization and actual
 producer/runtime/package/getter/initialized-holder qualification remain open.
 
-The separate [WKEYDAO/GOT host proof](../erc20/balances/docs/wkey-got-operation-proof.md)
+The separate [WKEYDAO/GOT host proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/wkey-got-operation-proof.md)
 binds each complete source/compiler/runtime and constructor append independently.
 The two runtimes use different role roots (9/8) and domain handling, while both
 keep MaxSupply at slot 6 and nonce mapping at 7. Their 1,263 synthetic calls
@@ -495,7 +498,7 @@ broad root-8 rules, and both candidates need separate projector/replay review.
 Fresh evidence remains under `out/wkeydao-got-operation-proof-20260929/` in
 `protocol-invalidation-boundary`; previous attempts are preserved.
 
-The subsequent [WKEYDAO/GOT enumerable candidates](../erc20/balances/docs/wkey-got-enumerable-candidate.md)
+The subsequent [WKEYDAO/GOT enumerable candidates](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/wkey-got-enumerable-candidate.md)
 remove only WKEYDAO's broad root-9 width rule and both GOT root-8 permissions.
 Each selects the unchanged legacy complete-operation validator without a
 membership root, admin scalar or creation rule. Allowance/nonce mappings,
@@ -591,7 +594,7 @@ and the ordered next steps. Procedural know-how is in [`../skills/`](../skills/R
 
 | Package (crate) | Output | Issue | Evidence | Slot provenance |
 | --- | --- | --- | --- | --- |
-| `erc20/balances` | `evm.balances.v1` | pre-existing production module; #2–#6, #22 | RPC-qualified historical evidence under `erc20/balances/docs`; typed-path baseline replay (1,024 blocks, 110,139 rows, 4,012 retained matches, 66,265 cold unknowns); live current package (#6): 425 of 431 profiles, 1,024 BSC blocks, 253,503 rows with 0 differences from the RPC reference, 88,534 holders checkpointed and final-state equal ([report](../erc20/balances/docs/live-package-bsc-2026-09-23.md)) | RPC-qualified layouts |
+| `erc20/balances` | `evm.balances.v1` | pre-existing production module; #2–#6, #22 | RPC-qualified historical evidence under `erc20/balances/docs` (at `9b41c7f` since 2026-10-05); typed-path baseline replay (1,024 blocks, 110,139 rows, 4,012 retained matches, 66,265 cold unknowns); live v0.1.0 layout package (#6): 425 of 431 profiles, 1,024 BSC blocks, 253,503 rows with 0 differences from the RPC reference, 88,534 holders checkpointed and final-state equal ([report](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/live-package-bsc-2026-09-23.md)) | RPC-qualified layouts |
 | `native/balances` | `evm.balances.v1` (`contract` absent) | #17 open (BSC live-qualified; other networks #8) | **live 2026-09-23**: 1,024 saved control blocks equal to the offline replay and `eth_getBalance` (76,139/76,139); 5,000 live blocks, 200,344/200,344 same-block `eth_getBalance` ([evidence](../native/balances/docs/evidence)); saved replay 1,439 blocks | n/a |
 | `erc20/events` | `erc20.events.v1` | #19 closed | BSC single-tx fixtures | n/a |
 | `evm/executions` | `evm.executions.v1` | #18 closed; producer semantics under #8 | saved-block replay: 1,509 BSC v4/v5 blocks, 116,951 txs, 1,075,108 receipt logs matched, 2,093,149 writes in storage context, 0 errors, determinism checked ([evidence](../evm/executions/docs/evidence/replay-bsc-v4-v5.json)); live: 250 final v5 blocks, 0 errors ([evidence](../evm/executions/docs/evidence/replay-bsc-live-2026-09-23.json)) | n/a |
@@ -808,7 +811,7 @@ changed the `common/retention` host API: `seed_checkpoint` and
    unobserved. Next: #61, then #2/#3's packaged DSG parity and holder checks. Ethereum and the
    other networks (#8) wait for endpoints.
 
-The [APD/DSG captured ledger controls](../erc20/balances/docs/typed450-offline-review.md#captured-projector-to-ledger-controls)
+The [APD/DSG captured ledger controls](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/typed450-offline-review.md#captured-projector-to-ledger-controls)
 use the two original full blocks and independently captured canonical rows. Cold
 application retains five emitted holders and keeps six reference-only values
 unknown, including two nonzero token-owned balances. Separate explicit snapshots
@@ -820,7 +823,7 @@ production permission, continuous initialized interval or new package/live
 qualification. Bound-bytecode metadata/getter independence remains separate work.
 
 
-The separate [wkeyDAO2/TRX host proof](../erc20/balances/docs/wkeydao2-trx-operation-proof.md)
+The separate [wkeyDAO2/TRX host proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/wkeydao2-trx-operation-proof.md)
 binds official solc 0.7.5 and 0.6.6 outputs to both complete captured programs.
 Only the exact 53-byte metadata segments differ; constructor constants after
 those segments and independent argument appends are preserved. Both versions
@@ -851,7 +854,7 @@ profiles and Mai completes all eight. Replacement qualification remains
 open for every profile.
 
 
-The separate [Mai host proof](../erc20/balances/docs/mai-operation-proof.md)
+The separate [Mai host proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/mai-operation-proof.md)
 reproduces the complete unoptimized solc 0.8.9 output, including fourteen exact
 OpenZeppelin 4.7 dependencies. The original no-argument creation is exact;
 the only runtime substitution is the source-derived immutable cap, 10^29,
@@ -878,7 +881,7 @@ change. Producer visibility and replacement runtime/package/getter/initialized-
 holder qualification remain open. No live chain call is part of this work.
 
 
-The subsequent [wkeyDAO2/TRX enumerable candidates](../erc20/balances/docs/wkeydao2-trx-enumerable-candidate.md)
+The subsequent [wkeyDAO2/TRX enumerable candidates](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/wkeydao2-trx-enumerable-candidate.md)
 remove only wkeyDAO2's broad root-8 width-two rule and TRX's root-6 width-three
 rule. The unchanged `oz_3_4_2` validator consumes their complete legacy
 operations, with no membership root, admin permission or creation admission.
@@ -903,7 +906,7 @@ coherence, actual producer visibility and replacement runtime/package/getter/
 initialized-holder qualification remain open. No live calls are included.
 
 
-The subsequent [Mai coupled candidate](../erc20/balances/docs/mai-coupled-role-candidate.md)
+The subsequent [Mai coupled candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/mai-coupled-role-candidate.md)
 replaces only its broad membership-root-0 mapping and root-1 width-two set rule.
 The exact `mai_solc_0_8_9_oz_4_7_0` selector fixes those roots and reuses the
 strict coupled operation generator. Balance root 2, allowance root 3, scalars
@@ -937,7 +940,7 @@ holder qualification remain open. No VM, dependency, protobuf or persisted-effec
 rule changes or live chain calls are included.
 
 
-The [APD/DSG getter proof](../erc20/balances/docs/apd-dsg-getter-controls.md)
+The [APD/DSG getter proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/apd-dsg-getter-controls.md)
 executes their exact saved runtimes against independently chosen raw balance
 words and metadata states. Complete flattened source captures, original compiler
 settings/output, seven APD immutable replacements, exact runtime/creation CBOR
@@ -975,7 +978,7 @@ comparison and qualified initialized-holder/final-state checks remain open.
 
 
 The [BNBTiger/COOKIE getter
-proof](../erc20/balances/docs/bnbtiger-cookie-getter-proof.md) independently rebuilds
+proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/bnbtiger-cookie-getter-proof.md) independently rebuilds
 their complete captured source with the pinned solc 0.8.4 and 0.6.12 binaries and
 original settings. COOKIE retains all eleven source paths, including the original
 absolute Windows paths. Full bytecode, raw compiler metadata, storage layouts, source
@@ -1015,7 +1018,7 @@ chain calls ran.
 
 ### Historical calculated getter retention
 
-The [calculated-retention host ledger](../erc20/balances/docs/calculated-retention.md)
+The [calculated-retention host ledger](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/calculated-retention.md)
 retains raw storage facts for three historical models: LBP with its hLBP dependency,
 BabyDoge and 10SET. Four complete captured source/runtime records, compiler layouts,
 immutable dependencies and the eight LBP exemption addresses bind these descriptors.
@@ -1064,7 +1067,7 @@ remaining qualification gates.
 
 ## BNBTiger / COOKIE separate candidates, 2026-09-29
 
-The [candidate implementation](../erc20/balances/docs/bnbtiger-cookie-candidates.md)
+The [candidate implementation](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/bnbtiger-cookie-candidates.md)
 adds two opt-in source-specific metadata modes with exact address/runtime/balance
 roots. All 29 frozen getter-proof artifacts remain pinned. Canonical field widths,
 fixed packed fields, unused zero padding and at most one changed packed field are
@@ -1100,7 +1103,7 @@ under out/bnbtiger-cookie-candidate-20260929/; original evidence is preserved.
 
 ## TOPS original-runtime cleanup proof, 2026-09-29
 
-The [new host proof](../erc20/balances/docs/tops-runtime-cleanup-proof.md) executes
+The [new host proof](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/tops-runtime-cleanup-proof.md) executes
 TOPS's complete 22,323-byte captured runtime through transfer/transferFrom. The
 original source/compiler/creation/runtime binding remains unchanged, including
 91 immutable sites and the separately pinned historical compiler report and
@@ -1144,7 +1147,7 @@ failed and preliminary attempts are retained, and no live chain checks ran.
 
 ## TOPS bounded LPInfo candidate, 2026-09-29
 
-The [separate candidate](../erc20/balances/docs/tops-lpinfo-candidate.md) selects
+The [separate candidate](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/tops-lpinfo-candidate.md) selects
 the original captured TOPS runtime, balance root 5 and exact inherited metadata
 permissions. It removes only broad mapping root 32 and adds complete root 31
 LPInfo append/prefix-cleanup validation, including the one coupled root 32 credit.
@@ -1183,7 +1186,7 @@ in the focused document and frozen evidence without replacing historical proof.
 
 ## YBC finite retained raw inputs, 2026-09-29
 
-The [YBC host adapter](../erc20/balances/docs/ybc-retained-inputs.md) adds a separate
+The [YBC host adapter](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/ybc-retained-inputs.md) adds a separate
 closed retained-input module. The three earlier LBP/BabyDoge/10SET bindings and
 existing YBC arithmetic remain unchanged. YBC's exact token, reward-helper and
 pool runtimes are pinned to their original captures. The token's complete saved
@@ -1299,3 +1302,32 @@ The rest tested the tools themselves and were not ported:
 - the EVM operation-proof executor;
 - the consumer-side retention ledgers and the `conformance` reference math.
 
+## ERC-20 layouts removed, 2026-10-05
+
+At the owner's direction `erc20/balances` is inference only: `map_events(block)`
+takes no params and infers every contract's balances from `Transfer` flows and
+persisted storage ([README](../erc20/balances/README.md)). The package is now
+version v0.2.0 and builds `spkg/erc20-balances-v0.2.0.spkg`; the committed
+v0.1.0 SPKG (`532b571f…`) stays the historical layout package. Removed from the
+package:
+- the layout parser, its fail-closed projection and the nine modules used only
+  by them, about 3,700 lines;
+- their 61 unit-test modules and 19 integration tests, about 20,600 lines;
+- 902 fixture files (84 MB) that only layout tests used;
+- the `docs/` directory: 117 qualification documents and 691 evidence files
+  (101 MB).
+
+They remain at
+[`9b41c7f`](https://github.com/pinax-network/substreams-evm-extended/tree/9b41c7f/erc20/balances).
+Markdown links in this file and in other documents that pointed into the
+removed documents now point there; paths inside `docs/research/*.json` resolve
+at that commit. The fixtures that other crates or the kept tests
+still read stay in place.
+
+The package's output on five captured BSC intervals (2,432 blocks) is byte
+identical to the frozen inference run with `{"layouts":[],"infer":true}`. The
+ported `fixture_parity_tests.rs` (above) went with the layouts. A thin test now
+checks block 122260950 against the same saved RPC values instead. The three WBNB
+wrapper cases in `native/balances` check the native side only, with the wrapped
+amount taken from the WBNB `Deposit`/`Withdrawal` event. `native/balances` no
+longer depends on `erc20-balances`.

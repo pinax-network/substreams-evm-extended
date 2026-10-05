@@ -1,2 +1,0 @@
-solc, the solidity compiler commandline interface
-Version: 0.7.5+commit.eb77ed08.Darwin.appleclang

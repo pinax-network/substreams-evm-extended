@@ -1,11 +1,13 @@
 # erc20/balances
 
-A single RPC-free `map_events` reads Firehose Extended blocks and emits
+A single RPC-free `map_events(block)` reads Firehose Extended blocks and emits
 **`evm.balances.v1.Events`**, using the exact shared protobuf and Rust types from
 [`erc20/balances` in the original repository](https://github.com/pinax-network/substreams-evm/tree/9f723e4b28a3abad755384ff1329950ea1287938/erc20/balances)
 and [`proto/v1/balances.proto`](../../proto/v1/balances.proto).
-There are no intermediate map modules, imported map dependencies, custom protobufs
-or generated bindings in this package. Only `map_events` creates an output cache.
+It takes no params, uses no stores and adds no protobufs; its only cache is
+the `map_events` output. Balances are inferred per block for every contract
+from its `Transfer` flows and persisted storage. There are no layouts, token
+lists or RPC calls.
 
 This module requires Firehose Extended blocks. It lives in
 `substreams-evm-extended` so Extended-only processing stays separate from the
@@ -14,259 +16,112 @@ consumes these Events directly. No `db_out` module or custom database sink is
 part of this workspace. [Migration provenance](../../docs/migration.md) distinguishes
 the preserved historical package from the package built in this repository.
 
-## Configurable verified layouts
+## Rules
 
-No token profile is enabled by default. Supply a JSON array in the `map_events`
-parameter. The default is `[]`, which emits no balances. Optional source-bound
-metadata modes additionally require their exact reviewed address and runtime.
-Each entry describes a **previously qualified balance mapping**, optionally
-with a reviewed zero-word fallback, address-derived balance, immutable empty
-mapping, or pinned proxy:
+A block fails only when it is not a complete Extended block (detail level,
+producer version 3–5, block identity, transaction status and calls) or when the
+embedded [persistence rules](src/persist.rs) cannot resolve it. Inference itself
+never fails a block: any doubt drops that contract's rows for the block. Work
+per block is bounded by the block's calls, logs, writes and 64-byte preimages;
+longer recorded preimages are never decoded. Per block and per contract
+([`src/infer.rs`](src/infer.rs)):
 
-| Field | Format | Meaning |
-| --- | --- | --- |
-| `contract` | 20-byte `0x` hex | Token contract |
-| `balance_slot` | 32-byte `0x` hex | Mapping base for reviewed unsigned balances |
-| `code_hash` | 32-byte `0x` hex | Qualified runtime Keccak-256, checked by the (since removed) Rust audit tools |
-| `balance_bits` | Optional integer, 8–256 in whole bytes | Explicitly reviewed unsigned getter width at byte offset zero; omission retains all 256 bits. Cannot combine with other balance formulas or an immutable-empty mapping |
-| `deployment` | Optional object | `block` and 32-byte `block_hash` pin first CREATE for a direct mapping or minimal proxy, without a zero-word fallback |
-| `other_slots` | Optional array of 32-byte `0x` hex | Explicitly qualified non-balance scalar slots |
-| `other_mapping_slots` | Optional array of 32-byte `0x` hex | Explicitly qualified non-balance mapping bases, including nested mappings |
-| `other_mapping_words` | Optional object mapping 32-byte `0x` bases to counts 1–32 | Reviewed non-balance mappings with multiword values, such as governance checkpoint structs |
-| `other_mapping_paths` | Optional array of `{root,key_types,offset,words}` | Reviewed non-balance paths with exact nesting depth and key types; offsets apply only to terminal fields. See [typed paths](docs/typed-mapping-paths.md) |
-| `metadata_semantics` | Optional exact source/runtime mode | Closed field/value guards for the separate [BNBTiger/COOKIE candidates](docs/bnbtiger-cookie-candidates.md), including packed constants, zero padding and persisted no-ops. Cannot combine with generic metadata or dependency permissions; these candidates remain NOT-QUALIFIED |
-| `lpinfo_array` | Optional exact source/runtime mode | Bounded complete append/expired-prefix operations for the separate [TOPS LPInfo candidate](docs/tops-lpinfo-candidate.md). At most six records before and after, independently grounded omitted equalities, exact frame/order/alias guards; NOT-QUALIFIED |
-| `enumerable_address_sets` | Optional array of `{root,key_types,semantics}` | Explicit source-bound role-member sets with complete ordered array/index witnesses. Currently one `bytes32` key and `oz_3_4_2` semantics; see [prerequisites and limits](docs/enumerable-role-sets.md) |
-| `voting_checkpoints` | Optional object | Reviewed OpenZeppelin `Trace208` arrays: `clock` is `block_number` or `timestamp`; `slots` lists direct array roots and `mapping_slots` lists `mapping(address => Trace208)` bases, all 32-byte hex |
-| `address_lists` | Optional array of 32-byte `0x` hex roots | Reviewed `address[]` bookkeeping, with exact persisted witnesses for appends, tail pops and swap-and-pop removals |
-| `zero_balance` | Optional object | `value` (32-byte `0x` hex uint256) replaces a zero mapping word; `storage_slot` (32 bytes) identifies its scalar dependency, omitted only for a runtime constant. Optional `excluded_addresses` lists verified runtime-constant holders (20-byte hex) whose zero words remain zero |
-| `balance_divisor` | Optional object | Positive `value` and required `storage_slot` (both 32-byte `0x` hex). A reviewed getter returns `floor(raw / value)`; every persisted change to the divisor stops processing and invalidates retained holder balances |
-| `proxy` | Optional object | `implementation_slot` (32 bytes), `implementation` (20 bytes), and implementation `code_hash` (32 bytes), all `0x` hex |
-| `beacon_proxy` | Optional object, mutually exclusive with `proxy` | `beacon_slot`, `beacon`, `beacon_code_hash`, `implementation_slot`, `implementation`, `implementation_code_hash`; optional `proxy` pins one forwarding layer and `proxy_admin` pins its reviewed admin `{slot,address}`. Addresses are 20 bytes, slots/hashes 32 bytes |
-| `minimal_proxy` | Optional object, mutually exclusive with other proxy kinds | `implementation` (20 bytes) and its `code_hash` (32 bytes); the token runtime hash must bind the exact standard 45-byte ERC-1167 forwarder |
-| `address_hash_balance` | Optional object | Full 32-byte `modulus`, `offset`, `multiplier` constants and `stored_addresses` entries with a 32-byte `slot` and 20-byte `address`; all `0x` hex |
-| `immutable_zero_mapping` | Optional boolean, default `false` | Caller-proven empty balance mapping that the pinned direct runtime cannot write; requires `deployment` and cannot combine with proxies or other balance rules |
+1. **Candidates** are the RPC reference's `(contract, holder)` pairs: logs of
+   non-reverted calls in successful transactions matching its 64 event shapes,
+   their participants, `tx.from` and the emitting contract. USDT
+   `Issue`/`Redeem` holders need an `owner()` call and are excluded.
+2. **Votes**: in every such call frame, each holder's signed net `Transfer` flow
+   is compared with the net persisted delta of the frame's writes whose key has
+   a verified same-frame preimage `pad(holder) || base`. DELEGATECALL frames
+   match by the proxy address of logs and writes. Exact votes for flows below
+   10^6 do not count for a mapping that also mismatches. `Deposit`,
+   `Withdrawal`, `Mint` and `Burn` never vote, because staking pools and lock
+   ledgers emit the same shapes; a contract without a nonzero `Transfer` in
+   the block is not inferred.
+3. **Base**: the mapping every traced `balanceOf` reads, if it has exact votes;
+   otherwise the mapping with the most exact votes, and a tie infers nothing.
+   Inner mappings (with their own 64-byte preimage, such as allowances) and
+   mappings with more large mismatches than exact votes (a packed word whose
+   other field moves) are never chosen.
+4. **Exclusions**: malformed records or event addresses; removed code or a
+   self-destruct; discontinuous writes to a key; a traced `balanceOf(holder)`
+   that reads another holder mapping or calls another contract (a beacon
+   `implementation()` lookup followed by its DELEGATECALL is allowed), or that
+   contradicts the stored word at its execution ordinal.
+5. **Other holder state**: when other mappings mismatch the event flows at least
+   as often as the base matches them, as reward and reflection tokens do, only
+   holders with their own traced `balanceOf` keep rows. With two or more exact
+   votes and no other exactly matching mapping, mismatches below a thousandth
+   of the flow (counters) are ignored.
+6. **Rows**: candidate holders written under the base get their last persisted
+   word. If that write's frame has no `Transfer`/`Deposit`/`Withdrawal`/`Mint`/`Burn`
+   naming a holder other than the contract itself (a flag such as FiatToken's
+   blacklist bit, an admin or a sync write), that holder needs its own traced
+   `balanceOf`. A candidate without a write gets the value of a traced
+   `balanceOf` that read only the base. Everyone else stays unknown; nothing
+   becomes zero.
 
-The caller must establish that the configured projection equals `balanceOf` for the
-pinned runtime. Matching a few samples or finding a mapping-shaped write alone
-is insufficient. The mapper cannot infer preexisting code identity from a block
-without code changes: independently qualify the starting runtime before using
-it outside the (since removed) audit tools. Persisted code changes to configured contracts
-fail, including changes back to the expected runtime, except a qualified first
-CREATE described below. For a configured proxy,
-the tools also check the implementation storage word and implementation runtime
-at both boundaries. The map rejects **every persisted implementation-slot write**
-(including an upgrade and upgrade back) and all implementation code changes.
-The implementation slot cannot appear in an ignore list. A proxy runtime hash
-alone is insufficient; the implementation's balance semantics must also be reviewed.
-For a reviewed beacon proxy, `beacon_slot` belongs to the token and
-`implementation_slot` belongs to the separate beacon contract. The tools bind
-both pointers, both dependency runtimes, and the beacon's `implementation()`
-return value. The mapper rejects changes to either pointer or dependency code,
-including a beacon upgrade with no token writes and an upgrade followed by a
-restore. The caller must review that the beacon getter reads this scalar directly
-or through the single explicitly pinned forwarding layer described below.
-Arbitrary computed beacon resolvers remain unsupported. Diamond proxies,
-rebasing balances and computed balances outside the explicit rule below remain
-unsupported.
+## Measured
 
-`other_mapping_paths` can express a nested role-membership boolean separately
-from its outer admin field. Each path requires a complete verified Keccak chain
-and canonical key padding. It does not permit extra nesting or apply a field's
-offset to intermediate mappings. Existing `other_mapping_slots` and
-`other_mapping_words` retain their broader legacy semantics; migrate a profile
-only after reviewing its complete source/runtime and validating the narrower
-configuration. The new rule is currently checked offline; the committed SPKGs
-and historical qualification reports predate it. See the
-[supported shapes and validation limits](docs/typed-mapping-paths.md).
-The separate [Point/Bedrock candidates](docs/point-bedrock-role-candidates.md)
-preserve the published baseline and record their bounded source/replay evidence.
-The separate [FHE/B2 candidates](docs/fhe-b2-role-candidates.md) add exact
-immutable reconstruction and remove FHE's duplicate broad role rule.
-The separate [BAS candidate](docs/bas-role-candidate.md) adds exact membership
-and one fixed PAUSER admin word; its public token-source gap remains explicit.
-The separate [Tagger candidate](docs/tagger-role-candidate.md) covers its
-reachable outer admin word and membership path, with exact saved CBOR
-reconstruction and an explicit independent primary-source gap.
-The separate [Artx candidate](docs/artx-role-candidate.md) binds both proxy
-and implementation captures and changes only membership, preserving upgrade
-guards and the unresolved token-source pin.
-The separate [Kgen/Deep OFT candidates](docs/oft-role-candidates.md) narrow
-plain-role membership and admit only Deep's three source-derived fixed admin
-words. They retain proxy/creation guards and unsupported forwarder-array and
-long-bytes metadata writes, with explicit primary-source and initializer gaps.
+Offline replays of captured Extended BSC blocks. Each interval is scored against
+every row the RPC reference package `erc20-balances-v0.3.4.spkg` (`8aaa03b5…`)
+emitted for it, that is, its per-block candidate holders whose `balanceOf` call
+succeeded. Row recall is exact rows over reference rows; value precision is
+exact over exact plus wrong. No interval had an extra row or an error block.
 
-`enumerable_address_sets` separately validates complete correlated role-member
-array/index operations, with event-level permissions and no persistent set
-cache. This is opt-in support for a reviewed runtime/write order, not automatic
-OpenZeppelin or DSG qualification. The initial set invariants must be verified
-by the caller. [The rule's documentation](docs/enumerable-role-sets.md) describes
-unchanged-write handling and the outstanding producer/package checks.
+| Blocks | Reference rows (tokens) | Emitted | Exact | Wrong | Row recall | Value precision |
+| --- | --- | --- | --- | --- | --- | --- |
+| 123,561,000–123,562,023 | 538,758 (3,428) | 338,371 | 338,357 | 14 | 62.80% | 99.996% |
+| 122,288,006–122,289,029 | 190,651 (1,696) | 112,708 | 112,705 | 3 | 59.12% | 99.997% |
+| 120,607,788–120,608,043 | 122,668 (1,460) | 72,781 | 72,778 | 3 | 59.33% | 99.996% |
+| 104,727,168–104,727,231 | 25,854 (708) | 16,210 | 16,197 | 13 | 62.65% | 99.920% |
+| 122,264,480–122,264,543 | 19,353 (509) | 11,331 | 11,331 | 0 | 58.55% | 100% |
 
-For `minimal_proxy`, the implementation address is embedded in the exact
-[ERC-1167 runtime](https://eips.ethereum.org/EIPS/eip-1167), rather than a storage
-pointer. Configuration binds the runtime hash to that forwarder and target. The
-audit checks the implementation code, and ingestion rejects implementation code
-changes even without token writes. Other clone bytecode variants require separate
-qualification; an immutable forwarding address does not make its target code or
-balance semantics automatically safe.
+The rules were tuned on the first interval. The second was scored by earlier
+review rounds, so it is not a pristine holdout; the last three are full captures
+of the same reference package, scored once after the rules were frozen.
 
-With `deployment`, the tools verify empty code and nonce zero immediately before
-the pinned block, and the expected runtime at deployment and audit boundaries.
-The mapper requires exactly one persisted code creation in a successful CREATE,
-checks its runtime bytes and execution ordinals, and rejects earlier storage/code
-activity, nonzero initial storage, and later code changes. Constructor writes
-before the code-change ordinal are included. Deployment support currently applies
-only to direct mappings and standard minimal proxies; storage-pointer proxy and
-fallback initialization remain unsupported.
-The native holder replay initializes the observed holder set to zero **at the
-validated CREATE**, then applies that block's writes. It does not call `balanceOf`
-before deployment or treat an unavailable response as zero. This is a bounded
-test baseline, not a complete global holder enumeration.
+- **Precision by token group.** The 425 tokens that had qualified layouts until
+  [9b41c7f](#history) got no wrong row in any interval. On every other token,
+  value precision is 99.983% (95% Clopper–Pearson lower bound 99.972%) and
+  99.963% (99.893%) in the first two intervals, and 99.938% (99.899%) pooled over
+  the last three. The 99.95% target is therefore not established beyond the
+  tuning interval. 13 of the 16 wrong rows in the last three intervals are one
+  reward token in one block.
+- **What the wrong rows are.** All 33 are computed balances in blocks that do not
+  show it: tokens whose `balanceOf` returns a nonzero value for an empty stored
+  word, and reward tokens whose `balanceOf` adds holder state that the block
+  neither moves nor reads.
+- **Why recall stops near 60%.** The reference re-emits holders whose balance
+  did not change in the block (the token itself, `tx.from`, approvers); these
+  stay unknown unless a traced `balanceOf` covers them. Tokens that emit events
+  without persisted balance writes (event-only, fake-balance or computed-only)
+  are never inferred.
 
-When a beacon's `implementation()` getter itself uses a proxy, configure
-`beacon_proxy.proxy` with that forwarding layer's `implementation_slot`,
-`implementation` and `code_hash` (the same hex formats as `proxy`). The slot
-lives at the beacon address. Qualification pins it and its runtime at both
-boundaries. Every persisted change to either beacon pointer, or to the delegate
-runtime, stops processing even if no token holder changes and even if restored
-in the same block. One reviewed forwarding layer is supported; additional
-getter dependencies still need explicit qualification. See the
-[BSC proxy follow-up](docs/ranked-proxy-coverage.md).
+These results do not establish any token's semantics outside the tested blocks
+and holders.
 
-For a transparent proxy used as the beacon, configure `beacon_proxy.proxy_admin`
-with its reviewed admin slot and address. The slot belongs to beacon storage.
-Making the token its beacon's admin changes the `implementation()` dispatch and
-can make `balanceOf` revert despite unchanged balance words. Qualification pins
-the admin at both boundaries; the mapper rejects any persisted change, including
-change-and-restore and blocks without holder writes. The admin slot must differ
-from both beacon implementation pointers, and the admin must differ from the
-token. This rule requires the optional beacon `proxy` layer; other caller-based
-resolver behavior still requires separate review.
+## Limits
 
-With `balance_bits`, the public amount uses only the lower configured bits.
-Raw 256-bit words remain intact through continuity checks, so equal public
-balances cannot conceal inconsistent storage history. This supports reviewed
-`uintN` getters such as XVS's `uint96`; it does not infer widths, signed values
-or arbitrary struct offsets from samples. Existing layouts retain full-word
-behavior when the field is absent. See the [XVS qualification](docs/xvs-uint96.md).
-
-With `balance_divisor`, raw storage words remain intact through continuity checks,
-then unsigned floor division produces the public amount. Checkpoint values use
-the same projection. The qualification runner pins the divisor at both interval
-boundaries; the mapper rejects any persisted change, including change-and-restore
-and blocks without holder writes. Reverted changes and unchanged words are safe.
-This rule cannot combine with another balance formula or a deployment baseline.
-It covers an explicitly verified interval with a stable conversion value, not
-rebasing across rate changes: requalify and rebuild retained holder balances
-before resuming after a change. See the [BSC ranks 101–150 review](docs/ranks101-150-coverage.md).
-
-With `zero_balance`, nonzero mapping words pass through unchanged. Zero words
-emit the explicitly pinned fallback, except for caller-qualified
-`excluded_addresses`, which retain zero. Exclusions apply only to zero words;
-nonzero balances for those holders still pass through. No burn-address exception
-is hardcoded. Only runtime-constant exceptions are supported, not mutable holder
-selectors. Raw words still drive continuity checks;
-projection happens only at output. For a storage-dependent fallback, the tools
-verify its value at both boundaries, and the mapper rejects **every persisted
-dependency-slot write**, including change-and-restore and holder-silent changes.
-The dependency cannot be ignored. Such changes need requalification and a rebuild
-of affected holder state; they are not implemented as silent global updates.
-
-`voting_checkpoints` supports the reviewed packed `uint48` clock / `uint208`
-vote histories separately from balances. Array roots must not overlap other
-configured fields. Mapping roots require verified address/slot Keccak preimages.
-Length writes must preserve continuity and append at most one entry per clock;
-an append must be followed by its exact final element, initially empty. Element
-writes retain the current clock and their own old/new continuity.
-
-Timestamp histories can update their last entry across blocks in the same
-second without writing the length. Such updates require the old and new packed
-clock to equal the block timestamp and may touch only one element per array.
-The index cannot exceed the clock: the qualified insertion rule permits only
-one entry for each distinct nonnegative clock value. This bound follows from
-the reviewed contract semantics; it is not a configurable arbitrary ignore
-range. Block-number histories always require the append witness in the current
-block. Arbitrary arrays, different packed formats and custom clocks remain
-unsupported by this rule, and unknown writes still fail.
-
-`address_lists` supports separately qualified `address[]` bookkeeping that is
-independent of the balance getter. Each length change must add or remove exactly
-one entry. An append's length increment must precede its new element write at
-`keccak256(root) + old_length`, modulo `2^256`, before the next length change.
-That element must start empty and contain a canonical 20-byte address.
-
-A removal must clear the old final element before decrementing the length.
-Swap-and-pop may first copy that exact old tail address into one earlier element,
-within the witnessed old length. Every accepted element write needs its own
-ordinal witness; repeated writes to a slot must preserve old/new continuity.
-This permits append/pop/reappend sequences without accepting extra overwrites.
-Element indices must fit `u64`; the final valid length can equal `2^64`.
-No guessed roots or unrestricted element ranges are accepted.
-The [Solidity storage rules](https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html#mappings-and-dynamic-arrays)
-place each address in a separate word. Compiler-embedded array roots do not
-require a captured Keccak preimage because the exact root is caller-qualified.
-
-A null-address append or removal retains its zero-to-zero element write as a
-validation witness. It does not enable ordinary balance no-op output.
-Reverted/failed writes cannot authorize persisted list changes. Missing or
-reused witnesses, arbitrary overwrites, unmatched clears, malformed values and
-roots overlapping other configured fields fail.
-The reviewed list is bookkeeping, not a source of inferred holder balances.
-
-With `address_hash_balance`, ordinary holders return
-`(uint256(keccak256(packed_20_byte_address)) % modulus + offset) * multiplier`.
-The modulus must be nonzero and the full expression must fit uint256. Holders
-selected by the low 160 bits of the configured scalar slots instead read
-`balance_slot`. The tools qualify these selectors at both boundaries; the map
-rejects changes to either selector, including change-and-restore. Reviewed
-packed flags above those address bits can change. This rule cannot be combined
-with a zero-word fallback or deployment initialization.
-
-Computed holders can emit without a storage write. Transfer, Approval and the
-reference's non-indexed OwnershipTransferred event supply their participants,
-transaction sender and token address, using the same ABI decoders and persisted
-log selection as the reference. Unreviewed or malformed events on these tokens
-fail. Special stored holders still require a write or verified prior state;
-the map never guesses their balance. The native holder replay computes ordinary
-holders' initial values independently and reports them separately from measured
-RPC checkpoint reads. This narrow rule requires a runtime/getter review and
-does not infer balance semantics from event amounts.
-
-With `immutable_zero_mapping`, the caller must prove that the first CREATE leaves
-the balance mapping empty and the complete pinned direct runtime cannot write it.
-The getter must read that mapping directly. An empty capture or sampled zero RPC
-responses are insufficient. The qualified invariant supplies zero for observed
-Transfer/Approval/OwnershipTransferred participants, senders and token contracts,
-using the same reference ABI decoders and null-address exclusion. Unknown or
-malformed events still fail. This preserves the reference's rows for reviewed
-log-only contracts without inferring values from the logged amounts.
-
-The mapper validates the pinned first CREATE when processing its block, rejects
-events before deployment/CREATE, and rejects every persisted balance-mapping
-write, including zero-to-zero and other no-op records. Code changes and unknown
-storage writes also fail. Reverted execution cannot trigger output or these
-persisted-write checks. Ordinary layouts keep their existing no-op filtering.
-The native replay records this zero baseline separately from RPC checkpoints and
-address formulas, and never initializes it before the qualified deployment.
-Raw-word diagnostics still expose a nonzero word instead of masking it as zero.
-
-Verified Keccak preimages identify holder keys. Transaction/call/log addresses
-are fallback candidates, accepted only when their mapping hash matches exactly.
-Persisted writes are ordered by execution ordinal; reverted execution cannot
-emit balances. Direct layouts preserve zero and full uint256 values; fallback
-layouts apply their explicit zero rule. Null holder addresses are excluded, as in
-the RPC reference. Unknown
-writes for a configured token cause an error unless they belong to an explicitly
-configured other slot/mapping. Unconfigured contracts emit no rows.
-
-Identical protobuf format does not mean complete ERC-20 coverage: unchanged
-stored-balance participants and holders with no observed write remain unknown.
-Explicit address-derived and immutable-zero layouts cover their qualified
-observed holders without writes, but do not enumerate every possible address. The reference
-also queries approval participants, senders, token contracts and special events.
-Missing data never becomes zero. A full holder dataset still needs a verified
-bootstrap and additional qualified token semantics.
+- **No carried state.** Unchanged holders stay unknown unless read in the block.
+  Because a later block can drop a contract, a consumer that keeps the latest
+  emitted amount can hold a stale value. In the first two intervals, 38 and 14
+  reference rows were preceded by a different emitted value for the pair, and
+  the final amount differed for 15 of 167,959 and 5 of 70,303 pairs.
+- **No persisted write, no rows.** A contract without a persisted write in a
+  block gets no rows, however many holders its events name.
+- **Computed balances.** Reward, reflection, rebasing, scaled and
+  constant-default balances are excluded only when the block shows it.
+- **Certification by exact votes alone.** When the real balance key is not
+  `pad(holder) || base` (struct offsets, Vyper ordering, assembly hashing),
+  another mapping that moves exactly, such as a cumulative `received[holder]`,
+  can be emitted instead. A packed word is emitted whole when its other fields
+  never change, or change on no more of the block's touches than those that move
+  the balance alone.
+- **Guards from synthetic scenarios.** Inner mappings, dust votes,
+  self-destruct, non-voting `Deposit`/`Mint`, large own mismatches and
+  unexplained writes come from synthetic scenarios and change at most a few rows
+  in these intervals.
 
 ## Build and Rust tests
 
@@ -275,382 +130,40 @@ make -C erc20/balances test
 make -C erc20/balances pack
 ```
 
-Output: `spkg/erc20-balances-v0.1.0.spkg`. No Buf generation is needed here;
-the public schema is already maintained by the shared `proto` crate.
+Output: `spkg/erc20-balances-v0.2.0.spkg` (package version v0.2.0). No Buf
+generation is needed here; the public schema is already maintained by the
+shared `proto` crate. The committed `spkg/erc20-balances-v0.1.0.spkg`
+(`532b571f…`, 2026-09-23) is the earlier layout package, which takes layouts as
+params; no build writes to it. This source has not been packed or run in a
+Substreams engine yet; a build is a new artifact and inherits none of that
+package's checks. `spkg/erc20-balances-v0.3.4.spkg` is the immutable RPC
+reference. See [rename provenance](../../docs/migration.md#module-rename).
 
-The first build of this renamed package is committed (SPKG `532b571f…`, WASM
-`005a2d3d…`, module hash `4a64d86d…`) and was run on 1,024 live BSC blocks on
-2026-09-23: see [current package on live BSC](docs/live-package-bsc-2026-09-23.md).
-A later rebuild is a new artifact and does not inherit those checks. The build
-and native sink defaults use this path and never substitute an older
-artifact. The storage-named SPKGs remain historical evidence, while
-`spkg/erc20-balances-v0.3.4.spkg` is the immutable RPC reference. See
-[rename provenance](../../docs/migration.md#module-rename).
+Thin Rust tests call the package functions directly. They cover the rules on
+synthetic blocks, the embedded persistence rules, which blocks fail, the
+manifest shape, and captured block 122260950 against its saved same-block RPC
+values. On that block, all 18 recorded `balanceOf` checks match, and so do the
+101 rows inferred for USDT, WBNB, USDC and BTCB.
 
-Tests call extraction functions directly in Rust. They cover two arbitrary token
-addresses with different mapping bases (including a full-width 256-bit base),
-zero/max values, allowances, malformed configuration, code changes, reverted and
-failed transactions, real captured blocks, RPC failures and schema compatibility.
-Captured WBNB `deposit()`/`withdraw()` transactions without any `Transfer`
-event, including reverted frames and a Permit2-mediated transfer, are the
-[non-Transfer mutation corpus](docs/non-transfer-mutations.md).
+## History
 
-## Qualification tooling (removed)
+Until [9b41c7f](https://github.com/pinax-network/substreams-evm-extended/tree/9b41c7f/erc20/balances),
+`map_events` took caller-qualified storage layouts as params and failed closed
+on any unreviewed write. That commit has the layout code, its tests and
+fixtures, and the qualification documents and evidence for 425 BSC tokens. Its
+last packed build is the committed v0.1.0 SPKG (2026-09-23), which predates the
+typed-path and enumerable-set source at that commit. On 2026-10-05 the owner
+replaced layouts with inference, as v0.2.0.
 
-Layouts were qualified with the host tool `erc20-balances-tools`
-([source at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools)), removed on 2026-10-03 with
-the other host tools. Its commands:
-- `audit-rpc` and `compare`: packaged output against hash-pinned
-  `balanceOf` and against the RPC reference `erc20-balances-v0.3.4.spkg`;
-- `probe-erc20`: native layout discovery from captured blocks;
-- `rank-tokens`, `capture-blocks` and `test-ranked`: ranked-token parity;
-- `inspect-ranked`, `recheck-rpc` and `inspect-balance`: inspection;
-- `holder-coverage`, `runtime-status` and `refusal-scan`.
+On the five intervals above, the two approaches compare as follows:
 
-The evidence below, the dated documents in `docs/` and the fixture READMEs
-refer to them, and their commands run at that commit. Their usage, network-identity
-options and guarantees are documented in the
-[README at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/README.md#compare-and-audit). The
-regression layout files in `tests/fixtures/` are explicit test inputs, not
-defaults or built-in token lists.
+- inference gave the same value wherever both emitted a row for those tokens;
+- inference added rows that all equal the reference;
+- the layouts failed closed in two blocks, where inference failed none;
+- inference took about 3 ms instead of about 77 ms per live block (native p50);
+- the layouts emitted 3,333 rows in the second interval that inference leaves
+  out, 3,299 of them from two tokens without persisted balance writes (22, 5, 1
+  and 3 in the other intervals).
 
-## Reviewed candidates and holder state
-
-The latest [five-profile follow-up and role corrections](docs/refined450-coverage.md)
-bring the explicit test configuration to 431 profiles among the first 450
-RPC-stream candidates in `tests/fixtures/bsc-refined450-layouts.json`.
-USDe, CONCILIUM, GIGGLE, LABUBU and ARKIE match 85 emitted RPC balances,
-141 initialized observations and all 59 final holder balances. Regressions
-cover bridge rate records, fixed arrays, packed transfer metadata and
-LABUBU's reentrancy guard. [MUSD and OLY](docs/role-width-coverage.md) replace
-two existing role layouts with narrower rules and separately revalidate
-204 emitted balances and 88 final holders, without counting them twice.
-The preceding [SLX, PIN, NXT and short-proxy follow-up](docs/access450-coverage.md)
-retains its permit, null-address burn and proxy evidence. The preceding
-[nine-profile source follow-up](docs/source450-coverage.md) retains its
-complete historical getter/runtime and metadata evidence.
-The preceding [nineteen-profile follow-up](docs/ranks450-coverage.md) retains
-its direct and proxy evidence.
-[APM's zero-word fallback](docs/apm450-coverage.md) corrects two original value
-mismatches; direct and proxy runtime matches retain independently checked
-metadata and dispatch guards. The unchanged package matches every protobuf
-event field for 110,139 previously
-RPC-verified balances across the combined configuration. This reuses preserved
-RPC evidence and does not establish a new full-431 holder checkpoint.
-The [broader role-shape audit](docs/role-shape-audit.md) records remaining
-synthetic guard boundaries in 33 boolean-role and eight enumerable-role
-profiles. Some have reachable admin writers and need exact storage-path
-recognition; removing every multiword rule would reject legitimate writes.
-These findings do not allege historical balance mismatches or establish
-that fabricated writes are reachable.
-
-The opt-in [enumerable role-set rule](docs/enumerable-role-sets.md) provides
-source-level validation for the reviewed DSG operation shape. The published
-431-profile cohort is unchanged; producer visibility, package parity and
-individual role-profile qualification remain separate follow-up gates.
-The preceding [ten-profile follow-up](docs/tail400-coverage.md) retains its
-packed swap/lock metadata and minimal-proxy evidence.
-The preceding [three Cake-LP profiles](docs/lp400-coverage.md) retain their
-complete getter, fixed-field, allowance and nonce evidence.
-The [AR, ARZ and ARS follow-up](docs/sparse400-coverage.md) retains its separate
-bytecode and sparse-discovery evidence. BabyDoge and 10SET from
-the [ranks 351–400 investigation](docs/ranks351-400-investigation.md) remain unqualified,
-alongside LBP, TITAN, ORD, YBC and 钻石 from earlier ranks. The
-[ranks 401–450 diagnosis](docs/next450-mismatch-diagnosis.md) separately explains
-seven original value mismatches in APM and OG. APM is now qualified separately;
-the [OG host model](docs/og450-host-model.md) remains outside production support.
-The [Dood and DeepTokenOFT follow-up](docs/proxy400-coverage.md) and previous
-[27-profile cohort](docs/ranks400-coverage.md) retain their separate source,
-proxy-family and holder evidence. The earlier
-[MUSD/GAIX follow-up](docs/direct-discovery-gaps.md) retains its separate evidence.
-The [reflection host model](docs/reflection-holder-model.md) matches 329
-historical getter checks for BabyDoge and 10SET and confirms passive 10SET
-holder changes, but does not add production reflection support. The
-[XVS width follow-up](docs/xvs-uint96.md) retains its `uint96` getter evidence.
-The prior [13-token cohort](docs/pending350-coverage.md) retains its separate
-direct-mapping, dividend-bookkeeping, proxy and deployment evidence. These
-figures do not claim global holders or all-token support. The original
-[survey](docs/ranks301-350-investigation.md) and earlier
-[36-token qualification](docs/ranks301-350-coverage.md) retain their separate scopes.
-
-The earlier [top-300 follow-up](docs/pending300-coverage.md) retains the previous
-296-profile scope and separate older DIA append and ETZ swap-and-pop captures.
-Earlier reports below keep their original cohort scopes.
-
-`tests/fixtures/bsc-reviewed-layouts.json` explicitly configures BSC USDT, BTCB,
-USDC (pinned implementation), and the existing WBNB control. The file is not a
-default. See [expanded qualification and holder coverage](docs/holder-coverage.md)
-for source/runtime evidence, the zero-word mismatch explanation and live checks.
-
-The [next BNB qualification](docs/next-bnb-candidates.md) adds ETH, BUSD, CAKE and
-USD1 in `tests/fixtures/bsc-expanded-layouts.json`. It includes multiword governance
-storage, an ABI decoding compatibility fix, and explicit diagnosis of calls before
-contract deployment. The new fixture is also caller-supplied, never a default.
-
-The [fallback and vUSDT follow-up](docs/fallback-balances.md) expands the explicit
-test configuration to 14 tokens in `tests/fixtures/bsc-fallback-layouts.json`.
-It fixes all seven recorded fallback-value mismatches and qualifies vUSDT's
-custom proxy implementation using Venus's published deployment artifact.
-
-The [beacon and zero-path follow-up](docs/beacon-and-zero-paths.md) adds KII,
-BNC4, WCOL and three further fallback profiles to the explicit
-`tests/fixtures/bsc-beacon-layouts.json` test input. `inspect-ranked` probes zero,
-1, 123 and uint256 max on candidate mappings. This catches fallback paths absent
-from ordinary transfer samples; passing these controls never automatically
-qualifies a layout.
-
-The [deployment follow-up](docs/deployment-holder-coverage.md) qualifies a direct
-token's first mint. The [clone follow-up](docs/clone-holder-coverage.md) adds a
-source-verified minimal-proxy implementation and replays both deployments with
-`tests/fixtures/bsc-clone-layouts.json` (22 explicit test layouts). Three more
-individually checked tokens with that same implementation are included in
-`tests/fixtures/bsc-clone-family-layouts.json` (25 layouts).
-
-The [address-derived balance follow-up](docs/computed-holder-coverage.md) adds the
-rank-7 token to `tests/fixtures/bsc-computed-family-layouts.json` (26 explicit
-test layouts). Its 3,000 Transfer logs have no balance writes, so a pure storage
-delta stream cannot discover their public balances. The qualified getter rule
-covers ordinary participants while preserving the special stored-holder gap.
-
-The [source-verified direct-token follow-up](docs/direct-source-holder-coverage.md)
-adds 13 profiles in `tests/fixtures/bsc-direct-source-layouts.json` (39 explicit
-test layouts): POWER, two FourERC20 tokens, AKE, ZEC, MMPRO, ASTER, a fee-bearing
-ProToken, AIN, SKYAI, PIEVERSE, BULLA and ARK. Their getters read direct balance
-mappings; transfer fees, permit nonces and minting roles are reviewed separately
-from those mappings. Unknown non-balance writes still fail.
-
-The [proxy-token follow-up](docs/securities-proxy-holder-coverage.md) adds two
-SecuritiesToken beacon proxies and a StablecoinV2 transparent proxy in
-`tests/fixtures/bsc-securities-proxy-layouts.json` (42 explicit test layouts).
-Namespaced balances remain raw even when a scheduled UI multiplier changes.
-Pause and freeze flags likewise do not transform the stablecoin's balance getter.
-Proxy, beacon and implementation identities are checked separately.
-
-The [top-50 follow-up](docs/top50-holder-coverage.md) adds the remaining eight
-ranked contracts in `tests/fixtures/bsc-top50-layouts.json`. Their direct mapping
-getters are qualified from historical bytecode, traces and controls; verified
-Solidity source was unavailable. Three share an already reviewed runtime.
-The fixture covers all 50 contracts in the original ranking, with per-token
-holder-state results and explicit cold-start gaps.
-
-The [ranks 51–100 follow-up](docs/next-candidate-holder-coverage.md) qualifies 26
-more candidates, bringing `tests/fixtures/bsc-next-candidates-layouts.json` to 76
-profiles. It also fixes holder-specific zero fallbacks found by explicit burn
-address controls, including one previously sampled token. The retained reports
-describe the exact earlier artifacts; historical fixture digests predate this
-correction. That batch left 24 candidates unqualified.
-
-The [next proxy and deployment batch](docs/next-proxy-holder-coverage.md) qualifies
-eleven of those candidates, bringing `tests/fixtures/bsc-next-proxy-layouts.json`
-to 87 profiles. It covers eight FlapTaxTokenV3 clones, a TokenV2 clone, GMToken and
-BTRToken, including two new deployment baselines. Thirteen of the original top
-100 candidates remain unqualified.
-
-The [voting-token review](docs/voting-holder-coverage.md) adds SENTIS and STAR in
-`tests/fixtures/bsc-voting-layouts.json`, bringing the configured test set to 89.
-It includes older deployment/mint captures that exercise voting checkpoint
-arrays, beyond ordinary transfers in the ranked window. Eleven of the original
-top 100 candidates remain unqualified.
-
-The [direct-bytecode follow-up](docs/direct-bytecode-holder-coverage.md) adds
-eight source-unavailable contracts in `tests/fixtures/bsc-direct-bytecode-layouts.json`,
-bringing the configured test set to 97. Qualification uses reviewed historical
-getter bytecode, independent storage overrides and captured writes, including
-SAC's burn counter and 79AU's block tracking and packed temporary flag. It does
-not claim verified source. Three of the original top 100 candidates remain
-unqualified in that batch.
-
-The [final proxy review](docs/final-proxy-holder-coverage.md) adds 4Stock and CAP
-in `tests/fixtures/bsc-final-proxy-layouts.json`, bringing the test set to 99.
-4Stock's reward accounting is separate from its raw balance mapping; that
-bounded fixture permits only its reviewed reward fields.
-That batch left one log-only candidate outside its coverage claim.
-
-The [immutable-zero follow-up](docs/immutable-zero-holder-coverage.md) closes that
-candidate's gap in `tests/fixtures/bsc-top100-layouts.json`. Its captured CREATE
-leaves the balance mapping empty, and the reviewed runtime's only storage write
-updates allowances. The explicit rule produces all 298 independently checked
-reference rows from its captured activity. This completes layout review of the
-original top 100, subject to each profile's documented path and holder limits;
-it does not establish support for every BSC token. See the
-[network expansion sequence](docs/network-expansion.md) for Ethereum, Base,
-HyperEVM and Arc qualification after BSC.
-
-The [holder-registration follow-up](docs/holder-registration-coverage.md) extends
-4Stock in `tests/fixtures/bsc-holder-registration-layouts.json` with its pinned
-first deployment, initialization fields, membership flag and witnessed address
-list. The original campaign fixtures and reports retain their original scope.
-This extension accepts qualified list appends without using membership to infer
-balances, and keeps the same one-map interface and empty production defaults.
-
-The ranked inspection, RPC recheck, holder-coverage and balance-inspection
-commands behind this evidence were part of the removed host tool. They are
-documented in the
-[README at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/blob/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/README.md#reviewed-candidates-and-holder-state).
-Holder-coverage checkpoints were test-only historical RPC reads: reference
-amounts were compared, never inserted into consumer state, and they are not a
-complete global holder snapshot.
-
-The [YBC diagnostic](docs/ybc-reward-trace.md) recovers a real reward-bearing
-trace and preserves its expected maximal-word overflow. The subsequent
-[YBC arithmetic model](docs/ybc-reward-model.md) explains all six known raw-word
-mismatches, with 24 historical snapshots and 30 read-only control cases
-retained as Rust fixtures. YBC remains outside production qualification.
-
-The [PTokenV2 Phase A operation proof](docs/ptoken-operation-proof.md) regenerates
-one exact captured runtime/creation with official solc 0.8.28 and checks 382
-synthetic constructor/ABI calls in a bounded host executor. It proves selected
-coupled role-operation behavior; the proof itself introduced no ingestion or
-baseline change. The separately opted-in [Phase B coupled candidate](docs/ptoken-coupled-role-candidate.md)
-requires the complete selected root-5/root-6 operation template with Extended 4/5
-frame evidence. It remains NOT-QUALIFIED, with real producer role-write visibility,
-initial coherence and runtime/package/holder gates separate from offline checks.
-
-The [BTR Phase A operation proof](docs/btr-operation-proof.md) separately binds
-the captured implementation and proxy using official solc 0.8.24, with 39 source
-files and 38 exact dependency pins. It targets the selected OZ 4 coupled role
-operations and independent whitelist set in synthetic accounts. The custom
-token's primary source gap, proxy-dispatch boundary and missing deployed-state
-qualification remain explicit.
-
-The separate [BTR role-only candidate](docs/btr-coupled-role-candidate.md) narrows
-root101/root151 to the independently proved selected-build template and requires
-the exact PAUSER self-admin value. Whitelist length555/index556 permissions are
-unchanged and partial: nonzero array mutations refuse, while zero-address add or
-sole removal can pass with equal array stores omitted or ignored. Full whitelist
-admission and deployed/producer/package qualification remain separate work.
-
-The [SecuritiesToken Phase A proof](docs/securities-operation-proof.md) binds all
-31 captured sources to official solc 0.8.24 and the exact full implementation
-runtime, with 23 literal primary matches and eight explicit source gaps. It
-targets local namespaced role operations and raw ERC20 getters in synthetic
-accounts. On-chain creation/deployment evidence is absent; initializer, external
-client, transfer and timed UI success paths remain excluded. That proof does not
-qualify the seventeen deployed proxy profiles.
-
-The separate [SecuritiesToken coupled candidates](docs/securities-coupled-role-candidate.md)
-add an explicitly selected solc0.8.24/OZ5.3 operation template for those seventeen
-configurations. They remove independent broad membership permission and preserve
-only the exact initializer-derived ISSUER admin word with a zero-only new value.
-Source-derived projector controls and the saved canonical replay remain distinct
-from real producer visibility, coherent initial state and package qualification;
-the immutable 431 baseline and historical 425 cohort are unchanged.
-
-The [GMToken Phase A proof](docs/gm-operation-proof.md) binds three complete
-captures to official solc 0.8.16, preserving 15 exact Ondo-vendored dependencies,
-seven unique upstream proxy dependencies and five custom primary-source gaps.
-It compares selected local role/getter paths across the exact compiled and
-captured runtimes, whose declared CBOR metadata differs. Synthetic construction
-returns compiler runtime; on-chain creation stays unbound. External compliance,
-pause logic and beacon dispatch remain excluded from that host proof.
-
-The separate [GM coupled candidates](docs/gm-coupled-role-candidate.md) select
-the exact solc0.8.16/Ondo-vendor coherent template for two beacon proxies at
-membership root 201 and set root 251. They reject all four one-sided legacy
-source operations and add no role-admin permission. Every unrelated baseline
-field, including finite long-name payload words and beacon dependencies, remains
-unchanged. Extended 4/5 frame evidence and complete operation witnesses are
-required; initial coherence, actual producer visibility, deployment and external
-client behavior remain outside this offline NOT-QUALIFIED candidate.
-
-The [ERC20TokenX Phase A proof](docs/erc20tokenx-operation-proof.md) separately
-binds complete ORI/FNA captures to official solc 0.7.5 and all 7,896 shared
-runtime bytes. PHI is attributed only through its exact historical runtime;
-its own source/creation record remains absent. Four OZ 3.4.2 dependencies match
-exactly, while the custom token's primary revision is unestablished. Local role
-measurement does not enable a candidate or infer constructor success: the
-unchanged host VM stops at unsupported CHAINID before initial role setup.
-
-The separate [ORI/FNA/PHI enumerable candidates](docs/erc20tokenx-enumerable-candidate.md)
-replace only root 8 width 3 with the existing `oz_3_4_2` complete-operation rule.
-They add no boolean or admin permission and preserve the legacy producer and
-equality boundaries. Source-derived projector controls bind the measured store
-order and exact profile restoration. All three remain NOT-QUALIFIED; PHI's
-individual source/history, initial set coherence and actual producer role-write
-visibility remain unresolved. The focused report keeps saved replay observations
-separate from source execution and replacement-package qualification.
-
-### TOPS host source proof
-
-[TOPS Phase A](docs/tops-operation-proof.md) binds the exact captured source/compiler
-and exercises synthetic local append/getter paths plus a separate cleanup source
-harness. It adds no array validator or candidate; all six issue #61 exclusions remain.
-The later [original-runtime proof](docs/tops-runtime-cleanup-proof.md) exercises
-transfer/transferFrom under a bounded synthetic external context. The separate
-[TOPS LPInfo candidate](docs/tops-lpinfo-candidate.md) uses that runtime's exact
-append/cleanup store order to admit only bounded root 31/32 metadata operations.
-Historical 431/qualified 425 layouts remain unchanged; all six exclusions remain.
-
-The separate [wkeyDAO2/TRX enumerable candidates](docs/wkeydao2-trx-enumerable-candidate.md)
-remove only wkeyDAO2 root 8 width 2 and TRX root 6 width 3, using the unchanged
-`oz_3_4_2` validator. Exact compiled/captured paired source evidence and each
-target's actual store PCs are bound, including TRX's generated length store.
-All other profile fields remain unchanged. They add no bool/admin/creation
-permission and remain NOT-QUALIFIED. The complete saved BSC interval
-[122288006,122289030) preserves all 110,139 baseline rows; the focused report
-separates initialized holders, cold observations and zero captured role activity.
-These contracts are distinct from WKEYDAO/GOT and issue #61 swkeyDAO2.
-
-Host-only [WKEYDAO/GOT operation proof](docs/wkey-got-operation-proof.md) binds two separate legacy runtimes and state schemas. Final compilation and 1,263 synthetic operations passed against the same source inventory, with copied evidence and all offline workspace gates. It adds no ingestion candidate or live qualification.
-
-The separate [WKEYDAO/GOT enumerable candidates](docs/wkey-got-enumerable-candidate.md)
-remove WKEYDAO root 9 width 3 and both GOT root 8 broad declarations, reusing the
-unchanged `oz_3_4_2` complete-operation rule. There is no boolean, admin or creation
-permission. Complete final proof bindings and each runtime's own projector
-controls preserve distinct metadata and runtime guards. Both remain NOT-QUALIFIED;
-initial coherence, custom primary sources and actual producer/package/getter/holder
-qualification remain open. The focused document separates saved replay from
-synthetic source execution.
-
-The separate [wkeyDAO2/TRX Phase A proof](docs/wkeydao2-trx-operation-proof.md)
-binds both complete captures to official solc 0.7.5/0.6.6 and exact declared CBOR
-substitutions, including trailing creation constants. Four wkeyDAO2 dependencies
-match full upstream files; TRX's two normalized declaration matches do not
-establish its whole flattened source origin. Paired local execution remains
-separate from ingestion admission and deployed initialization; both constructor
-paths encounter unsupported CHAINID in the unchanged host VM.
-
-Host-only [Mai operation proof](docs/mai-operation-proof.md) binds its exact solc 0.8.9 runtime, source-derived immutable cap and distinct boolean/set roots. Final compilation and 1,632 local constructor/role/token calls passed against the same source inventory, with copied evidence and all offline workspace gates. It adds no ingestion candidate or live qualification.
-
-The separate [Mai coupled candidate](docs/mai-coupled-role-candidate.md) replaces
-only broad membership root 0 and width-two set root 1 with the explicit
-`mai_solc_0_8_9_oz_4_7_0` operation rule. Complete coherent boolean/set operations
-are required; all four one-sided void-super successes refuse. It preserves
-balance/allowance/scalar/runtime fields and grants no admin or creation
-permission. Source attribution, initial coherence, actual producer visibility
-and replacement qualification remain open.
-
-Host-only [APD/DSG getter controls](docs/apd-dsg-getter-controls.md) execute the exact
-saved runtimes against independent balance words and admitted metadata, with
-actual getter read witnesses and native projector controls. They add no production
-permission or live qualification and preserve the existing PR #93 retained-ledger
-controls and original canonical captures.
-
-Host-only [BNBTiger/COOKIE getter proof](docs/bnbtiger-cookie-getter-proof.md)
-rebuilds both complete programs with official solc 0.8.4/0.6.12 and runs paired
-captured/compiler balance getters in finite synthetic states. Exact one-read
-witnesses and field-level writer reviews keep packed runtime fields,
-constructor-only metadata, checkpoint words and external-context limits distinct.
-The proof adds no production candidate or write permission; zero call value and
-selected metadata keys/words do not establish deployed or live qualification.
-
-The host-only [calculated retention adapter](docs/calculated-retention.md) retains finite raw checkpoints for the existing LBP, BabyDoge and 10SET models with atomic apply, explicit provenance, bounded undo and reset-only epochs. It does not emit production calculated balances or qualify a new live interval.
-
-The separate [YBC retained-input adapter](docs/ybc-retained-inputs.md) imports the
-two original twelve-holder raw checkpoints and thirty saved override maps. It
-keeps raw basis, pending reward and observable amount distinct, preserves missing
-hourly state and suspended dependencies, and never seeds an earlier replay with
-final-checkpoint values. The existing three adapters and pure YBC arithmetic are
-unchanged; helper-source and production/package qualification remain open.
-
-The separate [BNBTiger/COOKIE metadata candidates](docs/bnbtiger-cookie-candidates.md)
-append two NOT-QUALIFIED profiles outside the historical 431/425 cohorts. Exact
-source/runtime modes validate packed field constants, unused padding, typed
-mapping keys, value constraints and persisted no-ops. Unknown and constructor-only
-records refuse; the original fixtures and package remain unchanged. Their saved
-three-way replay compares the original431, independent selected2 and combined433
-outputs against the unchanged full canonical interval and preserves cold holders.
-
-The separate [OG retained-input host adapter](docs/og-retained-inputs.md) keeps
-raw facts, hourly/daily metrics, missing-history and recursive refusals distinct.
-Its finite checkpoint/replay evidence does not qualify a production layout.
+The qualification host tools were removed earlier; see
+[`6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/erc20/balances/tools).

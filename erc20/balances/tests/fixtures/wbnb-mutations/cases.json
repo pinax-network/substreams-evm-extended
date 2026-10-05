@@ -4,6 +4,7 @@
   "token": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
   "layout": "tests/fixtures/bsc-reviewed-layouts.json (WBNB direct mapping at slot 3, runtime 0xb7d84205eaaf83ce7b3940c6beaad6d22790255e34a9a2b486aa8cdfff118fe6)",
   "scope": "Regression evidence for non-Transfer balance mutations (issue #22). These are saved-data tests of the Rust mapper, not packaged WASM execution or fresh RPC qualification.",
+  "note_2026_10_05": "erc20/balances is inference only since 2026-10-05. The layout file above, the 122288032 capture and the layout tests that read these captures are at commit 9b41c7f. The four remaining captures are read by the native/balances wrapper tests (122288015, 122288021, 122288035) and the erc20/events tests (122288015, 122288007). Recorded values below are unchanged.",
   "cases": [
     {
       "file": "122288015-tx18-deposit-nested-no-transfer.pb",

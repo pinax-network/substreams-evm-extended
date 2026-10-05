@@ -49,7 +49,7 @@ Its digest is recorded separately in [migration evidence](evidence/migration.jso
 Historical reports keep the digest of the package they actually tested; those
 reports are not rewritten to imply that their RPC calls used a later package.
 
-Subsequent [typed mapping-path source changes](../erc20/balances/docs/typed-mapping-paths.md)
+Subsequent [typed mapping-path source changes](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/typed-mapping-paths.md)
 are validated separately using offline Rust checks and captured data. They are
 not embedded in these preserved SPKGs and do not inherit live qualification from
 the migration baseline. Live chain testing remains paused at the user's request.
@@ -68,17 +68,19 @@ warnings denied, and the workspace WASM check. The source additions have not
 been repackaged or given fresh live qualification. See the
 [follow-up tracker](follow-up.md) for the remaining work.
 
-The opt-in [enumerable role-set rule](../erc20/balances/docs/enumerable-role-sets.md)
+The opt-in [enumerable role-set rule](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/enumerable-role-sets.md)
 has independent offline operation regressions. It does not change historical
 profiles or establish new producer, token or package qualification.
 
-The final pre-migration [combined capture](../erc20/balances/docs/evidence/refined450-combined.json)
+The final pre-migration [combined capture](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/evidence/refined450-combined.json)
 checks 431 profiles across 1,024 consecutive BSC blocks, including all streamed
 block identities and 110,139 previously RPC-verified balance rows. MUSD/OLY
-revalidation is counted separately. The [coverage report](../erc20/balances/docs/refined450-coverage.md)
+revalidation is counted separately. The [coverage report](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/refined450-coverage.md)
 retains cold unknowns, observed-holder limits and remaining candidates.
 
-Captured fixtures and compact evidence are versioned. The original raw audit
+Captured fixtures and compact evidence are versioned; since 2026-10-05 the
+`erc20/balances` layout fixtures and evidence are versioned at `9b41c7f`, not
+in the tree. The original raw audit
 outputs and archived Rust investigation helpers are also preserved locally
 under the ignored `erc20/balances/out` directory for continued work;
 offline builds and tests do not depend on that local cache. Fresh native-sink
@@ -95,15 +97,19 @@ and `erc20-balances-tools`, Substreams package name `erc20_balances`, and WASM
 filename `erc20_balances.wasm`. The schema stays in repository-root `proto/`;
 its wire types, field numbers, generated Rust types and namespace are unchanged.
 
-New builds target `spkg/erc20-balances-v0.1.0.spkg`. Its first build
+Layout-package builds targeted `spkg/erc20-balances-v0.1.0.spkg`. Its first build
 (`532b571f03f66931b4f1dd222ec8ff4da64d0054c81f1b4ce7213a41abc9f0cd`, WASM
 `005a2d3d22d10c5c61fa36b00adea1c0b5e9c55536a553c14b9f423d09546099`) is
 committed and was checked on live BSC under #6; see
-[current package on live BSC](../erc20/balances/docs/live-package-bsc-2026-09-23.md).
+[v0.1.0 layout package on live BSC](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/live-package-bsc-2026-09-23.md).
 Existing storage-named SPKGs and the canonical
 RPC reference `spkg/erc20-balances-v0.3.4.spkg` remain unchanged. Earlier
 byte-identical WASM and package qualification claims apply only to their
 recorded migration revisions, not the renamed build.
+
+Since 2026-10-05 the package is inference only, with version v0.2.0. Its
+builds target `spkg/erc20-balances-v0.2.0.spkg`, so no build overwrites the
+committed v0.1.0 layout package.
 
 Captured evidence and fixture contents are byte-identical after relocation.
 They may retain `erc20/balances-storage` paths and old crate names because those

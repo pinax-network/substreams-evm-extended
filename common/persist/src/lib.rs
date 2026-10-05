@@ -3,9 +3,9 @@
 //! `sf.ethereum.type.v2.Block` actually survived execution.
 //!
 //! This crate is the shared home of the rules first qualified inside
-//! `erc20/balances/src/persist.rs`. That module keeps its own embedded copy so
-//! the qualified ERC-20 package source stays unchanged; the two must not
-//! diverge in semantics. New Extended packages depend on this crate.
+//! `erc20/balances/src/persist.rs`. That package keeps its own embedded copy;
+//! the two must not diverge in semantics. New Extended packages depend on this
+//! crate.
 //!
 //! Rules (from the `type.proto` documentation, verified on BSC Firehose):
 //!

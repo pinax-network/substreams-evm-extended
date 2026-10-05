@@ -124,14 +124,14 @@ accounts without a change are unknown.
   extracted from the retained 64-block run output whose SHA-256 is recorded in
   the fixture.
 - 192 blocks, 37,086 native before/after RPC checks with zero mismatches for
-  the prototype package: [legacy qualification](../../../erc20/balances/docs/legacy-qualification.md),
-  [64-block](../../../erc20/balances/docs/evidence/rpc-exhaustive-64.json) and
-  [128-block](../../../erc20/balances/docs/evidence/rpc-exhaustive-128.json)
+  the prototype package: [legacy qualification](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/legacy-qualification.md),
+  [64-block](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/evidence/rpc-exhaustive-64.json) and
+  [128-block](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/evidence/rpc-exhaustive-128.json)
   summaries. The Extended blocks of those windows are not retained locally,
   so they cannot be replayed offline; the checks qualify the removed prototype
   artifact, not this package.
 - The failed v0.3.3 reference comparison that overwrote the fee reset
-  ([64-audited](../../../erc20/balances/docs/evidence/64-audited.json)). This
+  ([64-audited](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/evidence/64-audited.json)). This
   is a finding about that artifact's ordering, not about the current
   `substreams-evm` native module.
 

@@ -154,7 +154,7 @@ figure:
 
 The tested interval and the initialized observed-holder set are part of every
 claim. The existing ERC-20 evidence follows this shape: the
-[typed-path baseline replay](../erc20/balances/docs/evidence/typed-path-baseline-replay.json)
+[typed-path baseline replay](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/evidence/typed-path-baseline-replay.json)
 over BSC blocks [122288006, 122289030) reproduces 110,139 historical rows,
 retains 4,012 reference observations that matched without a same-block row,
 and leaves 66,265 cold observations unknown. Those unknowns are reported, not
