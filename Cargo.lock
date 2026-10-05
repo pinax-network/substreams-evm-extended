@@ -255,17 +255,13 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "erc20-balances"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "hex",
  "prost 0.13.5",
- "prost-types 0.13.5",
  "proto",
- "serde",
  "serde_json",
- "sha2",
  "substreams",
- "substreams-abis",
  "substreams-ethereum",
  "tiny-keccak",
 ]
@@ -654,7 +650,6 @@ checksum = "1d87ecb2933e8aeadb3e3a02b828fed80a7528047e68b4f424523a0981a3a084"
 name = "native-balances"
 version = "0.1.0"
 dependencies = [
- "erc20-balances",
  "evm-persist",
  "hex",
  "prost 0.13.5",

@@ -14,7 +14,8 @@ in the same block remain separate and identical replays deduplicate with `FINAL`
 No `schema.sql` or `sink:` manifest section is required when `map_events` is
 passed explicitly.
 
-From this directory, with `spkg/erc20-balances-v0.1.0.spkg` already built:
+From this directory, with `spkg/erc20-balances-v0.2.0.spkg` already built by
+`make -C .. pack`:
 
 ```sh
 export SUBSTREAMS_SINK_DSN='clickhouse://<user>:<password>@127.0.0.1:9000/<new-database>'
@@ -23,16 +24,20 @@ make setup
 make run
 ```
 
-The captured smoke results below first used the preserved migration package.
-The same smoke check passed again on 2026-09-23 with the first build of the
-renamed package (`532b571f…`); see [that run](#current-package-2026-09-23).
+The captured smoke results below predate inference: they ran the layout package
+([history](https://github.com/pinax-network/substreams-evm-extended/tree/9b41c7f/erc20/balances))
+with the two reviewed bridge450 layouts as params. They first used the preserved
+migration package; the same smoke check passed again on 2026-09-23 with the first
+build of the renamed package (`532b571f…`); see [that run](#v010-layout-package-2026-09-23).
+The inference-only package (v0.2.0) has not been run through this sink. Do not
+point `PACKAGE` at the committed v0.1.0 layout SPKG: without layout params it
+emits no rows.
 
-These defaults select the two reviewed bridge450 tokens and finalized blocks
-122288006–122288149. `LAYOUTS`, `START`, `STOP`, `ENDPOINT`, `STATE`, and
-`SUBSTREAMS` are configurable. Keep the complete state directory: native schema
-metadata, cursor, and spool are local durable state. Use a new database and state
-directory when changing package, parameters, chain, or bytes encoding. Do not
-point this example at existing application tables.
+These defaults select finalized blocks 122288006–122288149. `START`, `STOP`,
+`ENDPOINT`, `STATE`, and `SUBSTREAMS` are configurable. Keep the complete state
+directory: native schema metadata, cursor, and spool are local durable state. Use
+a new database and state directory when changing package, chain, or bytes
+encoding. Do not point this example at existing application tables.
 
 The cursor can point to the last emitted block before the requested stop: the
 smoke run stopping at 122288020 stored a cursor for 122288010. A cursor or a
@@ -89,7 +94,7 @@ physical rows and seven deduplicated rows. The [schema](evidence/schema.json),
 are retained as a bounded integration result. This does not claim behavior for
 unobserved tokens or production interruption/recovery scenarios.
 
-## Current package (2026-09-23)
+## v0.1.0 layout package (2026-09-23)
 
 The smoke check with `spkg/erc20-balances-v0.1.0.spkg` (`532b571f…`), CLI build
 `be35ad3` and the same local ClickHouse 25.8.1.3064 returned

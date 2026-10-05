@@ -9,7 +9,7 @@ extractor ran. The findings below are therefore reviewer claims, not confirmed d
 that the maintainer re-derived them.
 
 The same shape of defect must be assumed possible in the sibling crates until they are reviewed: the finders were told
-to look at exactly the properties listed under "Dimensions" in [`handoff.md`](handoff.md#hardening-review-status).
+to look at exactly the properties listed under "Dimensions" in [`handoff.md`](handoff.md#4-hardening-review-status).
 
 The one finding reported independently by all four reviewers is treated as **confirmed by convergence** and is the
 first item of the fix list in `handoff.md`: the committed cUSDCv3 epoch reviews no scalar slots, but the pinned

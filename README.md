@@ -3,11 +3,11 @@
 EVM Substreams that require Firehose Extended blocks, maintained separately
 from the modules in [substreams-evm](https://github.com/pinax-network/substreams-evm).
 
-The first module is [ERC-20 storage balances](erc20/balances/README.md).
-One RPC-free `map_events` reads persisted storage changes and emits
+The first module is [ERC-20 balances](erc20/balances/README.md). One RPC-free
+`map_events(block)` infers each block's ERC-20 balances from `Transfer` flows
+and persisted storage changes, with no params or layouts, and emits
 `evm.balances.v1.Events`, with the exact protobuf used by the RPC balance
-implementation. Layouts are explicitly configured and verified; the default
-is `[]`. Blocks without the required Extended data are rejected.
+implementation. Blocks without the required Extended data are rejected.
 
 [Native balances](native/balances/README.md) is a second one-map package with
 the same protobuf: `Balance.contract` is absent and `amount` is the final
@@ -79,23 +79,22 @@ RPC is used for qualification, not inside the maps.
 
 ## Coverage
 
-The migrated BSC evidence covers 431 explicitly qualified profiles among the
-first 450 candidates ranked by activity in the sampled RPC stream. The
-[latest coverage report](erc20/balances/docs/refined450-coverage.md)
-preserves emitted-balance, initialized-holder, cold-start and remaining-gap
-results separately. Historical parity does not establish universal ERC-20
-support or global holder enumeration.
+ERC-20 balances are inferred, not configured. On five captured BSC intervals,
+scored against every row the RPC reference package emitted for them, the
+package reproduces 58.5–62.8% of the reference rows with 99.92–100% value
+precision; the [measured results](erc20/balances/README.md#measured) give each
+interval, its scored holder set and the limits. Matching intervals do not
+establish universal ERC-20 support or global holder enumeration. The former
+layout path covered 431 explicitly qualified profiles among the first 450 BSC
+candidates ranked by activity; its code, coverage reports and evidence remain at
+[`9b41c7f`](https://github.com/pinax-network/substreams-evm-extended/tree/9b41c7f/erc20/balances).
 
-Some role-storage boundaries and calculated/reflection balances remain under
-investigation. Ethereum, Base, HyperEVM and Arc require independent qualification
-after the BSC work; the repository name is not a claim of verified coverage on
-every EVM network.
+Computed balances (reward, reflection, rebasing, scaled) remain open. Ethereum,
+Base, HyperEVM and Arc require independent qualification after the BSC work; the
+repository name is not a claim of verified coverage on every EVM network.
 
-The current source adds [exact typed mapping paths](erc20/balances/docs/typed-mapping-paths.md)
-and opt-in [enumerable role-set checks](erc20/balances/docs/enumerable-role-sets.md),
-with offline checks against saved data. These changes are not included in the
-preserved SPKGs. Live chain testing is paused; new token and package
-qualification remains pending.
+The inference-only source is checked offline against saved data only. It is not
+included in the preserved SPKGs, and live chain testing is paused.
 
 Outstanding implementation, holder coverage, packaging and network work is
 tracked in [GitHub follow-up issues](docs/follow-up.md). The requested chains,

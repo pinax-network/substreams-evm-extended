@@ -7,6 +7,13 @@ roadmap packages. Each file has `topic`, `facts` (with `key`, `value`/
 checked the claim a `verdict`/`correction`) and `open_questions`. They are
 evidence of what was read and when, not qualification of any deployment.
 
+"Used by" names the consumer when each note was written. The host tools and
+`conformance` were removed on 2026-10-03 (`6dade89`), and the `erc20/balances`
+layout path on 2026-10-05 (`9b41c7f`); the notes for issues #3, #4, #5 and #61
+supported that former layout path. Paths and main-branch URLs in these notes
+that point into `erc20/balances/docs` or `erc20/balances/tests` resolve at
+`9b41c7f`.
+
 | File | Topic | Used by |
 | --- | --- | --- |
 | `00-Compound_v2__Ethereum_mainnet__cToken_ma.json`, `08-…` | Compound v2 cToken markets: addresses, proxy pattern, storage layout, exchange-rate and accrual formulas, JumpRateModelV2, IRM addresses (08 is the verified second pass) | `compound-v2/balance-state`, `conformance::compound_v2` |

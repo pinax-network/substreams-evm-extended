@@ -184,7 +184,7 @@ reports over the locally retained BSC captures are in
 plus the 82-row same-block RPC oracle. Those captures are the
 ERC-20 campaign's block cache, not a native-specific RPC audit: only block
 122260950 has a same-block native RPC oracle. The historical 192-block,
-37,086-check native audit ([legacy qualification](../../erc20/balances/docs/legacy-qualification.md))
+37,086-check native audit ([legacy qualification](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/legacy-qualification.md))
 applies to the removed prototype package, not to this one.
 
 ## Native sink
@@ -212,4 +212,4 @@ completeness and the complete-block clock contract are shared under
 [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7).
 Ethereum, Base, HyperEVM and Arc semantics are separate qualification work
 under [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
-`erc20/balances` is unchanged.
+This package does not change `erc20/balances`.

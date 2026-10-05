@@ -23,8 +23,23 @@ new tool crates or CLI harnesses.
   companion `evm.balance_state.v1.Events` instead, never a replacement for
   `Balance.amount`. `erc20/balances` keeps its embedded copy of the
   persistence rules; `common/persist` must not diverge from it.
-- Require Extended block data and explicit, independently qualified layouts.
-  Unknown writes and unreviewed runtime or dependency changes must fail closed.
+- Require Extended block data. The protocol balance-state packages and
+  `aave/actions` also require explicit, independently qualified layouts and
+  bindings (markets, epochs, vaults, pools). Except in `erc20/balances` (next
+  item), unknown writes and unreviewed runtime or dependency changes must fail
+  closed.
+- `erc20/balances` is inference only, at the owner's direction (2026-10-05):
+  `map_events(block)` takes no params or layouts and infers transfer-guided
+  balances for every contract from the block's persisted storage. It stays
+  RPC-free with bounded per-block work. A block fails only when it is not a
+  complete Extended block or the persistence rules cannot resolve it; inference
+  never fails a block and drops a contract's rows for the block on any doubt.
+  Undetected computed balances remain possible: its rows are measured, not
+  qualified. The former layout path, with its tests, fixtures and qualification
+  evidence, is in git history at `9b41c7f`. Its last packed build is the
+  committed `spkg/erc20-balances-v0.1.0.spkg` (2026-09-23), which predates the
+  typed-path and enumerable-set source at `9b41c7f`; the inference package is
+  v0.2.0.
 - `dex/pool-state` emits the existing `dex.pool_state.v1.BlockPoolState` through
   one `map_events(Block)`. Preserve pool-state protobuf names/field numbers,
   exact integers, canonical log order and explicit invalid markers. Require
@@ -43,7 +58,9 @@ new tool crates or CLI harnesses.
   queries), and report the method and results in the pull request. Keep
   regression tests in Rust inside the package crates.
 - Preserve captured fixtures, source/runtime bindings, failed attempts and
-  historical evidence. Use fresh output directories for new live checks.
+  historical evidence: in the tree, or at a cited commit when the owner removes
+  a package path (the `erc20/balances` layout path: `9b41c7f`). Use fresh output
+  directories for new live checks.
 - The IVSpikes-associated pool-state migration is offline only. Its new
   Extended-only package/digest is not qualified by historical live evidence.
   The owner's existing hold on its Substreams/Firehose/RPC checks remains in
