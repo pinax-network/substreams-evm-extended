@@ -1,14 +1,24 @@
 ENDPOINT ?= bsc.substreams.pinax.network:443
-START_BLOCK ?= 122260950
-STOP_BLOCK ?= +64
-SPKG := ../../spkg/erc20-balances-v0.2.0.spkg
+START_BLOCK ?= 122288006
+STOP_BLOCK ?= +1000
+PARALLEL_JOBS ?= 500
 .DEFAULT_GOAL := pack
-.PHONY: build pack test run
+
+.PHONY: build
+# Remap the checkout path in panic locations, so the WASM sha256 and module
+# hash do not depend on where the repository is cloned.
+build: export RUSTFLAGS += --remap-path-prefix=$(abspath ../..)=.
 build:
-	cargo build --locked -p erc20-balances --target wasm32-unknown-unknown --release
+	cargo build --target wasm32-unknown-unknown --release
+
+.PHONY: pack
 pack: build
-	substreams pack substreams.yaml -o $(SPKG)
-test:
-	cargo test --locked -p erc20-balances
-run: pack
-	substreams run $(SPKG) map_events -e $(ENDPOINT) -s $(START_BLOCK) -t $(STOP_BLOCK) --final-blocks-only -o jsonl
+	substreams pack -o ../../spkg/{spkgDefaultName}
+
+.PHONY: gui
+gui: build
+	substreams gui -e $(ENDPOINT) substreams.yaml map_events -s $(START_BLOCK) --limit-processed-blocks 0
+
+.PHONY: prod
+prod: build
+	substreams gui -e $(ENDPOINT) substreams.yaml map_events -s $(START_BLOCK) -t $(STOP_BLOCK) --limit-processed-blocks 0 --production-mode  -H "X-Substreams-Parallel-Workers: $(PARALLEL_JOBS)"

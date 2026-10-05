@@ -1,5 +1,5 @@
 use super::*;
-use prost::Message;
+use buffa::Message;
 use serde_json::Value;
 
 const FIXTURE_BLOCK: &[u8] = include_bytes!("../../../erc20/balances/tests/fixtures/bsc-122260950.pb");
@@ -15,8 +15,8 @@ fn block() -> eth::Block {
         ver: 5,
         number: 122260950,
         hash: vec![1; 32],
-        detail_level: eth::block::DetailLevel::DetaillevelExtended as i32,
-        header: Some(eth::BlockHeader {
+        detail_level: eth::block::DetailLevel::DetaillevelExtended.into(),
+        header: buffa::MessageField::some(eth::BlockHeader {
             number: 122260950,
             parent_hash: vec![2; 32],
             state_root: vec![3; 32],
@@ -27,7 +27,7 @@ fn block() -> eth::Block {
 }
 fn tx(call: eth::Call) -> eth::TransactionTrace {
     eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Succeeded as i32,
+        status: eth::TransactionTraceStatus::Succeeded.into(),
         calls: vec![call],
         ..Default::default()
     }
@@ -40,10 +40,10 @@ fn big(v: u64) -> Option<eth::BigInt> {
 fn change(address: u8, ordinal: u64, old: Option<u64>, new: Option<u64>) -> eth::BalanceChange {
     eth::BalanceChange {
         address: vec![address; 20],
-        old_value: old.and_then(big),
-        new_value: new.and_then(big),
+        old_value: old.and_then(big).into(),
+        new_value: new.and_then(big).into(),
         ordinal,
-        reason: eth::balance_change::Reason::Transfer as i32,
+        reason: eth::balance_change::Reason::Transfer.into(),
     }
 }
 fn row(rows: &[Change], address: u8) -> &Change {
@@ -52,7 +52,7 @@ fn row(rows: &[Change], address: u8) -> &Change {
 
 #[test]
 fn captured_block_matches_all_82_historical_native_rpc_balances() {
-    let b = eth::Block::decode(FIXTURE_BLOCK).unwrap();
+    let b = eth::Block::decode_from_slice(FIXTURE_BLOCK).unwrap();
     let oracle: Value = serde_json::from_str(FIXTURE_ORACLE).unwrap();
     assert_eq!(format!("0x{}", hex::encode(&b.hash)), oracle["block_hash"]);
     assert_eq!(b.number, 122260950);
@@ -73,12 +73,12 @@ fn captured_block_matches_all_82_historical_native_rpc_balances() {
 
 #[test]
 fn captured_block_matches_the_historical_prototype_old_new_and_ordinal_rows() {
-    let b = eth::Block::decode(FIXTURE_BLOCK).unwrap();
+    let b = eth::Block::decode_from_slice(FIXTURE_BLOCK).unwrap();
     let prototype: Value = serde_json::from_str(PROTOTYPE_ROWS).unwrap();
     assert_eq!(prototype["block"]["number"], 122260950);
     assert_eq!(format!("0x{}", hex::encode(&b.hash)), prototype["block"]["hash"]);
     assert_eq!(
-        format!("0x{}", hex::encode(&b.header.as_ref().unwrap().parent_hash)),
+        format!("0x{}", hex::encode(&b.header.as_option().unwrap().parent_hash)),
         prototype["block"]["parent_hash"]
     );
     let rows = changes(&b, &params()).unwrap();
@@ -99,7 +99,7 @@ fn bsc_fee_reset_wins_over_the_earlier_transaction_fee_credit() {
     // Transaction ordinal 3237 credits the system fee account; the block-level
     // record at ordinal 3244 resets it to zero. Array order puts the block-level
     // record after every transaction, so only ordinal order reproduces RPC.
-    let b = eth::Block::decode(FIXTURE_BLOCK).unwrap();
+    let b = eth::Block::decode_from_slice(FIXTURE_BLOCK).unwrap();
     let system = hex::decode(SYSTEM_FEE_ADDRESS).unwrap();
     let credit = b
         .transaction_traces
@@ -109,15 +109,15 @@ fn bsc_fee_reset_wins_over_the_earlier_transaction_fee_credit() {
         .find(|c| c.address == system && c.ordinal == 3237)
         .unwrap();
     assert_eq!(
-        amount(&value(credit.new_value.as_ref().map(|v| v.bytes.as_slice())).unwrap()),
+        amount(&value(credit.new_value.as_option().map(|v| v.bytes.as_slice())).unwrap()),
         "1675456549641341"
     );
     let reset = b.balance_changes.iter().find(|c| c.address == system).unwrap();
     assert_eq!(reset.ordinal, 3244);
     // The BSC v5 producer records the block-level reset under the ordinary
     // fee-reward reason; REWARD_FEE_RESET is not what this fixture carries.
-    assert_eq!(reset.reason(), eth::balance_change::Reason::RewardTransactionFee);
-    assert_eq!(amount(&value(reset.new_value.as_ref().map(|v| v.bytes.as_slice())).unwrap()), "0");
+    assert_eq!(reset.reason, eth::balance_change::Reason::RewardTransactionFee);
+    assert_eq!(amount(&value(reset.new_value.as_option().map(|v| v.bytes.as_slice())).unwrap()), "0");
     let rows = changes(&b, &params()).unwrap();
     let row = rows.iter().find(|r| r.address == system).unwrap();
     assert_eq!((&*row.old_amount, &*row.amount, row.ordinal), ("0", "0", 3244));
@@ -141,7 +141,7 @@ fn captured_failed_setcode_transactions_keep_only_gas_effects() {
         include_bytes!("../../../erc20/balances/tests/fixtures/bsc-121114122-failed-setcode.pb").as_slice(),
         include_bytes!("../../../erc20/balances/tests/fixtures/bsc-121114153-failed-setcode.pb").as_slice(),
     ] {
-        let trace = eth::TransactionTrace::decode(bytes).unwrap();
+        let trace = eth::TransactionTrace::decode_from_slice(bytes).unwrap();
         assert!(persist::is_failed(&trace));
         let root = &trace.calls[0];
         // Independent reduction of the root call's gas-reason records only.
@@ -149,8 +149,8 @@ fn captured_failed_setcode_transactions_keep_only_gas_effects() {
         let mut gas: Vec<_> = root.balance_changes.iter().filter(|c| persist::is_gas_reason(c)).collect();
         gas.sort_by_key(|c| c.ordinal);
         for c in gas {
-            let old = amount(&value(c.old_value.as_ref().map(|v| v.bytes.as_slice())).unwrap());
-            let new = amount(&value(c.new_value.as_ref().map(|v| v.bytes.as_slice())).unwrap());
+            let old = amount(&value(c.old_value.as_option().map(|v| v.bytes.as_slice())).unwrap());
+            let new = amount(&value(c.new_value.as_option().map(|v| v.bytes.as_slice())).unwrap());
             if old == new {
                 continue;
             }
@@ -236,7 +236,7 @@ fn ambiguous_or_discontinuous_producer_data_fails_the_block() {
     b.balance_changes = vec![short];
     assert!(changes(&b, &params()).unwrap_err().to_string().contains("address"));
     let mut wide = change(4, 1, Some(0), Some(1));
-    wide.new_value = Some(eth::BigInt { bytes: vec![1; 33] });
+    wide.new_value = buffa::MessageField::some(eth::BigInt { bytes: vec![1; 33] });
     b.balance_changes = vec![wide];
     assert!(changes(&b, &params()).unwrap_err().to_string().contains("uint256"));
 }
@@ -245,9 +245,9 @@ fn ambiguous_or_discontinuous_producer_data_fails_the_block() {
 fn preserves_uint256_max_and_leading_zero_encodings() {
     let mut b = block();
     let mut max = change(4, 1, Some(0), Some(1));
-    max.new_value = Some(eth::BigInt { bytes: vec![255; 32] });
+    max.new_value = buffa::MessageField::some(eth::BigInt { bytes: vec![255; 32] });
     let mut padded = change(5, 2, Some(0), Some(1));
-    padded.new_value = Some(eth::BigInt { bytes: vec![0, 0, 0, 9] });
+    padded.new_value = buffa::MessageField::some(eth::BigInt { bytes: vec![0, 0, 0, 9] });
     b.balance_changes = vec![max, padded];
     let rows = changes(&b, &params()).unwrap();
     assert_eq!(
@@ -274,17 +274,17 @@ fn reverted_frames_failed_transactions_and_system_calls_follow_persistence_rules
     let mut ok = tx(root);
     ok.calls.push(std::mem::take(&mut reverted));
     let mut failed = eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Reverted as i32,
+        status: eth::TransactionTraceStatus::Reverted.into(),
         calls: vec![eth::Call {
             state_reverted: true,
             balance_changes: vec![
                 eth::BalanceChange {
-                    reason: eth::balance_change::Reason::GasBuy as i32,
+                    reason: eth::balance_change::Reason::GasBuy.into(),
                     ..change(8, 20, Some(100), Some(90))
                 },
                 change(9, 21, Some(0), Some(50)),
                 eth::BalanceChange {
-                    reason: eth::balance_change::Reason::RewardTransactionFee as i32,
+                    reason: eth::balance_change::Reason::RewardTransactionFee.into(),
                     ..change(10, 22, Some(0), Some(10))
                 },
             ],
@@ -316,8 +316,8 @@ fn reverted_frames_failed_transactions_and_system_calls_follow_persistence_rules
 fn value_bearing_calls_without_persisted_records_are_not_balances() {
     let mut b = block();
     b.transaction_traces = vec![tx(eth::Call {
-        call_type: eth::CallType::Delegate as i32,
-        value: big(5),
+        call_type: eth::CallType::Delegate.into(),
+        value: big(5).into(),
         caller: vec![4; 20],
         address: vec![5; 20],
         ..Default::default()
@@ -328,24 +328,24 @@ fn value_bearing_calls_without_persisted_records_are_not_balances() {
 #[test]
 fn incomplete_blocks_and_unqualified_producers_are_rejected() {
     let mut b = block();
-    b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32;
+    b.detail_level = eth::block::DetailLevel::DetaillevelBase.into();
     assert!(project(&b, &params()).is_err());
     b = block();
     b.ver = 4;
     assert!(project(&b, &params()).unwrap_err().to_string().contains("producer version"));
     assert!(project(&b, &parse_params(r#"{"producer_versions":[4,5]}"#).unwrap()).is_ok());
     b = block();
-    b.header = None;
+    b.header = buffa::MessageField::none();
     assert!(project(&b, &params()).is_err());
     b = block();
-    b.header.as_mut().unwrap().number = 1;
+    b.header.as_option_mut().unwrap().number = 1;
     assert!(project(&b, &params()).is_err());
     b = block();
     b.hash = vec![1; 31];
     assert!(project(&b, &params()).is_err());
     b = block();
     b.number = 0;
-    b.header.as_mut().unwrap().number = 0;
+    b.header.as_option_mut().unwrap().number = 0;
     assert!(project(&b, &params()).unwrap_err().to_string().contains("genesis"));
     b = block();
     b.transaction_traces = vec![eth::TransactionTrace::default()];
@@ -376,7 +376,7 @@ fn empty_block_emits_no_rows_and_native_rows_omit_the_contract_field() {
     // Events.balances (tag 1, length), then Balance.address (tag 2) directly:
     // an absent contract writes no field-1 bytes, unlike an empty byte string.
     assert_eq!(&bytes[..4], &[0x0a, 25, 0x12, 20]);
-    let decoded = balances_pb::Events::decode(bytes.as_slice()).unwrap();
+    let decoded = balances_pb::Events::decode_from_slice(bytes.as_slice()).unwrap();
     assert_eq!(decoded.balances[0].contract, None);
     let erc20 = balances_pb::Balance {
         contract: Some(vec![]),
@@ -387,7 +387,7 @@ fn empty_block_emits_no_rows_and_native_rows_omit_the_contract_field() {
 
 #[test]
 fn records_expose_scope_and_reason_for_the_reason_matrix() {
-    let b = eth::Block::decode(FIXTURE_BLOCK).unwrap();
+    let b = eth::Block::decode_from_slice(FIXTURE_BLOCK).unwrap();
     let records = records(&b, &params()).unwrap();
     assert!(records.len() > 82);
     let system = hex::decode(SYSTEM_FEE_ADDRESS).unwrap();
@@ -411,17 +411,17 @@ fn records_expose_scope_and_reason_for_the_reason_matrix() {
 fn failed_transactions_with_unpinned_reasons_fail_closed() {
     let mut b = block();
     let failed = |reason: i32| eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Failed as i32,
+        status: eth::TransactionTraceStatus::Failed.into(),
         from: vec![8; 20],
         calls: vec![eth::Call {
             state_reverted: true,
             balance_changes: vec![
                 eth::BalanceChange {
-                    reason: eth::balance_change::Reason::GasBuy as i32,
+                    reason: eth::balance_change::Reason::GasBuy.into(),
                     ..change(8, 20, Some(100), Some(90))
                 },
                 eth::BalanceChange {
-                    reason,
+                    reason: reason.into(),
                     ..change(9, 21, Some(0), Some(50))
                 },
             ],
@@ -461,7 +461,7 @@ fn failed_transactions_with_unpinned_reasons_fail_closed() {
     }
     // The same reasons in a successful transaction are ordinary persisted state.
     let mut ok = failed(17);
-    ok.status = eth::TransactionTraceStatus::Succeeded as i32;
+    ok.status = eth::TransactionTraceStatus::Succeeded.into();
     ok.calls[0].state_reverted = false;
     b.transaction_traces = vec![ok];
     assert_eq!(changes(&b, &params()).unwrap().len(), 2);
@@ -484,7 +484,7 @@ mod wrapper_backing {
         let logs: Vec<_> = block
             .transaction_traces
             .iter()
-            .filter(|tx| tx.status == eth::TransactionTraceStatus::Succeeded as i32)
+            .filter(|tx| tx.status == eth::TransactionTraceStatus::Succeeded)
             .flat_map(|tx| tx.calls.iter().filter(|c| !c.state_reverted))
             .flat_map(|c| &c.logs)
             .filter(|l| hex::encode(&l.address) == WBNB && l.topics.first().is_some_and(|t| hex::encode(t) == topic0))
@@ -499,9 +499,10 @@ mod wrapper_backing {
 
     #[test]
     fn deposit_moves_native_bnb_into_the_wrapper() {
-        let block =
-            eth::Block::decode(include_bytes!("../../../erc20/balances/tests/fixtures/wbnb-mutations/122288015-tx18-deposit-nested-no-transfer.pb").as_slice())
-                .unwrap();
+        let block = eth::Block::decode_from_slice(
+            include_bytes!("../../../erc20/balances/tests/fixtures/wbnb-mutations/122288015-tx18-deposit-nested-no-transfer.pb").as_slice(),
+        )
+        .unwrap();
         let (holder, wad) = wrapped(&block, DEPOSIT);
         assert_eq!(wad, BigInt::from(100971252078042364u64));
         let native = changes(&block, &params()).unwrap();
@@ -515,9 +516,10 @@ mod wrapper_backing {
 
     #[test]
     fn withdrawal_releases_native_bnb_from_the_wrapper() {
-        let block =
-            eth::Block::decode(include_bytes!("../../../erc20/balances/tests/fixtures/wbnb-mutations/122288035-tx9-withdrawal-no-transfer.pb").as_slice())
-                .unwrap();
+        let block = eth::Block::decode_from_slice(
+            include_bytes!("../../../erc20/balances/tests/fixtures/wbnb-mutations/122288035-tx9-withdrawal-no-transfer.pb").as_slice(),
+        )
+        .unwrap();
         let (_, wad) = wrapped(&block, WITHDRAWAL);
         assert_eq!(wad, BigInt::from(69434307925719935u64));
         let native = changes(&block, &params()).unwrap();
@@ -527,7 +529,7 @@ mod wrapper_backing {
 
     #[test]
     fn reverted_deposit_leaves_no_wrapper_native_row() {
-        let block = eth::Block::decode(
+        let block = eth::Block::decode_from_slice(
             include_bytes!("../../../erc20/balances/tests/fixtures/wbnb-mutations/122288021-tx35-reverted-transaction-deposit.pb").as_slice(),
         )
         .unwrap();

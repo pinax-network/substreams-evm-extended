@@ -10,7 +10,7 @@
 use compound_v2_balance_state::{parse, Cash, Market};
 use proto::pb::evm::balance_state::v1::StateField;
 use serde_json::Value;
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashSet};
 
 const CURRENT: &str = include_str!("../../../docs/evidence/storage-layouts/compound-v2@a3214f67.json");
 const LEGACY_2019: &str = include_str!("../../../docs/evidence/storage-layouts/compound-protocol-2019@f385d719.json");
@@ -169,7 +169,8 @@ fn rate_model_slots_and_constants_match_their_deployed_sources() {
         vec![("multiplier".to_string(), 0), ("baseRate".to_string(), 1)]
     );
     assert!(e.rate_model_slots.is_empty());
-    let constants: BTreeSet<StateField> = e.rate_model_constants.iter().map(|(f, _, _)| *f).collect();
+    // buffa enums are Hash + Eq, not Ord.
+    let constants: HashSet<StateField> = e.rate_model_constants.iter().map(|(f, _, _)| *f).collect();
     assert_eq!(
         constants,
         [

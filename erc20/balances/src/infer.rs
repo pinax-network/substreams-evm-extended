@@ -43,10 +43,10 @@ type Flows<'a> = BTreeMap<(Frame, Addr), (&'a eth::Call, BTreeMap<Addr, Net>)>;
 /// Per contract, the `(frame, holder)` pairs that a balance event names.
 type Named = BTreeMap<Addr, BTreeSet<(Frame, Addr)>>;
 
-const SUCCEEDED: i32 = eth::TransactionTraceStatus::Succeeded as i32;
-const CALL: i32 = eth::CallType::Call as i32;
-const STATIC: i32 = eth::CallType::Static as i32;
-const DELEGATE: i32 = eth::CallType::Delegate as i32;
+const SUCCEEDED: eth::TransactionTraceStatus = eth::TransactionTraceStatus::Succeeded;
+const CALL: eth::CallType = eth::CallType::Call;
+const STATIC: eth::CallType = eth::CallType::Static;
+const DELEGATE: eth::CallType = eth::CallType::Delegate;
 const BALANCE_OF: [u8; 4] = [0x70, 0xa0, 0x82, 0x31];
 const ZERO: Addr = [0; 20];
 const TRANSFER: Word = topic("ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef");
@@ -228,7 +228,7 @@ pub(crate) fn candidates(block: &eth::Block) -> BTreeMap<Addr, BTreeSet<Addr>> {
     let mut out = BTreeMap::new();
     for tx in block.transaction_traces.iter().filter(|tx| tx.status == SUCCEEDED) {
         if tx.calls.is_empty() {
-            for log in tx.receipt.iter().flat_map(|r| &r.logs) {
+            for log in tx.receipt.as_option().into_iter().flat_map(|r| &r.logs) {
                 visit(&mut out, &tx.from, log, None);
             }
         }

@@ -14,4 +14,4 @@ substreams-ethereum = { workspace = true }
 
 [dev-dependencies]
 hex = "0.4"
-prost = { workspace = true }
+buffa = { workspace = true }

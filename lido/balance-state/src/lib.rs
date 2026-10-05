@@ -493,21 +493,21 @@ fn mapping_has_base(mut key: [u8; 32], preimages: &BTreeMap<[u8; 32], Vec<u8>>, 
 }
 
 pub fn validate_block(block: &eth::Block, config: &Config) -> Result<u64, Error> {
-    require(
-        block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32,
-        "Extended blocks required",
-    )?;
+    require(block.detail_level == eth::block::DetailLevel::DetaillevelExtended, "Extended blocks required")?;
     require(config.producer_versions.contains(&block.ver), "Extended producer version not qualified")?;
-    let header = block.header.as_ref().ok_or_else(|| Error::msg("missing header"))?;
+    let header = block.header.as_option().ok_or_else(|| Error::msg("missing header"))?;
     require(
         block.hash.len() == 32 && header.parent_hash.len() == 32 && header.state_root.len() == 32,
         "invalid block identity",
     )?;
     require(header.number == block.number && block.number > 0, "header number mismatch")?;
-    let timestamp = header.timestamp.as_ref().ok_or_else(|| Error::msg("missing timestamp"))?;
+    let timestamp = header.timestamp.as_option().ok_or_else(|| Error::msg("missing timestamp"))?;
     require(timestamp.seconds >= 0, "negative timestamp")?;
     for tx in &block.transaction_traces {
-        require((1..=3).contains(&tx.status) && !tx.calls.is_empty(), "incomplete transaction persistence data")?;
+        require(
+            (1..=3).contains(&tx.status.to_i32()) && !tx.calls.is_empty(),
+            "incomplete transaction persistence data",
+        )?;
     }
     Ok(timestamp.seconds as u64)
 }
@@ -521,9 +521,9 @@ fn base_row(config: &Config, epoch: &Epoch, field: pb::StateField) -> pb::Global
         chain_id: config.chain_id,
         market: epoch.steth.clone(),
         epoch: epoch.epoch,
-        field: field as i32,
+        field: field.into(),
         scale: "1".into(),
-        boundary: pb::Boundary::EndOfBlock as i32,
+        boundary: pb::Boundary::EndOfBlock.into(),
         ..Default::default()
     }
 }
@@ -531,8 +531,8 @@ fn packed_row(config: &Config, epoch: &Epoch, r: &Reduced, field: pb::StateField
     pb::GlobalState {
         value: bits(&r.new, offset, width).to_string(),
         previous_value: bits(&r.old, offset, width).to_string(),
-        observation: pb::Observation::ObservedWrite as i32,
-        scope: scope_of(r.scope) as i32,
+        observation: pb::Observation::ObservedWrite.into(),
+        scope: scope_of(r.scope).into(),
         ordinal: r.ordinal,
         first_ordinal: r.first_ordinal,
         change_count: r.count,
@@ -553,14 +553,14 @@ fn epoch_row(config: &Config, epoch: &Epoch, kind: pb::EpochEventKind) -> pb::Mo
         chain_id: config.chain_id,
         market: epoch.steth.clone(),
         epoch: epoch.epoch,
-        kind: kind as i32,
-        family: pb::ModelFamily::LidoSteth as i32,
+        kind: kind.into(),
+        family: pb::ModelFamily::LidoSteth.into(),
         model_id: epoch.model_id.clone(),
         source_pin: epoch.source_pin.clone(),
         implementation_revision: epoch.contract_version.to_string(),
-        basis_kind: pb::BasisKind::Shares as i32,
+        basis_kind: pb::BasisKind::Shares.into(),
         basis_scale: "1".into(),
-        balance_rounding: pb::Rounding::Floor as i32,
+        balance_rounding: pb::Rounding::Floor.into(),
         basis_bit_offset: 0,
         basis_bit_width: 256,
         basis_signed: false,
@@ -571,7 +571,7 @@ fn epoch_row(config: &Config, epoch: &Epoch, kind: pb::EpochEventKind) -> pb::Mo
         balance_decimals: 18,
         basis_carryover: !epoch.interval.successor,
         global_carryover: false,
-        scope: pb::Scope::Epoch as i32,
+        scope: pb::Scope::Epoch.into(),
         ..Default::default()
     }
 }
@@ -621,16 +621,17 @@ fn pointer_dependency(
         chain_id: config.chain_id,
         market: epoch.steth.clone(),
         epoch: epoch.epoch,
-        kind: kind as i32,
-        role: if is_kernel {
+        kind: kind.into(),
+        role: (if is_kernel {
             pb::DependencyRole::Beacon
         } else {
             pb::DependencyRole::Implementation
-        } as i32,
+        })
+        .into(),
         contract: contract.to_vec(),
         parent: if is_kernel { vec![] } else { epoch.aragon.kernel.clone() },
         depth: if is_kernel { 1 } else { 2 },
-        binding: pb::BindingKind::StoragePointer as i32,
+        binding: pb::BindingKind::StoragePointer.into(),
         pointer_contract: pointer_contract.to_vec(),
         pointer_slot: pointer_slot.to_vec(),
         pointer_value: expected,
@@ -642,7 +643,7 @@ fn pointer_dependency(
 
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
-    let header = block.header.as_ref().unwrap();
+    let header = block.header.as_option().unwrap();
     let active: Vec<&Epoch> = config.epochs.iter().filter(|e| e.interval.intersects_block(block.number)).collect();
     let mut events = pb::Events::default();
     if !active.is_empty() {
@@ -730,8 +731,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 let reason = storage_reason(epoch, &w.address, &w.key);
                 if let Some(reason) = reason {
                     events.epochs.push(pb::ModelEpoch {
-                        reason: reason as i32,
-                        scope: scope_of(w.scope) as i32,
+                        reason: reason.into(),
+                        scope: scope_of(w.scope).into(),
                         ordinal: w.ordinal,
                         transaction_index: w.tx_index,
                         transaction_hash: w.tx_hash.clone(),
@@ -779,12 +780,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     market: epoch.steth.clone(),
                     holder,
                     epoch: epoch.epoch,
-                    basis_kind: pb::BasisKind::Shares as i32,
+                    basis_kind: pb::BasisKind::Shares.into(),
                     value: unsigned(&r.new).to_string(),
                     previous_value: unsigned(&r.old).to_string(),
-                    observation: pb::Observation::ObservedWrite as i32,
-                    boundary: pb::Boundary::EndOfBlock as i32,
-                    scope: scope_of(r.scope) as i32,
+                    observation: pb::Observation::ObservedWrite.into(),
+                    boundary: pb::Boundary::EndOfBlock.into(),
+                    scope: scope_of(r.scope).into(),
                     ordinal: r.ordinal,
                     first_ordinal: r.first_ordinal,
                     change_count: r.count,
@@ -850,8 +851,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             let last = [shares, buffered, cl].into_iter().max_by_key(|r| r.ordinal).unwrap();
             events.global_state.push(pb::GlobalState {
                 value: total_pooled_ether.to_string(),
-                observation: pb::Observation::Derived as i32,
-                scope: scope_of(last.scope) as i32,
+                observation: pb::Observation::Derived.into(),
+                scope: scope_of(last.scope).into(),
                 ordinal: last.ordinal,
                 first_ordinal: [shares, buffered, cl].iter().map(|r| r.first_ordinal).min().unwrap(),
                 change_count: shares.count + buffered.count + cl.count,
@@ -867,12 +868,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             epoch.active_at(block.number, ordinal) && ended.get(&(epoch.steth.clone(), epoch.epoch)).is_none_or(|end| ordinal < *end)
         };
         // TokenRebased report evidence from receipts of succeeded transactions.
-        for tx in block
-            .transaction_traces
-            .iter()
-            .filter(|tx| tx.status == eth::TransactionTraceStatus::Succeeded as i32)
-        {
-            let Some(receipt) = &tx.receipt else {
+        for tx in block.transaction_traces.iter().filter(|tx| tx.status == eth::TransactionTraceStatus::Succeeded) {
+            let Some(receipt) = tx.receipt.as_option() else {
                 // Report evidence comes from the receipt; a succeeded
                 // transaction whose frames logged from stETH without one is
                 // incomplete data, not a block without a report.
@@ -900,9 +897,9 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 ] {
                     events.global_state.push(pb::GlobalState {
                         value,
-                        observation: pb::Observation::ObservedLog as i32,
-                        boundary: pb::Boundary::Change as i32,
-                        scope: pb::Scope::Transaction as i32,
+                        observation: pb::Observation::ObservedLog.into(),
+                        boundary: pb::Boundary::Change.into(),
+                        scope: pb::Scope::Transaction.into(),
                         ordinal: log.ordinal,
                         first_ordinal: log.ordinal,
                         change_count: 1,
@@ -919,8 +916,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             for epoch in active.iter().filter(|e| e.active_at(block.number, c.ordinal)) {
                 if let Some(reason) = code_reason(epoch, &c.address) {
                     events.epochs.push(pb::ModelEpoch {
-                        reason: reason as i32,
-                        scope: scope_of(c.scope) as i32,
+                        reason: reason.into(),
+                        scope: scope_of(c.scope).into(),
                         ordinal: c.ordinal,
                         transaction_index: c.tx_index,
                         transaction_hash: c.tx_hash.clone(),
@@ -965,11 +962,11 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     chain_id: config.chain_id,
                     market: epoch.steth.clone(),
                     epoch: epoch.epoch,
-                    kind: kind as i32,
-                    role: pb::DependencyRole::Accounting as i32,
+                    kind: kind.into(),
+                    role: pb::DependencyRole::Accounting.into(),
                     contract: accounting.clone(),
                     depth: 1,
-                    binding: pb::BindingKind::Declared as i32,
+                    binding: pb::BindingKind::Declared.into(),
                     activation_block: epoch.activation_block,
                     source_pin: epoch.source_pin.clone(),
                     ..Default::default()
@@ -979,9 +976,9 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             // implementation whose code binds the qualified version.
             events.global_state.push(pb::GlobalState {
                 value: epoch.contract_version.to_string(),
-                observation: pb::Observation::QualifiedConstant as i32,
-                boundary: pb::Boundary::Declaration as i32,
-                scope: pb::Scope::Epoch as i32,
+                observation: pb::Observation::QualifiedConstant.into(),
+                boundary: pb::Boundary::Declaration.into(),
+                scope: pb::Scope::Epoch.into(),
                 ordinal: if kind == pb::EpochEventKind::Bound { epoch.activation_ordinal } else { 0 },
                 storage_contract: epoch.implementation.clone(),
                 ..base_row(config, epoch, pb::StateField::LidoContractVersion)
@@ -993,14 +990,14 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         .sort_by(|a, b| (&a.market, &a.holder, a.ordinal).cmp(&(&b.market, &b.holder, b.ordinal)));
     events
         .global_state
-        .sort_by(|a, b| (&a.market, a.field, a.ordinal, a.log_index).cmp(&(&b.market, b.field, b.ordinal, b.log_index)));
+        .sort_by(|a, b| (&a.market, a.field.to_i32(), a.ordinal, a.log_index).cmp(&(&b.market, b.field.to_i32(), b.ordinal, b.log_index)));
     events.epochs.sort_by(|a, b| {
         (
             &a.market,
             a.epoch,
             a.ordinal,
-            a.kind,
-            a.reason,
+            a.kind.to_i32(),
+            a.reason.to_i32(),
             &a.evidence_contract,
             &a.evidence_slot,
             &a.evidence_code_hash,
@@ -1009,8 +1006,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 &b.market,
                 b.epoch,
                 b.ordinal,
-                b.kind,
-                b.reason,
+                b.kind.to_i32(),
+                b.reason.to_i32(),
                 &b.evidence_contract,
                 &b.evidence_slot,
                 &b.evidence_code_hash,
@@ -1018,7 +1015,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     });
     events
         .dependencies
-        .sort_by(|a, b| (&a.market, a.epoch, a.depth, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.depth, b.role, &b.contract)));
+        .sort_by(|a, b| (&a.market, a.epoch, a.depth, a.role.to_i32(), &a.contract).cmp(&(&b.market, b.epoch, b.depth, b.role.to_i32(), &b.contract)));
     events.clocks.push(pb::BlockClock {
         chain_id: config.chain_id,
         number: block.number,

@@ -484,21 +484,21 @@ fn mapping_has_base(mut key: [u8; 32], preimages: &BTreeMap<[u8; 32], Vec<u8>>, 
 }
 
 pub fn validate_block(block: &eth::Block, config: &Config) -> Result<u64, Error> {
-    require(
-        block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32,
-        "Extended blocks required",
-    )?;
+    require(block.detail_level == eth::block::DetailLevel::DetaillevelExtended, "Extended blocks required")?;
     require(config.producer_versions.contains(&block.ver), "Extended producer version not qualified")?;
-    let header = block.header.as_ref().ok_or_else(|| Error::msg("missing header"))?;
+    let header = block.header.as_option().ok_or_else(|| Error::msg("missing header"))?;
     require(
         block.hash.len() == 32 && header.parent_hash.len() == 32 && header.state_root.len() == 32,
         "invalid block identity",
     )?;
     require(header.number == block.number && block.number > 0, "header number mismatch")?;
-    let timestamp = header.timestamp.as_ref().ok_or_else(|| Error::msg("missing timestamp"))?;
+    let timestamp = header.timestamp.as_option().ok_or_else(|| Error::msg("missing timestamp"))?;
     require(timestamp.seconds >= 0, "negative timestamp")?;
     for tx in &block.transaction_traces {
-        require((1..=3).contains(&tx.status) && !tx.calls.is_empty(), "incomplete transaction persistence data")?;
+        require(
+            (1..=3).contains(&tx.status.to_i32()) && !tx.calls.is_empty(),
+            "incomplete transaction persistence data",
+        )?;
     }
     Ok(timestamp.seconds as u64)
 }
@@ -512,9 +512,9 @@ fn base_row(config: &Config, market: &Market, r: &Reduced) -> pb::GlobalState {
         chain_id: config.chain_id,
         market: market.atoken.clone(),
         epoch: market.epoch,
-        observation: pb::Observation::ObservedWrite as i32,
-        boundary: pb::Boundary::EndOfBlock as i32,
-        scope: scope_of(r.scope) as i32,
+        observation: pb::Observation::ObservedWrite.into(),
+        boundary: pb::Boundary::EndOfBlock.into(),
+        scope: scope_of(r.scope).into(),
         ordinal: r.ordinal,
         first_ordinal: r.first_ordinal,
         change_count: r.count,
@@ -538,7 +538,7 @@ struct Field<'a> {
 }
 fn field_row(config: &Config, market: &Market, r: &Reduced, f: Field) -> pb::GlobalState {
     pb::GlobalState {
-        field: f.field as i32,
+        field: f.field.into(),
         key: f.key.to_vec(),
         value: bits(&r.new, f.offset, f.width).to_string(),
         previous_value: bits(&r.old, f.offset, f.width).to_string(),
@@ -555,14 +555,14 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         chain_id: config.chain_id,
         market: market.atoken.clone(),
         epoch: market.epoch,
-        kind: kind as i32,
-        family: pb::ModelFamily::AaveV3Atoken as i32,
+        kind: kind.into(),
+        family: pb::ModelFamily::AaveV3Atoken.into(),
         model_id: market.model_id.clone(),
         source_pin: market.source_pin.clone(),
         implementation_revision: market.implementation_revision.clone(),
-        basis_kind: pb::BasisKind::ScaledBalance as i32,
+        basis_kind: pb::BasisKind::ScaledBalance.into(),
         basis_scale: RAY.into(),
-        balance_rounding: market.rounding as i32,
+        balance_rounding: market.rounding.into(),
         basis_bit_offset: 0,
         basis_bit_width: market.basis_bits,
         basis_signed: false,
@@ -574,14 +574,14 @@ fn epoch_row(config: &Config, market: &Market, kind: pb::EpochEventKind) -> pb::
         balance_decimals: market.balance_decimals,
         basis_carryover: !market.interval.successor,
         global_carryover: !market.interval.successor,
-        scope: pb::Scope::Epoch as i32,
+        scope: pb::Scope::Epoch.into(),
         ..Default::default()
     }
 }
 fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason, r: &Write) -> pb::ModelEpoch {
     pb::ModelEpoch {
-        reason: reason as i32,
-        scope: scope_of(r.scope) as i32,
+        reason: reason.into(),
+        scope: scope_of(r.scope).into(),
         ordinal: r.ordinal,
         transaction_index: r.tx_index,
         transaction_hash: r.tx_hash.clone(),
@@ -596,7 +596,7 @@ fn invalidation(config: &Config, market: &Market, reason: pb::InvalidationReason
 
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
-    let header = block.header.as_ref().unwrap();
+    let header = block.header.as_option().unwrap();
     let active: Vec<&Market> = config.markets.iter().filter(|m| m.interval.intersects_block(block.number)).collect();
     let mut events = pb::Events::default();
 
@@ -617,8 +617,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     continue;
                 };
                 events.epochs.push(pb::ModelEpoch {
-                    reason: reason as i32,
-                    scope: scope_of(c.scope) as i32,
+                    reason: reason.into(),
+                    scope: scope_of(c.scope).into(),
                     ordinal: c.ordinal,
                     transaction_index: c.tx_index,
                     transaction_hash: c.tx_hash.clone(),
@@ -802,12 +802,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                         market: market.atoken.clone(),
                         holder,
                         epoch: market.epoch,
-                        basis_kind: pb::BasisKind::ScaledBalance as i32,
+                        basis_kind: pb::BasisKind::ScaledBalance.into(),
                         value: bits(&r.new, 0, market.basis_bits).to_string(),
                         previous_value: bits(&r.old, 0, market.basis_bits).to_string(),
-                        observation: pb::Observation::ObservedWrite as i32,
-                        boundary: pb::Boundary::EndOfBlock as i32,
-                        scope: scope_of(r.scope) as i32,
+                        observation: pb::Observation::ObservedWrite.into(),
+                        boundary: pb::Boundary::EndOfBlock.into(),
+                        scope: scope_of(r.scope).into(),
                         ordinal: r.ordinal,
                         first_ordinal: r.first_ordinal,
                         change_count: r.count,
@@ -876,11 +876,11 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 chain_id: config.chain_id,
                 market: market.atoken.clone(),
                 epoch: market.epoch,
-                kind: kind as i32,
-                role: role as i32,
+                kind: kind.into(),
+                role: role.into(),
                 contract: contract.clone(),
                 depth: 1,
-                binding: binding as i32,
+                binding: binding.into(),
                 activation_block: market.activation_block,
                 source_pin: pin.into(),
                 ..Default::default()
@@ -916,14 +916,14 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         .sort_by(|a, b| (&a.market, &a.holder, a.ordinal).cmp(&(&b.market, &b.holder, b.ordinal)));
     events
         .global_state
-        .sort_by(|a, b| (&a.market, a.field, &a.key, a.ordinal).cmp(&(&b.market, b.field, &b.key, b.ordinal)));
+        .sort_by(|a, b| (&a.market, a.field.to_i32(), &a.key, a.ordinal).cmp(&(&b.market, b.field.to_i32(), &b.key, b.ordinal)));
     events.epochs.sort_by(|a, b| {
         (
             &a.market,
             a.epoch,
             a.ordinal,
-            a.kind,
-            a.reason,
+            a.kind.to_i32(),
+            a.reason.to_i32(),
             &a.evidence_contract,
             &a.evidence_slot,
             &a.evidence_code_hash,
@@ -932,8 +932,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                 &b.market,
                 b.epoch,
                 b.ordinal,
-                b.kind,
-                b.reason,
+                b.kind.to_i32(),
+                b.reason.to_i32(),
                 &b.evidence_contract,
                 &b.evidence_slot,
                 &b.evidence_code_hash,
@@ -941,7 +941,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
     });
     events
         .dependencies
-        .sort_by(|a, b| (&a.market, a.epoch, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.role, &b.contract)));
+        .sort_by(|a, b| (&a.market, a.epoch, a.role.to_i32(), &a.contract).cmp(&(&b.market, b.epoch, b.role.to_i32(), &b.contract)));
     events.clocks.push(pb::BlockClock {
         chain_id: config.chain_id,
         number: block.number,

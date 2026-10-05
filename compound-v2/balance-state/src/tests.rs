@@ -37,11 +37,7 @@ fn successor_epochs_reset_native_cash_and_omit_retired_prefixes() {
         (h.epoch, h.previous_value.as_str(), h.value.as_str(), h.first_ordinal, h.ordinal),
         (9, "3", "0", 30, 30)
     );
-    let cash: Vec<_> = out
-        .global_state
-        .iter()
-        .filter(|g| g.field == pb::StateField::CompoundV2TotalCash as i32)
-        .collect();
+    let cash: Vec<_> = out.global_state.iter().filter(|g| g.field == pb::StateField::CompoundV2TotalCash).collect();
     assert_eq!(cash.len(), 1);
     assert_eq!(
         (cash[0].epoch, cash[0].previous_value.as_str(), cash[0].value.as_str(), cash[0].first_ordinal),
@@ -68,10 +64,7 @@ fn successor_epochs_reset_native_cash_and_omit_retired_prefixes() {
     b.transaction_traces[0].calls[0].balance_changes.retain(|w| w.ordinal < 30);
     let prefix_only = project(&b, &cfg).unwrap();
     assert!(prefix_only.holder_basis.is_empty());
-    assert!(prefix_only
-        .global_state
-        .iter()
-        .all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+    assert!(prefix_only.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant));
 }
 
 #[test]
@@ -135,7 +128,7 @@ fn successor_epochs_use_selected_usdc_width_layout_and_rate_model() {
         ),
         (3, "7", mapping_key(&[9; 20], &w(77)).as_slice())
     );
-    let cash = out.global_state.iter().find(|g| g.field == pb::StateField::CompoundV2TotalCash as i32).unwrap();
+    let cash = out.global_state.iter().find(|g| g.field == pb::StateField::CompoundV2TotalCash).unwrap();
     assert_eq!(
         (
             cash.epoch,
@@ -150,13 +143,13 @@ fn successor_epochs_use_selected_usdc_width_layout_and_rate_model() {
     let rate = out
         .global_state
         .iter()
-        .find(|g| g.observation == pb::Observation::ObservedWrite as i32 && g.storage_contract == new.rate_model)
+        .find(|g| g.observation == pb::Observation::ObservedWrite && g.storage_contract == new.rate_model)
         .unwrap();
     assert_eq!((rate.epoch, rate.value.as_str(), rate.first_ordinal), (3, "4", 22));
     assert!(out
         .global_state
         .iter()
-        .filter(|g| g.market == old.ctoken && g.observation == pb::Observation::ObservedWrite as i32)
+        .filter(|g| g.market == old.ctoken && g.observation == pb::Observation::ObservedWrite)
         .all(|g| g.epoch == 3));
     assert!(out
         .dependencies
@@ -165,7 +158,7 @@ fn successor_epochs_use_selected_usdc_width_layout_and_rate_model() {
     assert!(out
         .global_state
         .iter()
-        .any(|g| g.market == new.ctoken && g.epoch == 3 && g.observation == pb::Observation::QualifiedConstant as i32));
+        .any(|g| g.market == new.ctoken && g.epoch == 3 && g.observation == pb::Observation::QualifiedConstant));
     let mut reverse = cfg.clone();
     reverse.markets.reverse();
     assert_eq!(out, project(&b, &reverse).unwrap());
@@ -200,7 +193,7 @@ fn successor_epochs_pointer_and_code_triggers_belong_only_to_their_interval() {
             call.storage_changes.push(write(&address, key, w(1), w(1), ordinal));
             b.transaction_traces = vec![tx(call)];
             let out = project(&b, &cfg).unwrap();
-            let invalid: Vec<_> = out.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
+            let invalid: Vec<_> = out.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated).collect();
             assert_eq!(invalid.len(), 1);
             assert_eq!((invalid[0].epoch, invalid[0].ordinal), (if ordinal < 20 { 1 } else { 3 }, ordinal));
             assert_eq!(out.holder_basis.len(), usize::from(ordinal < 20));
@@ -225,7 +218,7 @@ fn successor_epochs_pointer_and_code_triggers_belong_only_to_their_interval() {
             });
             b.transaction_traces = vec![tx(call)];
             let out = project(&b, &cfg).unwrap();
-            let invalid: Vec<_> = out.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
+            let invalid: Vec<_> = out.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated).collect();
             assert_eq!(invalid.len(), 1);
             assert_eq!(invalid[0].epoch, if ordinal < 20 { 1 } else { 3 });
             assert_eq!(out.holder_basis.len(), usize::from(ordinal < 20));
@@ -249,7 +242,7 @@ fn successor_epochs_preserve_excursions_and_reject_unknown_prefixes() {
     assert_eq!(
         out.epochs
             .iter()
-            .filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32)
+            .filter(|e| e.kind == pb::EpochEventKind::Invalidated)
             .map(|e| (e.epoch, e.ordinal))
             .collect::<Vec<_>>(),
         vec![(1, 18), (3, 20)]
@@ -286,7 +279,7 @@ fn successor_epochs_shared_dependencies_are_not_duplicate_physical_writes() {
     let invalid: Vec<_> = out
         .epochs
         .iter()
-        .filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32)
+        .filter(|e| e.kind == pb::EpochEventKind::Invalidated)
         .map(|e| (e.market.clone(), e.epoch))
         .collect();
     assert_eq!(invalid.len(), 2);
@@ -294,11 +287,7 @@ fn successor_epochs_shared_dependencies_are_not_duplicate_physical_writes() {
     assert!(invalid.contains(&(cfg.markets[2].ctoken.clone(), 3)));
     b.transaction_traces[0].calls[0].code_changes.clear();
     let out = project(&b, &cfg).unwrap();
-    let observed: Vec<_> = out
-        .global_state
-        .iter()
-        .filter(|g| g.observation == pb::Observation::ObservedWrite as i32)
-        .collect();
+    let observed: Vec<_> = out.global_state.iter().filter(|g| g.observation == pb::Observation::ObservedWrite).collect();
     assert_eq!(observed.len(), 2);
     assert_eq!(observed.iter().find(|g| g.market == cfg.markets[2].ctoken).unwrap().change_count, 1);
     assert_eq!(observed.iter().find(|g| g.market == cfg.markets[0].ctoken).unwrap().change_count, 2);
@@ -314,7 +303,7 @@ fn successor_epochs_validate_schedule_and_exact_maximum_boundaries() {
         ..Default::default()
     })];
     let out = project(&b, &cfg).unwrap();
-    let cash = out.global_state.iter().find(|g| g.field == pb::StateField::CompoundV2TotalCash as i32).unwrap();
+    let cash = out.global_state.iter().find(|g| g.field == pb::StateField::CompoundV2TotalCash).unwrap();
     assert_eq!((cash.epoch, cash.first_ordinal, cash.value.as_str()), (7, u64::MAX, "3"));
     let mut raw: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
     let original = raw["markets"][0].clone();
@@ -330,7 +319,7 @@ fn successor_epochs_validate_schedule_and_exact_maximum_boundaries() {
     let quiet = project(&block(10), &at_start).unwrap();
     assert!(quiet.epochs.iter().filter(|e| e.market == m.ctoken).all(|e| e.epoch == 2));
     assert!(quiet.holder_basis.is_empty());
-    assert!(quiet.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+    assert!(quiet.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant));
 }
 
 const EPOCHS: &str = include_str!("../tests/fixtures/mainnet-ctoken-epochs.json");
@@ -349,12 +338,16 @@ fn block(number: u64) -> eth::Block {
         ver: 5,
         number,
         hash: vec![1; 32],
-        detail_level: eth::block::DetailLevel::DetaillevelExtended as i32,
-        header: Some(eth::BlockHeader {
+        detail_level: eth::block::DetailLevel::DetaillevelExtended.into(),
+        header: buffa::MessageField::some(eth::BlockHeader {
             number,
             parent_hash: vec![2; 32],
             state_root: vec![3; 32],
-            timestamp: Some(prost_types::Timestamp { seconds: 1789689600, nanos: 0 }),
+            timestamp: buffa::MessageField::some(buffa_types::google::protobuf::Timestamp {
+                seconds: 1789689600,
+                nanos: 0,
+                ..Default::default()
+            }),
             ..Default::default()
         }),
         ..Default::default()
@@ -362,7 +355,7 @@ fn block(number: u64) -> eth::Block {
 }
 fn tx(call: eth::Call) -> eth::TransactionTrace {
     eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Succeeded as i32,
+        status: eth::TransactionTraceStatus::Succeeded.into(),
         hash: vec![7; 32],
         index: 9,
         calls: vec![call],
@@ -394,7 +387,7 @@ fn shares_call(market: &Market, holder: &[u8], old: u128, new: u128, ordinal: u6
     eth::Call {
         index: 1,
         address: market.ctoken.clone(),
-        keccak_preimages: [preimage(holder, &market.account_tokens_slot)].into(),
+        keccak_preimages: [preimage(holder, &market.account_tokens_slot)].into_iter().collect(),
         storage_changes: vec![write(&market.ctoken, key, w(old), w(new), ordinal)],
         ..Default::default()
     }
@@ -403,7 +396,7 @@ fn fields(events: &pb::Events) -> Vec<(i32, String, String, i32)> {
     events
         .global_state
         .iter()
-        .map(|g| (g.field, g.previous_value.clone(), g.value.clone(), g.observation))
+        .map(|g| (g.field.to_i32(), g.previous_value.clone(), g.value.clone(), g.observation.to_i32()))
         .collect()
 }
 
@@ -444,7 +437,7 @@ fn share_writes_are_holder_rows_and_market_words_are_global_rows() {
     assert_eq!(events.holder_basis.len(), 1);
     let h = &events.holder_basis[0];
     assert_eq!(
-        (&*h.previous_value, &*h.value, h.basis_kind, h.bit_width, h.signed),
+        (&*h.previous_value, &*h.value, h.basis_kind.to_i32(), h.bit_width, h.signed),
         ("1000000000", "1250000000", pb::BasisKind::Shares as i32, 256, false)
     );
     assert_eq!(
@@ -462,11 +455,7 @@ fn share_writes_are_holder_rows_and_market_words_are_global_rows() {
             (pb::StateField::CompoundV2AccrualBlockNumber as i32, "9".into(), "10".into(), 1),
         ]
     );
-    let index = events
-        .global_state
-        .iter()
-        .find(|g| g.field == pb::StateField::CompoundV2BorrowIndex as i32)
-        .unwrap();
+    let index = events.global_state.iter().find(|g| g.field == pb::StateField::CompoundV2BorrowIndex).unwrap();
     assert_eq!(index.scale, EXP_SCALE);
     assert!(events.epochs.is_empty());
     assert_eq!((events.clocks[0].holder_basis_count, events.clocks[0].global_state_count), (1, 5));
@@ -545,7 +534,7 @@ fn erc20_cash_comes_only_from_the_qualified_underlying_mapping_entry() {
     let events = project(&b, &cfg).unwrap();
     assert_eq!(events.epochs.len(), 1);
     assert_eq!(
-        (events.epochs[0].kind, events.epochs[0].reason),
+        (events.epochs[0].kind.to_i32(), events.epochs[0].reason.to_i32()),
         (pb::EpochEventKind::Invalidated as i32, pb::InvalidationReason::DependencyPointerWrite as i32)
     );
     assert_eq!(events.epochs[0].evidence_contract, underlying);
@@ -558,10 +547,10 @@ fn native_cash_comes_from_persisted_balance_changes_of_the_cether_contract() {
     let mut b = block(10);
     let balance = |old: u128, new: u128, ordinal: u64| eth::BalanceChange {
         address: m.ctoken.clone(),
-        old_value: Some(eth::BigInt { bytes: w(old)[16..].to_vec() }),
-        new_value: Some(eth::BigInt { bytes: w(new)[16..].to_vec() }),
+        old_value: buffa::MessageField::some(eth::BigInt { bytes: w(old)[16..].to_vec() }),
+        new_value: buffa::MessageField::some(eth::BigInt { bytes: w(new)[16..].to_vec() }),
         ordinal,
-        reason: eth::balance_change::Reason::Transfer as i32,
+        reason: eth::balance_change::Reason::Transfer.into(),
     };
     // Two transfers in one block reduce; a reverted frame is ignored.
     b.transaction_traces = vec![
@@ -570,7 +559,7 @@ fn native_cash_comes_from_persisted_balance_changes_of_the_cether_contract() {
             ..Default::default()
         }),
         eth::TransactionTrace {
-            status: eth::TransactionTraceStatus::Succeeded as i32,
+            status: eth::TransactionTraceStatus::Succeeded.into(),
             hash: vec![8; 32],
             index: 10,
             calls: vec![eth::Call {
@@ -589,10 +578,10 @@ fn native_cash_comes_from_persisted_balance_changes_of_the_cether_contract() {
     b.transaction_traces = vec![tx(eth::Call {
         balance_changes: vec![eth::BalanceChange {
             address: other.ctoken.clone(),
-            old_value: None,
-            new_value: Some(eth::BigInt { bytes: vec![1] }),
+            old_value: buffa::MessageField::none(),
+            new_value: buffa::MessageField::some(eth::BigInt { bytes: vec![1] }),
             ordinal: 10,
-            reason: 6,
+            reason: 6.into(),
         }],
         ..Default::default()
     })];
@@ -631,7 +620,14 @@ fn rate_model_storage_and_constants_are_carried_and_bound() {
     // cToken shares converted by a 1e18 exchange-rate mantissa.
     let e = &events.epochs[0];
     assert_eq!(
-        (e.family, e.basis_kind, &e.balance_asset, e.balance_decimals, &*e.basis_scale, e.kind),
+        (
+            e.family.to_i32(),
+            e.basis_kind.to_i32(),
+            &e.balance_asset,
+            e.balance_decimals,
+            &*e.basis_scale,
+            e.kind.to_i32()
+        ),
         (
             pb::ModelFamily::CompoundV2Ctoken as i32,
             pb::BasisKind::Shares as i32,
@@ -660,7 +656,16 @@ fn rate_model_storage_and_constants_are_carried_and_bound() {
         .dependencies
         .iter()
         .filter(|d| d.market == m.ctoken)
-        .map(|d| (d.depth, d.role, d.binding, d.pointer_contract.clone(), d.pointer_slot.clone(), d.parent.clone()))
+        .map(|d| {
+            (
+                d.depth,
+                d.role.to_i32(),
+                d.binding.to_i32(),
+                d.pointer_contract.clone(),
+                d.pointer_slot.clone(),
+                d.parent.clone(),
+            )
+        })
         .collect();
     let pointer = pb::BindingKind::StoragePointer as i32;
     let usdc = m.underlying.clone().unwrap();
@@ -698,8 +703,8 @@ fn rate_model_storage_and_constants_are_carried_and_bound() {
     let constants: Vec<(i32, String)> = events
         .global_state
         .iter()
-        .filter(|g| g.observation == pb::Observation::QualifiedConstant as i32 && g.market == ceth().ctoken)
-        .map(|g| (g.field, g.value.clone()))
+        .filter(|g| g.observation == pb::Observation::QualifiedConstant && g.market == ceth().ctoken)
+        .map(|g| (g.field.to_i32(), g.value.clone()))
         .collect();
     // The 2019 WhitePaper model stores per-year parameters (no setter).
     assert_eq!(
@@ -712,7 +717,7 @@ fn rate_model_storage_and_constants_are_carried_and_bound() {
     );
     assert_eq!(events.global_state.iter().filter(|g| g.market == m.ctoken).count(), 1);
     assert!(project(&block(2), &cfg).unwrap().epochs.is_empty());
-    assert_eq!(project(&block(1001), &cfg).unwrap().epochs[0].kind, pb::EpochEventKind::Reaffirmed as i32);
+    assert_eq!(project(&block(1001), &cfg).unwrap().epochs[0].kind, pb::EpochEventKind::Reaffirmed);
 }
 
 #[test]
@@ -727,7 +732,11 @@ fn dependency_changes_invalidate_with_evidence_instead_of_failing() {
     })];
     let events = project(&b, &cfg).unwrap();
     assert_eq!(
-        (events.epochs[0].kind, events.epochs[0].reason, &events.epochs[0].evidence_slot),
+        (
+            events.epochs[0].kind.to_i32(),
+            events.epochs[0].reason.to_i32(),
+            &events.epochs[0].evidence_slot
+        ),
         (
             pb::EpochEventKind::Invalidated as i32,
             pb::InvalidationReason::RateModelChange as i32,
@@ -751,7 +760,7 @@ fn dependency_changes_invalidate_with_evidence_instead_of_failing() {
     })];
     let events = project(&b, &cfg).unwrap();
     assert_eq!(
-        (events.epochs.len(), events.epochs[0].reason, &events.epochs[0].evidence_slot),
+        (events.epochs.len(), events.epochs[0].reason.to_i32(), &events.epochs[0].evidence_slot),
         (1, pb::InvalidationReason::DependencyPointerWrite as i32, &underlying_slot.to_vec())
     );
     for (address, reason) in [
@@ -772,7 +781,7 @@ fn dependency_changes_invalidate_with_evidence_instead_of_failing() {
         })];
         let events = project(&b, &cfg).unwrap();
         assert_eq!(
-            (events.epochs.len(), events.epochs[0].reason, &events.epochs[0].evidence_code_hash),
+            (events.epochs.len(), events.epochs[0].reason.to_i32(), &events.epochs[0].evidence_code_hash),
             (1, reason as i32, &vec![2; 32])
         );
     }
@@ -788,15 +797,15 @@ fn dependency_changes_invalidate_with_evidence_instead_of_failing() {
         ..Default::default()
     })];
     let events = project(&b, &delegator).unwrap();
-    assert_eq!(events.epochs[0].reason, pb::InvalidationReason::ImplementationPointerWrite as i32);
+    assert_eq!(events.epochs[0].reason, pb::InvalidationReason::ImplementationPointerWrite);
     let bound = project(&block(1), &delegator).unwrap();
     let implementation = bound
         .dependencies
         .iter()
-        .find(|d| d.role == pb::DependencyRole::Implementation as i32 && d.depth == 1)
+        .find(|d| d.role == pb::DependencyRole::Implementation && d.depth == 1)
         .unwrap();
     assert_eq!(
-        (implementation.binding, &implementation.pointer_slot),
+        (implementation.binding.to_i32(), &implementation.pointer_slot),
         (pb::BindingKind::StoragePointer as i32, &w(0x13).to_vec())
     );
     // An upgrade whose `_becomeImplementation` writes storage the old epoch
@@ -866,7 +875,7 @@ fn underlying_code_change_suppresses_old_model_prefix_unless_reverted() {
     });
     let events = project(&b, &cfg).unwrap();
     assert!(events.holder_basis.is_empty());
-    assert_eq!(events.epochs[0].reason, pb::InvalidationReason::DependencyCodeChange as i32);
+    assert_eq!(events.epochs[0].reason, pb::InvalidationReason::DependencyCodeChange);
     b.transaction_traces[0].calls[1].state_reverted = true;
     let events = project(&b, &cfg).unwrap();
     assert!(events.epochs.is_empty());
@@ -885,7 +894,7 @@ fn reviewed_storage_is_ignored_and_unknown_ctoken_writes_fail_closed() {
     let second = add_small(&snapshot_key, 1);
     b.transaction_traces = vec![tx(eth::Call {
         address: m.ctoken.clone(),
-        keccak_preimages: [preimage(&[4; 20], &borrows_base)].into(),
+        keccak_preimages: [preimage(&[4; 20], &borrows_base)].into_iter().collect(),
         storage_changes: vec![
             write(&m.ctoken, w(0), w(1), w(0), 10),
             write(&m.ctoken, w(0), w(0), w(1), 11),
@@ -908,7 +917,7 @@ fn reviewed_storage_is_ignored_and_unknown_ctoken_writes_fail_closed() {
     b.transaction_traces = vec![tx(call)];
     assert!(project(&b, &cfg).unwrap().holder_basis.is_empty());
     let mut failed = tx(shares_call(&m, &[9; 20], 1, 2, 10));
-    failed.status = eth::TransactionTraceStatus::Failed as i32;
+    failed.status = eth::TransactionTraceStatus::Failed.into();
     b.transaction_traces = vec![failed];
     assert!(project(&b, &cfg).unwrap().holder_basis.is_empty());
     // Ties and discontinuities.
@@ -995,7 +1004,7 @@ fn add_small(word: &[u8; 32], n: u8) -> [u8; 32] {
 
 #[test]
 fn shared_hardening_rules_hold_for_ctokens() {
-    use prost::Message;
+    use buffa::Message;
     let cfg = config();
     let m = cusdc();
     // Only Extended producer versions 4 and 5 are qualified.
@@ -1016,7 +1025,7 @@ fn shared_hardening_rules_hold_for_ctokens() {
     let key = mapping_key(&holder, &m.account_tokens_slot);
     let mut b = block(10);
     b.transaction_traces = vec![eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Succeeded as i32,
+        status: eth::TransactionTraceStatus::Succeeded.into(),
         hash: vec![7; 32],
         index: 9,
         calls: vec![
@@ -1029,9 +1038,9 @@ fn shared_hardening_rules_hold_for_ctokens() {
                 index: 1,
                 parent_index: 0,
                 depth: 1,
-                call_type: eth::CallType::Delegate as i32,
+                call_type: eth::CallType::Delegate.into(),
                 address: vec![0xee; 20],
-                keccak_preimages: [preimage(&holder, &m.account_tokens_slot)].into(),
+                keccak_preimages: [preimage(&holder, &m.account_tokens_slot)].into_iter().collect(),
                 storage_changes: vec![
                     write(&m.ctoken, key, w(1), w(2), 10),
                     write(&m.ctoken, w(0), w(1), w(0), 11),
@@ -1047,12 +1056,12 @@ fn shared_hardening_rules_hold_for_ctokens() {
     // FAILED and REVERTED transactions contribute nothing; status 0 is refused.
     for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
         let mut t = tx(shares_call(&m, &holder, 1, 2, 10));
-        t.status = status as i32;
+        t.status = status.into();
         b.transaction_traces = vec![t];
         assert!(project(&b, &cfg).unwrap().holder_basis.is_empty());
     }
     let mut t = tx(eth::Call::default());
-    t.status = 0;
+    t.status = 0.into();
     b.transaction_traces = vec![t];
     assert!(project(&b, &cfg).unwrap_err().to_string().contains("incomplete transaction"));
     // Blocks before activation emit only the clock, even for unresolved writes.
@@ -1097,17 +1106,20 @@ fn validate_block_refusals_provenance_and_multi_market_attribution() {
     let cases: Vec<(&str, Mutation)> = vec![
         (
             "Extended blocks required",
-            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32),
+            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase.into()),
         ),
         ("producer version", Box::new(|b| b.ver = 3)),
-        ("missing header", Box::new(|b| b.header = None)),
+        ("missing header", Box::new(|b| b.header = buffa::MessageField::none())),
         ("invalid block identity", Box::new(|b| b.hash = vec![1; 31])),
-        ("invalid block identity", Box::new(|b| b.header.as_mut().unwrap().state_root = vec![])),
-        ("header number mismatch", Box::new(|b| b.header.as_mut().unwrap().number += 1)),
-        ("missing timestamp", Box::new(|b| b.header.as_mut().unwrap().timestamp = None)),
+        ("invalid block identity", Box::new(|b| b.header.as_option_mut().unwrap().state_root = vec![])),
+        ("header number mismatch", Box::new(|b| b.header.as_option_mut().unwrap().number += 1)),
+        (
+            "missing timestamp",
+            Box::new(|b| b.header.as_option_mut().unwrap().timestamp = buffa::MessageField::none()),
+        ),
         (
             "negative timestamp",
-            Box::new(|b| b.header.as_mut().unwrap().timestamp.as_mut().unwrap().seconds = -1),
+            Box::new(|b| b.header.as_option_mut().unwrap().timestamp.as_option_mut().unwrap().seconds = -1),
         ),
     ];
     for (message, apply) in cases {
@@ -1173,7 +1185,7 @@ fn every_pointer_write_is_evidenced_including_excursions_and_equal_value_writes(
         .epochs
         .iter()
         .filter(|e| e.market == m.ctoken)
-        .map(|e| (e.reason, e.ordinal, e.evidence_word.clone()))
+        .map(|e| (e.reason.to_i32(), e.ordinal, e.evidence_word.clone()))
         .collect();
     assert_eq!(
         evidence,
@@ -1200,7 +1212,7 @@ fn every_pointer_write_is_evidenced_including_excursions_and_equal_value_writes(
     let events = project(&b, &cfg).unwrap();
     assert_eq!(events.epochs.len(), 1);
     assert_eq!(
-        (events.epochs[0].reason, &events.epochs[0].evidence_contract),
+        (events.epochs[0].reason.to_i32(), &events.epochs[0].evidence_contract),
         (pb::InvalidationReason::DependencyPointerWrite as i32, &underlying)
     );
     // The same equal-value write on a non-pointer slot is not an effect at all.
@@ -1216,10 +1228,10 @@ fn every_pointer_write_is_evidenced_including_excursions_and_equal_value_writes(
     let irm = bound
         .dependencies
         .iter()
-        .find(|d| d.market == m.ctoken && d.role == pb::DependencyRole::InterestRateModel as i32)
+        .find(|d| d.market == m.ctoken && d.role == pb::DependencyRole::InterestRateModel)
         .unwrap();
     assert_eq!(
-        (irm.binding, &irm.pointer_contract, &irm.pointer_slot, &irm.pointer_value),
+        (irm.binding.to_i32(), &irm.pointer_contract, &irm.pointer_slot, &irm.pointer_value),
         (
             pb::BindingKind::StoragePointer as i32,
             &m.ctoken,
@@ -1248,8 +1260,8 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
     b.transaction_traces = vec![tx(call)];
     let events = project(&b, &cfg).unwrap();
     let mine: Vec<_> = events.epochs.iter().filter(|e| e.market == m.ctoken).collect();
-    assert!(mine.iter().all(|e| e.kind != pb::EpochEventKind::Invalidated as i32));
-    let bound_row = mine.iter().find(|e| e.kind == pb::EpochEventKind::Bound as i32).unwrap();
+    assert!(mine.iter().all(|e| e.kind != pb::EpochEventKind::Invalidated));
+    let bound_row = mine.iter().find(|e| e.kind == pb::EpochEventKind::Bound).unwrap();
     assert_eq!((bound_row.activation_ordinal, bound_row.ordinal), (100, 100));
     let h: Vec<_> = events.holder_basis.iter().filter(|h| h.market == m.ctoken).collect();
     assert_eq!(h.len(), 1);
@@ -1273,10 +1285,10 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
 fn native(address: &[u8], old: u128, new: u128, ordinal: u64) -> eth::BalanceChange {
     eth::BalanceChange {
         address: address.to_vec(),
-        old_value: Some(eth::BigInt { bytes: w(old)[16..].to_vec() }),
-        new_value: Some(eth::BigInt { bytes: w(new)[16..].to_vec() }),
+        old_value: buffa::MessageField::some(eth::BigInt { bytes: w(old)[16..].to_vec() }),
+        new_value: buffa::MessageField::some(eth::BigInt { bytes: w(new)[16..].to_vec() }),
         ordinal,
-        reason: eth::balance_change::Reason::Transfer as i32,
+        reason: eth::balance_change::Reason::Transfer.into(),
     }
 }
 
@@ -1316,14 +1328,22 @@ fn native_cash_names_no_storage_slot_and_follows_system_and_block_scopes() {
     let events = project(&b, &cfg).unwrap();
     let row = &events.global_state[0];
     assert_eq!(
-        (row.scope, row.transaction_hash.is_empty(), row.storage_slot.is_empty(), &row.storage_contract),
+        (
+            row.scope.to_i32(),
+            row.transaction_hash.is_empty(),
+            row.storage_slot.is_empty(),
+            &row.storage_contract
+        ),
         (pb::Scope::SystemCall as i32, true, true, &m.ctoken)
     );
     let mut b = block(10);
     b.balance_changes = vec![native(&m.ctoken, 10, 20, 900)];
     let events = project(&b, &cfg).unwrap();
     let row = &events.global_state[0];
-    assert_eq!((row.scope, &*row.value, row.storage_slot.is_empty()), (pb::Scope::Block as i32, "20", true));
+    assert_eq!(
+        (row.scope.to_i32(), &*row.value, row.storage_slot.is_empty()),
+        (pb::Scope::Block as i32, "20", true)
+    );
     // Under a mid-block activation, cash moved before the ordinal is not this epoch's.
     let mut v: serde_json::Value = serde_json::from_str(EPOCHS).unwrap();
     v["markets"][1]["activation_block"] = 10.into();
@@ -1338,7 +1358,7 @@ fn native_cash_names_no_storage_slot_and_follows_system_and_block_scopes() {
         .unwrap()
         .global_state
         .iter()
-        .filter(|g| g.observation == pb::Observation::ObservedWrite as i32)
+        .filter(|g| g.observation == pb::Observation::ObservedWrite)
         .map(|g| (g.previous_value.clone(), g.value.clone()))
         .collect();
     assert_eq!(observed, vec![("15".into(), "18".into())]);
@@ -1370,7 +1390,10 @@ fn a_share_write_without_its_preimage_and_a_delegate_code_change_are_handled() {
         ..Default::default()
     })];
     let events = project(&b, &delegator).unwrap();
-    assert_eq!((events.epochs.len(), events.epochs[0].reason), (1, pb::InvalidationReason::CodeChange as i32));
+    assert_eq!(
+        (events.epochs.len(), events.epochs[0].reason.to_i32()),
+        (1, pb::InvalidationReason::CodeChange as i32)
+    );
 }
 
 #[test]
@@ -1385,7 +1408,7 @@ fn declarations_sit_at_the_activation_ordinal_and_parameters_are_canonical_decim
     let constants: Vec<u64> = events
         .global_state
         .iter()
-        .filter(|g| g.market == ceth().ctoken && g.boundary == pb::Boundary::Declaration as i32)
+        .filter(|g| g.market == ceth().ctoken && g.boundary == pb::Boundary::Declaration)
         .map(|g| g.ordinal)
         .collect();
     assert_eq!(constants, vec![100, 100, 100]);

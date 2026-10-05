@@ -24,10 +24,13 @@ formulas recorded in [extraction coverage](extraction-coverage.md).
   and a chain-scoped alias declaration for Arc. Output is confined to the
   facts a consumer needs to evaluate a balance; no prices, APY, health
   factors, liquidation policy or wallet classification.
-- The generated Rust lives in `proto/src/pb/evm.balance_state.v1.rs`, produced
-  by `buf generate` with `buf.build/community/neoeinstein-prost:v0.4.0`
-  (`file_descriptor_set=false`), the same generator that reproduces the
-  committed `evm.balances.v1.rs` byte for byte.
+- The generated Rust lives in `proto/src/pb/` (`balance_state.rs` and its
+  views, included by `evm.balance_state.v1.mod.rs`), produced by `buf
+  generate` in `proto/` with `buf.build/anthropics/buffa:v0.9.2`
+  (`lazy_views=true`, `unknown_fields=false`), the generator and options of
+  substreams 0.8.0. Until 2026-10-05 it was prost code from
+  `buf.build/community/neoeinstein-prost:v0.4.0`; the encodings are identical
+  (the committed encoding fixtures still pass).
 
 ## Tables
 
@@ -271,8 +274,8 @@ the stable contract.
    if needed, a new top-level message with the next `Events` field number.
    Never renumber or reuse a field.
 3. Enums are append-only; `UNSPECIFIED = 0` stays and is never emitted; an
-   unknown enum number decodes as a raw integer (prost) and the consumer
-   refuses to evaluate the row.
+   unknown enum number decodes as its raw integer (buffa
+   `EnumValue::Unknown(n)`) and the consumer refuses to evaluate the row.
 4. Changing a field's meaning is a breaking change → `evm.balance_state.v2`
    beside v1. A getter that changes rounding or inputs is a new epoch
    (`ModelEpoch`), not a schema change. `BlockClock.spec_revision`

@@ -18,6 +18,7 @@ use serde::Deserialize;
 use sha2::Digest;
 use std::collections::BTreeSet;
 use substreams::{errors::Error, scalar::BigInt};
+use substreams_ethereum::buffa::Enumeration;
 use substreams_ethereum::pb::eth::v2 as eth;
 use tiny_keccak::{Hasher, Keccak};
 
@@ -91,21 +92,21 @@ pub fn parse(params: &str) -> Result<Config, Error> {
 }
 
 pub fn validate_block(block: &eth::Block, config: &Config) -> Result<u64, Error> {
-    require(
-        block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32,
-        "Extended blocks required",
-    )?;
+    require(block.detail_level == eth::block::DetailLevel::DetaillevelExtended, "Extended blocks required")?;
     require(config.params.producer_versions.contains(&block.ver), "Extended producer version not qualified")?;
-    let header = block.header.as_ref().ok_or_else(|| Error::msg("missing header"))?;
+    let header = block.header.as_option().ok_or_else(|| Error::msg("missing header"))?;
     require(
         block.hash.len() == 32 && header.parent_hash.len() == 32 && header.state_root.len() == 32,
         "invalid block identity",
     )?;
     require(header.number == block.number, "header number mismatch")?;
-    let timestamp = header.timestamp.as_ref().ok_or_else(|| Error::msg("missing timestamp"))?;
+    let timestamp = header.timestamp.as_option().ok_or_else(|| Error::msg("missing timestamp"))?;
     require(timestamp.seconds >= 0, "negative timestamp")?;
     for tx in &block.transaction_traces {
-        require((1..=3).contains(&tx.status) && !tx.calls.is_empty(), "incomplete transaction persistence data")?;
+        require(
+            (1..=3).contains(&tx.status.to_i32()) && !tx.calls.is_empty(),
+            "incomplete transaction persistence data",
+        )?;
         require(tx.hash.len() == 32, "invalid transaction hash")?;
     }
     Ok(timestamp.seconds as u64)
@@ -127,24 +128,24 @@ impl persist::Sink for PersistedCodes {
 
 fn transaction_type(raw: i32) -> pb::TransactionType {
     use eth::transaction_trace::Type;
-    match Type::try_from(raw) {
-        Ok(Type::TrxTypeLegacy) => pb::TransactionType::Legacy,
-        Ok(Type::TrxTypeAccessList) => pb::TransactionType::AccessList,
-        Ok(Type::TrxTypeDynamicFee) => pb::TransactionType::DynamicFee,
-        Ok(Type::TrxTypeBlob) => pb::TransactionType::Blob,
-        Ok(Type::TrxTypeSetCode) => pb::TransactionType::SetCode,
-        Ok(Type::TrxTypeOptimismDeposit) => pb::TransactionType::OptimismDeposit,
-        Ok(_) if (100..=120).contains(&raw) => pb::TransactionType::Arbitrum,
+    match Type::from_i32(raw) {
+        Some(Type::TrxTypeLegacy) => pb::TransactionType::Legacy,
+        Some(Type::TrxTypeAccessList) => pb::TransactionType::AccessList,
+        Some(Type::TrxTypeDynamicFee) => pb::TransactionType::DynamicFee,
+        Some(Type::TrxTypeBlob) => pb::TransactionType::Blob,
+        Some(Type::TrxTypeSetCode) => pb::TransactionType::SetCode,
+        Some(Type::TrxTypeOptimismDeposit) => pb::TransactionType::OptimismDeposit,
+        Some(_) if (100..=120).contains(&raw) => pb::TransactionType::Arbitrum,
         _ => pb::TransactionType::Other,
     }
 }
 fn call_type(raw: i32) -> pb::CallType {
-    match eth::CallType::try_from(raw) {
-        Ok(eth::CallType::Call) => pb::CallType::Call,
-        Ok(eth::CallType::Callcode) => pb::CallType::Callcode,
-        Ok(eth::CallType::Delegate) => pb::CallType::Delegate,
-        Ok(eth::CallType::Static) => pb::CallType::Static,
-        Ok(eth::CallType::Create) => pb::CallType::Create,
+    match eth::CallType::from_i32(raw) {
+        Some(eth::CallType::Call) => pb::CallType::Call,
+        Some(eth::CallType::Callcode) => pb::CallType::Callcode,
+        Some(eth::CallType::Delegate) => pb::CallType::Delegate,
+        Some(eth::CallType::Static) => pb::CallType::Static,
+        Some(eth::CallType::Create) => pb::CallType::Create,
         _ => pb::CallType::Unspecified,
     }
 }
@@ -182,17 +183,17 @@ fn push_call(events: &mut pb::Events, config: &Config, frame: &Frame, call: &eth
     if config.params.include_calls {
         events.calls.push(pb::Call {
             chain_id: config.params.chain_id,
-            scope: frame.scope as i32,
+            scope: frame.scope.into(),
             transaction_hash: frame.tx_hash.to_vec(),
             transaction_index: frame.tx_index,
             index: call.index,
             parent_index: call.parent_index,
             depth: call.depth,
-            call_type: call_type(call.call_type) as i32,
+            call_type: call_type(call.call_type.to_i32()).into(),
             caller: call.caller.clone(),
             address: call.address.clone(),
             address_delegates_to: call.address_delegates_to.clone().unwrap_or_default(),
-            value: amount(call.value.as_ref()),
+            value: amount(call.value.as_option()),
             gas_limit: call.gas_limit,
             gas_consumed: call.gas_consumed,
             input_selector: selector(&call.input),
@@ -225,7 +226,7 @@ fn push_call(events: &mut pb::Events, config: &Config, frame: &Frame, call: &eth
             let topic = |i: usize| log.topics.get(i).cloned().unwrap_or_default();
             events.logs.push(pb::Log {
                 chain_id: config.params.chain_id,
-                scope: frame.scope as i32,
+                scope: frame.scope.into(),
                 transaction_hash: frame.tx_hash.to_vec(),
                 transaction_index: frame.tx_index,
                 call_index: call.index,
@@ -248,7 +249,7 @@ fn push_call(events: &mut pb::Events, config: &Config, frame: &Frame, call: &eth
         let (kind, delegation_target) = code_change_kind(c);
         events.code_changes.push(pb::CodeChange {
             chain_id: config.params.chain_id,
-            scope: frame.scope as i32,
+            scope: frame.scope.into(),
             transaction_hash: frame.tx_hash.to_vec(),
             transaction_index: frame.tx_index,
             call_index: call.index,
@@ -258,7 +259,7 @@ fn push_call(events: &mut pb::Events, config: &Config, frame: &Frame, call: &eth
             new_code_hash: c.new_hash.clone(),
             old_code_size: c.old_code.len() as u32,
             new_code_size: c.new_code.len() as u32,
-            kind: kind as i32,
+            kind: kind.into(),
             delegation_target,
             persisted: persisted_codes.keys.contains(&(c.address.clone(), c.ordinal)),
         });
@@ -272,7 +273,7 @@ fn validate_receipt_logs(tx: &eth::TransactionTrace) -> Result<usize, Error> {
     let mut persisted: Vec<&eth::Log> = tx
         .calls
         .iter()
-        .filter(|call| tx.status == eth::TransactionTraceStatus::Succeeded as i32 && !call.state_reverted)
+        .filter(|call| tx.status == eth::TransactionTraceStatus::Succeeded && !call.state_reverted)
         .flat_map(|call| &call.logs)
         .collect();
     persisted.sort_by_key(|log| log.ordinal);
@@ -280,7 +281,7 @@ fn validate_receipt_logs(tx: &eth::TransactionTrace) -> Result<usize, Error> {
         persisted.iter().all(|log| log.ordinal > 0) && persisted.windows(2).all(|pair| pair[0].ordinal < pair[1].ordinal),
         &format!("invalid or ambiguous persisted log ordinals in transaction {}", tx.index),
     )?;
-    let receipt = tx.receipt.as_ref().map(|receipt| receipt.logs.as_slice()).unwrap_or_default();
+    let receipt = tx.receipt.as_option().map(|receipt| receipt.logs.as_slice()).unwrap_or_default();
     require(
         persisted.len() == receipt.len(),
         &format!("receipt logs disagree with persisted trace log count in transaction {}", tx.index),
@@ -296,14 +297,14 @@ fn validate_receipt_logs(tx: &eth::TransactionTrace) -> Result<usize, Error> {
 
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
-    let header = block.header.as_ref().unwrap();
+    let header = block.header.as_option().unwrap();
     let mut persisted_codes = PersistedCodes::default();
     persist::collect_block(block, &mut persisted_codes)?;
     let mut events = pb::Events::default();
 
     for tx in &block.transaction_traces {
         let receipt_logs = validate_receipt_logs(tx)? as u32;
-        let succeeded = tx.status == eth::TransactionTraceStatus::Succeeded as i32;
+        let succeeded = tx.status == eth::TransactionTraceStatus::Succeeded;
         let frame = Frame {
             scope: pb::Scope::Transaction,
             tx_hash: &tx.hash,
@@ -314,15 +315,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             push_call(&mut events, config, &frame, call, &persisted_codes);
         }
         let root = &tx.calls[0];
-        let created_contract = if succeeded
-            && root.call_type == eth::CallType::Create as i32
-            && !root.state_reverted
-            && root.code_changes.iter().any(|c| c.address == root.address)
-        {
-            root.address.clone()
-        } else {
-            Vec::new()
-        };
+        let created_contract =
+            if succeeded && root.call_type == eth::CallType::Create && !root.state_reverted && root.code_changes.iter().any(|c| c.address == root.address) {
+                root.address.clone()
+            } else {
+                Vec::new()
+            };
         for (position, auth) in tx.set_code_authorizations.iter().enumerate() {
             events.set_code_authorizations.push(pb::SetCodeAuthorization {
                 chain_id: config.params.chain_id,
@@ -341,18 +339,19 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
             chain_id: config.params.chain_id,
             hash: tx.hash.clone(),
             index: tx.index,
-            r#type: transaction_type(tx.r#type) as i32,
-            type_raw: tx.r#type as u32,
-            status: tx.status,
+            r#type: transaction_type(tx.r#type.to_i32()).into(),
+            type_raw: tx.r#type.to_i32() as u32,
+            // The raw wire value, an unknown status included, as before.
+            status: tx.status.to_i32().into(),
             from: tx.from.clone(),
             to: tx.to.clone(),
             nonce: tx.nonce,
-            value: amount(tx.value.as_ref()),
+            value: amount(tx.value.as_option()),
             gas_limit: tx.gas_limit,
             gas_used: tx.gas_used,
-            gas_price: amount(tx.gas_price.as_ref()),
-            max_fee_per_gas: amount(tx.max_fee_per_gas.as_ref()),
-            max_priority_fee_per_gas: amount(tx.max_priority_fee_per_gas.as_ref()),
+            gas_price: amount(tx.gas_price.as_option()),
+            max_fee_per_gas: amount(tx.max_fee_per_gas.as_option()),
+            max_priority_fee_per_gas: amount(tx.max_priority_fee_per_gas.as_option()),
             input_selector: selector(&tx.input),
             input: if config.params.include_input { tx.input.clone() } else { Vec::new() },
             input_size: tx.input.len() as u32,
@@ -385,27 +384,27 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         let (kind, delegation_target) = code_change_kind(c);
         events.code_changes.push(pb::CodeChange {
             chain_id: config.params.chain_id,
-            scope: pb::Scope::Block as i32,
+            scope: pb::Scope::Block.into(),
             ordinal: c.ordinal,
             address: c.address.clone(),
             old_code_hash: c.old_hash.clone(),
             new_code_hash: c.new_hash.clone(),
             old_code_size: c.old_code.len() as u32,
             new_code_size: c.new_code.len() as u32,
-            kind: kind as i32,
+            kind: kind.into(),
             delegation_target,
             persisted: c.old_hash != c.new_hash,
             ..Default::default()
         });
     }
     events.transactions.sort_by_key(|t| t.index);
-    events.calls.sort_by_key(|c| (c.scope, c.transaction_index, c.index));
+    events.calls.sort_by_key(|c| (c.scope.to_i32(), c.transaction_index, c.index));
     events
         .logs
-        .sort_by_key(|l| (l.scope, l.transaction_index, l.ordinal, l.call_index, l.receipt_index));
+        .sort_by_key(|l| (l.scope.to_i32(), l.transaction_index, l.ordinal, l.call_index, l.receipt_index));
     events
         .code_changes
-        .sort_by_key(|c| (c.scope, c.transaction_index, c.ordinal, c.address.clone()));
+        .sort_by_key(|c| (c.scope.to_i32(), c.transaction_index, c.ordinal, c.address.clone()));
     events.set_code_authorizations.sort_by_key(|a| (a.transaction_index, a.position));
     events.clocks.push(pb::BlockClock {
         chain_id: config.params.chain_id,
@@ -417,7 +416,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         coinbase: header.coinbase.clone(),
         gas_used: header.gas_used,
         gas_limit: header.gas_limit,
-        base_fee_per_gas: amount(header.base_fee_per_gas.as_ref()),
+        base_fee_per_gas: amount(header.base_fee_per_gas.as_option()),
         producer_version: block.ver as u32,
         spec_revision: SPEC_REVISION,
         package: PACKAGE.into(),
