@@ -76,6 +76,8 @@ fn rows_follow_the_upstream_format() {
     for (i, change) in changes.iter().enumerate() {
         assert_eq!(change.ordinal, i as u64);
         assert_eq!(change.operation, Operation::OPERATION_CREATE);
+        // Sorted by name, so the bytes do not depend on `HashMap` order.
+        assert!(change.fields.iter().map(|f| &f.name).is_sorted());
         let cols = columns(change);
         for (name, value) in block {
             assert_eq!(cols[name], value);

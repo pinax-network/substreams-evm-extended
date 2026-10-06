@@ -99,7 +99,14 @@ pub fn database_changes(clock: &Clock, native: &pb::Events, erc20: &pb::Events) 
     }
 
     substreams::log::info!("Total rows {}", tables.all_row_count());
-    Ok(tables.to_database_changes())
+    let mut changes = tables.to_database_changes();
+    // The crate emits a row's fields in `HashMap` order, which changes with
+    // every WASM build; the sink reads them by name. Sorting keeps the output
+    // bytes stable across builds. Composite keys stay in map order.
+    for change in &mut changes.table_changes {
+        change.fields.sort_by(|a, b| a.name.cmp(&b.name));
+    }
+    Ok(changes)
 }
 
 // The SDK macro generates raw-pointer parameter decoding and discards function

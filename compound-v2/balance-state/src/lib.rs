@@ -1035,7 +1035,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         for market in &active {
             let kind = if block.number == market.activation_block {
                 pb::EpochEventKind::Bound
-            } else if config.heartbeat_blocks > 0 && (block.number - market.activation_block) % config.heartbeat_blocks == 0 {
+            } else if config.heartbeat_blocks > 0 && (block.number - market.activation_block).is_multiple_of(config.heartbeat_blocks) {
                 pb::EpochEventKind::Reaffirmed
             } else {
                 continue;

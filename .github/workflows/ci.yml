@@ -17,11 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: "1.88"
-          components: rustfmt, clippy
-          targets: wasm32-unknown-unknown
+      # rustup >= 1.28 installs the toolchain, components and targets that
+      # rust-toolchain.toml pins, so CI and local builds share one pin.
+      - name: Rust toolchain
+        run: |
+          rustup toolchain install
+          rustc -vV
       - uses: Swatinem/rust-cache@v2
       - name: Formatting
         run: cargo fmt --all -- --check

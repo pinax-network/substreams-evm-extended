@@ -712,6 +712,8 @@ fn decide(
                 }
             }
             // The holder's mapping word has no persisted write in the block.
+            // Keep the mutating `values.insert` out of the match guard.
+            #[allow(clippy::collapsible_match)]
             None if holders.contains(&r.holder) && r.keyed() => {
                 if values.insert(r.holder, r.value).is_some_and(|v| v != r.value) {
                     return None;
