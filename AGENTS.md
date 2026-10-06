@@ -127,7 +127,10 @@ of the same source gives other module hashes, because cargo's symbol
 metadata includes the host and LTO then merges functions differently. Take
 committed spkgs from the job's `packages` artifact, not from a local pack.
 Compare module hashes, never spkg sha256: `substreams pack` output is not
-deterministic.
+deterministic. Releases are cut by tag, `<package>-v<version>` equal to the
+manifest version, after the spkg is committed; `release.yml` publishes the
+CI-built spkg with `HASHES.txt` (README, Releases). A release states that it is
+not live-qualified unless dated evidence names its module hashes.
 
 The workspace is on substreams 0.8.0, substreams-ethereum 0.12.0 and buffa
 0.9.2 (2026-10-05). `proto/src/pb` is generated from `proto/v1` by `buf

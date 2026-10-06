@@ -3,6 +3,7 @@ package:
   name: evm_balances
   version: v0.6.0
   url: https://github.com/pinax-network/substreams-evm-extended
+  image: ../assets/pinax-icon-gradient-512px.png
   description: ERC-20 and native balances from Extended blocks into the substreams-evm ClickHouse tables.
 
 imports:
