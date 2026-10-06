@@ -1,5 +1,6 @@
 //! Inference rules on synthetic blocks, block failures, the manifest shape and
-//! captured block 122260950 against its saved same-block RPC values.
+//! captured block 122260950 against its saved same-block RPC values, also as a
+//! firehose-tracer 5.5.0 producer would record it.
 use buffa::Message;
 use erc20_balances::run;
 use substreams_ethereum::pb::eth::v2 as eth;
@@ -298,6 +299,57 @@ fn pure_reads_supply_unwritten_candidate_holders() {
     assert!(with(vec![balance_of(2, FROM, BASE, 42, 50), balance_of(3, FROM, BASE, 43, 60)]).is_empty());
 }
 
+/// Producers on firehose-tracer 5.5.0 and later drop the preimages that explain
+/// no storage write of their transaction, so a `balanceOf` of an unchanged
+/// holder usually records none. Such an unkeyed read still excludes the token
+/// when it contradicts the stored word or calls out, but not for lacking a
+/// preimage, and it never chooses the base, supplies an unwritten holder or
+/// vouches for an unexplained write.
+#[test]
+fn unkeyed_reads_only_veto() {
+    let unkeyed = |index: u32, holder: [u8; 20], value: u64| {
+        let mut c = balance_of(index, holder, BASE, value, 50);
+        c.keccak_preimages.clear();
+        c
+    };
+    let with = |txs: Vec<Vec<eth::Call>>, reads: Vec<eth::Call>| rows(&block([txs, vec![router(reads)]].concat()));
+    assert_eq!(with(vec![vec![simple()]], vec![unkeyed(2, B, 35)]), vec![r(A, 70), r(B, 35)]);
+    assert!(with(vec![vec![simple()]], vec![unkeyed(2, B, 36)]).is_empty());
+    let mut outside = call(3, 2, 2, eth::CallType::Static, [0x55; 20]);
+    outside.return_data = w(1);
+    assert!(with(vec![vec![simple()]], vec![unkeyed(2, B, 35), outside]).is_empty());
+    assert_eq!(with(vec![vec![simple()]], vec![unkeyed(2, FROM, 42)]), vec![r(A, 70), r(B, 35)]);
+    let mut mirror = simple();
+    store(&mut mirror, A, 4, 100, 70, 12);
+    store(&mut mirror, B, 4, 5, 35, 13);
+    assert!(with(vec![vec![mirror]], vec![unkeyed(2, B, 35)]).is_empty());
+    let mut sync = root();
+    sync.logs = vec![log(APPROVAL, &[C, D], 1)];
+    store(&mut sync, C, BASE, 50, 60, 20);
+    assert_eq!(with(vec![vec![simple()], vec![sync]], vec![unkeyed(2, C, 60)]), vec![r(A, 70), r(B, 35)]);
+}
+
+/// Producers on firehose-tracer 5.5.0 and later cut a transaction's later
+/// internal calls to their selector past 50 MiB of call input, and drop their
+/// return data past 25 MiB. A successful `balanceOf` of the token without a
+/// 36-byte input or return data may be a read whose veto was lost, so it drops
+/// the token's rows.
+#[test]
+fn truncated_balance_of_calls_drop_the_token() {
+    let with = |read: eth::Call| rows(&block(vec![vec![simple()], router(vec![read])]));
+    let mut input = balance_of(2, B, BASE, 35, 50);
+    input.input.truncate(4);
+    assert!(with(input.clone()).is_empty());
+    let mut output = balance_of(2, B, BASE, 35, 50);
+    output.return_data.clear();
+    assert!(with(output).is_empty());
+    // A failed call, or a call to another contract, is not a read.
+    input.status_failed = true;
+    assert_eq!(with(input.clone()), vec![r(A, 70), r(B, 35)]);
+    (input.status_failed, input.address) = (false, [0x55; 20].to_vec());
+    assert_eq!(with(input), vec![r(A, 70), r(B, 35)]);
+}
+
 /// A reflection-style second mapping (`rOwned`) that moves with the flows
 /// suggests a computed `balanceOf`. A traced read vouches only for its holder,
 /// whose code path may differ (e.g. `holder == pair ? tOwned : rOwned / rate`).
@@ -577,6 +629,44 @@ fn captured_block_matches_the_saved_rpc_balances() {
     let inferred: Vec<_> = ours.iter().filter(|(k, _)| tokens.contains(&k.0)).collect();
     assert_eq!((reference.len(), tokens.len(), inferred.len()), (136, 4, 101));
     assert!(inferred.iter().all(|(k, v)| reference.get(*k) == Some(&v.as_str())));
+}
+
+/// Captured block 122260950 as a firehose-tracer 5.5.0 producer would record
+/// it, without the 383 preimages that explain no storage write of their
+/// transaction (`fixtures/bsc-122260950-5.5.0-dropped-preimages.json`). 13 of
+/// its `balanceOf` calls lose their holder's preimage and every row stays the
+/// same; while unkeyed reads vetoed, 5 tokens lost all 104 of their rows here.
+#[test]
+fn captured_block_without_read_preimages_keeps_its_rows() {
+    let original = eth::Block::decode_from_slice(include_bytes!("fixtures/bsc-122260950.pb").as_slice()).unwrap();
+    let dropped: serde_json::Value = serde_json::from_str(include_str!("fixtures/bsc-122260950-5.5.0-dropped-preimages.json")).unwrap();
+    let mut filtered = original.clone();
+    for d in dropped["dropped"].as_array().unwrap() {
+        let (tx, index, hash) = (d[0].as_u64().unwrap() as usize, d[1].as_u64().unwrap() as u32, d[2].as_str().unwrap());
+        let call = filtered.transaction_traces[tx].calls.iter_mut().find(|c| c.index == index).unwrap();
+        assert!(call.keccak_preimages.remove(hash).is_some(), "{d}");
+    }
+    // `balanceOf` calls that recorded `pad(holder) || base` in their own frame.
+    let keyed = |b: &eth::Block| {
+        let holder = |c: &eth::Call| format!("{:0>64}", hex::encode(&c.input[16..]));
+        b.transaction_traces
+            .iter()
+            .flat_map(|tx| &tx.calls)
+            .filter(|c| c.input.len() == 36 && c.input[..4] == [0x70, 0xa0, 0x82, 0x31])
+            .filter(|c| c.keccak_preimages.values().any(|p| p.len() == 128 && p[..64] == holder(c)))
+            .count()
+    };
+    assert_eq!((keyed(&original), keyed(&filtered)), (175, 162));
+    let all = |b: &eth::Block| {
+        run(b)
+            .unwrap()
+            .balances
+            .into_iter()
+            .map(|r| (r.contract, r.address, r.amount))
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(all(&filtered).len(), 164);
+    assert_eq!(all(&filtered), all(&original));
 }
 
 #[test]

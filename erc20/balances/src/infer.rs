@@ -9,23 +9,29 @@
 //!    preimage `pad(holder) || base`. Equal is an exact vote for `base`, unequal
 //!    a mismatch. Exact votes for flows below 10^6 do not count for a base that
 //!    also mismatches. `Deposit`/`Withdrawal`/`Mint`/`Burn` never vote.
-//! 3. The base is the mapping every traced `balanceOf` reads, if it has exact
+//! 3. The base is the mapping every keyed `balanceOf` reads, if it has exact
 //!    votes, or else the base with the most exact votes; a tie chooses none.
+//!    A traced `balanceOf` is keyed when its storage context recorded a
+//!    `pad(holder) || base` preimage. Producers on firehose-tracer 5.5.0 and
+//!    later keep only the preimages that explain a storage write of their
+//!    transaction, so a read of an unchanged holder is usually not keyed.
 //!    Inner (nested) mappings are never chosen, nor a base whose own large
 //!    mismatches outnumber its exact votes.
 //! 4. The contract is excluded for the block when a persisted record or event
 //!    address is malformed, its code is removed or it self-destructs, writes to
-//!    one key are discontinuous, or a traced `balanceOf` reads other holder
-//!    state, calls out, or returns a value that contradicts storage.
+//!    one key are discontinuous, a traced `balanceOf` calls out or returns a
+//!    value that contradicts storage, a keyed one reads other holder state, or
+//!    a successful `balanceOf` call to it lacks a 36-byte input or return data,
+//!    as when a producer truncated it.
 //! 5. When other holder mappings mismatch the event flows at least as often as
-//!    the chosen one matches them, only holders with their own traced
+//!    the chosen one matches them, only holders with their own keyed
 //!    `balanceOf` keep rows. With two or more exact votes and no other mapping
 //!    matching, only mismatches of at least a thousandth of the flow count.
 //! 6. Candidate holders written under the base get their last persisted word,
 //!    unless that write is unexplained: a holder other than the contract whose
 //!    last write's frame has no `Transfer`/`Deposit`/`Withdrawal`/`Mint`/`Burn`
-//!    naming it needs its own traced `balanceOf`. Candidate holders without a
-//!    write get the value of a traced `balanceOf` that read exactly the base.
+//!    naming it needs its own keyed `balanceOf`. Candidate holders without a
+//!    write get the value of a keyed `balanceOf` that read exactly the base.
 //!
 //! Inference never fails a block: any detected doubt drops that contract's
 //! inferred rows for the block. Holders without a write or such a read stay
@@ -487,15 +493,16 @@ fn votes(flows: &Flows, writes: &BTreeMap<Addr, Vec<Write>>) -> BTreeMap<Addr, B
     }
     tallies
 }
-/// The base every traced `balanceOf` reads, if it has exact votes, or else
+/// The base every keyed `balanceOf` reads, if it has exact votes, or else
 /// the base with the most exact votes; a tie chooses none. Inner mappings
 /// (allowances) and bases with more large mismatches than exact votes (a
 /// packed word whose other field moves) are never chosen.
 fn choose(tallies: &BTreeMap<Word, Tally>, reads: &[Read]) -> Option<Word> {
     let plain = |t: &Tally| t.exact > 0 && !t.nested;
     let base = 'base: {
-        if let Some(base) = reads.first().and_then(|r| r.bases.first()) {
-            if reads.iter().all(|r| r.pure(base)) && tallies.get(base).is_some_and(plain) {
+        let mut keyed = reads.iter().filter(|r| r.keyed());
+        if let Some(base) = keyed.clone().next().and_then(|r| r.bases.first()) {
+            if keyed.all(|r| r.pure(base)) && tallies.get(base).is_some_and(plain) {
                 break 'base *base;
             }
         }
@@ -552,6 +559,11 @@ impl Read {
     /// The read computed exactly `pad(holder) || base` and called nothing else.
     fn pure(&self, base: &Word) -> bool {
         self.bases == [*base] && !self.external
+    }
+    /// The read recorded a `pad(holder) || base` preimage. An unkeyed read
+    /// shows neither which mapping it read nor that it read only one.
+    fn keyed(&self) -> bool {
+        !self.bases.is_empty()
     }
 }
 fn is_read(call: &eth::Call) -> bool {
@@ -624,6 +636,28 @@ fn reads<T>(block: &eth::Block, tokens: &BTreeMap<Addr, T>) -> BTreeMap<Addr, Ve
     }
     out
 }
+/// Voted contracts with a successful CALL or STATICCALL of `balanceOf`, in a
+/// successful transaction, that lacks a 36-byte input or return data.
+/// Producers on firehose-tracer 5.5.0 and later keep only the selector of a
+/// transaction's later internal calls once 50 MiB of call input precede them,
+/// and drop their return data past 25 MiB, so such a call may be a read whose
+/// veto was lost.
+fn truncated<T>(block: &eth::Block, tokens: &BTreeMap<Addr, T>) -> BTreeSet<Addr> {
+    block
+        .transaction_traces
+        .iter()
+        .filter(|tx| tx.status == SUCCEEDED)
+        .flat_map(|tx| &tx.calls)
+        .filter(|c| {
+            !c.status_failed
+                && (c.call_type == CALL || c.call_type == STATIC)
+                && c.input.starts_with(&BALANCE_OF)
+                && (c.input.len() != 36 || c.return_data.is_empty())
+        })
+        .filter_map(|c| Addr::try_from(c.address.as_slice()).ok())
+        .filter(|a| tokens.contains_key(a))
+        .collect()
+}
 
 /// The end-of-block balances of one voted contract, or `None` on any doubt.
 fn decide(
@@ -646,10 +680,12 @@ fn decide(
     {
         return None;
     }
-    if reads.iter().any(|r| !r.pure(&base)) {
+    // An unkeyed read still vetoes when it calls out or contradicts the stored
+    // word (below), but it never vouches for its holder or supplies a value.
+    if reads.iter().any(|r| if r.keyed() { !r.pure(&base) } else { r.external }) {
         return None;
     }
-    let read: BTreeSet<Addr> = reads.iter().filter(|r| r.persisted).map(|r| r.holder).collect();
+    let read: BTreeSet<Addr> = reads.iter().filter(|r| r.persisted && r.keyed()).map(|r| r.holder).collect();
     // Other holder mappings that move with the event flows suggest a computed
     // balance. With two or more exact votes and no other exact mapping,
     // counter-sized mismatches are ignored.
@@ -676,7 +712,7 @@ fn decide(
                 }
             }
             // The holder's mapping word has no persisted write in the block.
-            None if holders.contains(&r.holder) => {
+            None if holders.contains(&r.holder) && r.keyed() => {
                 if values.insert(r.holder, r.value).is_some_and(|v| v != r.value) {
                     return None;
                 }
@@ -721,6 +757,7 @@ pub(crate) fn rows(block: &eth::Block) -> BTreeMap<(Addr, Addr), Word> {
     let (flows, named) = flows(block, &writes, &mut doubt);
     let tallies = votes(&flows, &writes);
     let reads = reads(block, &tallies);
+    doubt.extend(truncated(block, &tallies));
     let nobody = BTreeSet::new();
     // A contract has tallies only if a nonzero `Transfer` moved a holder.
     for (token, t) in tallies.iter().filter(|(token, _)| !doubt.contains(*token)) {

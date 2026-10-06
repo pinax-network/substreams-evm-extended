@@ -1418,3 +1418,28 @@ protodefs package used `services.proto`, while the current CLI injects the same
 legacy messages from `deprecated.proto`. The new package uses canonical file
 paths so the definitions do not collide, and its DatabaseChanges descriptor
 matches the 5.0.0 encoder (`value` and `update_op`).
+
+## ERC-20 reads without preimages, 2026-10-06
+
+Producers on firehose-tracer 5.5.0 and later (StreamingFast reth-bsc
+v0.1.2-fh3.1-3, 2026-09-29) keep `Block.ver` 5 but record only the Keccak
+preimages that explain a storage write, and cut call data past
+per-transaction limits (#116). Most `balanceOf` reads of unchanged holders
+then carry no `pad(holder) || base` preimage, and `erc20/balances` v0.2.0
+dropped every contract with such a read. On the five captured intervals,
+filtered offline as that tracer does, its recall fell from 59–63% to 26–40%.
+
+At the owner's direction an unkeyed read now only vetoes, on a call out or a
+contradicted stored word; it never chooses the base, vouches for a holder or
+supplies a value. A successful `balanceOf` call without a 36-byte input or
+return data drops its contract's rows for the block. On the unfiltered
+captures the output is unchanged row for row; on the filtered ones recall
+stays within 0.2 points of it (numbers in the
+[README](../erc20/balances/README.md#measured), method in the PR). The filter
+also hides the second holder mapping that some computed `balanceOf`s read, so
+those tokens are no longer excluded: 6, 2, 0, 2 and 0 more wrong rows on the
+five intervals. Only a tracer that keeps read preimages restores that check.
+
+The erc20 WASM and module hash change, and with them the `db_out` hash. The
+committed erc20 v0.2.0 and combined v0.5.0 packages predate this source; the
+#118 batch packs it and records its hashes, before qualification (#124).

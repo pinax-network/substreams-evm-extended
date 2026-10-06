@@ -40,6 +40,15 @@ dated evidence documents refer to. Do not add new tool crates or CLI harnesses.
   committed `spkg/erc20-balances-v0.1.0.spkg` (2026-09-23), which predates the
   typed-path and enumerable-set source at `9b41c7f`; the inference package is
   v0.2.0.
+- `Block.ver` alone does not identify producer semantics. Producers on
+  firehose-tracer 5.5.0 and later keep `Block.ver` 5 but record only the Keccak
+  preimages that explain a storage write, and cut call data past
+  per-transaction limits (#116). At the owner's direction (2026-10-06),
+  `erc20/balances` lets a `balanceOf` without a `pad(holder) || base` preimage
+  only veto (on a call out or a contradicted stored word), and drops a
+  contract's rows for the block on a successful `balanceOf` call without a
+  36-byte input or return data. Each qualification records the reader release
+  (client and tracer version), not just `Block.ver`.
 - `dex/pool-state` emits the existing `dex.pool_state.v1.BlockPoolState` through
   one `map_events(Block)`. Preserve pool-state protobuf names/field numbers,
   exact integers, canonical log order and explicit invalid markers. Require
