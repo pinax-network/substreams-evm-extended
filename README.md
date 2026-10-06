@@ -96,6 +96,26 @@ dated evidence documents refer to them as they were at
 [`6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534).
 RPC is used for qualification, not inside the maps.
 
+## Releases
+
+`native/balances`, `erc20/balances` and `evm-balances` are released by tag,
+`<package>-v<version>` (for example `native-balances-v0.2.1`), equal to the
+manifest's version. One version names one module hash: a change to a
+package's WASM bumps its version and commits the spkg that CI's "Package
+hashes" job built. The tag then runs
+[`release.yml`](.github/workflows/release.yml), which:
+
+- builds and packs the package on Linux, CI's canonical builder;
+- writes `HASHES.txt`: commit, rustc, substreams CLI, module hashes, WASM
+  sha256 and, for evm-balances, the schema sha256;
+- requires `substreams registry verify` to pass with no warning, and the
+  module hashes of the committed spkg;
+- publishes a GitHub release with the spkg and `HASHES.txt`.
+
+Identify a release by its module hashes, never by the spkg sha256:
+`substreams pack` is not deterministic. A release is not live qualification;
+its notes say so unless dated evidence names its module hashes.
+
 ## Coverage
 
 ERC-20 balances are inferred, not configured. On five captured BSC intervals,

@@ -1,0 +1,143 @@
+name: Release
+
+# A tag `<package>-v<version>` (native-balances, erc20-balances or
+# evm-balances) builds that package on Linux, the canonical builder, and
+# publishes a GitHub release with the spkg and HASHES.txt. A pull request that
+# changes this workflow dry-runs all three packages without releasing.
+on:
+  push:
+    tags:
+      - "native-balances-v*"
+      - "erc20-balances-v*"
+      - "evm-balances-v*"
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  # As in ci.yml: the CLI behind the recorded module hashes.
+  SUBSTREAMS_VERSION: v1.22.0
+  SUBSTREAMS_SHA256: 6eef6182d8d9e3c0147a3d03f38fc2b9c0f96900d040132294a0b540e691ae67
+
+jobs:
+  resolve:
+    name: Resolve packages
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.resolve.outputs.packages }}
+    steps:
+      - id: resolve
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            case "$GITHUB_REF_NAME" in
+              native-balances-v*) dirs='["native/balances"]' ;;
+              erc20-balances-v*) dirs='["erc20/balances"]' ;;
+              evm-balances-v*) dirs='["evm-balances"]' ;;
+              *) echo "::error::no package for tag $GITHUB_REF_NAME"; exit 1 ;;
+            esac
+          else
+            dirs='["native/balances", "erc20/balances", "evm-balances"]'
+          fi
+          echo "packages=$dirs" >> "$GITHUB_OUTPUT"
+
+  release:
+    name: Release ${{ matrix.dir }}
+    needs: resolve
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        dir: ${{ fromJSON(needs.resolve.outputs.packages) }}
+    env:
+      DIR: ${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Package and tag
+        run: |
+          name=$(awk '$1 == "name:" {print $2; exit}' "$DIR/substreams.yaml")
+          version=$(awk '$1 == "version:" {print $2; exit}' "$DIR/substreams.yaml")
+          tag="${name//_/-}-$version"
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "$tag" ]; then
+            echo "::error::tag $GITHUB_REF_NAME, but $DIR/substreams.yaml is $name $version"
+            exit 1
+          fi
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "SPKG=$tag.spkg" >> "$GITHUB_ENV"
+      - name: Rust toolchain
+        run: |
+          rustup toolchain install
+          rustc -vV
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: substreams CLI
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/substreams.tar.gz" \
+            "https://github.com/streamingfast/substreams/releases/download/$SUBSTREAMS_VERSION/substreams_linux_x86_64.tar.gz"
+          echo "$SUBSTREAMS_SHA256  $RUNNER_TEMP/substreams.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/substreams.tar.gz" -C "$RUNNER_TEMP" substreams
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Build and pack
+        run: |
+          if [ "$DIR" = evm-balances ]; then make -C evm-balances build schema; else make -C "$DIR" build; fi
+          mkdir dist
+          substreams pack "$DIR/substreams.yaml" -o "dist/{spkgDefaultName}"
+          test -f "dist/$SPKG"
+      - name: Hashes
+        run: |
+          case "$DIR" in
+            native/balances) wasms=native_balances ;;
+            erc20/balances) wasms=erc20_balances ;;
+            evm-balances) wasms="native_balances erc20_balances evm_balances" ;;
+          esac
+          {
+            echo "package: $TAG"
+            echo "commit: $GITHUB_SHA"
+            echo "rustc: $(rustc -V)"
+            echo "substreams: $SUBSTREAMS_VERSION"
+            echo
+            echo "# module hashes (substreams info)"
+            substreams info "dist/$SPKG" | awk '/^Name:/ {n = $2} /^Hash:/ {print n, $2}'
+            echo
+            echo "# WASM sha256"
+            for w in $wasms; do (cd target/wasm32-unknown-unknown/release && sha256sum "$w.wasm"); done
+            if [ "$DIR" = evm-balances ]; then
+              schema=$(mktemp -d)
+              substreams info "dist/$SPKG" --output-sinkconfig-files-path "$schema" > /dev/null
+              echo
+              echo "# schema sha256"
+              echo "$(sha256sum evm-balances/clickhouse/schema.sql | cut -d' ' -f1)  evm-balances/clickhouse/schema.sql"
+              echo "$(sha256sum "$schema/schema" | cut -d' ' -f1)  embedded schema"
+            fi
+          } > dist/HASHES.txt
+          cat dist/HASHES.txt
+      - name: Registry verify
+        run: |
+          substreams registry verify "dist/$SPKG" | tee "$RUNNER_TEMP/verify.txt"
+          if grep -q "warning" "$RUNNER_TEMP/verify.txt"; then echo "::error::registry verify reported warnings"; exit 1; fi
+      # The release must carry the module hashes of the committed spkg, which
+      # CI's Package hashes job already checks against the source.
+      - name: Matches the committed spkg
+        run: |
+          hashes() { substreams info "$1" | awk '/^Name:/ {n = $2} /^Hash:/ {print n, $2}'; }
+          diff <(hashes "dist/$SPKG") <(hashes "spkg/$SPKG")
+      - name: Release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "\`$SPKG\`, built by this workflow on Linux, CI's canonical builder (\`$(rustc -V)\`, substreams CLI $SUBSTREAMS_VERSION)."
+            echo
+            echo "**Not live-qualified.** No dated live evidence exists for these module hashes; qualification evidence names its module hashes explicitly."
+            echo
+            echo "Identify this build by the module hashes in HASHES.txt, never by the spkg sha256: \`substreams pack\` is not deterministic, so two packs of the same source differ in bytes."
+            echo
+            echo '```'
+            cat dist/HASHES.txt
+            echo '```'
+          } > "$RUNNER_TEMP/notes.md"
+          gh release create "$TAG" "dist/$SPKG" dist/HASHES.txt --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag
