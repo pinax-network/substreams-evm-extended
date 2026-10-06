@@ -13,8 +13,9 @@ upstream v0.3.4 tables), written by pinax-network/substreams-sink-sql v4.13.0,
 commit `933a187`. None of these is live-qualified
 ([#124](https://github.com/pinax-network/substreams-evm-extended/issues/124)).
 Unless marked live, every number below was measured offline on captured BSC
-Extended blocks: window a is 122,288,006–122,289,029 and window b is 123,561,000–123,562,023
-(1,024 blocks each). The methods are in the pull request that added this page.
+Extended blocks: window a is 122,288,006–122,289,029 and window b is
+123,561,000–123,562,023 (1,024 blocks each). The methods and full results are
+in [PR #144](https://github.com/pinax-network/substreams-evm-extended/pull/144).
 
 ## 1. One database per network
 
@@ -27,10 +28,11 @@ Extended blocks: window a is 122,288,006–122,289,029 and window b is 123,561,0
   process with `eth_getBlockByNumber` on that network's RPC, and do not start
   on a mismatch (#117). A wrong endpoint writes another chain's balances, and
   neither the module nor the tables can detect it.
-- `cursors` holds one row per `db_out` module hash. A package whose `db_out`
-  hash changes starts from its own start block; the default
-  `--on-module-hash-mistmatch=error` stops a sink whose stored hash differs.
-  Never copy `cursors` from another database.
+- `cursors` holds one row per `db_out` module hash, and a sink resumes from
+  the row of its own hash. If the database holds only rows of other hashes,
+  the default `--on-module-hash-mistmatch=error` refuses to start, while `warn`
+  and `ignore` continue from the highest of them. Never copy `cursors` from
+  another database.
 
 ## 2. Sink and flags
 
@@ -63,9 +65,10 @@ Extended blocks: window a is 122,288,006–122,289,029 and window b is 123,561,0
 - A pair's FINAL value is its latest stored row: a row emitted from the start
   block S on, or the RPC-era row that the backfill copied.
 - Native absence as "no change" has live evidence for one interval and
-  account set only (live, 2026-09-23): 14,172 BSC accounts seeded with `eth_getBalance` at
-  123,548,069 and the package output of 123,548,070–123,548,369 applied gave
-  56,688/56,688 values equal to `eth_getBalance` at four block hashes
+  account set only (live, 2026-09-23): 14,172 BSC accounts seeded with
+  `eth_getBalance` at 123,548,069 and the package output of
+  123,548,070–123,548,369 applied gave 56,688/56,688 values equal to
+  `eth_getBalance` at four block hashes
   ([#58](https://github.com/pinax-network/substreams-evm-extended/pull/58),
   [report](../native/balances/docs/evidence/live-retention-checkpoint-bsc-2026-09-23.json)).
 - A block that native refuses stops the stream: there is one `db_out`, so no
@@ -107,10 +110,10 @@ How the sink stores a flush (v4.13.0):
   5 s apart (`db/db.go`), each re-inserting every table, including those that
   an earlier attempt had stored. A restart resumes after the stored cursor.
 
-So rows are stored more than once when a flush's tables are stored and its cursor is
-not (a restart re-sends every such flush, possibly several), or when a table
-fails after earlier tables of the same flush were stored (the retry or the
-restart re-inserts them). The effects:
+So rows are stored more than once when a flush's tables are stored and its
+cursor is not (a restart re-sends every such flush, possibly several), or when
+a table fails after earlier tables of the same flush were stored (the retry or
+the restart re-inserts them). The effects:
 
 - **`blocks`** gets one more row per replayed block, but only when `blocks`
   itself was re-inserted: a duplicate proves a replay, its absence does not
@@ -141,11 +144,11 @@ apart from `transactions` equal an un-replayed load.
 - **Repair** with
   [`repair-replayed-range.sql`](../evm-balances/clickhouse/examples/repair-replayed-range.sql):
   stop the sink, re-stream a range from at least one minute before to one
-  minute after the replay into a staging database, and the file subtracts the replayed
-  rows from `transactions` and keeps one `blocks` row per block. It refuses
-  any difference other than repeated rows. After it, all five databases above
-  equal an un-replayed load: `blocks` rows with their copies, FINAL, and every
-  bar of all 8 intervals.
+  minute after the replay into a staging database, and the file subtracts the
+  replayed rows from `transactions` and keeps one `blocks` row per block. It
+  refuses any difference other than repeated rows. After it, all five
+  databases above equal an un-replayed load: `blocks` rows with their copies,
+  FINAL, and every bar of all 8 intervals.
 - **Or accept** `transactions` as approximate for the range: record the range
   and its excess rows, and remove the duplicate `blocks` rows with
   [`dedupe-blocks.sql`](../evm-balances/clickhouse/examples/dedupe-blocks.sql).
@@ -157,7 +160,8 @@ apart from `transactions` equal an un-replayed load.
 
 ## 6. Completeness
 
-A database is **complete over a block interval** that the sink has passed when:
+A database is **complete over a block interval** that the sink has passed
+when:
 
 1. every block of the interval that has output has exactly one `blocks` row,
    and no other block of the interval has one; and
@@ -226,7 +230,8 @@ database started mid-window gave a recall of 54.76% and a precision of 99.990%
 over 122,288,518–122,289,029 (35,228 reference pairs, 1,185 tokens), and
 53.95% and 99.989% over 123,561,512–123,562,023 (103,930 pairs, 2,509 tokens).
 These are pair-level figures on latest rows, not the row recall of the erc20
-README.
+README. A native control with 3 altered balances made the file list them and
+throw.
 
 ## 9. Reporting
 
