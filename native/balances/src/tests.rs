@@ -7,9 +7,6 @@ const FIXTURE_ORACLE: &str = include_str!("../../../erc20/balances/tests/fixture
 const PROTOTYPE_ROWS: &str = include_str!("../tests/fixtures/bsc-122260950-prototype-native-rows.json");
 const SYSTEM_FEE_ADDRESS: &str = "fffffffffffffffffffffffffffffffffffffffe";
 
-fn params() -> Params {
-    parse_params(r#"{"producer_versions":[5]}"#).unwrap()
-}
 fn block() -> eth::Block {
     eth::Block {
         ver: 5,
@@ -59,7 +56,7 @@ fn captured_block_matches_all_82_historical_native_rpc_balances() {
     assert_eq!(b.ver, 5);
     let native: Vec<&Value> = oracle["rpc_checks"].as_array().unwrap().iter().filter(|r| r["contract"] == "").collect();
     assert_eq!(native.len(), 82);
-    let events = project(&b, &params()).unwrap();
+    let events = project(&b).unwrap();
     assert_eq!(events.balances.len(), 82);
     for expected in native {
         let address = hex::decode(expected["address"].as_str().unwrap().trim_start_matches("0x")).unwrap();
@@ -81,7 +78,7 @@ fn captured_block_matches_the_historical_prototype_old_new_and_ordinal_rows() {
         format!("0x{}", hex::encode(&b.header.as_option().unwrap().parent_hash)),
         prototype["block"]["parent_hash"]
     );
-    let rows = changes(&b, &params()).unwrap();
+    let rows = changes(&b).unwrap();
     let expected = prototype["native_rows"].as_array().unwrap();
     assert_eq!(expected.len(), 82);
     assert_eq!(rows.len(), 82);
@@ -118,12 +115,12 @@ fn bsc_fee_reset_wins_over_the_earlier_transaction_fee_credit() {
     // fee-reward reason; REWARD_FEE_RESET is not what this fixture carries.
     assert_eq!(reset.reason, eth::balance_change::Reason::RewardTransactionFee);
     assert_eq!(amount(&value(reset.new_value.as_option().map(|v| v.bytes.as_slice())).unwrap()), "0");
-    let rows = changes(&b, &params()).unwrap();
+    let rows = changes(&b).unwrap();
     let row = rows.iter().find(|r| r.address == system).unwrap();
     assert_eq!((&*row.old_amount, &*row.amount, row.ordinal), ("0", "0", 3244));
     assert!(row.records >= 2 && row.first_ordinal < 3237);
     // Known-zero finals, precompile-style and burn-looking accounts are emitted.
-    let events = project(&b, &params()).unwrap();
+    let events = project(&b).unwrap();
     assert!(events.balances.iter().any(|b| b.address == system && b.amount == "0"));
     assert!(events
         .balances
@@ -158,7 +155,7 @@ fn captured_failed_setcode_transactions_keep_only_gas_effects() {
         }
         let mut b = block();
         b.transaction_traces = vec![trace];
-        let rows = changes(&b, &params()).unwrap();
+        let rows = changes(&b).unwrap();
         assert!(!rows.is_empty());
         assert_eq!(rows.len(), expected.len());
         for r in rows {
@@ -171,11 +168,11 @@ fn captured_failed_setcode_transactions_keep_only_gas_effects() {
 fn takes_last_persisted_value_by_ordinal_and_preserves_first_old() {
     let mut b = block();
     b.balance_changes = vec![change(4, 30, Some(9), Some(0)), change(4, 10, Some(5), Some(9))];
-    let rows = changes(&b, &params()).unwrap();
+    let rows = changes(&b).unwrap();
     assert_eq!(rows.len(), 1);
     assert_eq!((&*rows[0].old_amount, &*rows[0].amount), ("5", "0"));
     assert_eq!((rows[0].first_ordinal, rows[0].ordinal, rows[0].records), (10, 30, 2));
-    let events = project(&b, &params()).unwrap();
+    let events = project(&b).unwrap();
     assert_eq!(events.balances[0].amount, "0");
     assert_eq!(events.balances[0].contract, None);
 }
@@ -188,22 +185,22 @@ fn net_zero_changing_account_is_emitted_but_individual_noop_is_not() {
         change(4, 20, Some(5), Some(0)),
         change(6, 30, Some(7), Some(7)),
     ];
-    let rows = changes(&b, &params()).unwrap();
+    let rows = changes(&b).unwrap();
     assert_eq!(rows.len(), 1);
     assert_eq!((&*rows[0].old_amount, &*rows[0].amount, rows[0].records), ("0", "0", 2));
-    assert_eq!(project(&b, &params()).unwrap().balances.len(), 1);
+    assert_eq!(project(&b).unwrap().balances.len(), 1);
 }
 
 #[test]
 fn missing_value_messages_inside_an_observed_record_encode_zero() {
     let mut b = block();
     b.balance_changes = vec![change(4, 10, None, Some(7)), change(5, 11, Some(7), None)];
-    let rows = changes(&b, &params()).unwrap();
+    let rows = changes(&b).unwrap();
     assert_eq!((&*row(&rows, 4).old_amount, &*row(&rows, 4).amount), ("0", "7"));
     assert_eq!((&*row(&rows, 5).old_amount, &*row(&rows, 5).amount), ("7", "0"));
     // A record whose absent and zero values agree is a no-op and never a row.
     b.balance_changes = vec![change(6, 12, None, Some(0))];
-    assert!(changes(&b, &params()).unwrap().is_empty());
+    assert!(changes(&b).unwrap().is_empty());
 }
 
 #[test]
@@ -216,7 +213,7 @@ fn zero_precompile_and_burn_looking_accounts_are_ordinary_accounts() {
     let mut dead = change(0, 12, Some(1), Some(0));
     dead.address = hex::decode("000000000000000000000000000000000000dead").unwrap();
     b.balance_changes = vec![zero, precompile, dead];
-    let events = project(&b, &params()).unwrap();
+    let events = project(&b).unwrap();
     assert_eq!(events.balances.len(), 3);
     assert_eq!(events.balances[0].address, vec![0; 20]);
     assert_eq!(events.balances[2].amount, "0");
@@ -226,19 +223,19 @@ fn zero_precompile_and_burn_looking_accounts_are_ordinary_accounts() {
 fn ambiguous_or_discontinuous_producer_data_fails_the_block() {
     let mut b = block();
     b.balance_changes = vec![change(4, 1, Some(0), Some(1)), change(4, 1, Some(1), Some(2))];
-    assert!(changes(&b, &params()).unwrap_err().to_string().contains("ambiguous"));
+    assert!(changes(&b).unwrap_err().to_string().contains("ambiguous"));
     b.balance_changes = vec![change(4, 1, Some(0), Some(1)), change(4, 2, Some(3), Some(4))];
-    assert!(changes(&b, &params()).unwrap_err().to_string().contains("discontinuous"));
+    assert!(changes(&b).unwrap_err().to_string().contains("discontinuous"));
     b.balance_changes = vec![change(4, 0, Some(0), Some(1))];
-    assert!(changes(&b, &params()).unwrap_err().to_string().contains("ordinal"));
+    assert!(changes(&b).unwrap_err().to_string().contains("ordinal"));
     let mut short = change(4, 1, Some(0), Some(1));
     short.address = vec![4; 19];
     b.balance_changes = vec![short];
-    assert!(changes(&b, &params()).unwrap_err().to_string().contains("address"));
+    assert!(changes(&b).unwrap_err().to_string().contains("address"));
     let mut wide = change(4, 1, Some(0), Some(1));
     wide.new_value = buffa::MessageField::some(eth::BigInt { bytes: vec![1; 33] });
     b.balance_changes = vec![wide];
-    assert!(changes(&b, &params()).unwrap_err().to_string().contains("uint256"));
+    assert!(changes(&b).unwrap_err().to_string().contains("uint256"));
 }
 
 #[test]
@@ -249,7 +246,7 @@ fn preserves_uint256_max_and_leading_zero_encodings() {
     let mut padded = change(5, 2, Some(0), Some(1));
     padded.new_value = buffa::MessageField::some(eth::BigInt { bytes: vec![0, 0, 0, 9] });
     b.balance_changes = vec![max, padded];
-    let rows = changes(&b, &params()).unwrap();
+    let rows = changes(&b).unwrap();
     assert_eq!(
         row(&rows, 4).amount,
         "115792089237316195423570985008687907853269984665640564039457584007913129639935"
@@ -306,7 +303,7 @@ fn reverted_frames_failed_transactions_and_system_calls_follow_persistence_rules
         },
     ];
     b.balance_changes = vec![change(13, 50, Some(0), Some(3))];
-    let rows = changes(&b, &params()).unwrap();
+    let rows = changes(&b).unwrap();
     let accounts: Vec<u8> = rows.iter().map(|r| r.address[0]).collect();
     assert_eq!(accounts, vec![4, 8, 10, 11, 13]);
     assert_eq!(row(&rows, 8).amount, "90");
@@ -322,49 +319,56 @@ fn value_bearing_calls_without_persisted_records_are_not_balances() {
         address: vec![5; 20],
         ..Default::default()
     })];
-    assert!(project(&b, &params()).unwrap().balances.is_empty());
+    assert!(project(&b).unwrap().balances.is_empty());
 }
 
 #[test]
-fn incomplete_blocks_and_unqualified_producers_are_rejected() {
+fn incomplete_blocks_are_rejected() {
     let mut b = block();
+    b.ver = 99;
     b.detail_level = eth::block::DetailLevel::DetaillevelBase.into();
-    assert!(project(&b, &params()).is_err());
-    b = block();
-    b.ver = 4;
-    assert!(project(&b, &params()).unwrap_err().to_string().contains("producer version"));
-    assert!(project(&b, &parse_params(r#"{"producer_versions":[4,5]}"#).unwrap()).is_ok());
+    assert!(project(&b).unwrap_err().to_string().contains("Extended blocks required"));
     b = block();
     b.header = buffa::MessageField::none();
-    assert!(project(&b, &params()).is_err());
+    assert!(project(&b).is_err());
     b = block();
     b.header.as_option_mut().unwrap().number = 1;
-    assert!(project(&b, &params()).is_err());
+    assert!(project(&b).is_err());
     b = block();
     b.hash = vec![1; 31];
-    assert!(project(&b, &params()).is_err());
+    assert!(project(&b).is_err());
     b = block();
     b.number = 0;
     b.header.as_option_mut().unwrap().number = 0;
-    assert!(project(&b, &params()).unwrap_err().to_string().contains("genesis"));
+    assert!(project(&b).unwrap_err().to_string().contains("genesis"));
     b = block();
     b.transaction_traces = vec![eth::TransactionTrace::default()];
-    assert!(project(&b, &params()).is_err());
+    assert!(project(&b).is_err());
 }
 
 #[test]
-fn params_require_an_explicit_qualified_producer_list() {
-    assert!(parse_params(r#"{"producer_versions":[]}"#).is_err());
-    assert!(parse_params(r#"{"producer_versions":[0]}"#).is_err());
-    assert!(parse_params(r#"{"producer_versions":[5],"network":"bsc"}"#).is_err());
-    assert!(parse_params("[]").is_err());
-    assert!(parse_params("").is_err());
-    assert_eq!(parse_params(r#"{"producer_versions":[5]}"#).unwrap().producer_versions, vec![5]);
+fn block_version_does_not_gate_valid_or_ambiguous_balance_records() {
+    let mut b = block();
+    b.transaction_traces = vec![tx(eth::Call {
+        balance_changes: vec![change(4, 10, Some(100), Some(80))],
+        ..Default::default()
+    })];
+    b.balance_changes = vec![change(4, 20, Some(80), Some(90))];
+    let expected = project(&b).unwrap();
+    assert_eq!(expected.balances.len(), 1);
+    assert_eq!(expected.balances[0].amount, "90");
+    for version in [3, 4, 5, 99] {
+        b.ver = version;
+        assert_eq!(project(&b).unwrap(), expected, "version {version}");
+        b.balance_changes[0].ordinal = 10;
+        assert!(project(&b).unwrap_err().to_string().contains("ambiguous"), "version {version}");
+        b.balance_changes[0].ordinal = 20;
+    }
 }
 
 #[test]
 fn empty_block_emits_no_rows_and_native_rows_omit_the_contract_field() {
-    assert!(project(&block(), &params()).unwrap().balances.is_empty());
+    assert!(project(&block()).unwrap().balances.is_empty());
     let events = balances_pb::Events {
         balances: vec![balances_pb::Balance {
             contract: None,
@@ -388,7 +392,7 @@ fn empty_block_emits_no_rows_and_native_rows_omit_the_contract_field() {
 #[test]
 fn records_expose_scope_and_reason_for_the_reason_matrix() {
     let b = eth::Block::decode_from_slice(FIXTURE_BLOCK).unwrap();
-    let records = records(&b, &params()).unwrap();
+    let records = records(&b).unwrap();
     assert!(records.len() > 82);
     let system = hex::decode(SYSTEM_FEE_ADDRESS).unwrap();
     // The BSC v5 producer records the block-level reset under the ordinary
@@ -437,7 +441,7 @@ fn failed_transactions_with_unpinned_reasons_fail_closed() {
         eth::balance_change::Reason::SuicideWithdraw,
     ] {
         b.transaction_traces = vec![failed(reason as i32)];
-        let rows = changes(&b, &params()).unwrap();
+        let rows = changes(&b).unwrap();
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].amount, "90");
     }
@@ -454,17 +458,14 @@ fn failed_transactions_with_unpinned_reasons_fail_closed() {
         eth::balance_change::Reason::Withdrawal as i32,
     ] {
         b.transaction_traces = vec![failed(reason)];
-        assert!(
-            changes(&b, &params()).unwrap_err().to_string().contains("pinned persistence"),
-            "reason {reason}"
-        );
+        assert!(changes(&b).unwrap_err().to_string().contains("pinned persistence"), "reason {reason}");
     }
     // The same reasons in a successful transaction are ordinary persisted state.
     let mut ok = failed(17);
     ok.status = eth::TransactionTraceStatus::Succeeded.into();
     ok.calls[0].state_reverted = false;
     b.transaction_traces = vec![ok];
-    assert_eq!(changes(&b, &params()).unwrap().len(), 2);
+    assert_eq!(changes(&b).unwrap().len(), 2);
 }
 
 /// WETH9-style wrapping on captured WBNB transactions: the holder's WBNB is an
@@ -505,7 +506,7 @@ mod wrapper_backing {
         .unwrap();
         let (holder, wad) = wrapped(&block, DEPOSIT);
         assert_eq!(wad, BigInt::from(100971252078042364u64));
-        let native = changes(&block, &params()).unwrap();
+        let native = changes(&block).unwrap();
         let wrapper = native.iter().find(|r| hex::encode(&r.address) == WBNB).unwrap();
         assert_eq!(delta(&wrapper.old_amount, &wrapper.amount), wad);
         // The holder's own native balance nets to zero (received, then
@@ -522,7 +523,7 @@ mod wrapper_backing {
         .unwrap();
         let (_, wad) = wrapped(&block, WITHDRAWAL);
         assert_eq!(wad, BigInt::from(69434307925719935u64));
-        let native = changes(&block, &params()).unwrap();
+        let native = changes(&block).unwrap();
         let wrapper = native.iter().find(|r| hex::encode(&r.address) == WBNB).unwrap();
         assert_eq!(delta(&wrapper.old_amount, &wrapper.amount), -wad);
     }
@@ -533,7 +534,7 @@ mod wrapper_backing {
             include_bytes!("../../../erc20/balances/tests/fixtures/wbnb-mutations/122288021-tx35-reverted-transaction-deposit.pb").as_slice(),
         )
         .unwrap();
-        let native = changes(&block, &params()).unwrap();
+        let native = changes(&block).unwrap();
         assert!(!native.iter().any(|r| hex::encode(&r.address) == WBNB));
         // Only the sender's gas debit and the system fee credit persist.
         assert_eq!(native.len(), 2);

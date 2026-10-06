@@ -65,11 +65,12 @@ dated evidence documents refer to. Do not add new tool crates or CLI harnesses.
   `db_out` or database-change modules, or custom sinks. Other packages' map
   outputs remain the contract for external native sinks; local sink state
   belongs under `out/`.
-- Producer qualification per network lives in the map package's own manifest
-  under `networks:` (`native/balances`: `bsc` → `{"producer_versions":[5]}`),
-  with no default params, so an unlisted network fails closed. Importing
-  manifests keep the same default `network:` and never set an imported
-  module's params at their top level.
+- `native/balances` is params-free at the owner's direction (2026-10-06):
+  `map_events(block)` has no producer-version gate or manifest network allowlist.
+  Keep its complete Extended-block, failed-transaction reason and persisted
+  balance continuity checks. Accepting a block is not network qualification;
+  network-specific persistence work remains separate. `evm-balances` imports
+  both balance maps without params and defaults to `network: bsc` for routing.
 - Host-side qualification can use RPC. Production balance processing cannot.
 
 ## Evidence

@@ -80,11 +80,17 @@ over the 5,000-block live window the reason guard refused no block.
 
 ## Chain / producer / fork matrix
 
+As of 2026-10-06, native `map_events(block)` has no parameters or
+`Block.ver` gate. The matrix records evidence and limitations, not a runtime
+allowlist. Extended-block and concrete persistence checks still apply;
+acceptance alone does not qualify a chain or producer release. The reports
+below are historical and retain the parameter lists used at capture time.
+
 | Network | Producer versions in saved data | Status |
 | --- | --- | --- |
 | BSC (chain id 56) | 5 | Replayed: 1,439 blocks, 0 projection errors, 0 clock or continuity mismatches, 82/82 same-block RPC rows at 122260950. Fee-reset and blob-fee-reward semantics observed. **Live-qualified on 2026-09-23** (package `fbb46fc7…`): 1,024 saved control blocks equal to the offline replay and to `eth_getBalance` (76,139/76,139), and 5,000 contiguous recent blocks without a refused block, 200,344/200,344 same-block `eth_getBalance` checks (see the README). |
-| BSC | 4 | 71 saved blocks at heights 51,995,162–104,975,334 reduce with 0 projection errors and 0 continuity mismatches when version 4 is enabled (4,461 additional continuity checks); no native RPC oracle. Not enabled by default. |
-| BSC | 3 | Accepted by the historical prototype; no saved block. Unsupported by design: the version-3 tracer recorded system-call ordinals on a different scale from transaction ordinals and set every root call's `begin_ordinal` to 0 ([geth Firehose tracer](https://github.com/streamingfast/go-ethereum/blob/70f5118d6443624792f49501627a1cd80f51e8e9/eth/tracers/firehose.go), [firehose-ethereum CHANGELOG v2.10.0](https://github.com/streamingfast/firehose-ethereum/blob/9485efe2e6290e525fd4978b50462516ec752672/CHANGELOG.md)). Global ordinal reduction across scopes is not trustworthy on version 3. |
+| BSC | 4 | 71 saved blocks at heights 51,995,162–104,975,334 reduce with 0 projection errors and 0 continuity mismatches when version 4 was explicitly enabled (4,461 additional continuity checks); no native RPC oracle. The current map no longer gates this version. |
+| BSC | 3 | Accepted by the historical prototype; no saved block. The former parameter gate excluded it because the version-3 tracer recorded system-call ordinals on a different scale from transaction ordinals and set every root call's `begin_ordinal` to 0 ([geth Firehose tracer](https://github.com/streamingfast/go-ethereum/blob/70f5118d6443624792f49501627a1cd80f51e8e9/eth/tracers/firehose.go), [firehose-ethereum CHANGELOG v2.10.0](https://github.com/streamingfast/firehose-ethereum/blob/9485efe2e6290e525fd4978b50462516ec752672/CHANGELOG.md)). Global ordinal reduction across scopes is not trustworthy on version 3. The current map accepts this version but retains ordinal and continuity checks; those checks do not establish complete detection of ordering defects. |
 | Ethereum (1) | none | Genesis, uncle/block rewards, DAO redistribution, execution-layer withdrawals, blob fee debits, pre/post-[EIP-6780](https://eips.ethereum.org/EIPS/eip-6780) SELFDESTRUCT and the consensus-layer boundary need fixtures under #8. |
 | Base (8453) | none | The [OP deposit specification](https://specs.optimism.io/protocol/deposits.html#execution) persists the mint of a failed deposit. The BSC gas-only failed-root policy would drop it; the reason guard fails such blocks until producer fixtures show where the record appears and how rollback is represented. L1/operator fee vault effects unreviewed. |
 | HyperEVM (999) | none | HYPE account changes and the EVM side of HyperCore↔HyperEVM transfers need fixtures; HyperCore spot/perp/staked balances are a separate domain not derivable from EVM state. |

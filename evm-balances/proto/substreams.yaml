@@ -1,0 +1,11 @@
+specVersion: v0.1.0
+package:
+  name: evm_balances_sink_protodefs
+  version: v0.1.0
+  url: https://github.com/pinax-network/substreams-evm-extended
+  description: Pinned SQL sink and database-change descriptors for evm-balances.
+
+# Build from this directory with `make`; localPath is relative to the process.
+protobuf:
+  descriptorSets:
+    - localPath: sink.binpb

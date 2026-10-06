@@ -15,7 +15,6 @@
 //! system calls, block-level records).
 use evm_persist as persist;
 use proto::pb::evm::balances::v1 as balances_pb;
-use serde::Deserialize;
 use std::collections::BTreeMap;
 use substreams::{errors::Error, scalar::BigInt};
 use substreams_ethereum::pb::eth::v2 as eth;
@@ -26,29 +25,6 @@ fn require(ok: bool, message: &str) -> Result<(), Error> {
     } else {
         Err(Error::msg(message.to_string()))
     }
-}
-
-/// Explicit producer qualification. Nothing about the network or producer is
-/// inferred from a block: `Block.ver` must be listed, and the manifest binds the
-/// network. Other producer versions and networks need their own fixtures.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-#[serde(deny_unknown_fields)]
-pub struct Params {
-    /// Extended producer versions (`Block.ver`) replayed from saved fixtures.
-    pub producer_versions: Vec<i32>,
-}
-
-/// Producer versions whose execution ordinals are qualified.
-pub const QUALIFIED_PRODUCER_VERSIONS: [i32; 2] = [4, 5];
-
-pub fn parse_params(params: &str) -> Result<Params, Error> {
-    let parsed: Params = serde_json::from_str(params).map_err(|e| Error::msg(format!("invalid native balance params: {e}")))?;
-    require(!parsed.producer_versions.is_empty(), "no qualified Extended producer version configured")?;
-    require(
-        parsed.producer_versions.iter().all(|v| QUALIFIED_PRODUCER_VERSIONS.contains(v)),
-        "producer_versions must be a subset of the qualified Extended versions 4 and 5 (version 3 has broken system-call ordinals)",
-    )?;
-    Ok(parsed)
 }
 
 /// One account's persisted native balance movement within a block: the value
@@ -114,12 +90,8 @@ fn amount(word: &[u8; 32]) -> String {
     BigInt::from_unsigned_bytes_be(word).to_string()
 }
 
-pub fn validate_block(block: &eth::Block, params: &Params) -> Result<(), Error> {
+pub fn validate_block(block: &eth::Block) -> Result<(), Error> {
     require(block.detail_level == eth::block::DetailLevel::DetaillevelExtended, "Extended blocks required")?;
-    require(
-        params.producer_versions.contains(&block.ver),
-        "Extended producer version not qualified for native balances",
-    )?;
     let header = block.header.as_option().ok_or_else(|| Error::msg("missing header"))?;
     require(
         block.hash.len() == 32 && header.parent_hash.len() == 32 && header.state_root.len() == 32,
@@ -167,9 +139,9 @@ fn validate_failed_transaction_reasons(block: &eth::Block) -> Result<(), Error> 
 }
 
 /// Every persisted native balance record in the block, in array order, with
-/// its persistence scope. Used by the host replay tool for the reason matrix.
-pub fn records(block: &eth::Block, params: &Params) -> Result<Vec<Record>, Error> {
-    validate_block(block, params)?;
+/// its persistence scope, retained for package tests and offline inspection.
+pub fn records(block: &eth::Block) -> Result<Vec<Record>, Error> {
+    validate_block(block)?;
     validate_failed_transaction_reasons(block)?;
     let mut collected = Collected::default();
     persist::collect_block(block, &mut collected)?;
@@ -180,8 +152,8 @@ pub fn records(block: &eth::Block, params: &Params) -> Result<Vec<Record>, Error
 /// Every record needs a canonical 20-byte account, a positive ordinal, values
 /// that fit `uint256`, a strictly increasing ordinal per account and old/new
 /// continuity. Ambiguous or discontinuous producer data fails the block.
-pub fn changes(block: &eth::Block, params: &Params) -> Result<Vec<Change>, Error> {
-    let mut records = records(block, params)?;
+pub fn changes(block: &eth::Block) -> Result<Vec<Change>, Error> {
+    let mut records = records(block)?;
     // Array order is not execution order: block-level records follow the
     // transactions in the message but can precede or follow them by ordinal.
     records.sort_by_key(|r| r.ordinal);
@@ -224,9 +196,9 @@ pub fn changes(block: &eth::Block, params: &Params) -> Result<Vec<Change>, Error
 /// Final balances of every changed account, sorted by account, with an absent
 /// contract. Includes the zero address, precompiles, system and burn-looking
 /// addresses whenever the producer persisted a change for them.
-pub fn project(block: &eth::Block, params: &Params) -> Result<balances_pb::Events, Error> {
+pub fn project(block: &eth::Block) -> Result<balances_pb::Events, Error> {
     Ok(balances_pb::Events {
-        balances: changes(block, params)?
+        balances: changes(block)?
             .into_iter()
             .map(|c| balances_pb::Balance {
                 contract: None,
@@ -246,8 +218,8 @@ pub fn project(block: &eth::Block, params: &Params) -> Result<balances_pb::Event
 mod handler {
     use super::*;
     #[substreams::handlers::map]
-    fn map_events(params: String, block: eth::Block) -> Result<balances_pb::Events, Error> {
-        project(&block, &parse_params(&params)?)
+    fn map_events(block: eth::Block) -> Result<balances_pb::Events, Error> {
+        project(&block)
     }
 }
 
