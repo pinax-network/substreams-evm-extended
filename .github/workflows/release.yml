@@ -144,7 +144,7 @@ jobs:
             echo
             echo "**Not live-qualified.** No dated live evidence exists for these module hashes; qualification evidence names its module hashes explicitly."
             echo
-            echo "Identify this build by the module hashes in HASHES.txt, never by the spkg sha256: \`substreams pack\` is not deterministic, so two packs of the same source differ in bytes."
+            echo "Identify this build by the module hashes in HASHES.txt, never by the spkg sha256: an edited README changes the spkg bytes, and with substreams CLI v1.22.0 so does every pack of a manifest with several \`networks:\` entries (streamingfast/substreams#978)."
             echo
             if [ -n "${SINK:-}" ]; then
               echo "Supported sink: [pinax-network/substreams-sink-sql $SINK](https://github.com/pinax-network/substreams-sink-sql/releases/tag/$SINK), commit \`$SINK_COMMIT\` (\`make -C evm-balances install-sink\`)."
