@@ -43,7 +43,7 @@ bytecode equality with a build of the pinned source is not established.
 | 1 | `totalSupplyBase` 0..104, `totalBorrowBase` 104..208, `lastAccrualTime` 208..248, `pauseFlags` 248..256 | compiler-verified | byte offsets 0, 13, 26, 31 in the compiled layout |
 | 2, 3, 4, 6, 7 | `totalsCollateral`, `isAllowed`, `userNonce`, `userCollateral`, `liquidatorPoints` mappings | compiler-verified | complete: no other regular slot exists |
 | 5 | `userBasic` mapping (`principal` int104 at 0..104) | compiler-verified | `UserBasic` member `principal` slot 0 offset 0 `t_int104`, struct size 32 |
-| `0xc98c7730ba19013824f711a9ab74801459b27e6ff7685cb924587c89aeda53ac` | `REENTRANCY_GUARD_FLAG_SLOT` = `keccak256("comet.reentrancy.guard")` | hashed | `CometCore.sol:60`; reviewed by name in the fixture and asserted in a test (was missing before the [review](review-findings-2026-09-21.md)) |
+| `0xc98c7730ba19013824f711a9ab74801459b27e6ff7685cb924587c89aeda53ac` | `REENTRANCY_GUARD_FLAG_SLOT` = `keccak256("comet.reentrancy.guard")` | hashed | `CometCore.sol:60`; reviewed by name in the fixture and asserted in a test (was missing before the [review](history/review-findings-2026-09-21.md)) |
 
 ### Compound v2 cTokens and rate models (`compound-v2/balance-state`)
 
@@ -142,4 +142,5 @@ kept for re-runs at a new pin.
 
 What compilation cannot settle: whether the deployed bytecode at the fixture
 addresses was built from that source (code-hash binding) and the block at which
-each epoch became active. Those remain for live resumption.
+each epoch became active. Those need live qualification, each step with the
+owner's OK ([live use](../AGENTS.md#evidence)).

@@ -109,7 +109,8 @@ with [`tests/storage_layout.rs`](tests/storage_layout.rs) pinning every fixture
 slot and checking completeness. Not verified: deployed runtime code hashes
 and activation blocks (placeholders); the 6,093 locally cached BSC Extended
 blocks contain no call, write, log or code change for any Aave BNB static
-aToken, no Ethereum blocks are cached, and live Firehose and RPC use is paused.
+aToken, and no Ethereum blocks are cached; each live Firehose or RPC step
+needs the owner's OK ([live use](../../AGENTS.md#evidence)).
 
 `activation_ordinal` (optional, default `0`) is the first execution ordinal of
 `activation_block` at which the epoch applies. Effects earlier in that block,

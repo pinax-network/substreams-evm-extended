@@ -9,10 +9,10 @@ description: How roadmap issues in pinax-network/substreams-evm-extended move fr
    offline items (Rust code, tests, saved-block replays, pinned-source
    research, docs, local package build/inspection) and live-gated items
    (RPC, Firehose, streamed-package and sink checks). Read the latest comments
-   and evidence as well as the original issue body: BSC work was separately
-   resumed in September 2026, while other-network and pool-state gates remain.
-   Historical reports do not authorize a new live run; honor the current
-   session's scope and explicit holds.
+   and evidence as well as the original issue body. Each live step needs the
+   owner's explicit OK under the live-use rule in
+   [`AGENTS.md`](../../AGENTS.md#evidence); historical reports do not authorize
+   a new live run, and the `dex/pool-state` hold stays separate.
 2. **Branch from a fresh main** (`git checkout main && git pull`) with a short
    kebab-case branch name. Another agent commits on `codex/*` branches; pull
    before branching and never rebase their work.
@@ -43,10 +43,11 @@ description: How roadmap issues in pinax-network/substreams-evm-extended move fr
    loop with a 30 s sleep works.
 8. **Comment on the issue** with two lists: done offline (with the PR number)
    and still open / live-gated. Close the issue only when nothing live-gated
-   remains; otherwise leave it open. Keep `docs/follow-up.md` and the roadmap
-   issue #21 table current.
-9. **Record** anything not derivable from the code in `docs/handoff.md`
-   (facts learned, data locations, open findings).
+   remains; otherwise leave it open. Keep the roadmap issue #21 table
+   current; `docs/follow-up.md` only points to the issue list.
+9. **Record** a changed package version, module hash or qualification in
+   `docs/handoff.md`, which stays a short current-state page. Put dated facts,
+   data locations and findings in the PR and the package's evidence files.
 
 Shell caveats on the original machine: zsh does not word-split unquoted
 variables (`${=VAR}`); avoid leading `=` in echo arguments; foreground sleeps

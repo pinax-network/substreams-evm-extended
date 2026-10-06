@@ -168,4 +168,5 @@ No RPC, no ABI decoding, no labels, no prices, no `db_out` or custom sink.
 Native balance effects are `native/balances`; token transfer and approval
 evidence is [#19](https://github.com/pinax-network/substreams-evm-extended/issues/19);
 protocol action adapters are [#20](https://github.com/pinax-network/substreams-evm-extended/issues/20).
-Packaging and live qualification remain paused.
+Each live qualification step needs the owner's OK
+([live use](../../AGENTS.md#evidence)).

@@ -85,6 +85,14 @@ dated evidence documents refer to. Do not add new tool crates or CLI harnesses.
 
 ## Evidence
 
+- **Live use** (owner's rule, #121). Every live Substreams, Firehose, RPC or
+  sink step needs the owner's explicit OK for that step. Endpoints that are
+  available (BSC resumed on 2026-09-22), an earlier OK or a historical report
+  authorize nothing new. Keep credentials (`SUBSTREAMS_API_KEY`, RPC URLs,
+  sink DSNs) in environment variables only, and never print access-bearing
+  endpoint URLs or secrets into logs or evidence. The `dex/pool-state` hold
+  below is separate and stays in force. Other documents point here instead of
+  restating this rule.
 - Verify new work ad hoc (for example in clickhouse-local or with scratch
   queries), and report the method and results in the pull request. Keep
   regression tests in Rust inside the package crates.
@@ -101,8 +109,6 @@ dated evidence documents refer to. Do not add new tool crates or CLI harnesses.
   built packages from historical package digests rather than rewriting evidence.
 - Coverage claims must state the tested interval and initialized observed-holder
   set. Matching samples do not establish universal token or global-holder support.
-- Keep RPC credentials in environment variables and never print access-bearing
-  endpoint URLs or secrets into logs or evidence.
 
 ## Validation
 
@@ -145,5 +151,6 @@ and the pinned toolchain, not on the checkout directory, the user, or whether
 rust-src is installed, and RUSTFLAGS set in the shell are ignored. Keep this
 in every WASM build, including the `dex/pool-state` README command. Handlers
 decode their input with buffa's default limits
-(32 MiB of repeated elements per block); see `docs/handoff.md` for the
-measured headroom.
+(32 MiB of repeated elements per block); the measured headroom is in the
+dated [substreams 0.8.0 section](docs/history/handoff-2026-09-21-to-2026-10-06.md#substreams-080-2026-10-05)
+of the 2026-09-21 to 2026-10-06 handoff.

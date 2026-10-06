@@ -99,7 +99,8 @@ writes that reduce to `old == new` and must be reviewed. Read the pinned source 
   the pinned form, parameters and their provenance level (see
   `docs/storage-layout-provenance.md`), fail-closed rules (table), validation
   commands, what the tests cover and what remains live-gated, issue link.
-- Update the root `README.md` package list and `docs/follow-up.md`.
+- Update the root `README.md` package list and the package table in
+  `docs/handoff.md`.
 
 ## Test checklist (synthetic; every item below has been missed at least once)
 
@@ -151,4 +152,4 @@ cargo check --locked --workspace --target wasm32-unknown-unknown
    clock counts, sort order, README tables vs code.
 4. Test adequacy against the issue acceptance list (the checklist above).
 Verify each finding adversarially (correctness, reproduction, intent) before
-fixing; record results in `docs/review-findings-<date>.md`.
+fixing; record results in a dated `docs/history/review-findings-<date>.md`.

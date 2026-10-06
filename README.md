@@ -36,8 +36,9 @@ sha256). None is live-qualified.
 `evm-balances` imports the two maps with the same module hashes, and embeds
 the schema `ed1c3bff…`.
 
-Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (state,
-evidence, open findings, next steps) and the procedures in [`skills/`](skills/README.md).
+Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (package
+status, hashes and open work; the dated record is under `docs/history/`) and
+the procedures in [`skills/`](skills/README.md).
 
 The shared schema stays in the repository-root `proto/` crate:
 
@@ -128,17 +129,24 @@ layout path covered 431 explicitly qualified profiles among the first 450 BSC
 candidates ranked by activity; its code, coverage reports and evidence remain at
 [`9b41c7f`](https://github.com/pinax-network/substreams-evm-extended/tree/9b41c7f/erc20/balances).
 
-Computed balances (reward, reflection, rebasing, scaled) remain open. Ethereum,
-Base, HyperEVM and Arc require independent qualification after the BSC work; the
+Computed balances (reward, reflection, rebasing, scaled) remain open. Networks
+other than BSC need their own qualification after the BSC work; the target
+networks are tracked in
+[#8](https://github.com/pinax-network/substreams-evm-extended/issues/8). The
 repository name is not a claim of verified coverage on every EVM network.
 
-The inference-only source is checked offline against saved data only. It is not
-included in the preserved SPKGs, and live chain testing is paused.
+The inference package is packed and committed (`spkg/erc20-balances-v0.4.0.spkg`,
+above) but has only been checked offline against saved data: it has not run in
+a Substreams engine. Its BSC qualification is
+[#124](https://github.com/pinax-network/substreams-evm-extended/issues/124), and
+each live step needs the owner's OK ([live use](AGENTS.md#evidence)).
 
 Outstanding implementation, holder coverage, packaging and network work is
-tracked in [GitHub follow-up issues](docs/follow-up.md). The requested chains,
-asset scopes, protocol deployments and action-evidence mapping for the
-extraction roadmap are recorded in [extraction coverage](docs/extraction-coverage.md).
+tracked in [GitHub issues](https://github.com/pinax-network/substreams-evm-extended/issues),
+under the roadmap [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21).
+The requested chains, asset scopes, protocol deployments and action-evidence
+mapping for the extraction roadmap are recorded in
+[extraction coverage](docs/extraction-coverage.md).
 
 See [migration provenance](docs/migration.md) for the original PR, preserved
 schema/package digests and the distinction between historical qualification

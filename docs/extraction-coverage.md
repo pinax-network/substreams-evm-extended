@@ -13,9 +13,9 @@ source on 2026-09-18 at the stated pin. Addresses are deployment identities,
 not runtime qualification: binding a runtime code hash, storage layout and
 activation block is part of each implementation issue and of network
 qualification under [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8),
-and requires RPC or Firehose access that stays paused until explicitly
-resumed. Facts that could not be confirmed from an official source are listed
-as open questions rather than filled in.
+and requires live RPC or Firehose steps, each of which needs the owner's OK
+([live use](../AGENTS.md#evidence)). Facts that could not be confirmed from an
+official source are listed as open questions rather than filled in.
 
 ## 1. Chains
 
@@ -387,6 +387,6 @@ that will close it.
 Extended-block Substreams extraction only, one RPC-free map per package,
 native Substreams sinks, all tests and diagnostics in Rust. No Token API,
 prices, APY, health factors, portfolio aggregation, RPC fallback service or
-universal labeling. Live Substreams, Firehose, RPC and native sink usage
-remains paused until explicitly resumed; this document was produced from
-official documentation, pinned source and saved data only.
+universal labeling. Each live Substreams, Firehose, RPC or sink step needs
+the owner's OK ([live use](../AGENTS.md#evidence)); this document was
+produced from official documentation, pinned source and saved data only.

@@ -3,7 +3,7 @@
 Procedural guides for continuing this repository's roadmap. Each directory
 holds one `SKILL.md` with frontmatter (`name`, `description`) so it can be
 dropped into `.claude/skills/` or read by a person. They complement the
-normative rules in [`../AGENTS.md`](../AGENTS.md) and the state record in
+normative rules in [`../AGENTS.md`](../AGENTS.md) and the current state in
 [`../docs/handoff.md`](../docs/handoff.md); where they disagree, `AGENTS.md`
 wins.
 
