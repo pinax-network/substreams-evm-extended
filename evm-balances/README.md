@@ -112,16 +112,18 @@ remains open.
 
 The new native handler changes its WASM and module hash, and consequently the
 `db_out` module hash and sink cursor key. The v0.1.0 native and v0.4.0 combined
-packages remain as historical artifacts; use v0.2.0 and v0.5.0 respectively.
-Build through the Makefiles for the repository path remap and separate import
-builds. Paths under `CARGO_HOME` and rustup can still make builds differ across
-machines.
+packages remain as historical artifacts, as do native v0.2.0 and combined
+v0.5.0 (Rust 1.88 builds); use native v0.2.1 and combined v0.6.0.
+Build through the Makefiles, for the separate import builds and the root
+`build.mk` remaps. With them the WASMs no longer depend on the checkout
+directory, `CARGO_HOME` or rust-src (checked on macOS; #119 compares a Linux
+build).
 
 ## Build and deploy
 
 ```sh
 cargo test --locked -p evm-balances
-make -C evm-balances pack      # 3 WASMs, clickhouse/schema.sql, spkg/evm-balances-v0.5.0.spkg
+make -C evm-balances pack      # 3 WASMs, clickhouse/schema.sql, spkg/evm-balances-v0.6.0.spkg
 export SUBSTREAMS_SINK_DSN='clickhouse://<user>:<password>@<host>:9000/<database>'   # create <database> first
 export SUBSTREAMS_API_KEY=...
 make -C evm-balances setup     # idempotent: 3 tables, 2 states, 2 MVs, 2 views, cursors

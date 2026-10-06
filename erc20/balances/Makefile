@@ -5,11 +5,11 @@ PARALLEL_JOBS ?= 500
 .DEFAULT_GOAL := pack
 
 .PHONY: build
-# Remap the checkout path in panic locations, so the WASM sha256 and module
-# hash do not depend on where the repository is cloned.
-build: export RUSTFLAGS += --remap-path-prefix=$(abspath ../..)=.
+# Reproducible WASM paths and hashes: see build.mk at the repository root.
+include ../../build.mk
+build: export RUSTFLAGS := $(WASM_RUSTFLAGS)
 build:
-	cargo build --target wasm32-unknown-unknown --release
+	cargo build --locked --target wasm32-unknown-unknown --release
 
 .PHONY: pack
 pack: build

@@ -2,7 +2,7 @@
 name = "erc20-balances"
 description = "Experimental RPC-free ERC-20 balances inferred from Extended block storage, with the shared balances protobuf"
 edition = { workspace = true }
-version = "0.2.0"
+version = "0.4.0"
 license = { workspace = true }
 
 [lib]

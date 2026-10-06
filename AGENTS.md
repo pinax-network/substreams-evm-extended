@@ -39,7 +39,8 @@ dated evidence documents refer to. Do not add new tool crates or CLI harnesses.
   evidence, is in git history at `9b41c7f`. Its last packed build is the
   committed `spkg/erc20-balances-v0.1.0.spkg` (2026-09-23), which predates the
   typed-path and enumerable-set source at `9b41c7f`; the inference package is
-  v0.2.0.
+  v0.4.0 (v0.2.0 until the Rust 1.99.0 batch, #118). Versions skip v0.3.x so
+  that no build can overwrite the RPC reference `spkg/erc20-balances-v0.3.4.spkg`.
 - `Block.ver` alone does not identify producer semantics. Producers on
   firehose-tracer 5.5.0 and later keep `Block.ver` 5 but record only the Keccak
   preimages that explain a storage write, and cut call data past
@@ -105,9 +106,13 @@ dated evidence documents refer to. Do not add new tool crates or CLI harnesses.
 
 ## Validation
 
-Use the pinned Rust toolchain and lockfile. Offline validation consists of
-formatting, workspace library/binary tests, Clippy for all targets, and a WASM
-workspace check. Live RPC, stream and holder checks are separate from offline CI.
+Use the pinned Rust toolchain and lockfile. `rust-toolchain.toml` pins Rust
+1.99.0 exactly, with rustfmt, Clippy and the wasm32 target, and CI installs
+from it, so there is no second pin. Pin a point release, never a minor
+version: the WASM embeds `/rustc/<commit>`, so a new point release changes
+every module hash. Offline validation consists of formatting, workspace
+library/binary tests, Clippy for all targets, and a WASM workspace check. Live
+RPC, stream and holder checks are separate from offline CI.
 
 The workspace is on substreams 0.8.0, substreams-ethereum 0.12.0 and buffa
 0.9.2 (2026-10-05). `proto/src/pb` is generated from `proto/v1` by `buf
@@ -115,8 +120,12 @@ generate` in `proto/` (`buf.gen.yaml`: the `buf.build/anthropics/buffa` plugin
 v0.9.2, the version and options the SDK crates use); regenerate it rather than
 editing it. Only `pb/mod.rs` is written by hand.
 
-Package Makefiles build WASM with `--remap-path-prefix=<repository root>=.`,
-so WASM and module hashes do not depend on the checkout directory; keep it in
-every WASM build. Handlers decode their input with buffa's default limits
+Package Makefiles build WASM with `--locked` and the `RUSTFLAGS` of the
+root `build.mk`, which remap the checkout, `CARGO_HOME` and the Rust sources
+(`--remap-path-prefix`). WASM and module hashes then depend only on the source
+and the pinned toolchain, not on the checkout directory, the user, or whether
+rust-src is installed, and RUSTFLAGS set in the shell are ignored. Keep this
+in every WASM build, including the `dex/pool-state` README command. Handlers
+decode their input with buffa's default limits
 (32 MiB of repeated elements per block); see `docs/handoff.md` for the
 measured headroom.

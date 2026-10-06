@@ -101,7 +101,7 @@ BSC evidence below still refers to its original packages and parameters.
 ```sh
 cargo test --locked -p native-balances -p evm-persist
 make -C native/balances build      # workspace release WASM; no network
-make -C native/balances pack       # spkg/native-balances-v0.2.0.spkg
+make -C native/balances pack       # spkg/native-balances-v0.2.1.spkg
 make -C native/balances gui        # or `prod`; streams from ENDPOINT
 ```
 

@@ -184,7 +184,8 @@ make -C erc20/balances test
 make -C erc20/balances pack
 ```
 
-Output: `spkg/erc20-balances-v0.2.0.spkg` (package version v0.2.0). No Buf
+Output: `spkg/erc20-balances-v0.4.0.spkg` (package version v0.4.0; versions
+skip v0.3.x, so no build can overwrite the v0.3.4 RPC reference). No Buf
 generation is needed here; the public schema is already maintained by the
 shared `proto` crate. The committed `spkg/erc20-balances-v0.1.0.spkg`
 (`532b571f…`, 2026-09-23) is the earlier layout package, which takes layouts as
@@ -192,10 +193,10 @@ params; no build writes to it. This source has not been packed or run in a
 Substreams engine yet; a build is a new artifact and inherits none of that
 package's checks. `spkg/erc20-balances-v0.3.4.spkg` is the immutable RPC
 reference. See [rename provenance](../../docs/migration.md#module-rename). The
-committed `spkg/erc20-balances-v0.2.0.spkg` (module `6539de92…`) predates the
-[producer-release](#producer-releases) rules; the hash-changing batch
-([#118](https://github.com/pinax-network/substreams-evm-extended/issues/118))
-packs their build.
+committed `spkg/erc20-balances-v0.2.0.spkg` (module `6539de92…`, Rust 1.88)
+predates the [producer-release](#producer-releases) rules; v0.4.0 is the
+first build with them
+([#118](https://github.com/pinax-network/substreams-evm-extended/issues/118)).
 
 Thin Rust tests call the package functions directly. They cover the rules on
 synthetic blocks, the embedded persistence rules, which blocks fail, the

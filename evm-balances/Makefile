@@ -12,14 +12,14 @@ export SUBSTREAMS_SINK_DSN ?= clickhouse://default:@localhost:9000/default
 # turns on buffa's json feature for the imported maps too, so their WASM and
 # module hashes would differ from the native/balances and erc20/balances
 # packages'.
-# Remap the checkout path in panic locations, so the WASM sha256 and module
-# hash do not depend on where the repository is cloned.
-build: export RUSTFLAGS += --remap-path-prefix=$(abspath ..)=.
+# Reproducible WASM paths and hashes: see build.mk at the repository root.
+include ../build.mk
+build: export RUSTFLAGS := $(WASM_RUSTFLAGS)
 .PHONY: build
 build:
-	cargo build --target wasm32-unknown-unknown --release -p native-balances
-	cargo build --target wasm32-unknown-unknown --release -p erc20-balances
-	cargo build --target wasm32-unknown-unknown --release -p evm-balances
+	cargo build --locked --target wasm32-unknown-unknown --release -p native-balances
+	cargo build --locked --target wasm32-unknown-unknown --release -p erc20-balances
+	cargo build --locked --target wasm32-unknown-unknown --release -p evm-balances
 
 .PHONY: schema
 schema:

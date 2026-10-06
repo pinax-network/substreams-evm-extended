@@ -1097,7 +1097,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         for vault in &active {
             let kind = if block.number == vault.activation_block {
                 pb::EpochEventKind::Bound
-            } else if config.heartbeat_blocks > 0 && (block.number - vault.activation_block) % config.heartbeat_blocks == 0 {
+            } else if config.heartbeat_blocks > 0 && (block.number - vault.activation_block).is_multiple_of(config.heartbeat_blocks) {
                 pb::EpochEventKind::Reaffirmed
             } else {
                 continue;
