@@ -111,8 +111,23 @@ Use the pinned Rust toolchain and lockfile. `rust-toolchain.toml` pins Rust
 from it, so there is no second pin. Pin a point release, never a minor
 version: the WASM embeds `/rustc/<commit>`, so a new point release changes
 every module hash. Offline validation consists of formatting, workspace
-library/binary tests, Clippy for all targets, and a WASM workspace check. Live
-RPC, stream and holder checks are separate from offline CI.
+library/binary tests, Clippy for all targets on the host and wasm32 (only
+wasm32 compiles the handlers), a WASM workspace check and rustdoc, all with
+warnings denied. Live RPC, stream and holder checks are separate from offline
+CI.
+
+CI's "Package hashes" job builds `native/balances`, `erc20/balances` and
+`evm-balances` on Linux through their Makefiles, with the checksum-pinned
+substreams CLI v1.22.0. It fails unless each committed
+`spkg/<name>-<version>.spkg` carries the module hashes of its source, and the
+embedded schema equals `make -C evm-balances schema`. A PR that changes one
+of these WASMs therefore bumps its version and commits the repacked spkg in
+the same PR. That job's Linux build is canonical (2026-10-06): a macOS build
+of the same source gives other module hashes, because cargo's symbol
+metadata includes the host and LTO then merges functions differently. Take
+committed spkgs from the job's `packages` artifact, not from a local pack.
+Compare module hashes, never spkg sha256: `substreams pack` output is not
+deterministic.
 
 The workspace is on substreams 0.8.0, substreams-ethereum 0.12.0 and buffa
 0.9.2 (2026-10-05). `proto/src/pb` is generated from `proto/v1` by `buf

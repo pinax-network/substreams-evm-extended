@@ -116,8 +116,12 @@ packages remain as historical artifacts, as do native v0.2.0 and combined
 v0.5.0 (Rust 1.88 builds); use native v0.2.1 and combined v0.6.0.
 Build through the Makefiles, for the separate import builds and the root
 `build.mk` remaps. With them the WASMs no longer depend on the checkout
-directory, `CARGO_HOME` or rust-src (checked on macOS; #119 compares a Linux
-build).
+directory, `CARGO_HOME` or rust-src, but they still depend on the build host:
+a macOS build has other module hashes than a Linux one. CI's "Package hashes"
+job builds the canonical Linux packages; committed spkgs come from its
+artifact. The committed v0.6.0 `db_out` has module `2710d961…` (WASM
+`b8bb73e4…`), with native `72453949…` and erc20 `d8a9db86…`; none is
+live-qualified.
 
 ## Build and deploy
 

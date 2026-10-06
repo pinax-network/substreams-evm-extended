@@ -13,8 +13,7 @@ implementation. Blocks without the required Extended data are rejected.
 the same protobuf: `Balance.contract` is absent and `amount` is the final
 persisted native balance of every account changed in the block. It ports the
 historical RPC-free native reducer. It was live-qualified on BSC on 2026-09-23
-(WASM `48d89d28…`, module `5a2a2e0c…`); the substreams 0.8.0 build of
-2026-10-05 (module `868ac202…`) is not.
+(WASM `48d89d28…`, module `5a2a2e0c…`); no later build is.
 
 [`evm-balances`](evm-balances/README.md) imports both packages and writes the
 substreams-evm ClickHouse tables (`blocks`, `erc20_balances`,
@@ -23,6 +22,19 @@ upstream's SQL byte for byte embedded in its spkg. It is the workspace's only
 `db_out` and database-change dependency. The earlier per-package CLI
 native-sink paths are at
 [`cb62110`](https://github.com/pinax-network/substreams-evm-extended/tree/cb6211007f1f9d0cb5852a6b666da475a8fa6542).
+
+The committed packages are CI's canonical Linux builds (Rust 1.99.0,
+substreams CLI v1.22.0; identify a build by these hashes, never by spkg
+sha256). None is live-qualified.
+
+| Package | Module | Module hash | WASM sha256 |
+| --- | --- | --- | --- |
+| `spkg/native-balances-v0.2.1.spkg` | `map_events` | `72453949f9227b31dad20f80fabc09774d740d1b` | `d3b6a5497b230d2c…` |
+| `spkg/erc20-balances-v0.4.0.spkg` | `map_events` | `d8a9db86240ca6466270f140798fae0b8db05f7b` | `17a847aa77346058…` |
+| `spkg/evm-balances-v0.6.0.spkg` | `db_out` | `2710d961971add90e77e9693690a9abba03b1546` | `b8bb73e4c9a01869…` |
+
+`evm-balances` imports the two maps with the same module hashes, and embeds
+the schema `ed1c3bff…`.
 
 Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (state,
 evidence, open findings, next steps) and the procedures in [`skills/`](skills/README.md).

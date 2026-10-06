@@ -113,7 +113,9 @@ README edit has a new SPKG digest but the same module. The 2026-10-05
 substreams 0.8.0 build had WASM `0bc2e2cf…` and, under `bsc`, module
 `868ac202…`; it was not live-qualified. The parameter-free
 v0.2.0 source changes the native module and dependent `db_out` hashes again.
-It has no new live qualification.
+It has no new live qualification. v0.2.1 is the same source built with Rust
+1.99.0 and reproducible paths (#118): CI's canonical Linux build has WASM
+`d3b6a549…` and module `72453949…`, also not live-qualified.
 [`evm-balances`](../../evm-balances/README.md) imports this manifest and writes
 its rows to ClickHouse.
 
