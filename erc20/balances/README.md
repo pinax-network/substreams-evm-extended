@@ -197,6 +197,8 @@ committed `spkg/erc20-balances-v0.2.0.spkg` (module `6539de92…`, Rust 1.88)
 predates the [producer-release](#producer-releases) rules; v0.4.0 is the
 first build with them
 ([#118](https://github.com/pinax-network/substreams-evm-extended/issues/118)).
+The committed v0.4.0 is CI's canonical Linux build: WASM `17a847aa…`, module
+`d8a9db86…`, not live-qualified.
 
 Thin Rust tests call the package functions directly. They cover the rules on
 synthetic blocks, the embedded persistence rules, which blocks fail, the

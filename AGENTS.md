@@ -122,7 +122,10 @@ substreams CLI v1.22.0. It fails unless each committed
 `spkg/<name>-<version>.spkg` carries the module hashes of its source, and the
 embedded schema equals `make -C evm-balances schema`. A PR that changes one
 of these WASMs therefore bumps its version and commits the repacked spkg in
-the same PR, packed locally or taken from the job's `packages` artifact.
+the same PR. That job's Linux build is canonical (2026-10-06): a macOS build
+of the same source gives other module hashes, because cargo's symbol
+metadata includes the host and LTO then merges functions differently. Take
+committed spkgs from the job's `packages` artifact, not from a local pack.
 Compare module hashes, never spkg sha256: `substreams pack` output is not
 deterministic.
 
