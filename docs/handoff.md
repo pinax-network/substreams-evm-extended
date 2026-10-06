@@ -121,8 +121,10 @@ the path to production:
   (commit `933a187`), the sink `evm-balances` supports
   ([README](../evm-balances/README.md#build-and-deploy)).
 - [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7):
-  the cutover contract (RPC-era backfill, stale pairs, replay duplicates,
-  sink completeness).
+  the [cutover contract](initialization-and-completeness.md) (RPC-era
+  backfill, stale pairs, replay duplicates, sink completeness) and its checks
+  are written; the cold-start decision (#8) and the live checks (#124 B2)
+  remain.
 - [#122](https://github.com/pinax-network/substreams-evm-extended/issues/122):
   the release flow (PR #140).
   [`native-balances-v0.2.1`](https://github.com/pinax-network/substreams-evm-extended/releases/tag/native-balances-v0.2.1)

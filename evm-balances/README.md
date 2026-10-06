@@ -33,6 +33,7 @@ files below are unchanged at `970a665` (`evm-balances/`).
 | Historical `../spkg/substreams-database-change-v2.0.0.spkg`, `../spkg/substreams-sink-sql-protodefs-v1.0.7.spkg` | [`spkg/`](https://github.com/pinax-network/substreams-evm/tree/cb8607f59a37aa9daf85547162b8871d12568282/spkg) | byte-identical, retained; no longer imported |
 | `../spkg/evm-balances-sink-protodefs-v0.1.0.spkg` | [pinned upstream sources](proto/SOURCES.md) | current descriptors, rebuilt from `proto/` |
 | `clickhouse/examples/backfill-from-rpc-database.sql` | none | new |
+| `clickhouse/examples/check-replays-and-completeness.sql`, `compare-final-with-rpc-database.sql`, `repair-replayed-range.sql`, `dedupe-blocks.sql` | none | new ([contract](../docs/initialization-and-completeness.md)) |
 
 Changes against upstream `db_out`:
 - **No params.** Upstream's `hex`/`tron_base58` encoding param is gone; addresses are always hex.
@@ -179,6 +180,11 @@ make -C evm-balances dev START_BLOCK=<S>
 
 ## Cutover and backfill
 
+The [cutover contract](../docs/initialization-and-completeness.md) states what
+the database holds after the cutover: what an absent row means, which pairs
+can be stale, what replays do, when the database is complete, how it compares
+with the RPC-era database, and which initialization paths exist.
+
 1. Stop the RPC-era sink; its cursor gives its last block, `S-1`.
 2. Set up a fresh database and start this package at `S`.
 3. Run [`examples/backfill-from-rpc-database.sql`](clickhouse/examples/backfill-from-rpc-database.sql):
@@ -213,10 +219,12 @@ make -C evm-balances dev START_BLOCK=<S>
 ## Sink behaviour
 
 - **Insert-only.** UPDATE and DELETE are errors; UNDO is ignored.
-- **Replays.** A flush commits table by table before the cursor. A crash or
-  retry replays them: `blocks` (plain `MergeTree`) gets duplicate rows and the
-  OHLC state double-counts. The `ReplacingMergeTree` balance tables dedupe on
-  merge.
+- **Replays.** A flush writes table by table, then the cursor, which is an
+  asynchronous insert the sink does not wait for. A crash, a lost cursor row
+  or a retried flush stores rows again: `blocks` (plain `MergeTree`) can get
+  duplicate rows and `transactions` counts the rows again; FINAL, open, close,
+  high and low do not change. Detect, repair or accept them as the
+  [contract](../docs/initialization-and-completeness.md#5-replays) describes.
 - **`transactions`** counts the rows inserted per window. With v4.13.0 that is
   one row per key and block at any flush interval; older sinks made it depend
   on the flush cadence.

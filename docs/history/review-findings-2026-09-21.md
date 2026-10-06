@@ -58,7 +58,7 @@ test adequacy) of those four crates remain unreviewed by an independent reader.
 ### Independent review of `common/retention` (2026-09-22)
 
 One fresh-context reviewer read `common/retention` against
-`initialization-and-completeness.md`, the balance-state contract and the #7
+[`initialization-and-completeness.md`](initialization-and-completeness-host-ledger-2026-09-19-to-2026-10-06.md), the balance-state contract and the #7
 acceptance list, and proved each claim with a probe test in a scratch copy of
 the crate. It reported 12 findings and no atomicity or undo-restoration
 defect. The maintainer re-read each code path; all 12 were confirmed and
