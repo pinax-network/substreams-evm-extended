@@ -75,7 +75,7 @@ impl persist::Sink for Collected {
 }
 
 fn word(bytes: &[u8]) -> Result<[u8; 32], Error> {
-    require(bytes.len() <= 32, "native balance exceeds uint256")?;
+    require(bytes.len() <= 32, "native balance exceeds uint256!")?;
     let mut out = [0; 32];
     out[32 - bytes.len()..].copy_from_slice(bytes);
     Ok(out)
