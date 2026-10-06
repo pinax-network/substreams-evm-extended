@@ -40,7 +40,7 @@ Lido epoch parameters now require `aragon.kernel`, `aragon.app_id`,
 `aragon.kernel_implementation` and `aragon.source_pin`. The old parameters
 declared an implementation without binding how the Aragon proxy resolved it;
 they are deliberately refused until that dependency path is explicit. See the
-[source record](research/09-Lido-Aragon-resolution.json) and package README.
+[source record](../research/09-Lido-Aragon-resolution.json) and package README.
 
 OZ epoch parameters now require `asset_balance_model` and `asset_source_pin`.
 Upgradeable assets additionally bind the reviewed `asset_implementation_slot`

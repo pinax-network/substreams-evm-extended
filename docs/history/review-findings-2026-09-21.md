@@ -10,10 +10,10 @@ extractor ran. The findings below are therefore reviewer claims, not confirmed d
 that the maintainer re-derived them.
 
 The same shape of defect must be assumed possible in the sibling crates until they are reviewed: the finders were told
-to look at exactly the properties listed under "Dimensions" in [`handoff.md`](handoff.md#4-hardening-review-status).
+to look at exactly the properties listed under "Dimensions" in [`handoff-2026-09-21-to-2026-10-06.md`](handoff-2026-09-21-to-2026-10-06.md#4-hardening-review-status).
 
 The one finding reported independently by all four reviewers is treated as **confirmed by convergence** and is the
-first item of the fix list in `handoff.md`: the committed cUSDCv3 epoch reviews no scalar slots, but the pinned
+first item of the fix list in `handoff-2026-09-21-to-2026-10-06.md`: the committed cUSDCv3 epoch reviews no scalar slots, but the pinned
 implementation writes `keccak256("comet.reentrancy.guard")` (`0xc98c7730ba19013824f711a9ab74801459b27e6ff7685cb924587c89aeda53ac`,
 `CometCore.sol:60`) on every `supply`/`withdraw`/`transfer`/`buyCollateral`, so any real block with Comet activity
 would fail closed as `unresolved storage`. The synthetic tests cannot see it because none writes a scalar reviewed slot.
@@ -422,7 +422,7 @@ Legend: severity is the reviewer's; "applies to siblings" is the maintainer's no
 1. Wait for the subagent spend limit to reset, then re-run the workflow script saved under the session directory
    (`workflows/scripts/harden-new-balance-state-packages-wf_c5514d01-2ea.js`, run id `wf_c5514d01-2ea`) with
    `resumeFromRunId`; the four completed finders replay from cache. If the session directory is gone, the finder and
-   verifier prompts are reproduced in [`skills/balance-state-package/SKILL.md`](../skills/balance-state-package/SKILL.md)
+   verifier prompts are reproduced in [`skills/balance-state-package/SKILL.md`](../../skills/balance-state-package/SKILL.md)
    under "Review checklist".
 2. Or review by hand, crate by crate, with the same four dimensions; record results in this file and fix in one PR per crate.
 
