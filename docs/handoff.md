@@ -1253,9 +1253,9 @@ Persisted raw effects require clock/hash continuity and same-key ordering. Runti
 
 The owner chose native balances only, loaded by the Substreams CLI's native
 ClickHouse sink with no `db_out`. ERC-20 is a separate implementation.
-[`native/balances/clickhouse/`](../native/balances/clickhouse/README.md)
-runs the sink on the local manifest, whose build is the live-qualified map
-(WASM `48d89d28…`, module `5a2a2e0c…`). After the sink's own setup, it adds:
+[`native/balances/clickhouse/`](https://github.com/pinax-network/substreams-evm-extended/blob/cb6211007f1f9d0cb5852a6b666da475a8fa6542/native/balances/clickhouse/README.md)
+(removed 2026-10-05; see below) runs the sink on the local manifest, whose
+build is the live-qualified map (WASM `48d89d28…`, module `5a2a2e0c…`). After the sink's own setup, it adds:
 - the legacy native tables and aggregation views, verbatim from
   substreams-evm@`cb8607f`;
 - one materialized view from `Balance` into `native_balances`;
@@ -1331,3 +1331,73 @@ checks block 122260950 against the same saved RPC values instead. The three WBNB
 wrapper cases in `native/balances` check the native side only, with the wrapped
 amount taken from the WBNB `Deposit`/`Withdrawal` event. `native/balances` no
 longer depends on `erc20-balances`.
+
+## evm-balances db_out, 2026-10-05
+
+At the owner's direction both balance packages reach ClickHouse through one
+`db_out` in [`evm-balances`](../evm-balances/README.md). It imports the local
+`native/balances` and `erc20/balances` manifests and writes the tables of
+substreams-evm `evm-balances` v0.3.4 with upstream's row format (encoded with
+`substreams-database-change` 5.0.0 since the substreams 0.8.0 bump below;
+upstream uses 3.0.0). Its six `clickhouse/schema.*.sql` files are
+byte-identical to substreams-evm@`cb8607f`. The generated `schema.sql` (sha256
+`ed1c3bff…`) equals the schema embedded in production
+`evm-clickhouse-balances-v0.3.4`, and the manifest's `sink:` section embeds it
+in the spkg. Native's qualified producer versions moved from top-level
+`params:` to `networks: bsc:` with no default, so an unlisted network fails
+closed; the `bsc` module hash is unchanged. `native/balances/clickhouse/`
+(bridge view, `Balance` TTL) and `erc20/balances/clickhouse/` (with its smoke
+evidence) were removed; they remain at
+[`cb62110`](https://github.com/pinax-network/substreams-evm-extended/tree/cb6211007f1f9d0cb5852a6b666da475a8fa6542).
+The offline checks are in the PR; none of them streamed or sank live data.
+
+## substreams 0.8.0, 2026-10-05
+
+At the owner's direction every package moved to substreams 0.8.0 and
+substreams-ethereum 0.12.0, whose generated messages are buffa 0.9.2 instead
+of prost. `proto/src/pb` is regenerated from `proto/v1` by `buf generate` in
+`proto/` (`buf.build/anthropics/buffa` v0.9.2, the SDK's options); package
+names and field numbers are unchanged. The port is mechanical: enum fields are
+`EnumValue<E>` (compared and sorted by their wire value as the `i32` was),
+singular messages are `MessageField<T>`, and oneof variants box their message.
+No package uses lazy views. `dex/pool-state` pins substreams-abis tag `v2.0.0`
+(pinax-network/substreams-abis#55) instead of `v1.5.0`. `evm-balances` uses `substreams-database-change` 5.0.0: the same
+rows, with `update_op = UPDATE_OP_SET` on every field. Its Makefile now builds
+the imported packages one at a time, so their module hashes equal the
+standalone packages'.
+
+Offline evidence (method and numbers in the PR): every package's output, error
+text included, is byte-identical to the pre-migration build on the 2,048
+captured BSC blocks 122,288,006–122,289,029 and 123,561,000–123,562,023, the
+committed fixtures and the inputs captured from the packages' own tests. `evm-balances` rows are identical; its encoding differs
+only by the added `update_op`. Decoded with substreams-sink-sql's own Go types,
+both encodings give the same table, key, operation and columns for every
+change, and they load identical rows into the embedded schema in
+clickhouse-local. WASM and module hashes changed with the new code: `bsc`
+`native_balances` `868ac202…`, `erc20_balances` `6539de92…`, `evm-balances`
+`db_out` `b737826f…`. Nothing was streamed, sunk or sent to RPC.
+
+Generic code from `proto` and `common/epochs` that `evm-balances` and the five
+balance-state packages instantiate embedded the absolute checkout path in the
+WASM, so their module hashes depended on where the repository was cloned. The
+package Makefiles (and the `dex/pool-state` README's build command) now pass
+`--remap-path-prefix=<repository root>=.`; with it every package's WASM is
+byte-identical when built from two different checkout directories, and only
+the six packages that embedded the path changed (`db_out` was `26a8a79c…`
+before the remap). The WASMs still embed paths under `CARGO_HOME` and the
+rustup toolchain, so a build by another user or on another machine can differ.
+
+Every handler decodes its input with buffa's default limits: 32 MiB of
+materialized repeated elements (`DEFAULT_ELEMENT_MEMORY_LIMIT`), 1,000,000
+unknown fields and recursion depth 100. prost had no element or unknown-field
+cap. A block over the budget makes the handler panic ("Unable to decode
+Protobuf data"), and the stream halts at that block in every package; the
+handler macro does not expose the limit. Measured on wasm32 over the 2,866
+distinct Extended blocks captured under `out/` and in the fixtures (blocks
+51,995,162–123,568,531), the highest charge is 3,356,560 bytes (10.0%, block
+123,561,615, 6.1 MB encoded) and the largest block (122,288,942, 11.3 MB)
+charges 9.5%. No block has unknown fields. Above 100 KB the charge is 0.48 of
+the encoded size at the median and 0.85 at most, so the budget would be
+reached at roughly 40 MB of encoded block for the densest observed
+composition (70 MB at the median). Probe the largest known BSC Extended blocks
+during qualification.

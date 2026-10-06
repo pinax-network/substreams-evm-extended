@@ -74,17 +74,41 @@ block surfaces the case for qualification. See the
 
 ## Parameters
 
-`map_events` takes a JSON object. Nothing about the producer or network is
-inferred from a block, and the block carries no chain id; the manifest binds
-the network and the parameters bind the producer version:
+`map_events` takes a JSON object, `{"producer_versions":[…]}`. Every block
+carries `Block.ver`, so the producer version needs no deriving: `map_events`
+checks it against this list. The network cannot be derived from a block:
+`Block`, `BlockHeader` and `TransactionTrace` carry no chain id; the Parlia
+header fingerprint identifies the consensus engine, not the chain (BSC testnet
+shares it); and EIP-155 signatures show chain 56 only in blocks with
+transactions (BSC block 123,550,024 has none). The manifest therefore binds
+the network and embeds the qualified list per known network:
 
-```json
-{"producer_versions":[5]}
+```yaml
+network: bsc
+networks:
+  bsc:
+    params:
+      map_events: '{"producer_versions":[5]}'
 ```
+
+- **No default params.** A network without an entry fails closed: the packed
+  spkg refuses to load (`missing 'initialBlock' value for module
+  "map_events"`), and the YAML runs with empty params, which `map_events`
+  rejects at the first block (`invalid native balance params`).
+- **Same module.** Under `bsc` the effective params are unchanged, so the
+  module hash equals the one of the former top-level `params:` (checked with
+  the same WASM before and after the move).
+- **Importers.** [`evm-balances`](../../evm-balances/README.md) inherits the
+  entry as `native_balances:map_events`. An importer keeps `network: bsc` (the
+  CLI resolves an import under the import's own default network unless
+  `--network` is passed) and sets no params for this module at its top level,
+  where this `networks:` entry silently wins.
+- **Overrides.** `-p map_events=…` still overrides the entry at run time and
+  changes the module hash.
 
 `producer_versions` lists the `Block.ver` values the caller has qualified for
 the manifest's network. It must be non-empty; unknown fields are rejected. The
-committed manifest uses `network: bsc` and version 5, the only version replayed
+`bsc` entry lists version 5, the only version replayed
 against saved RPC controls. Version 4 blocks reduce without projection errors
 in the saved-data replay but have no RPC oracle, so they are not enabled by
 default. Version 3 is never acceptable for this reducer: its tracer recorded
@@ -109,8 +133,12 @@ make -C native/balances gui        # or `prod`; streams from ENDPOINT
 No SPKG of this package is committed; the
 qualified build is identified by its WASM (`48d89d28…`) and module hash
 (`5a2a2e0c…`) below. `substreams pack` embeds this README, so a pack after a
-README edit has a new SPKG digest but the same module.
-[`clickhouse/`](clickhouse/README.md) runs the local manifest.
+README edit has a new SPKG digest but the same module. The current source does
+not build that WASM: its `make build` after the substreams 0.8.0 bump
+(2026-10-05) gives WASM `0bc2e2cf…` and, under `bsc`, module `868ac202…`,
+which is not live-qualified.
+[`evm-balances`](../../evm-balances/README.md) imports this manifest and writes
+its rows to ClickHouse.
 
 ## Live qualification (BSC, 2026-09-23)
 
@@ -187,26 +215,22 @@ ERC-20 campaign's block cache, not a native-specific RPC audit: only block
 37,086-check native audit ([legacy qualification](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/legacy-qualification.md))
 applies to the removed prototype package, not to this one.
 
-## Native sink
+## ClickHouse
 
-The [native ClickHouse sink](../../erc20/balances/clickhouse/README.md) derives
-one `Balance` table from `Events.balances`. Its mapping stores optional
-`contract` as `String`, so an absent native contract and an empty ERC-20
-contract are not distinguishable in SQL. Consume native and ERC-20 packages
-into separate databases or tables, or bind rows by package identity, before
-treating `contract = ''` as native. The sink's `_blocks_` markers list blocks
-with nonempty output only; completeness requires the stream's clock or cursor.
-
-[`clickhouse/`](clickhouse/README.md) deploys this package with the CLI's
-native sink. A materialized view feeds the legacy substreams-evm native tables
-(`native_balances`, `historical_native_balances`) from `Balance`, `_blocks_`
-serves as the block table, and a TTL expires the base rows. It has not been
-streamed live yet.
+[`evm-balances`](../../evm-balances/README.md) writes `native_balances`,
+`blocks` and the historical views of the substreams-evm schema through one
+`db_out`. The earlier CLI native-sink path (bridge view, `Balance` TTL, checks
+of 2026-10-03) is at
+[`cb62110`](https://github.com/pinax-network/substreams-evm-extended/tree/cb6211007f1f9d0cb5852a6b666da475a8fa6542/native/balances/clickhouse).
+Sinking `map_events` directly with the CLI's native sink stores optional
+`contract` as `String`, so native and ERC-20 rows would need separate
+databases or tables.
 
 ## Boundaries
 
 No RPC, no candidate discovery, no transfer events, no supply or burn
-interpretation, no wallet labels, no `db_out`, no custom sink, no global holder
+interpretation, no wallet labels, no `db_out` in this package
+([`evm-balances`](../../evm-balances/README.md) has it), no custom sink, no global holder
 enumeration. Initialization of untouched accounts, exact checkpoints, reorg
 completeness and the complete-block clock contract are shared under
 [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7).

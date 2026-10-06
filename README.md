@@ -13,14 +13,16 @@ implementation. Blocks without the required Extended data are rejected.
 the same protobuf: `Balance.contract` is absent and `amount` is the final
 persisted native balance of every account changed in the block. It ports the
 historical RPC-free native reducer. It was live-qualified on BSC on 2026-09-23
-(WASM `48d89d28…`, module `5a2a2e0c…`).
+(WASM `48d89d28…`, module `5a2a2e0c…`); the substreams 0.8.0 build of
+2026-10-05 (module `868ac202…`) is not.
 
-The [native ClickHouse sink supplied by the Substreams CLI](erc20/balances/clickhouse/README.md)
-consumes the protobuf directly. For native balances,
-[`native/balances/clickhouse`](native/balances/clickhouse/README.md) adds the
-legacy substreams-evm native tables, fed by a materialized view, and a TTL on
-the sink's base rows. This workspace contains no `db_out` module, custom
-ClickHouse/PostgreSQL sink, or database-change dependency.
+[`evm-balances`](evm-balances/README.md) imports both packages and writes the
+substreams-evm ClickHouse tables (`blocks`, `erc20_balances`,
+`native_balances` and the historical OHLC views) through one `db_out`, with
+upstream's SQL byte for byte embedded in its spkg. It is the workspace's only
+`db_out` and database-change dependency. The earlier per-package CLI
+native-sink paths are at
+[`cb62110`](https://github.com/pinax-network/substreams-evm-extended/tree/cb6211007f1f9d0cb5852a6b666da475a8fa6542).
 
 Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (state,
 evidence, open findings, next steps) and the procedures in [`skills/`](skills/README.md).
@@ -34,11 +36,12 @@ The shared schema stays in the repository-root `proto/` crate:
 - `proto/v1/erc20_events.proto`: ERC-20 event evidence schema (`erc20/events`).
 - `proto/v1/aave_actions.proto`: Aave lending-action evidence schema (`aave/actions`).
 - `proto/v1/dex-pool-state.proto` and `proto/v1/dex/`: wire-compatible V2/V3 closing-state messages (`dex/pool-state`), without unrelated ABI event projections.
-- `proto/src/pb/`: shared generated Rust types.
+- `proto/src/pb/`: shared generated Rust types (buffa, from `buf generate` in `proto/`).
 - `common/persist/`: shared persisted-effect rules for Extended blocks.
 - `erc20/balances/`: Extended-block ERC-20 balance module.
 - `erc20/events/`: standard ERC-20 Transfer and Approval log evidence.
 - `native/balances/`: Extended-block native balance module.
+- [`evm-balances/`](evm-balances/README.md): one `db_out` from `native/balances` and `erc20/balances` into the substreams-evm ClickHouse schema, which its spkg embeds.
 - `aave/balance-state/`: Aave V3 aToken holder basis and reserve state module.
 - `compound-v2/balance-state/`: Compound v2 cToken shares, market words, cash and rate-model dependency module.
 - `erc4626/balance-state/`: ERC-4626 vault shares, total supply and source-bound conversion inputs (Aave static aToken, Savings DAI, OpenZeppelin).
@@ -52,17 +55,21 @@ Keeping the schema separate from the module gives future Extended modules the
 same protobuf contract without copying generated types.
 
 Generic pool-state extraction is maintained in `dex/pool-state`; contract ABI
-sources and generated event structs remain in `substreams-abis`. The migration
-reuses the existing pinned dependency without a version change. Its new
-Extended-only package is checked offline; historical live evidence does not
-qualify the new input boundary or artifact digest. The owner's hold on
+sources and generated event structs remain in `substreams-abis`. With the
+substreams 0.8.0 bump the owner moved that pin from tag `v1.5.0` to tag
+`v2.0.0`, the release of its port to substreams 0.8.0
+(pinax-network/substreams-abis#55); the package's outputs on the captured
+blocks are unchanged. Its new Extended-only package is checked offline;
+historical live evidence does not qualify the new input boundary or artifact
+digest. The owner's hold on
 IVSpikes-associated source and RPC checks remains active until explicit
 reauthorization.
 
 ## Build and test
 
-The pinned Rust toolchain includes the WASM target. Building packages also
-requires the Substreams CLI.
+The pinned Rust toolchain includes the WASM target. The packages use
+substreams 0.8.0, substreams-ethereum 0.12.0 and buffa 0.9.2. Building
+packages also requires the Substreams CLI.
 
 ```sh
 cargo test --workspace --lib --bins --tests --locked

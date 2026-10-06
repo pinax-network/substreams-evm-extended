@@ -11,9 +11,12 @@ lists or RPC calls.
 
 This module requires Firehose Extended blocks. It lives in
 `substreams-evm-extended` so Extended-only processing stays separate from the
-original repository. The [native Substreams ClickHouse sink](clickhouse/README.md)
-consumes these Events directly. No `db_out` module or custom database sink is
-part of this workspace. [Migration provenance](../../docs/migration.md) distinguishes
+original repository. [`evm-balances`](../../evm-balances/README.md) imports this
+manifest and writes its rows into the substreams-evm `erc20_balances` table and
+views; this package has no `db_out`. The earlier CLI native-sink path and its
+smoke evidence are at
+[`cb62110`](https://github.com/pinax-network/substreams-evm-extended/tree/cb6211007f1f9d0cb5852a6b666da475a8fa6542/erc20/balances/clickhouse).
+[Migration provenance](../../docs/migration.md) distinguishes
 the preserved historical package from the package built in this repository.
 
 ## Rules

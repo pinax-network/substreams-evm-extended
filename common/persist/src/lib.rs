@@ -70,16 +70,16 @@ pub trait Sink {
 }
 
 pub fn is_failed(trx: &TransactionTrace) -> bool {
-    !matches!(trx.status(), TransactionTraceStatus::Succeeded)
+    trx.status != TransactionTraceStatus::Succeeded
 }
 
 pub fn is_gas_reason(bc: &BalanceChange) -> bool {
-    matches!(bc.reason(), Reason::GasBuy | Reason::GasRefund | Reason::RewardTransactionFee)
+    matches!(bc.reason.as_known(), Some(Reason::GasBuy | Reason::GasRefund | Reason::RewardTransactionFee))
 }
 
 fn balance_is_noop(bc: &BalanceChange) -> bool {
-    let old = bc.old_value.as_ref().map(|v| v.bytes.as_slice()).unwrap_or(&[]);
-    let new = bc.new_value.as_ref().map(|v| v.bytes.as_slice()).unwrap_or(&[]);
+    let old = bc.old_value.as_option().map(|v| v.bytes.as_slice()).unwrap_or(&[]);
+    let new = bc.new_value.as_option().map(|v| v.bytes.as_slice()).unwrap_or(&[]);
     strip_zeros(old) == strip_zeros(new)
 }
 
@@ -97,7 +97,7 @@ fn storage_is_noop(sc: &StorageChange) -> bool {
 
 /// Non-discarded EIP-7702 authorities of a SetCode transaction.
 pub fn authorities(trx: &TransactionTrace) -> HashSet<Vec<u8>> {
-    if trx.r#type() != TxType::TrxTypeSetCode {
+    if trx.r#type != TxType::TrxTypeSetCode {
         return HashSet::new();
     }
     trx.set_code_authorizations
@@ -134,7 +134,8 @@ fn emit_call_all(call: &Call, ctx: Ctx, out: &mut impl Sink) {
 }
 
 pub fn collect_transaction(trx: &TransactionTrace, out: &mut impl Sink) -> Result<(), Error> {
-    let status = trx.status() as i32;
+    // As prost's `status()` accessor did, an unknown status reads as UNKNOWN (0).
+    let status = trx.status.as_known().unwrap_or_default() as i32;
     let base = |scope: Scope, call_index: u32| Ctx {
         scope,
         tx_hash: &trx.hash,
@@ -237,7 +238,7 @@ pub fn collect_block(block: &Block, out: &mut impl Sink) -> Result<(), Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use prost::Message;
+    use buffa::Message;
     use substreams_ethereum::pb::eth::v2::{BigInt, SetCodeAuthorization};
 
     #[derive(Default)]
@@ -252,7 +253,7 @@ mod tests {
             self.storage.push((c.address.clone(), c.ordinal, ctx.scope))
         }
         fn balance(&mut self, c: &BalanceChange, ctx: Ctx) {
-            self.balance.push((c.address.clone(), c.reason, ctx.scope))
+            self.balance.push((c.address.clone(), c.reason.to_i32(), ctx.scope))
         }
         fn nonce(&mut self, c: &NonceChange, ctx: Ctx) {
             self.nonce.push((c.address.clone(), c.new_value, ctx.scope))
@@ -270,9 +271,9 @@ mod tests {
     fn bal(addr: u8, reason: Reason, ord: u64, old: u64, new: u64) -> BalanceChange {
         BalanceChange {
             address: vec![addr; 20],
-            old_value: big(old),
-            new_value: big(new),
-            reason: reason as i32,
+            old_value: big(old).into(),
+            new_value: big(new).into(),
+            reason: reason.into(),
             ordinal: ord,
         }
     }
@@ -307,7 +308,7 @@ mod tests {
     #[test]
     fn succeeded_tx_keeps_non_reverted_calls_only() {
         let trx = TransactionTrace {
-            status: TransactionTraceStatus::Succeeded as i32,
+            status: TransactionTraceStatus::Succeeded.into(),
             calls: vec![
                 Call {
                     index: 0,
@@ -336,7 +337,7 @@ mod tests {
     #[test]
     fn failed_tx_keeps_gas_and_sender_nonce_only() {
         let trx = TransactionTrace {
-            status: TransactionTraceStatus::Reverted as i32,
+            status: TransactionTraceStatus::Reverted.into(),
             from: vec![0xA; 20],
             nonce: 7,
             calls: vec![
@@ -377,10 +378,10 @@ mod tests {
     #[test]
     fn failed_7702_tx_keeps_authority_nonce_and_code() {
         let trx = TransactionTrace {
-            status: TransactionTraceStatus::Failed as i32,
+            status: TransactionTraceStatus::Failed.into(),
             from: vec![0xA; 20],
             nonce: 7,
-            r#type: TxType::TrxTypeSetCode as i32,
+            r#type: TxType::TrxTypeSetCode.into(),
             set_code_authorizations: vec![
                 SetCodeAuthorization {
                     authority: Some(vec![0xB; 20]),
@@ -415,7 +416,7 @@ mod tests {
     #[test]
     fn failed_sender_selection_ignores_zero_ordinals_and_other_accounts() {
         let trx = TransactionTrace {
-            status: TransactionTraceStatus::Reverted as i32,
+            status: TransactionTraceStatus::Reverted.into(),
             from: vec![0xA; 20],
             nonce: 7,
             calls: vec![Call {
@@ -440,8 +441,8 @@ mod tests {
         clear.new_hash = vec![];
         clear.new_code = vec![];
         let trx = TransactionTrace {
-            status: TransactionTraceStatus::Failed as i32,
-            r#type: TxType::TrxTypeSetCode as i32,
+            status: TransactionTraceStatus::Failed.into(),
+            r#type: TxType::TrxTypeSetCode.into(),
             from: vec![0xA; 20],
             nonce: 7,
             set_code_authorizations: vec![
@@ -506,8 +507,8 @@ mod tests {
     #[test]
     fn ambiguous_failed_authorization_boundary_is_rejected() {
         let trx = TransactionTrace {
-            status: TransactionTraceStatus::Failed as i32,
-            r#type: TxType::TrxTypeSetCode as i32,
+            status: TransactionTraceStatus::Failed.into(),
+            r#type: TxType::TrxTypeSetCode.into(),
             set_code_authorizations: vec![SetCodeAuthorization {
                 authority: Some(vec![0xA; 20]),
                 ..Default::default()
@@ -539,9 +540,9 @@ mod tests {
         let sender = hex::decode("d52573f6d4f68d8e7f8fe2ed50a1023c5f6fe82a").unwrap();
         let authority = hex::decode("417204ea716dfc4427bf9883521c820b036cdb7a").unwrap();
         for (bytes, sender_nonce, authority_nonce, status) in samples {
-            let tx = TransactionTrace::decode(bytes).unwrap();
-            assert_eq!(tx.status, status);
-            assert_eq!(tx.r#type(), TxType::TrxTypeSetCode);
+            let tx = TransactionTrace::decode_from_slice(bytes).unwrap();
+            assert_eq!(tx.status.to_i32(), status);
+            assert_eq!(tx.r#type, TxType::TrxTypeSetCode);
             assert!(tx.calls[0].state_reverted);
             let mut r = Rec::default();
             collect_transaction(&tx, &mut r).unwrap();

@@ -87,10 +87,10 @@ impl persist::Sink for Collected {
     fn balance(&mut self, c: &eth::BalanceChange, ctx: persist::Ctx) {
         self.records.push(Record {
             address: c.address.clone(),
-            old_value: c.old_value.as_ref().map(|v| v.bytes.clone()),
-            new_value: c.new_value.as_ref().map(|v| v.bytes.clone()),
+            old_value: c.old_value.as_option().map(|v| v.bytes.clone()),
+            new_value: c.new_value.as_option().map(|v| v.bytes.clone()),
             ordinal: c.ordinal,
-            reason: c.reason,
+            reason: c.reason.to_i32(),
             scope: ctx.scope,
         });
     }
@@ -115,15 +115,12 @@ fn amount(word: &[u8; 32]) -> String {
 }
 
 pub fn validate_block(block: &eth::Block, params: &Params) -> Result<(), Error> {
-    require(
-        block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32,
-        "Extended blocks required",
-    )?;
+    require(block.detail_level == eth::block::DetailLevel::DetaillevelExtended, "Extended blocks required")?;
     require(
         params.producer_versions.contains(&block.ver),
         "Extended producer version not qualified for native balances",
     )?;
-    let header = block.header.as_ref().ok_or_else(|| Error::msg("missing header"))?;
+    let header = block.header.as_option().ok_or_else(|| Error::msg("missing header"))?;
     require(
         block.hash.len() == 32 && header.parent_hash.len() == 32 && header.state_root.len() == 32,
         "invalid block identity",
@@ -133,7 +130,10 @@ pub fn validate_block(block: &eth::Block, params: &Params) -> Result<(), Error> 
     // block; supporting them needs a documented producer fixture first.
     require(block.number > 0, "genesis block not qualified for native balances")?;
     for tx in &block.transaction_traces {
-        require((1..=3).contains(&tx.status) && !tx.calls.is_empty(), "incomplete transaction persistence data")?;
+        require(
+            (1..=3).contains(&tx.status.to_i32()) && !tx.calls.is_empty(),
+            "incomplete transaction persistence data",
+        )?;
     }
     Ok(())
 }
@@ -156,8 +156,7 @@ fn validate_failed_transaction_reasons(block: &eth::Block) -> Result<(), Error> 
     for tx in block.transaction_traces.iter().filter(|tx| persist::is_failed(tx)) {
         let Some(root) = tx.calls.first() else { continue };
         for change in &root.balance_changes {
-            let pinned =
-                persist::is_gas_reason(change) || eth::balance_change::Reason::try_from(change.reason).is_ok_and(|r| REVERTIBLE_FAILED_REASONS.contains(&r));
+            let pinned = persist::is_gas_reason(change) || change.reason.as_known().is_some_and(|r| REVERTIBLE_FAILED_REASONS.contains(&r));
             require(
                 pinned,
                 "failed transaction carries a balance-change reason without pinned persistence semantics",

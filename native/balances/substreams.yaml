@@ -19,8 +19,12 @@ modules:
       - source: sf.ethereum.type.v2.Block
     output:
       type: proto:evm.balances.v1.Events
-params:
-  # Only the Extended producer version replayed from saved BSC fixtures. Other
-  # producer versions and networks require their own qualification (#8).
-  map_events: '{"producer_versions":[5]}'
 network: bsc
+# Qualified Extended producer versions (Block.ver) per network. There are no
+# default params: a network without an entry fails closed (the packed spkg
+# refuses to load; this YAML runs with empty params, which map_events rejects
+# at the first block). Add a network only with its own qualification (#8).
+networks:
+  bsc:
+    params:
+      map_events: '{"producer_versions":[5]}'

@@ -13,12 +13,16 @@ fn block(number: u64) -> eth::Block {
         ver: 5,
         number,
         hash: vec![1; 32],
-        detail_level: eth::block::DetailLevel::DetaillevelExtended as i32,
-        header: Some(eth::BlockHeader {
+        detail_level: eth::block::DetailLevel::DetaillevelExtended.into(),
+        header: buffa::MessageField::some(eth::BlockHeader {
             number,
             parent_hash: vec![2; 32],
             state_root: vec![3; 32],
-            timestamp: Some(prost_types::Timestamp { seconds: 1789689600, nanos: 0 }),
+            timestamp: buffa::MessageField::some(buffa_types::google::protobuf::Timestamp {
+                seconds: 1789689600,
+                nanos: 0,
+                ..Default::default()
+            }),
             ..Default::default()
         }),
         ..Default::default()
@@ -26,7 +30,7 @@ fn block(number: u64) -> eth::Block {
 }
 fn tx(call: eth::Call) -> eth::TransactionTrace {
     eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Succeeded as i32,
+        status: eth::TransactionTraceStatus::Succeeded.into(),
         hash: vec![7; 32],
         index: 9,
         calls: vec![call],
@@ -64,7 +68,7 @@ fn shares_call(holder: &[u8], old: u128, new: u128, ordinal: u64) -> eth::Call {
     eth::Call {
         index: 1,
         address: e.steth.clone(),
-        keccak_preimages: [preimage(holder, &e.shares_slot)].into(),
+        keccak_preimages: [preimage(holder, &e.shares_slot)].into_iter().collect(),
         storage_changes: vec![write(mapping_key(holder, &e.shares_slot), w(old), w(new), ordinal)],
         ..Default::default()
     }
@@ -73,7 +77,7 @@ fn fields(events: &pb::Events) -> Vec<(i32, String, String, i32)> {
     events
         .global_state
         .iter()
-        .map(|g| (g.field, g.previous_value.clone(), g.value.clone(), g.observation))
+        .map(|g| (g.field.to_i32(), g.previous_value.clone(), g.value.clone(), g.observation.to_i32()))
         .collect()
 }
 
@@ -120,7 +124,7 @@ fn share_writes_are_holder_rows_and_packed_words_split_low_and_high() {
     assert_eq!(events.holder_basis.len(), 1);
     let h = &events.holder_basis[0];
     assert_eq!(
-        (&*h.previous_value, &*h.value, h.basis_kind, h.bit_width),
+        (&*h.previous_value, &*h.value, h.basis_kind.to_i32(), h.bit_width),
         ("1000", "1500", pb::BasisKind::Shares as i32, 256)
     );
     assert_eq!(
@@ -175,15 +179,11 @@ fn a_report_derives_total_pooled_ether_only_when_every_input_word_was_written() 
         ..Default::default()
     })];
     let events = project(&b, &cfg).unwrap();
-    let derived: Vec<_> = events
-        .global_state
-        .iter()
-        .filter(|g| g.observation == pb::Observation::Derived as i32)
-        .collect();
+    let derived: Vec<_> = events.global_state.iter().filter(|g| g.observation == pb::Observation::Derived).collect();
     assert_eq!(derived.len(), 1);
     assert_eq!(
         (
-            derived[0].field,
+            derived[0].field.to_i32(),
             &*derived[0].value,
             derived[0].ordinal,
             derived[0].first_ordinal,
@@ -206,7 +206,7 @@ fn a_report_derives_total_pooled_ether_only_when_every_input_word_was_written() 
         events
             .global_state
             .iter()
-            .find(|g| g.field == pb::StateField::LidoTotalPooledEther as i32)
+            .find(|g| g.field == pb::StateField::LidoTotalPooledEther)
             .unwrap()
             .value,
         "201"
@@ -222,7 +222,7 @@ fn a_report_derives_total_pooled_ether_only_when_every_input_word_was_written() 
         ..Default::default()
     })];
     let events = project(&b, &cfg).unwrap();
-    assert!(events.global_state.iter().all(|g| g.field != pb::StateField::LidoTotalPooledEther as i32));
+    assert!(events.global_state.iter().all(|g| g.field != pb::StateField::LidoTotalPooledEther));
     assert_eq!(events.global_state.len(), 6);
 }
 
@@ -247,19 +247,11 @@ fn derived_total_wraps_external_product_before_division() {
     // N=2^128: ((2N-2)*(N-3) mod 2^256)/2 + (2N-2)
     // = 2^255 - 2N + 1. The unbounded final result also fits uint256.
     let expected: BigInt = (BigInt::from(1) << 255u32) - (BigInt::from(1) << 129u32) + BigInt::from(1);
-    let derived: Vec<_> = events
-        .global_state
-        .iter()
-        .filter(|g| g.observation == pb::Observation::Derived as i32)
-        .collect();
+    let derived: Vec<_> = events.global_state.iter().filter(|g| g.observation == pb::Observation::Derived).collect();
     assert_eq!(derived.len(), 1);
     assert_eq!(derived[0].value, expected.to_string());
     assert_eq!(
-        events
-            .global_state
-            .iter()
-            .filter(|g| g.observation == pb::Observation::ObservedWrite as i32)
-            .count(),
+        events.global_state.iter().filter(|g| g.observation == pb::Observation::ObservedWrite).count(),
         6
     );
 }
@@ -268,7 +260,7 @@ fn derived_total_wraps_external_product_before_division() {
 fn derived_total_omits_checked_addition_failure_and_preserves_six_raw_facts() {
     let half = 1u128 << 127;
     let events = extreme_globals(half + 1, half);
-    assert!(events.global_state.iter().all(|g| g.observation != pb::Observation::Derived as i32));
+    assert!(events.global_state.iter().all(|g| g.observation != pb::Observation::Derived));
     assert_eq!(events.global_state.len(), 6);
     for (field, expected) in [
         (pb::StateField::LidoTotalShares, half + 1),
@@ -278,9 +270,9 @@ fn derived_total_omits_checked_addition_failure_and_preserves_six_raw_facts() {
         (pb::StateField::LidoClValidatorsBalance, 0),
         (pb::StateField::LidoClPendingBalance, 0),
     ] {
-        let row = events.global_state.iter().find(|g| g.field == field as i32).unwrap();
+        let row = events.global_state.iter().find(|g| g.field.to_i32() == field as i32).unwrap();
         assert_eq!(row.value, expected.to_string());
-        assert_eq!(row.observation, pb::Observation::ObservedWrite as i32);
+        assert_eq!(row.observation, pb::Observation::ObservedWrite);
         assert_eq!(row.raw_word.len(), 32);
     }
 }
@@ -303,12 +295,12 @@ fn token_rebased_logs_are_report_evidence_from_succeeded_transactions_only() {
         ordinal: 77,
     };
     let mut t = tx(eth::Call::default());
-    t.receipt = Some(eth::TransactionReceipt {
+    t.receipt = buffa::MessageField::some(eth::TransactionReceipt {
         logs: vec![log.clone()],
         ..Default::default()
     });
     let mut failed = t.clone();
-    failed.status = eth::TransactionTraceStatus::Failed as i32;
+    failed.status = eth::TransactionTraceStatus::Failed.into();
     failed.hash = vec![8; 32];
     b.transaction_traces = vec![t, failed];
     let events = project(&b, &cfg).unwrap();
@@ -325,7 +317,7 @@ fn token_rebased_logs_are_report_evidence_from_succeeded_transactions_only() {
         (
             events.global_state[0].log_index,
             events.global_state[0].ordinal,
-            events.global_state[0].boundary
+            events.global_state[0].boundary.to_i32()
         ),
         (4, 77, pb::Boundary::Change as i32)
     );
@@ -333,7 +325,7 @@ fn token_rebased_logs_are_report_evidence_from_succeeded_transactions_only() {
     let mut other = log.clone();
     other.address = vec![5; 20];
     let mut t = tx(eth::Call::default());
-    t.receipt = Some(eth::TransactionReceipt {
+    t.receipt = buffa::MessageField::some(eth::TransactionReceipt {
         logs: vec![other],
         ..Default::default()
     });
@@ -342,7 +334,7 @@ fn token_rebased_logs_are_report_evidence_from_succeeded_transactions_only() {
     let mut short = log;
     short.data.truncate(5 * 32);
     let mut t = tx(eth::Call::default());
-    t.receipt = Some(eth::TransactionReceipt {
+    t.receipt = buffa::MessageField::some(eth::TransactionReceipt {
         logs: vec![short],
         ..Default::default()
     });
@@ -368,7 +360,7 @@ fn version_and_code_changes_invalidate_and_unknown_writes_fail_closed() {
     // that remains qualified at the end of the block.
     assert_eq!((events.global_state.len(), events.epochs.len()), (0, 1));
     assert_eq!(
-        (events.epochs[0].reason, &events.epochs[0].evidence_previous_word),
+        (events.epochs[0].reason.to_i32(), &events.epochs[0].evidence_previous_word),
         (pb::InvalidationReason::ContractVersionSet as i32, &w(3).to_vec())
     );
     b.transaction_traces = vec![tx(eth::Call {
@@ -378,7 +370,11 @@ fn version_and_code_changes_invalidate_and_unknown_writes_fail_closed() {
     })];
     let events = project(&b, &cfg).unwrap();
     assert_eq!(
-        (events.epochs[0].kind, events.epochs[0].reason, &events.epochs[0].evidence_word),
+        (
+            events.epochs[0].kind.to_i32(),
+            events.epochs[0].reason.to_i32(),
+            &events.epochs[0].evidence_word
+        ),
         (
             pb::EpochEventKind::Invalidated as i32,
             pb::InvalidationReason::ContractVersionSet as i32,
@@ -400,7 +396,7 @@ fn version_and_code_changes_invalidate_and_unknown_writes_fail_closed() {
             ..Default::default()
         })];
         let events = project(&b, &cfg).unwrap();
-        assert_eq!((events.epochs.len(), events.epochs[0].reason), (1, reason as i32));
+        assert_eq!((events.epochs.len(), events.epochs[0].reason.to_i32()), (1, reason as i32));
     }
     // Pre-V3 total shares slot, or any unknown key, refuses the block.
     b.transaction_traces = vec![tx(eth::Call {
@@ -417,7 +413,9 @@ fn version_and_code_changes_invalidate_and_unknown_writes_fail_closed() {
     p2[32..].copy_from_slice(&owner);
     b.transaction_traces = vec![tx(eth::Call {
         address: e.steth.clone(),
-        keccak_preimages: [preimage(&[4; 20], &e.other_mapping_slots[0]), (hex::encode(spender), hex::encode(p2))].into(),
+        keccak_preimages: [preimage(&[4; 20], &e.other_mapping_slots[0]), (hex::encode(spender), hex::encode(p2))]
+            .into_iter()
+            .collect(),
         storage_changes: vec![
             write(spender, w(0), w(9), 10),
             write(keccak(b"aragonOS.reentrancyGuard.mutex"), w(0), w(1), 11),
@@ -452,11 +450,17 @@ fn activation_binds_the_epoch_and_parameters_fail_closed() {
     let events = project(&block(1), &cfg).unwrap();
     let ep = &events.epochs[0];
     assert_eq!(
-        (ep.family, ep.basis_kind, &*ep.implementation_revision, ep.balance_decimals, ep.global_carryover),
+        (
+            ep.family.to_i32(),
+            ep.basis_kind.to_i32(),
+            &*ep.implementation_revision,
+            ep.balance_decimals,
+            ep.global_carryover
+        ),
         (pb::ModelFamily::LidoSteth as i32, pb::BasisKind::Shares as i32, "4", 18, false)
     );
     // Sorted by the proto key (market, epoch, depth, role, contract).
-    let roles: Vec<(u32, i32)> = events.dependencies.iter().map(|d| (d.depth, d.role)).collect();
+    let roles: Vec<(u32, i32)> = events.dependencies.iter().map(|d| (d.depth, d.role.to_i32())).collect();
     assert_eq!(
         roles,
         vec![
@@ -471,7 +475,7 @@ fn activation_binds_the_epoch_and_parameters_fail_closed() {
     let constant = &events.global_state[0];
     assert_eq!((&constant.storage_contract, constant.storage_slot.is_empty()), (&e.implementation, true));
     assert!(project(&block(2), &cfg).unwrap().epochs.is_empty());
-    assert_eq!(project(&block(1001), &cfg).unwrap().epochs[0].kind, pb::EpochEventKind::Reaffirmed as i32);
+    assert_eq!(project(&block(1001), &cfg).unwrap().epochs[0].kind, pb::EpochEventKind::Reaffirmed);
     assert!(parse(r#"{"chain_id":1,"producer_versions":[5],"epochs":[]}"#).unwrap().epochs.is_empty());
     let mutate = |f: &dyn Fn(&mut serde_json::Value)| {
         let mut v: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
@@ -491,7 +495,7 @@ fn activation_binds_the_epoch_and_parameters_fail_closed() {
 
 #[test]
 fn shared_hardening_rules_hold_for_steth() {
-    use prost::Message;
+    use buffa::Message;
     let cfg = config();
     let e = epoch();
     let holder = [9u8; 20];
@@ -501,7 +505,7 @@ fn shared_hardening_rules_hold_for_steth() {
     let mutex = keccak(b"aragonOS.reentrancyGuard.mutex");
     let mut b = block(10);
     b.transaction_traces = vec![eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Succeeded as i32,
+        status: eth::TransactionTraceStatus::Succeeded.into(),
         hash: vec![7; 32],
         index: 9,
         calls: vec![
@@ -514,9 +518,9 @@ fn shared_hardening_rules_hold_for_steth() {
                 index: 1,
                 parent_index: 0,
                 depth: 1,
-                call_type: eth::CallType::Delegate as i32,
+                call_type: eth::CallType::Delegate.into(),
                 address: e.implementation.clone(),
-                keccak_preimages: [preimage(&holder, &e.shares_slot)].into(),
+                keccak_preimages: [preimage(&holder, &e.shares_slot)].into_iter().collect(),
                 storage_changes: vec![write(mutex, w(0), w(1), 10), write(key, w(1), w(2), 11), write(mutex, w(1), w(0), 12)],
                 ..Default::default()
             },
@@ -535,12 +539,12 @@ fn shared_hardening_rules_hold_for_steth() {
     // FAILED and REVERTED transactions contribute nothing; status 0 is refused.
     for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
         let mut t = tx(shares_call(&holder, 1, 2, 10));
-        t.status = status as i32;
+        t.status = status.into();
         b.transaction_traces = vec![t];
         assert!(project(&b, &cfg).unwrap().holder_basis.is_empty());
     }
     let mut t = tx(eth::Call::default());
-    t.status = 0;
+    t.status = 0.into();
     b.transaction_traces = vec![t];
     assert!(project(&b, &cfg).unwrap_err().to_string().contains("incomplete transaction"));
     // Blocks before activation emit only the clock.
@@ -635,17 +639,17 @@ fn aragon_resolution_is_explicitly_bound_and_cannot_be_ignored_in_parameters() {
                 .iter()
                 .find(|d| d.pointer_contract == address && d.pointer_slot == key)
                 .unwrap();
-            assert_eq!(edge.kind, kind as i32);
-            assert_eq!(edge.binding, pb::BindingKind::StoragePointer as i32);
+            assert_eq!(edge.kind.to_i32(), kind as i32);
+            assert_eq!(edge.binding, pb::BindingKind::StoragePointer);
             assert_eq!(edge.pointer_value, expected);
             assert_eq!(edge.contract, expected[12..]);
             assert_eq!(edge.source_pin, format!("{}; {}", e.source_pin, e.aragon.source_pin));
             assert!(edge.code_hash.is_empty()); // Source bindings are not runtime qualification.
             if address == e.steth {
-                assert_eq!((edge.role, edge.depth), (pb::DependencyRole::Beacon as i32, 1));
+                assert_eq!((edge.role.to_i32(), edge.depth), (pb::DependencyRole::Beacon as i32, 1));
                 assert!(edge.parent.is_empty());
             } else {
-                assert_eq!((edge.role, edge.depth), (pb::DependencyRole::Implementation as i32, 2));
+                assert_eq!((edge.role.to_i32(), edge.depth), (pb::DependencyRole::Implementation as i32, 2));
                 assert_eq!(edge.parent, e.aragon.kernel);
             }
         }
@@ -701,8 +705,8 @@ fn every_resolution_write_invalidates_even_when_restored_or_rebound_to_expected(
         assert_eq!(events.epochs.len(), 2);
         assert!(events.holder_basis.is_empty() && events.global_state.is_empty());
         for (i, row) in events.epochs.iter().enumerate() {
-            assert_eq!(row.kind, pb::EpochEventKind::Invalidated as i32);
-            assert_eq!(row.reason, reason as i32);
+            assert_eq!(row.kind, pb::EpochEventKind::Invalidated);
+            assert_eq!(row.reason.to_i32(), reason as i32);
             assert_eq!(row.evidence_contract, address);
             assert_eq!(row.evidence_slot, key);
             assert_eq!(row.ordinal, if i == 0 { 10 } else { 20 });
@@ -731,7 +735,7 @@ fn every_resolution_write_invalidates_even_when_restored_or_rebound_to_expected(
     let events = project(&b, &cfg).unwrap();
     assert!(events.global_state.is_empty());
     // Both writes are evidence: the excursion 4 -> 5 -> 4 is not hidden.
-    let evidence: Vec<(u64, i32, Vec<u8>)> = events.epochs.iter().map(|x| (x.ordinal, x.reason, x.evidence_word.clone())).collect();
+    let evidence: Vec<(u64, i32, Vec<u8>)> = events.epochs.iter().map(|x| (x.ordinal, x.reason.to_i32(), x.evidence_word.clone())).collect();
     assert_eq!(
         evidence,
         vec![
@@ -754,7 +758,7 @@ fn resolution_guards_follow_persistence_and_refuse_bad_ordering() {
         let mut b = block(10);
         for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
             let mut failed = tx(call.clone());
-            failed.status = status as i32;
+            failed.status = status.into();
             b.transaction_traces = vec![failed];
             assert!(project(&b, &cfg).unwrap().epochs.is_empty());
         }
@@ -764,7 +768,7 @@ fn resolution_guards_follow_persistence_and_refuse_bad_ordering() {
         assert!(project(&b, &cfg).unwrap().epochs.is_empty());
         b.transaction_traces.clear();
         b.system_calls = vec![call.clone()];
-        assert_eq!(project(&b, &cfg).unwrap().epochs[0].scope, pb::Scope::SystemCall as i32);
+        assert_eq!(project(&b, &cfg).unwrap().epochs[0].scope, pb::Scope::SystemCall);
         b.system_calls.clear();
         for (second_old, ordinal, message) in [(w(7), 10, "ambiguous"), (w(8), 20, "discontinuous")] {
             let mut bad = call.clone();
@@ -791,7 +795,7 @@ fn resolution_guards_follow_persistence_and_refuse_bad_ordering() {
 
 #[test]
 fn dependency_code_changes_invalidate_with_deterministic_evidence() {
-    use prost::Message;
+    use buffa::Message;
     let cfg = config();
     let e = &cfg.epochs[0];
     let mut b = block(10);
@@ -821,11 +825,11 @@ fn dependency_code_changes_invalidate_with_deterministic_evidence() {
             pb::InvalidationReason::DependencyCodeChange
         };
         assert_eq!(events.epochs.len(), 1);
-        assert_eq!(events.epochs[0].reason, reason as i32);
+        assert_eq!(events.epochs[0].reason.to_i32(), reason as i32);
         assert_eq!(events.epochs[0].evidence_contract, *address);
         assert_eq!(events.epochs[0].evidence_code_hash, vec![2; 32]);
         for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
-            b.transaction_traces[0].status = status as i32;
+            b.transaction_traces[0].status = status.into();
             assert!(project(&b, &cfg).unwrap().epochs.is_empty());
         }
         b.transaction_traces = vec![tx(eth::Call {
@@ -835,7 +839,7 @@ fn dependency_code_changes_invalidate_with_deterministic_evidence() {
         assert!(project(&b, &cfg).unwrap().epochs.is_empty());
         b.transaction_traces.clear();
         b.system_calls = vec![call.clone()];
-        assert_eq!(project(&b, &cfg).unwrap().epochs[0].scope, pb::Scope::SystemCall as i32);
+        assert_eq!(project(&b, &cfg).unwrap().epochs[0].scope, pb::Scope::SystemCall);
         b.system_calls.clear();
         codes.extend(call.code_changes);
     }
@@ -844,14 +848,14 @@ fn dependency_code_changes_invalidate_with_deterministic_evidence() {
     b.code_changes = codes;
     let original = project(&b, &cfg).unwrap();
     assert_eq!(original.epochs.len(), 5);
-    assert!(original.epochs.iter().all(|e| e.scope == pb::Scope::Block as i32));
+    assert!(original.epochs.iter().all(|e| e.scope == pb::Scope::Block));
     b.code_changes.reverse();
     assert_eq!(original.encode_to_vec(), project(&b, &cfg).unwrap().encode_to_vec());
 }
 
 #[test]
 fn shared_kernel_guards_are_attributed_to_every_affected_market() {
-    use prost::Message;
+    use buffa::Message;
     let mut v: serde_json::Value = serde_json::from_str(EPOCH).unwrap();
     let mut second = v["epochs"][0].clone();
     second["steth"] = format!("0x{}", hex::encode([0x22; 20])).into();
@@ -919,17 +923,20 @@ fn validate_block_refusals_provenance_and_multi_epoch_attribution() {
     let cases: Vec<(&str, Mutation)> = vec![
         (
             "Extended blocks required",
-            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32),
+            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase.into()),
         ),
         ("producer version", Box::new(|b| b.ver = 3)),
-        ("missing header", Box::new(|b| b.header = None)),
+        ("missing header", Box::new(|b| b.header = buffa::MessageField::none())),
         ("invalid block identity", Box::new(|b| b.hash = vec![1; 31])),
-        ("invalid block identity", Box::new(|b| b.header.as_mut().unwrap().parent_hash = vec![])),
-        ("header number mismatch", Box::new(|b| b.header.as_mut().unwrap().number += 1)),
-        ("missing timestamp", Box::new(|b| b.header.as_mut().unwrap().timestamp = None)),
+        ("invalid block identity", Box::new(|b| b.header.as_option_mut().unwrap().parent_hash = vec![])),
+        ("header number mismatch", Box::new(|b| b.header.as_option_mut().unwrap().number += 1)),
+        (
+            "missing timestamp",
+            Box::new(|b| b.header.as_option_mut().unwrap().timestamp = buffa::MessageField::none()),
+        ),
         (
             "negative timestamp",
-            Box::new(|b| b.header.as_mut().unwrap().timestamp.as_mut().unwrap().seconds = -1),
+            Box::new(|b| b.header.as_option_mut().unwrap().timestamp.as_option_mut().unwrap().seconds = -1),
         ),
     ];
     for (message, apply) in cases {
@@ -971,7 +978,7 @@ fn validate_block_refusals_provenance_and_multi_epoch_attribution() {
     let mut other_tx = tx(eth::Call {
         index: 1,
         address: other.clone(),
-        keccak_preimages: [preimage(&holder, &e.shares_slot)].into(),
+        keccak_preimages: [preimage(&holder, &e.shares_slot)].into_iter().collect(),
         storage_changes: vec![eth::StorageChange {
             address: other.clone(),
             key: key.to_vec(),
@@ -1036,16 +1043,16 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
     kernel_call.logs = vec![];
     let mut t = tx(call);
     t.calls.push(kernel_call);
-    t.receipt = Some(eth::TransactionReceipt {
+    t.receipt = buffa::MessageField::some(eth::TransactionReceipt {
         logs: vec![rebased(70)],
         ..Default::default()
     });
     let mut b = block(10);
     b.transaction_traces = vec![t];
     let events = project(&b, &cfg).unwrap();
-    assert!(events.epochs.iter().all(|ep| ep.kind != pb::EpochEventKind::Invalidated as i32));
+    assert!(events.epochs.iter().all(|ep| ep.kind != pb::EpochEventKind::Invalidated));
     // The report log at ordinal 70 predates the epoch and is not its evidence.
-    assert!(events.global_state.iter().all(|g| g.observation != pb::Observation::ObservedLog as i32));
+    assert!(events.global_state.iter().all(|g| g.observation != pb::Observation::ObservedLog));
     assert_eq!(events.holder_basis.len(), 1);
     assert_eq!(
         (
@@ -1055,7 +1062,7 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
         ),
         ("2", "9", 150)
     );
-    let bound = events.epochs.iter().find(|ep| ep.kind == pb::EpochEventKind::Bound as i32).unwrap();
+    let bound = events.epochs.iter().find(|ep| ep.kind == pb::EpochEventKind::Bound).unwrap();
     assert_eq!((bound.activation_ordinal, bound.ordinal), (100, 100));
     // After the activation ordinal the same Kernel write invalidates.
     let mut late = eth::Call {
@@ -1077,8 +1084,8 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
         .unwrap()
         .epochs
         .iter()
-        .filter(|ep| ep.kind == pb::EpochEventKind::Invalidated as i32)
-        .map(|ep| (ep.reason, ep.ordinal))
+        .filter(|ep| ep.kind == pb::EpochEventKind::Invalidated)
+        .map(|ep| (ep.reason.to_i32(), ep.ordinal))
         .collect();
     assert_eq!(invalidated, vec![(pb::InvalidationReason::DependencyPointerWrite as i32, 120)]);
 }
@@ -1104,7 +1111,7 @@ fn delegate(index: u32, preimages: Vec<(String, String)>, changes: Vec<eth::Stor
     eth::Call {
         index,
         depth: 1,
-        call_type: eth::CallType::Delegate as i32,
+        call_type: eth::CallType::Delegate.into(),
         caller: e.steth.clone(),
         address: e.implementation.clone(),
         keccak_preimages: preimages.into_iter().collect(),
@@ -1139,7 +1146,7 @@ fn the_v3_to_v4_migration_inside_an_epoch_invalidates_with_evidence_instead_of_h
         ],
     ))];
     let events = project(&b, &cfg).unwrap();
-    let evidence: Vec<(u64, i32)> = events.epochs.iter().map(|x| (x.ordinal, x.reason)).collect();
+    let evidence: Vec<(u64, i32)> = events.epochs.iter().map(|x| (x.ordinal, x.reason.to_i32())).collect();
     assert_eq!(
         evidence,
         vec![
@@ -1155,8 +1162,8 @@ fn the_v3_to_v4_migration_inside_an_epoch_invalidates_with_evidence_instead_of_h
     v["epochs"][0]["activation_ordinal"] = 15.into();
     let late = parse(&v.to_string()).unwrap();
     let events = project(&b, &late).unwrap();
-    assert!(events.epochs.iter().all(|x| x.kind == pb::EpochEventKind::Bound as i32));
-    assert!(events.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+    assert!(events.epochs.iter().all(|x| x.kind == pb::EpochEventKind::Bound));
+    assert!(events.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant));
 }
 
 #[test]
@@ -1177,7 +1184,7 @@ fn the_kernel_resolution_slots_are_the_literal_aragon_mapping_members() {
 
 #[test]
 fn a_routine_report_submit_permit_and_external_mint_block_is_fully_accounted() {
-    use prost::Message;
+    use buffa::Message;
     let e = epoch();
     let cfg = config();
     let named = |n: &str| keccak(n.as_bytes());
@@ -1234,7 +1241,7 @@ fn a_routine_report_submit_permit_and_external_mint_block_is_fully_accounted() {
             ],
         ),
     ];
-    report.receipt = Some(eth::TransactionReceipt {
+    report.receipt = buffa::MessageField::some(eth::TransactionReceipt {
         logs: vec![rebased_log(2, 70)],
         ..Default::default()
     });
@@ -1295,7 +1302,7 @@ fn a_routine_report_submit_permit_and_external_mint_block_is_fully_accounted() {
         events
             .global_state
             .iter()
-            .filter(|g| g.field == field as i32)
+            .filter(|g| g.field.to_i32() == field as i32)
             .map(|g| (g.previous_value.clone(), g.value.clone(), g.change_count))
             .collect::<Vec<_>>()
     };
@@ -1326,7 +1333,7 @@ fn packed_halves_decode_at_their_full_uint128_width() {
     let values: Vec<(i32, String, u32, u32)> = events
         .global_state
         .iter()
-        .map(|g| (g.field, g.value.clone(), g.bit_offset, g.bit_width))
+        .map(|g| (g.field.to_i32(), g.value.clone(), g.bit_offset, g.bit_width))
         .collect();
     assert_eq!(
         values,
@@ -1342,7 +1349,7 @@ fn report_logs_need_exactly_two_topics_and_a_receipt() {
     let cfg = config();
     for topics in [1, 3] {
         let mut t = tx(eth::Call::default());
-        t.receipt = Some(eth::TransactionReceipt {
+        t.receipt = buffa::MessageField::some(eth::TransactionReceipt {
             logs: vec![rebased_log(topics, 70)],
             ..Default::default()
         });
@@ -1381,7 +1388,7 @@ fn invalidation_keeps_earlier_reports_but_never_partial_globals_or_derived_total
     earlier.index = 7;
     let mut malformed = rebased_log(1, 20);
     malformed.data.clear();
-    t.receipt = Some(eth::TransactionReceipt {
+    t.receipt = buffa::MessageField::some(eth::TransactionReceipt {
         logs: vec![earlier, malformed.clone(), rebased_log(3, 21)],
         ..Default::default()
     });
@@ -1392,8 +1399,8 @@ fn invalidation_keeps_earlier_reports_but_never_partial_globals_or_derived_total
     assert_eq!(output.epochs.len(), 1);
     assert_eq!(output.global_state.len(), 4);
     for row in &output.global_state {
-        assert_eq!(row.observation, pb::Observation::ObservedLog as i32);
-        assert_eq!(row.boundary, pb::Boundary::Change as i32);
+        assert_eq!(row.observation, pb::Observation::ObservedLog);
+        assert_eq!(row.boundary, pb::Boundary::Change);
         assert_eq!((row.ordinal, row.first_ordinal, row.change_count, row.log_index), (19, 19, 1, 7));
         assert_eq!((row.transaction_index, &row.transaction_hash), (9, &vec![7; 32]));
         assert_eq!(row.storage_contract, e.steth);
@@ -1407,11 +1414,11 @@ fn invalidation_keeps_earlier_reports_but_never_partial_globals_or_derived_total
         (0, 4, 1)
     );
     b.transaction_traces[0].calls[0].storage_changes.reverse();
-    b.transaction_traces[0].receipt.as_mut().unwrap().logs.reverse();
+    b.transaction_traces[0].receipt.as_option_mut().unwrap().logs.reverse();
     assert_eq!(project(&b, &cfg).unwrap(), output);
     // Shape validation still applies inside the qualified interval.
     malformed.ordinal = 18;
-    b.transaction_traces[0].receipt.as_mut().unwrap().logs.push(malformed);
+    b.transaction_traces[0].receipt.as_option_mut().unwrap().logs.push(malformed);
     assert!(project(&b, &cfg).unwrap_err().to_string().contains("malformed TokenRebased"));
 }
 
@@ -1447,7 +1454,7 @@ fn equal_value_version_and_retired_position_writes_end_the_epoch() {
         assert!(output.holder_basis.is_empty());
         assert!(output.global_state.is_empty());
         assert_eq!(output.epochs.len(), 1);
-        assert_eq!((output.epochs[0].reason, output.epochs[0].ordinal), (reason as i32, 20));
+        assert_eq!((output.epochs[0].reason.to_i32(), output.epochs[0].ordinal), (reason as i32, 20));
         assert_eq!(output.epochs[0].evidence_previous_word, value);
         assert_eq!(output.epochs[0].evidence_word, value);
         b.transaction_traces[0].calls[0].state_reverted = true;
@@ -1482,7 +1489,7 @@ fn shared_kernel_cutoffs_respect_each_markets_activation_including_equality() {
     let output = project(&b, &cfg).unwrap();
     assert_eq!(output.holder_basis.len(), 1);
     assert_eq!(output.holder_basis[0].market, second.steth);
-    let invalid: Vec<_> = output.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
+    let invalid: Vec<_> = output.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated).collect();
     assert_eq!(invalid.len(), 1);
     assert_eq!(invalid[0].market, first.steth);
     // At activation, BOUND is immediately followed by INVALIDATED. Its
@@ -1490,8 +1497,8 @@ fn shared_kernel_cutoffs_respect_each_markets_activation_including_equality() {
     b.transaction_traces[1].calls[0].storage_changes[0].ordinal = 100;
     let output = project(&b, &cfg).unwrap();
     assert!(output.holder_basis.is_empty());
-    assert_eq!(output.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).count(), 2);
-    assert!(output.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+    assert_eq!(output.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated).count(), 2);
+    assert!(output.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant));
     assert!(output.global_state.iter().filter(|g| g.market == second.steth).all(|g| g.ordinal == 100));
 }
 
@@ -1525,7 +1532,7 @@ fn successor_schedule_preserves_log_ownership_without_mixing_derived_inputs() {
         at(&cfg.epochs[1].steth, e.total_and_external_shares_slot, packed(0, 0), packed(7, 0), 35),
     ]);
     let mut transaction = tx(call);
-    transaction.receipt = Some(eth::TransactionReceipt {
+    transaction.receipt = buffa::MessageField::some(eth::TransactionReceipt {
         logs: vec![rebased_log(2, 29), rebased_log(2, 30), rebased_log(2, 40)],
         ..Default::default()
     });
@@ -1536,16 +1543,16 @@ fn successor_schedule_preserves_log_ownership_without_mixing_derived_inputs() {
         (output.holder_basis.len(), output.holder_basis[0].epoch, &*output.holder_basis[0].value),
         (1, 3, "0")
     );
-    assert!(!output.global_state.iter().any(|row| row.observation == pb::Observation::Derived as i32));
+    assert!(!output.global_state.iter().any(|row| row.observation == pb::Observation::Derived));
     assert!(output
         .global_state
         .iter()
-        .filter(|row| row.market == e.steth && row.observation == pb::Observation::ObservedWrite as i32)
+        .filter(|row| row.market == e.steth && row.observation == pb::Observation::ObservedWrite)
         .all(|row| row.epoch == 3));
     let log_epochs: Vec<_> = output
         .global_state
         .iter()
-        .filter(|row| row.field == pb::StateField::LidoReportTimestamp as i32)
+        .filter(|row| row.field == pb::StateField::LidoReportTimestamp)
         .map(|row| (row.epoch, row.ordinal))
         .collect();
     assert_eq!(log_epochs, vec![(1, 29), (3, 30), (3, 40)]);
@@ -1553,18 +1560,11 @@ fn successor_schedule_preserves_log_ownership_without_mixing_derived_inputs() {
         .storage_changes
         .push(write(e.cl_slot, packed(30, 20), packed(40, 20), 33));
     let output = project(&b, &cfg).unwrap();
-    let derived = output
-        .global_state
-        .iter()
-        .find(|row| row.observation == pb::Observation::Derived as i32)
-        .unwrap();
+    let derived = output.global_state.iter().find(|row| row.observation == pb::Observation::Derived).unwrap();
     assert_eq!((derived.epoch, derived.first_ordinal, derived.ordinal, derived.change_count), (3, 31, 33, 3));
     let quiet = project(&block(3), &cfg).unwrap();
     assert!(quiet.holder_basis.is_empty());
-    assert!(quiet
-        .global_state
-        .iter()
-        .all(|row| row.observation == pb::Observation::QualifiedConstant as i32));
+    assert!(quiet.global_state.iter().all(|row| row.observation == pb::Observation::QualifiedConstant));
     assert!(quiet
         .epochs
         .iter()
@@ -1587,7 +1587,7 @@ fn successor_schedule_owns_every_aragon_version_and_migration_guard() {
             let mut call = shares_call(&[9; 20], 1, 2, 35);
             call.storage_changes.push(at(&address, slot, value, value, ordinal));
             let mut transaction = tx(call);
-            transaction.receipt = Some(eth::TransactionReceipt {
+            transaction.receipt = buffa::MessageField::some(eth::TransactionReceipt {
                 logs: vec![rebased_log(2, 19), rebased_log(2, 29), rebased_log(2, 30), rebased_log(2, 40)],
                 ..Default::default()
             });
@@ -1597,12 +1597,12 @@ fn successor_schedule_owns_every_aragon_version_and_migration_guard() {
             assert!(output
                 .epochs
                 .iter()
-                .any(|row| row.market == e.steth && row.epoch == epoch && row.ordinal == ordinal && row.reason == reason as i32));
+                .any(|row| row.market == e.steth && row.epoch == epoch && row.ordinal == ordinal && row.reason.to_i32() == reason as i32));
             assert_eq!(output.holder_basis.len(), usize::from(ordinal < 30));
             assert!(output
                 .global_state
                 .iter()
-                .filter(|row| row.epoch == epoch && row.observation == pb::Observation::ObservedLog as i32)
+                .filter(|row| row.epoch == epoch && row.observation == pb::Observation::ObservedLog)
                 .all(|row| row.ordinal < ordinal));
         }
     }
@@ -1627,7 +1627,7 @@ fn successor_schedule_owns_every_aragon_version_and_migration_guard() {
             assert!(output
                 .epochs
                 .iter()
-                .any(|row| row.market == e.steth && row.epoch == epoch && row.kind == pb::EpochEventKind::Invalidated as i32));
+                .any(|row| row.market == e.steth && row.epoch == epoch && row.kind == pb::EpochEventKind::Invalidated));
             assert_eq!(output.holder_basis.len(), usize::from(ordinal < 30));
         }
     }
@@ -1658,7 +1658,7 @@ fn successor_schedule_validates_physical_continuity_and_unknown_prefixes() {
     let edges: Vec<_> = output
         .epochs
         .iter()
-        .filter(|row| row.market == e.steth && row.kind == pb::EpochEventKind::Invalidated as i32)
+        .filter(|row| row.market == e.steth && row.kind == pb::EpochEventKind::Invalidated)
         .map(|row| (row.epoch, row.ordinal))
         .collect();
     assert_eq!(edges, vec![(1, 20), (3, 30)]);
@@ -1668,7 +1668,7 @@ fn successor_schedule_validates_physical_continuity_and_unknown_prefixes() {
 
 #[test]
 fn successor_schedule_resolves_new_layout_kernel_and_three_in_block_bindings() {
-    use prost::Message;
+    use buffa::Message;
     let mut raw = successor_params();
     raw["epochs"][2]["shares_slot"] = format!("0x{}", hex::encode(w(63))).into();
     raw["epochs"][2]["aragon"]["kernel"] = format!("0x{}", hex::encode([0xab; 20])).into();
@@ -1703,14 +1703,14 @@ fn successor_schedule_resolves_new_layout_kernel_and_three_in_block_bindings() {
         expected
             .epochs
             .iter()
-            .filter(|row| row.market == old.steth && row.kind == pb::EpochEventKind::Bound as i32)
+            .filter(|row| row.market == old.steth && row.kind == pb::EpochEventKind::Bound)
             .count(),
         2
     );
     assert!(!expected
         .epochs
         .iter()
-        .any(|row| row.market == old.steth && row.kind == pb::EpochEventKind::Invalidated as i32));
+        .any(|row| row.market == old.steth && row.kind == pb::EpochEventKind::Invalidated));
     raw["epochs"].as_array_mut().unwrap().reverse();
     let mut actual = project(&b, &parse(&raw.to_string()).unwrap()).unwrap();
     expected.clocks.clear();

@@ -115,7 +115,7 @@ From `sf.ethereum.type.v2` at `streamingfast/firehose-ethereum@9485efe2e6290e525
   block carries no chain id, so the manifest binds the network.
 - Reason enum through value 20: `REWARD_BLOB_FEE` 17 (BNB), `INCREASE_MINT`
   18 and `REVERT` 19 (Optimism family), `MONAD_TX_POST_STATE` 20. The pinned
-  `substreams-ethereum` 0.11.1 bindings name values 0–16 only.
+  `substreams-ethereum` 0.12.0 bindings name values 0–20 (0.11.1 named 0–16).
 
 ### Stream contract
 
@@ -327,7 +327,7 @@ this document.
 - **Ordering**: within a block by execution ordinal (versions 4/5 only); across blocks by the stream clock. Rows inside `Events` are sorted deterministically.
 - **Clock advancement**: every delivered block advances the clock, including blocks with empty output. Consumers must not infer completeness from nonempty rows or sink markers.
 - **Unknown states**: *missing/uninitialized* (no observation since the consumer's checkpoint), *known zero* (an observed zero value), *unsupported model* (layout or version not qualified; the map fails closed), *invalidated dependency* (a pinned implementation, slot or rate model changed; retained state must be rebuilt) and *reverted* (attempted, never persisted) are distinct and are never collapsed into zero. Initialization and checkpoints are shared under [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7).
-- **Native ClickHouse**: the Substreams CLI derives one table per repeated message (`Balance`), keyed `(_block_number_, _row_id_)` in a `ReplacingMergeTree`; optional `contract` is stored as `String`, so native (absent) and ERC-20 (present) rows must be separated by package or table; `_blocks_` lists nonempty-output blocks only; writes are not multi-table transactions and the schema keeps no block hash, so audits bind the sink's rows to independently captured clocks. No `db_out`, no custom sink.
+- **Native ClickHouse**: the Substreams CLI derives one table per repeated message (`Balance`), keyed `(_block_number_, _row_id_)` in a `ReplacingMergeTree`; optional `contract` is stored as `String`, so native (absent) and ERC-20 (present) rows must be separated by package or table; `_blocks_` lists nonempty-output blocks only; writes are not multi-table transactions and the schema keeps no block hash, so audits bind the sink's rows to independently captured clocks. No custom sink; [`evm-balances`](../evm-balances/README.md) is the one `db_out`, writing the substreams-evm tables from the two balance maps.
 
 ## 6. Open questions
 

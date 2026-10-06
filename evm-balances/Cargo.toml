@@ -1,0 +1,24 @@
+[package]
+name = "evm-balances"
+description = "One db_out writing Extended native and ERC-20 balances into the substreams-evm ClickHouse tables"
+edition = { workspace = true }
+version = "0.4.0"
+license = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+substreams = { workspace = true }
+# 5.0.0 (buffa, substreams 0.8.0). Upstream substreams-evm uses 3.0.0; the rows
+# are the same, and each Field now also carries update_op = SET (README).
+substreams-database-change = "=5.0.0"
+proto = { path = "../proto" }
+
+[dev-dependencies]
+native-balances = { path = "../native/balances" }
+erc20-balances = { path = "../erc20/balances" }
+substreams-ethereum = { workspace = true }
+buffa = { workspace = true }
+buffa-types = { workspace = true }
+sha2 = "0.11"

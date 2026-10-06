@@ -1,5 +1,5 @@
 use super::*;
-use prost::Message;
+use buffa::Message;
 
 const FULL_BLOCK: &[u8] = include_bytes!("../../../erc20/balances/tests/fixtures/bsc-122260950.pb");
 const CLONE_CREATION: &[u8] = include_bytes!("../../../erc20/balances/tests/fixtures/bsc-122288172-clone-creation-tx.pb");
@@ -17,12 +17,16 @@ fn block() -> eth::Block {
         ver: 5,
         number: 121114122,
         hash: vec![1; 32],
-        detail_level: eth::block::DetailLevel::DetaillevelExtended as i32,
-        header: Some(eth::BlockHeader {
+        detail_level: eth::block::DetailLevel::DetaillevelExtended.into(),
+        header: buffa::MessageField::some(eth::BlockHeader {
             number: 121114122,
             parent_hash: vec![2; 32],
             state_root: vec![3; 32],
-            timestamp: Some(prost_types::Timestamp { seconds: 1789000000, nanos: 0 }),
+            timestamp: buffa::MessageField::some(buffa_types::google::protobuf::Timestamp {
+                seconds: 1789000000,
+                nanos: 0,
+                ..Default::default()
+            }),
             ..Default::default()
         }),
         ..Default::default()
@@ -30,11 +34,11 @@ fn block() -> eth::Block {
 }
 fn tx(calls: Vec<eth::Call>) -> eth::TransactionTrace {
     eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Succeeded as i32,
+        status: eth::TransactionTraceStatus::Succeeded.into(),
         hash: vec![7; 32],
         index: 3,
         calls,
-        receipt: Some(eth::TransactionReceipt::default()),
+        receipt: buffa::MessageField::some(eth::TransactionReceipt::default()),
         ..Default::default()
     }
 }
@@ -51,7 +55,7 @@ fn log(address: u8, topics: usize, ordinal: u64) -> eth::Log {
 
 #[test]
 fn captured_block_keeps_attempted_and_persisted_execution_apart() {
-    let block = eth::Block::decode(FULL_BLOCK).unwrap();
+    let block = eth::Block::decode_from_slice(FULL_BLOCK).unwrap();
     let events = project(&block, &config()).unwrap();
     let clock = &events.clocks[0];
     assert_eq!(
@@ -74,44 +78,40 @@ fn captured_block_keeps_attempted_and_persisted_execution_apart() {
     assert!(events.logs.iter().filter(|l| l.persisted).any(|l| l.block_index > 0));
     assert!(events.logs.iter().all(|l| l.topic_count <= 4 && l.topic0.len() == 32 || l.topic_count == 0));
     // One reverted transaction: every frame attempted, none persisted.
-    let failed: Vec<_> = events
-        .transactions
-        .iter()
-        .filter(|t| t.status != pb::TransactionStatus::Succeeded as i32)
-        .collect();
+    let failed: Vec<_> = events.transactions.iter().filter(|t| t.status != pb::TransactionStatus::Succeeded).collect();
     assert_eq!(failed.len(), 1);
     let failed = failed[0];
     assert_eq!(
-        (failed.index, failed.status, failed.call_count, failed.reverted_call_count),
+        (failed.index, failed.status.to_i32(), failed.call_count, failed.reverted_call_count),
         (59, pb::TransactionStatus::Reverted as i32, 11, 11)
     );
     assert!(events
         .calls
         .iter()
-        .filter(|c| c.transaction_index == 59 && c.scope == pb::Scope::Transaction as i32)
+        .filter(|c| c.transaction_index == 59 && c.scope == pb::Scope::Transaction)
         .all(|c| !c.persisted && c.state_reverted));
     assert_eq!(failed.receipt_log_count, 0);
     // Reverted children inside succeeded transactions.
     assert_eq!(events.calls.iter().filter(|c| c.state_reverted).count(), 87);
     assert_eq!(events.calls.iter().filter(|c| c.persisted).count(), 766);
     // Transaction types recorded raw and named: legacy, dynamic fee, one blob.
-    assert_eq!(events.transactions.iter().filter(|t| t.r#type == pb::TransactionType::Blob as i32).count(), 1);
+    assert_eq!(events.transactions.iter().filter(|t| t.r#type == pb::TransactionType::Blob).count(), 1);
     let blob = events.transactions.iter().find(|t| t.type_raw == 3).unwrap();
     assert!(blob.blob_count > 0);
     // A nested CREATE persisted code; root creation is a separate fact.
     assert_eq!(events.code_changes.len(), 1);
     let created = &events.code_changes[0];
     assert_eq!(
-        (created.kind, created.persisted, created.transaction_index, created.old_code_size),
+        (created.kind.to_i32(), created.persisted, created.transaction_index, created.old_code_size),
         (pb::CodeChangeKind::Created as i32, true, 41, 0)
     );
     assert!(created.new_code_size > 0 && created.delegation_target.is_empty());
     assert!(events.transactions.iter().all(|t| t.created_contract.is_empty()));
-    assert_eq!(events.calls.iter().filter(|c| c.call_type == pb::CallType::Create as i32).count(), 1);
+    assert_eq!(events.calls.iter().filter(|c| c.call_type == pb::CallType::Create).count(), 1);
     // EIP-7702 delegated frames are visible through the code address.
     assert_eq!(events.calls.iter().filter(|c| !c.address_delegates_to.is_empty()).count(), 22);
     // The system call is a separate scope with no transaction hash.
-    let system: Vec<_> = events.calls.iter().filter(|c| c.scope == pb::Scope::SystemCall as i32).collect();
+    let system: Vec<_> = events.calls.iter().filter(|c| c.scope == pb::Scope::SystemCall).collect();
     assert_eq!(system.len(), 1);
     assert!(system[0].transaction_hash.is_empty() && system[0].persisted);
     // Selector only by default; sizes are still recorded.
@@ -123,12 +123,12 @@ fn captured_block_keeps_attempted_and_persisted_execution_apart() {
     assert!(events
         .calls
         .windows(2)
-        .all(|w| (w[0].scope, w[0].transaction_index, w[0].index) < (w[1].scope, w[1].transaction_index, w[1].index)));
+        .all(|w| (w[0].scope.to_i32(), w[0].transaction_index, w[0].index) < (w[1].scope.to_i32(), w[1].transaction_index, w[1].index)));
 }
 
 #[test]
 fn root_create_records_the_created_contract_and_nested_creates_do_not() {
-    let block = eth::Block::decode(DEPLOYMENT).unwrap();
+    let block = eth::Block::decode_from_slice(DEPLOYMENT).unwrap();
     let events = project(&block, &config()).unwrap();
     let tx = events.transactions.iter().find(|t| !t.created_contract.is_empty()).unwrap();
     // The producer records the created account as `to` for a creation.
@@ -137,27 +137,27 @@ fn root_create_records_the_created_contract_and_nested_creates_do_not() {
     let root = events
         .calls
         .iter()
-        .filter(|c| c.transaction_index == tx.index && c.scope == pb::Scope::Transaction as i32)
+        .filter(|c| c.transaction_index == tx.index && c.scope == pb::Scope::Transaction)
         .min_by_key(|c| c.index)
         .unwrap();
     assert_eq!(root.depth, 0);
     assert_eq!(
-        (root.call_type, root.address.clone()),
+        (root.call_type.to_i32(), root.address.clone()),
         (pb::CallType::Create as i32, tx.created_contract.clone())
     );
     assert!(events
         .code_changes
         .iter()
-        .any(|c| c.address == tx.created_contract && c.kind == pb::CodeChangeKind::Created as i32 && c.persisted));
+        .any(|c| c.address == tx.created_contract && c.kind == pb::CodeChangeKind::Created && c.persisted));
 
-    let block = eth::Block::decode(CLONE_CREATION).unwrap();
+    let block = eth::Block::decode_from_slice(CLONE_CREATION).unwrap();
     let events = project(&block, &config()).unwrap();
-    let creates = events.calls.iter().filter(|c| c.call_type == pb::CallType::Create as i32).count();
+    let creates = events.calls.iter().filter(|c| c.call_type == pb::CallType::Create).count();
     assert!(creates >= 1);
     let created_codes = events
         .code_changes
         .iter()
-        .filter(|c| c.kind == pb::CodeChangeKind::Created as i32 && c.persisted)
+        .filter(|c| c.kind == pb::CodeChangeKind::Created && c.persisted)
         .count();
     assert_eq!(created_codes, creates);
     assert!(events
@@ -169,13 +169,13 @@ fn root_create_records_the_created_contract_and_nested_creates_do_not() {
 #[test]
 fn failed_setcode_transactions_expose_applied_authorizations_without_persisted_frames() {
     for bytes in FAILED_SETCODE {
-        let trace = eth::TransactionTrace::decode(bytes).unwrap();
+        let trace = eth::TransactionTrace::decode_from_slice(bytes).unwrap();
         let mut block = block();
         block.transaction_traces = vec![trace.clone()];
         let events = project(&block, &config()).unwrap();
         let tx = &events.transactions[0];
-        assert_eq!(tx.r#type, pb::TransactionType::SetCode as i32);
-        assert_ne!(tx.status, pb::TransactionStatus::Succeeded as i32);
+        assert_eq!(tx.r#type, pb::TransactionType::SetCode);
+        assert_ne!(tx.status, pb::TransactionStatus::Succeeded);
         assert_eq!(tx.set_code_authorization_count, trace.set_code_authorizations.len() as u32);
         assert!(!events.set_code_authorizations.is_empty());
         assert!(events
@@ -198,10 +198,10 @@ fn receipt_disagreement_fails_closed() {
         logs: vec![log(4, 3, 10)],
         ..Default::default()
     }]);
-    t.receipt = Some(eth::TransactionReceipt::default()); // zero receipt logs
+    t.receipt = buffa::MessageField::some(eth::TransactionReceipt::default()); // zero receipt logs
     b.transaction_traces = vec![t];
     assert!(project(&b, &config()).unwrap_err().to_string().contains("receipt logs disagree"));
-    b.transaction_traces[0].receipt.as_mut().unwrap().logs = vec![log(4, 3, 10)];
+    b.transaction_traces[0].receipt.as_option_mut().unwrap().logs = vec![log(4, 3, 10)];
     let events = project(&b, &config()).unwrap();
     assert_eq!((events.logs.len(), events.logs[0].topic_count, events.logs[0].data_size), (1, 3, 64));
     assert!(events.logs[0].topic3.is_empty() && events.logs[0].persisted);
@@ -209,7 +209,7 @@ fn receipt_disagreement_fails_closed() {
 
 #[test]
 fn captured_version_four_logs_reconcile_with_receipts() {
-    let b = eth::Block::decode(include_bytes!("../../../erc20/balances/tests/fixtures/hlbp-active/104727184.pb").as_slice()).unwrap();
+    let b = eth::Block::decode_from_slice(include_bytes!("../../../erc20/balances/tests/fixtures/hlbp-active/104727184.pb").as_slice()).unwrap();
     assert_eq!(b.ver, 4);
     let config = parse(r#"{"chain_id":56,"producer_versions":[4]}"#).unwrap();
     let events = project(&b, &config).unwrap();
@@ -218,7 +218,7 @@ fn captured_version_four_logs_reconcile_with_receipts() {
         events.logs.iter().filter(|log| log.persisted).count(),
         b.transaction_traces
             .iter()
-            .filter_map(|tx| tx.receipt.as_ref())
+            .filter_map(|tx| tx.receipt.as_option())
             .map(|r| r.logs.len())
             .sum::<usize>()
     );
@@ -226,11 +226,11 @@ fn captured_version_four_logs_reconcile_with_receipts() {
 
 #[test]
 fn receipt_validation_checks_every_log_field_even_when_log_output_is_disabled() {
-    let captured = eth::Block::decode(FULL_BLOCK).unwrap();
+    let captured = eth::Block::decode_from_slice(FULL_BLOCK).unwrap();
     let tx_position = captured
         .transaction_traces
         .iter()
-        .position(|tx| tx.receipt.as_ref().is_some_and(|r| !r.logs.is_empty()))
+        .position(|tx| tx.receipt.as_option().is_some_and(|r| !r.logs.is_empty()))
         .unwrap();
     type Mutation = fn(&mut eth::Log);
     let mutations: [(&str, Mutation); 7] = [
@@ -251,7 +251,7 @@ fn receipt_validation_checks_every_log_field_even_when_log_output_is_disabled() 
         let config = parse(params).unwrap();
         for (name, mutate) in mutations {
             let mut tampered = captured.clone();
-            mutate(&mut tampered.transaction_traces[tx_position].receipt.as_mut().unwrap().logs[0]);
+            mutate(&mut tampered.transaction_traces[tx_position].receipt.as_option_mut().unwrap().logs[0]);
             let error = project(&tampered, &config).unwrap_err().to_string();
             assert!(error.contains("receipt logs disagree"), "{name}: {error}");
             assert!(error.contains(&format!("transaction {} position 0", tampered.transaction_traces[tx_position].index)));
@@ -261,7 +261,7 @@ fn receipt_validation_checks_every_log_field_even_when_log_output_is_disabled() 
     let receipt = reordered
         .transaction_traces
         .iter_mut()
-        .filter_map(|tx| tx.receipt.as_mut())
+        .filter_map(|tx| tx.receipt.as_option_mut())
         .find(|r| r.logs.len() > 1)
         .unwrap();
     receipt.logs.swap(0, 1);
@@ -297,19 +297,19 @@ fn receipt_validation_uses_canonical_trace_order_and_excludes_reverted_logs() {
             ..Default::default()
         },
     ]);
-    t.receipt.as_mut().unwrap().logs = vec![first, child, last];
+    t.receipt.as_option_mut().unwrap().logs = vec![first, child, last];
     let mut b = block();
     b.transaction_traces = vec![t];
     let expected = project(&b, &config()).unwrap();
     assert_eq!(expected.logs.iter().filter(|l| l.persisted).count(), 3);
     b.transaction_traces[0].calls.reverse();
     assert_eq!(project(&b, &config()).unwrap(), expected);
-    b.transaction_traces[0].receipt.as_mut().unwrap().logs.insert(2, attempted);
+    b.transaction_traces[0].receipt.as_option_mut().unwrap().logs.insert(2, attempted);
     assert!(project(&b, &config()).unwrap_err().to_string().contains("receipt logs disagree"));
 
     for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
-        b.transaction_traces[0].status = status as i32;
-        b.transaction_traces[0].receipt.as_mut().unwrap().logs.clear();
+        b.transaction_traces[0].status = status.into();
+        b.transaction_traces[0].receipt.as_option_mut().unwrap().logs.clear();
         assert!(project(&b, &config()).unwrap().logs.iter().all(|log| !log.persisted));
     }
 }
@@ -323,7 +323,7 @@ fn ambiguous_persisted_log_ordinals_are_rejected() {
             logs: logs.clone(),
             ..Default::default()
         }]);
-        t.receipt.as_mut().unwrap().logs = logs;
+        t.receipt.as_option_mut().unwrap().logs = logs;
         b.transaction_traces = vec![t];
         assert!(project(&b, &config()).unwrap_err().to_string().contains("persisted log ordinals"));
     }
@@ -367,7 +367,7 @@ fn reverted_frames_system_calls_and_block_records_carry_their_scope_and_persiste
             ..Default::default()
         },
     ]);
-    t.receipt.as_mut().unwrap().logs = vec![log(4, 1, 10)];
+    t.receipt.as_option_mut().unwrap().logs = vec![log(4, 1, 10)];
     b.transaction_traces = vec![t];
     b.system_calls = vec![
         eth::Call {
@@ -390,20 +390,20 @@ fn reverted_frames_system_calls_and_block_records_carry_their_scope_and_persiste
         ordinal: 40,
     }];
     let events = project(&b, &config()).unwrap();
-    let reverted = events.calls.iter().find(|c| c.index == 1 && c.scope == pb::Scope::Transaction as i32).unwrap();
+    let reverted = events.calls.iter().find(|c| c.index == 1 && c.scope == pb::Scope::Transaction).unwrap();
     assert!(reverted.state_reverted && !reverted.persisted && reverted.failure_reason == "execution reverted");
     assert_eq!(events.logs.iter().filter(|l| !l.persisted).count(), 1);
-    let attempted_code = events.code_changes.iter().find(|c| c.scope == pb::Scope::Transaction as i32).unwrap();
-    assert!(!attempted_code.persisted && attempted_code.kind == pb::CodeChangeKind::Created as i32);
-    let system: Vec<_> = events.calls.iter().filter(|c| c.scope == pb::Scope::SystemCall as i32).collect();
+    let attempted_code = events.code_changes.iter().find(|c| c.scope == pb::Scope::Transaction).unwrap();
+    assert!(!attempted_code.persisted && attempted_code.kind == pb::CodeChangeKind::Created);
+    let system: Vec<_> = events.calls.iter().filter(|c| c.scope == pb::Scope::SystemCall).collect();
     assert_eq!(system.len(), 2);
     assert!(system[0].persisted && !system[1].persisted);
     assert!(events
         .logs
         .iter()
-        .any(|l| l.scope == pb::Scope::SystemCall as i32 && l.transaction_hash.is_empty() && l.persisted));
-    let block_code = events.code_changes.iter().find(|c| c.scope == pb::Scope::Block as i32).unwrap();
-    assert!(block_code.persisted && block_code.kind == pb::CodeChangeKind::Replaced as i32 && block_code.transaction_hash.is_empty());
+        .any(|l| l.scope == pb::Scope::SystemCall && l.transaction_hash.is_empty() && l.persisted));
+    let block_code = events.code_changes.iter().find(|c| c.scope == pb::Scope::Block).unwrap();
+    assert!(block_code.persisted && block_code.kind == pb::CodeChangeKind::Replaced && block_code.transaction_hash.is_empty());
     assert_eq!((events.clocks[0].system_call_count, events.clocks[0].code_change_count), (2, 2));
 }
 
@@ -479,11 +479,11 @@ fn parameters_select_payloads_and_fail_closed() {
     b.ver = 4;
     assert!(project(&b, &config()).unwrap_err().to_string().contains("producer version"));
     b.ver = 5;
-    b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32;
+    b.detail_level = eth::block::DetailLevel::DetaillevelBase.into();
     assert!(project(&b, &config()).is_err());
     b = block();
     b.transaction_traces = vec![eth::TransactionTrace {
-        status: 1,
+        status: 1.into(),
         hash: vec![1; 31],
         calls: vec![eth::Call::default()],
         ..Default::default()
@@ -506,7 +506,7 @@ fn a_same_target_redelegation_is_recorded_but_changes_no_code() {
     // Captured BSC v4 transaction: a self-sponsored SetCode transaction whose
     // authority is already delegated to the same target. The producer records a
     // code change whose old and new code are identical.
-    let b = eth::Block::decode(SAME_TARGET_REDELEGATION).unwrap();
+    let b = eth::Block::decode_from_slice(SAME_TARGET_REDELEGATION).unwrap();
     assert_eq!((b.number, b.ver, b.transaction_traces.len()), (104727218, 4, 1));
     let raw_tx = &b.transaction_traces[0];
     let raw = raw_tx.calls.iter().flat_map(|c| &c.code_changes).next().unwrap();
@@ -517,14 +517,14 @@ fn a_same_target_redelegation_is_recorded_but_changes_no_code() {
     let change = &events.code_changes[0];
     // The row keeps what was written (a delegation indicator to the target) and
     // states that no code state changed.
-    assert_eq!(change.kind, pb::CodeChangeKind::DelegationSet as i32);
+    assert_eq!(change.kind, pb::CodeChangeKind::DelegationSet);
     assert_eq!(change.delegation_target, raw.new_code[3..].to_vec());
     assert!(!change.persisted);
     // It is not an attempt in a reverted frame: the frame persisted and the
     // authorization was applied.
     let call = events.calls.iter().find(|c| c.index == change.call_index).unwrap();
     assert!(call.persisted && !call.state_reverted);
-    assert_eq!(events.transactions[0].status, eth::TransactionTraceStatus::Succeeded as i32);
+    assert_eq!(events.transactions[0].status.to_i32(), eth::TransactionTraceStatus::Succeeded as i32);
     let auth = events.set_code_authorizations.iter().find(|a| a.authority == change.address).unwrap();
     assert!(auth.applied && !auth.discarded);
     assert_eq!(auth.address, change.delegation_target);
@@ -542,7 +542,7 @@ fn delegate_and_callcode_frames_expose_code_address_and_caller_context_across_an
         index,
         parent_index: parent,
         depth,
-        call_type: kind as i32,
+        call_type: kind.into(),
         caller: caller.to_vec(),
         address: address.to_vec(),
         storage_changes: writes,
@@ -598,7 +598,7 @@ fn delegate_and_callcode_frames_expose_code_address_and_caller_context_across_an
         .map(|c| {
             (
                 c.transaction_index,
-                c.call_type,
+                c.call_type.to_i32(),
                 c.caller.clone(),
                 c.address.clone(),
                 c.storage_change_count,
@@ -641,7 +641,7 @@ fn transaction_types_outside_the_named_set_keep_their_raw_value() {
         .map(|(i, (raw, _))| eth::TransactionTrace {
             index: i as u32,
             hash: vec![i as u8 + 1; 32],
-            r#type: *raw,
+            r#type: (*raw).into(),
             ..tx(vec![eth::Call {
                 index: 1,
                 ..Default::default()
@@ -649,7 +649,7 @@ fn transaction_types_outside_the_named_set_keep_their_raw_value() {
         })
         .collect();
     let events = project(&b, &config()).unwrap();
-    let got: Vec<(u32, i32)> = events.transactions.iter().map(|t| (t.type_raw, t.r#type)).collect();
+    let got: Vec<(u32, i32)> = events.transactions.iter().map(|t| (t.type_raw, t.r#type.to_i32())).collect();
     let want: Vec<(u32, i32)> = cases.iter().map(|(raw, kind)| (*raw as u32, *kind as i32)).collect();
     assert_eq!(got, want);
 }

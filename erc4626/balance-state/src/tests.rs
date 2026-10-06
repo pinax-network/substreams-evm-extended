@@ -23,7 +23,7 @@ fn activation_code_invalidation_omits_basis_and_globals_for_each_vault_model() {
         b.transaction_traces = vec![tx(call)];
         let output = project(&b, &cfg).unwrap();
         assert!(output.holder_basis.is_empty());
-        assert!(output.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant as i32));
+        assert!(output.global_state.iter().all(|g| g.observation == pb::Observation::QualifiedConstant));
         assert!(output
             .global_state
             .iter()
@@ -32,7 +32,7 @@ fn activation_code_invalidation_omits_basis_and_globals_for_each_vault_model() {
         let epochs: Vec<_> = output.epochs.iter().filter(|e| e.market == cfg.vaults[index].vault).collect();
         assert_eq!(epochs.len(), 2);
         assert_eq!(
-            (epochs[0].kind, epochs[1].kind),
+            (epochs[0].kind.to_i32(), epochs[1].kind.to_i32()),
             (pb::EpochEventKind::Bound as i32, pb::EpochEventKind::Invalidated as i32)
         );
         assert_eq!(output.clocks[0].holder_basis_count, 0);
@@ -56,12 +56,16 @@ fn block(number: u64) -> eth::Block {
         ver: 5,
         number,
         hash: vec![1; 32],
-        detail_level: eth::block::DetailLevel::DetaillevelExtended as i32,
-        header: Some(eth::BlockHeader {
+        detail_level: eth::block::DetailLevel::DetaillevelExtended.into(),
+        header: buffa::MessageField::some(eth::BlockHeader {
             number,
             parent_hash: vec![2; 32],
             state_root: vec![3; 32],
-            timestamp: Some(prost_types::Timestamp { seconds: 1789689600, nanos: 0 }),
+            timestamp: buffa::MessageField::some(buffa_types::google::protobuf::Timestamp {
+                seconds: 1789689600,
+                nanos: 0,
+                ..Default::default()
+            }),
             ..Default::default()
         }),
         ..Default::default()
@@ -69,7 +73,7 @@ fn block(number: u64) -> eth::Block {
 }
 fn tx(call: eth::Call) -> eth::TransactionTrace {
     eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Succeeded as i32,
+        status: eth::TransactionTraceStatus::Succeeded.into(),
         hash: vec![7; 32],
         index: 9,
         calls: vec![call],
@@ -106,7 +110,7 @@ fn shares_call(vault: &Vault, holder: &[u8], old: u128, new: u128, ordinal: u64)
     eth::Call {
         index: 1,
         address: vault.vault.clone(),
-        keccak_preimages: [preimage(holder, &vault.balances_slot)].into(),
+        keccak_preimages: [preimage(holder, &vault.balances_slot)].into_iter().collect(),
         storage_changes: vec![write(&vault.vault, mapping_key(holder, &vault.balances_slot), w(old), w(new), ordinal)],
         ..Default::default()
     }
@@ -116,7 +120,7 @@ fn fields(events: &pb::Events, market: &[u8]) -> Vec<(i32, String, String, i32)>
         .global_state
         .iter()
         .filter(|g| g.market == market)
-        .map(|g| (g.field, g.previous_value.clone(), g.value.clone(), g.observation))
+        .map(|g| (g.field.to_i32(), g.previous_value.clone(), g.value.clone(), g.observation.to_i32()))
         .collect()
 }
 
@@ -132,7 +136,7 @@ fn shares_and_total_supply_are_the_vault_rows_for_every_model() {
         let mine: Vec<_> = events.holder_basis.iter().filter(|h| h.market == v.vault).collect();
         assert_eq!(mine.len(), 1);
         assert_eq!(
-            (&*mine[0].previous_value, &*mine[0].value, mine[0].basis_kind),
+            (&*mine[0].previous_value, &*mine[0].value, mine[0].basis_kind.to_i32()),
             ("100", "250", pb::BasisKind::Shares as i32)
         );
         assert_eq!(
@@ -150,7 +154,7 @@ fn shares_and_total_supply_are_the_vault_rows_for_every_model() {
         let base = v.other_mapping_slots[0];
         b.transaction_traces = vec![tx(eth::Call {
             address: v.vault.clone(),
-            keccak_preimages: [preimage(&[4; 20], &base)].into(),
+            keccak_preimages: [preimage(&[4; 20], &base)].into_iter().collect(),
             storage_changes: vec![write(&v.vault, mapping_key(&[4; 20], &base), w(0), w(1), 10)],
             ..Default::default()
         })];
@@ -221,10 +225,7 @@ fn aave_model_carries_the_pool_reserve_words_of_the_asset_and_its_pointers() {
         storage_changes: vec![write(&pool, implementation_slot, w(1), w(2), 10)],
         ..Default::default()
     })];
-    assert_eq!(
-        project(&b, &cfg).unwrap().epochs[0].reason,
-        pb::InvalidationReason::DependencyPointerWrite as i32
-    );
+    assert_eq!(project(&b, &cfg).unwrap().epochs[0].reason, pb::InvalidationReason::DependencyPointerWrite);
     // `_aToken` and `_aTokenUnderlying` select the reserve `rate()` reads:
     // a write to either is a dependency pointer write, never reviewed storage.
     for slot in [atoken_slot, underlying_slot] {
@@ -235,7 +236,7 @@ fn aave_model_carries_the_pool_reserve_words_of_the_asset_and_its_pointers() {
         })];
         let events = project(&b, &cfg).unwrap();
         assert_eq!(
-            (events.epochs.len(), events.epochs[0].reason, &events.epochs[0].evidence_slot),
+            (events.epochs.len(), events.epochs[0].reason.to_i32(), &events.epochs[0].evidence_slot),
             (1, pb::InvalidationReason::DependencyPointerWrite as i32, &slot.to_vec())
         );
     }
@@ -258,20 +259,17 @@ fn aave_model_carries_the_pool_reserve_words_of_the_asset_and_its_pointers() {
             ..Default::default()
         })];
         let events = project(&b, &cfg).unwrap();
-        assert_eq!((events.epochs.len(), events.epochs[0].reason), (1, reason as i32));
+        assert_eq!((events.epochs.len(), events.epochs[0].reason.to_i32()), (1, reason as i32));
     }
     b.transaction_traces = vec![tx(eth::Call {
         address: v.vault.clone(),
         storage_changes: vec![write(&v.vault, v.implementation_slot.unwrap(), w(1), w(2), 10)],
         ..Default::default()
     })];
-    assert_eq!(
-        project(&b, &cfg).unwrap().epochs[0].reason,
-        pb::InvalidationReason::ImplementationPointerWrite as i32
-    );
+    assert_eq!(project(&b, &cfg).unwrap().epochs[0].reason, pb::InvalidationReason::ImplementationPointerWrite);
     // Binding rows.
     let events = project(&block(1), &cfg).unwrap();
-    let roles: Vec<(u32, i32, i32)> = events.dependencies.iter().map(|d| (d.depth, d.role, d.binding)).collect();
+    let roles: Vec<(u32, i32, i32)> = events.dependencies.iter().map(|d| (d.depth, d.role.to_i32(), d.binding.to_i32())).collect();
     assert_eq!(
         roles,
         vec![
@@ -298,8 +296,8 @@ fn aave_model_carries_the_pool_reserve_words_of_the_asset_and_its_pointers() {
     let e = &events.epochs[0];
     assert_eq!(
         (
-            e.family,
-            e.basis_kind,
+            e.family.to_i32(),
+            e.basis_kind.to_i32(),
             &e.balance_asset,
             e.balance_decimals,
             &*e.basis_scale,
@@ -384,7 +382,7 @@ fn sdai_model_carries_pot_dsr_chi_rho_and_oz_model_carries_asset_balance_and_off
     assert!(fields(&events, &sdai.vault).is_empty());
     // Binding: sDAI has no proxy; OZ carries the offset constant.
     let events = project(&block(1), &cfg).unwrap();
-    let sdai_roles: Vec<i32> = events.dependencies.iter().filter(|d| d.market == sdai.vault).map(|d| d.role).collect();
+    let sdai_roles: Vec<i32> = events.dependencies.iter().filter(|d| d.market == sdai.vault).map(|d| d.role.to_i32()).collect();
     assert_eq!(
         sdai_roles,
         vec![pb::DependencyRole::Underlying as i32, pb::DependencyRole::RateAccumulator as i32]
@@ -392,7 +390,7 @@ fn sdai_model_carries_pot_dsr_chi_rho_and_oz_model_carries_asset_balance_and_off
     assert!(events.epochs.iter().all(|e| e.implementation.is_empty()));
     let offset: Vec<_> = events.global_state.iter().filter(|g| g.market == oz.vault).collect();
     assert_eq!(
-        (offset.len(), offset[0].field, &*offset[0].value, offset[0].observation),
+        (offset.len(), offset[0].field.to_i32(), &*offset[0].value, offset[0].observation.to_i32()),
         (1, pb::StateField::Erc4626DecimalsOffset as i32, "12", pb::Observation::QualifiedConstant as i32)
     );
     assert_eq!(decimals_offset, 12);
@@ -409,7 +407,7 @@ fn sdai_model_carries_pot_dsr_chi_rho_and_oz_model_carries_asset_balance_and_off
     })];
     let events = project(&b, &cfg).unwrap();
     assert_eq!(
-        (events.epochs.len(), &events.epochs[0].market, events.epochs[0].reason),
+        (events.epochs.len(), &events.epochs[0].market, events.epochs[0].reason.to_i32()),
         (1, &sdai.vault, pb::InvalidationReason::DependencyCodeChange as i32)
     );
 }
@@ -490,7 +488,7 @@ fn erc7201(id: &str) -> [u8; 32] {
 
 #[test]
 fn the_openzeppelin_namespace_slot_is_derived_from_its_id_and_shared_rules_hold() {
-    use prost::Message;
+    use buffa::Message;
     let cfg = mainnet();
     let oz = cfg.vaults[1].clone();
     assert_eq!(erc7201("openzeppelin.storage.ERC20"), oz.balances_slot);
@@ -507,7 +505,7 @@ fn the_openzeppelin_namespace_slot_is_derived_from_its_id_and_shared_rules_hold(
     let key = mapping_key(&holder, &vlt.balances_slot);
     let mut b = block(10);
     b.transaction_traces = vec![eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Succeeded as i32,
+        status: eth::TransactionTraceStatus::Succeeded.into(),
         hash: vec![7; 32],
         index: 9,
         calls: vec![
@@ -520,9 +518,9 @@ fn the_openzeppelin_namespace_slot_is_derived_from_its_id_and_shared_rules_hold(
                 index: 1,
                 parent_index: 0,
                 depth: 1,
-                call_type: eth::CallType::Delegate as i32,
+                call_type: eth::CallType::Delegate.into(),
                 address: vlt.implementation.clone().unwrap(),
-                keccak_preimages: [preimage(&holder, &vlt.balances_slot)].into(),
+                keccak_preimages: [preimage(&holder, &vlt.balances_slot)].into_iter().collect(),
                 storage_changes: vec![write(&vlt.vault, key, w(1), w(2), 10)],
                 ..Default::default()
             },
@@ -534,12 +532,12 @@ fn the_openzeppelin_namespace_slot_is_derived_from_its_id_and_shared_rules_hold(
     // FAILED and REVERTED transactions contribute nothing; status 0 is refused.
     for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
         let mut t = tx(shares_call(&vlt, &holder, 1, 2, 10));
-        t.status = status as i32;
+        t.status = status.into();
         b.transaction_traces = vec![t];
         assert!(project(&b, &cfg).unwrap().holder_basis.is_empty());
     }
     let mut t = tx(eth::Call::default());
-    t.status = 0;
+    t.status = 0.into();
     b.transaction_traces = vec![t];
     assert!(project(&b, &cfg).unwrap_err().to_string().contains("incomplete transaction"));
     // Blocks before activation emit only the clock.
@@ -583,17 +581,20 @@ fn validate_block_refusals_provenance_and_multi_vault_attribution() {
     let cases: Vec<(&str, Mutation)> = vec![
         (
             "Extended blocks required",
-            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase as i32),
+            Box::new(|b| b.detail_level = eth::block::DetailLevel::DetaillevelBase.into()),
         ),
         ("producer version", Box::new(|b| b.ver = 3)),
-        ("missing header", Box::new(|b| b.header = None)),
+        ("missing header", Box::new(|b| b.header = buffa::MessageField::none())),
         ("invalid block identity", Box::new(|b| b.hash = vec![1; 31])),
-        ("invalid block identity", Box::new(|b| b.header.as_mut().unwrap().parent_hash = vec![])),
-        ("header number mismatch", Box::new(|b| b.header.as_mut().unwrap().number += 1)),
-        ("missing timestamp", Box::new(|b| b.header.as_mut().unwrap().timestamp = None)),
+        ("invalid block identity", Box::new(|b| b.header.as_option_mut().unwrap().parent_hash = vec![])),
+        ("header number mismatch", Box::new(|b| b.header.as_option_mut().unwrap().number += 1)),
+        (
+            "missing timestamp",
+            Box::new(|b| b.header.as_option_mut().unwrap().timestamp = buffa::MessageField::none()),
+        ),
         (
             "negative timestamp",
-            Box::new(|b| b.header.as_mut().unwrap().timestamp.as_mut().unwrap().seconds = -1),
+            Box::new(|b| b.header.as_option_mut().unwrap().timestamp.as_option_mut().unwrap().seconds = -1),
         ),
     ];
     for (message, apply) in cases {
@@ -717,8 +718,8 @@ fn oz_asset_proxy_binding_invalidates_pointer_and_implementation_changes() {
             (&dep.pointer_slot, &dep.pointer_value),
             (&slot.to_vec(), &word(implementation).unwrap().to_vec())
         );
-        assert_eq!(dep.binding, pb::BindingKind::StoragePointer as i32);
-        assert_eq!(dep.role, pb::DependencyRole::Implementation as i32);
+        assert_eq!(dep.binding, pb::BindingKind::StoragePointer);
+        assert_eq!(dep.role, pb::DependencyRole::Implementation);
         // The underlying is bound by the ERC4626Storage word: `_asset` in the
         // low 160 bits and `_underlyingDecimals` (6) above it.
         let underlying = rows.iter().find(|d| d.depth == 1).unwrap();
@@ -730,8 +731,8 @@ fn oz_asset_proxy_binding_invalidates_pointer_and_implementation_changes() {
         expected[12..].copy_from_slice(&oz.asset);
         assert_eq!(
             (
-                underlying.role,
-                underlying.binding,
+                underlying.role.to_i32(),
+                underlying.binding.to_i32(),
                 &underlying.pointer_contract,
                 &underlying.pointer_slot,
                 &underlying.pointer_value
@@ -746,7 +747,7 @@ fn oz_asset_proxy_binding_invalidates_pointer_and_implementation_changes() {
         );
         assert!(rows.iter().all(|d| &d.source_pin == asset_source_pin));
         assert_eq!(
-            dep.kind,
+            dep.kind.to_i32(),
             if number == 1 {
                 pb::EpochEventKind::Bound
             } else {
@@ -770,7 +771,7 @@ fn oz_asset_proxy_binding_invalidates_pointer_and_implementation_changes() {
     assert_eq!(events.epochs[0].evidence_word, w(2));
     let e = &events.epochs[1];
     assert_eq!(
-        (&e.market, e.reason, e.ordinal),
+        (&e.market, e.reason.to_i32(), e.ordinal),
         (&oz.vault, pb::InvalidationReason::DependencyPointerWrite as i32, 11)
     );
     assert_eq!((&e.evidence_contract, &e.evidence_slot), (&oz.asset, &slot.to_vec()));
@@ -785,7 +786,7 @@ fn oz_asset_proxy_binding_invalidates_pointer_and_implementation_changes() {
     })];
     let events = project(&b, &cfg).unwrap();
     assert_eq!(events.epochs.len(), 1);
-    assert_eq!(events.epochs[0].reason, pb::InvalidationReason::DependencyPointerWrite as i32);
+    assert_eq!(events.epochs[0].reason, pb::InvalidationReason::DependencyPointerWrite);
     assert_eq!(
         (&events.epochs[0].evidence_previous_word, &events.epochs[0].evidence_word),
         (&w(1).to_vec(), &w(1).to_vec())
@@ -810,7 +811,7 @@ fn oz_asset_proxy_binding_invalidates_pointer_and_implementation_changes() {
         let events = project(&b, &cfg).unwrap();
         assert_eq!(events.epochs.len(), 1);
         assert_eq!(events.epochs[0].market, oz.vault);
-        assert_eq!(events.epochs[0].reason, pb::InvalidationReason::DependencyCodeChange as i32);
+        assert_eq!(events.epochs[0].reason, pb::InvalidationReason::DependencyCodeChange);
         assert_eq!(&events.epochs[0].evidence_contract, address);
         assert_eq!(events.epochs[0].evidence_code_hash, vec![2; 32]);
     }
@@ -922,8 +923,8 @@ fn vault_and_pool_pointer_writes_preserve_noops_restoration_and_persistence() {
             assert_eq!(events.epochs.len(), transitions.len());
             assert!(events.holder_basis.is_empty() && events.global_state.is_empty());
             for (i, row) in events.epochs.iter().enumerate() {
-                assert_eq!((&row.market, row.reason), (&vault.vault, reason as i32));
-                assert_eq!(row.kind, pb::EpochEventKind::Invalidated as i32);
+                assert_eq!((&row.market, row.reason.to_i32()), (&vault.vault, reason as i32));
+                assert_eq!(row.kind, pb::EpochEventKind::Invalidated);
                 assert_eq!((&row.evidence_contract, &row.evidence_slot), (address, &slot.to_vec()));
                 assert_eq!(
                     (&row.evidence_previous_word, &row.evidence_word),
@@ -937,12 +938,12 @@ fn vault_and_pool_pointer_writes_preserve_noops_restoration_and_persistence() {
             }
             for status in [eth::TransactionTraceStatus::Failed, eth::TransactionTraceStatus::Reverted] {
                 for t in &mut b.transaction_traces {
-                    t.status = status as i32;
+                    t.status = status.into();
                 }
                 assert!(project(&b, &cfg).unwrap().epochs.is_empty());
             }
             for t in &mut b.transaction_traces {
-                t.status = eth::TransactionTraceStatus::Succeeded as i32;
+                t.status = eth::TransactionTraceStatus::Succeeded.into();
                 t.calls[0].state_reverted = true;
             }
             assert!(project(&b, &cfg).unwrap().epochs.is_empty());
@@ -957,10 +958,7 @@ fn vault_and_pool_pointer_writes_preserve_noops_restoration_and_persistence() {
             b.transaction_traces.clear();
             let events = project(&b, &cfg).unwrap();
             assert_eq!(events.epochs.len(), transitions.len());
-            assert!(events
-                .epochs
-                .iter()
-                .all(|e| e.scope == pb::Scope::SystemCall as i32 && e.transaction_hash.is_empty()));
+            assert!(events.epochs.iter().all(|e| e.scope == pb::Scope::SystemCall && e.transaction_hash.is_empty()));
         }
         // True noops participate in ordering/continuity validation like every other pointer write.
         for (second_old, ordinal, error) in [(w(2), 10, "ambiguous"), (w(3), 11, "discontinuous")] {
@@ -990,7 +988,7 @@ fn vault_and_pool_pointer_writes_preserve_noops_restoration_and_persistence() {
 
 #[test]
 fn pointer_guards_attribute_shared_pool_and_direct_vault_writes_deterministically() {
-    use prost::Message;
+    use buffa::Message;
     let mut raw: serde_json::Value = serde_json::from_str(BSC).unwrap();
     let mut other = raw["vaults"][0].clone();
     other["vault"] = format!("0x{}", hex::encode([0x33; 20])).into();
@@ -1027,7 +1025,7 @@ fn pointer_guards_attribute_shared_pool_and_direct_vault_writes_deterministicall
     let second_rows: Vec<_> = events.epochs.iter().filter(|e| e.market == second.vault).collect();
     assert_eq!(second_rows.len(), 1);
     assert_eq!(
-        (second_rows[0].epoch, second_rows[0].reason),
+        (second_rows[0].epoch, second_rows[0].reason.to_i32()),
         (2, pb::InvalidationReason::DependencyPointerWrite as i32)
     );
     b.transaction_traces.reverse();
@@ -1068,7 +1066,7 @@ fn an_openzeppelin_initializing_block_is_reviewed_and_rebinding_the_asset_invali
     let mut b = block(10);
     b.transaction_traces = vec![tx(eth::Call {
         address: oz.vault.clone(),
-        keccak_preimages: [(hex::encode(name_data), hex::encode(name_slot))].into(),
+        keccak_preimages: [(hex::encode(name_data), hex::encode(name_slot))].into_iter().collect(),
         storage_changes: vec![
             write(&oz.vault, initializable, [0; 32], initializing, 8),
             // A 40-byte name: the root holds 2 * length + 1, the data two words.
@@ -1086,10 +1084,14 @@ fn an_openzeppelin_initializing_block_is_reviewed_and_rebinding_the_asset_invali
     // Metadata and supply writes are validated, but the prefix's supply is
     // not EOB state. Rebinding yields evidence instead of failing the block.
     assert!(fields(&events, &oz.vault).is_empty());
-    let invalidations: Vec<_> = events.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32).collect();
+    let invalidations: Vec<_> = events.epochs.iter().filter(|e| e.kind == pb::EpochEventKind::Invalidated).collect();
     assert_eq!(invalidations.len(), 1);
     assert_eq!(
-        (invalidations[0].reason, &invalidations[0].evidence_slot, &invalidations[0].evidence_word),
+        (
+            invalidations[0].reason.to_i32(),
+            &invalidations[0].evidence_slot,
+            &invalidations[0].evidence_word
+        ),
         (
             pb::InvalidationReason::DependencyPointerWrite as i32,
             &erc4626_slot.to_vec(),
@@ -1154,10 +1156,7 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
         ..Default::default()
     })];
     let events = project(&b, &cfg).unwrap();
-    assert!(events
-        .epochs
-        .iter()
-        .all(|e| e.market != oz.vault || e.kind != pb::EpochEventKind::Invalidated as i32));
+    assert!(events.epochs.iter().all(|e| e.market != oz.vault || e.kind != pb::EpochEventKind::Invalidated));
     // Observed writes only; the BOUND row also declares the offset constant.
     let observed = |market: &[u8]| -> Vec<(i32, String, String, i32)> {
         fields(&events, market)
@@ -1173,7 +1172,7 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
     let bound = events
         .epochs
         .iter()
-        .find(|e| e.market == oz.vault && e.kind == pb::EpochEventKind::Bound as i32)
+        .find(|e| e.market == oz.vault && e.kind == pb::EpochEventKind::Bound)
         .unwrap();
     assert_eq!((bound.activation_ordinal, bound.ordinal), (100, 100));
     // The asset proxy upgrade after activation invalidates the OZ epoch only.
@@ -1186,7 +1185,7 @@ fn an_epoch_bound_mid_block_owns_only_effects_from_its_activation_ordinal() {
         .unwrap()
         .epochs
         .iter()
-        .filter(|e| e.kind == pb::EpochEventKind::Invalidated as i32)
+        .filter(|e| e.kind == pb::EpochEventKind::Invalidated)
         .map(|e| (e.market.clone(), e.ordinal))
         .collect();
     assert_eq!(invalidated, vec![(oz.vault.clone(), 160)]);
@@ -1204,7 +1203,8 @@ fn reward_token_registration_writes_the_reviewed_array_data_and_nothing_else_pas
     let reward = [0x44u8; 20];
     let start_index_base = w(11);
     let push = |i: u8, extra: Vec<eth::StorageChange>, with_preimage: bool| {
-        let mut preimages: std::collections::HashMap<String, String> = [preimage(&reward, &start_index_base)].into();
+        // The field's map type (buffa: std HashMap with a foldhash hasher).
+        let mut preimages: std::collections::HashMap<String, String, _> = [preimage(&reward, &start_index_base)].into_iter().collect();
         if with_preimage {
             preimages.insert(hex::encode(data), hex::encode(array));
         }
@@ -1237,7 +1237,7 @@ fn reward_token_registration_writes_the_reviewed_array_data_and_nothing_else_pas
     let mut b = block(10);
     b.transaction_traces = vec![tx(eth::Call {
         address: v.vault.clone(),
-        keccak_preimages: [(hex::encode(decimals_data), hex::encode(w(3)))].into(),
+        keccak_preimages: [(hex::encode(decimals_data), hex::encode(w(3)))].into_iter().collect(),
         storage_changes: vec![write(&v.vault, decimals_data, w(0), w(1), 10)],
         ..Default::default()
     })];
@@ -1262,7 +1262,7 @@ fn nested_allowances_resolve_through_both_preimages_and_reverted_child_frames_ar
     let outer = mapping_key(&spender, &inner);
     let inner_preimage = preimage(&owner, &allowance);
     let outer_preimage = preimage(&spender, &inner);
-    let approve = |preimages: std::collections::HashMap<String, String>| {
+    let approve = |preimages: std::collections::HashMap<String, String, _>| {
         let mut b = block(10);
         b.transaction_traces = vec![tx(eth::Call {
             address: v.vault.clone(),
@@ -1272,11 +1272,11 @@ fn nested_allowances_resolve_through_both_preimages_and_reverted_child_frames_ar
         })];
         project(&b, &cfg)
     };
-    assert!(approve([inner_preimage.clone(), outer_preimage.clone()].into())
+    assert!(approve([inner_preimage.clone(), outer_preimage.clone()].into_iter().collect())
         .unwrap()
         .holder_basis
         .is_empty());
-    assert!(approve([outer_preimage].into()).unwrap_err().to_string().contains("unresolved"));
+    assert!(approve([outer_preimage].into_iter().collect()).unwrap_err().to_string().contains("unresolved"));
     // A reverted child frame inside a successful transaction contributes nothing.
     let holder = [9u8; 20];
     let other = [8u8; 20];
@@ -1347,14 +1347,14 @@ fn successor_schedule_splits_every_vault_model_and_preserves_unrelated_ownership
         let globals: Vec<_> = output
             .global_state
             .iter()
-            .filter(|row| row.market == v.vault && row.observation == pb::Observation::ObservedWrite as i32)
+            .filter(|row| row.market == v.vault && row.observation == pb::Observation::ObservedWrite)
             .collect();
         assert!(!globals.is_empty());
         assert!(globals.iter().all(|row| row.epoch == 3 && row.first_ordinal == 31 && row.change_count == 1));
         assert!(output
             .global_state
             .iter()
-            .any(|row| row.market == cfg.vaults[1].vault && row.field == pb::StateField::Erc4626TotalSupply as i32 && row.value == "4"));
+            .any(|row| row.market == cfg.vaults[1].vault && row.field == pb::StateField::Erc4626TotalSupply && row.value == "4"));
         let next = output.epochs.iter().find(|row| row.market == v.vault && row.epoch == 3).unwrap();
         assert!(!next.basis_carryover && !next.global_carryover);
         let quiet = project(&block(3), &cfg).unwrap();
@@ -1365,10 +1365,7 @@ fn successor_schedule_splits_every_vault_model_and_preserves_unrelated_ownership
             .all(|row| row.epoch == 3 && !row.basis_carryover && !row.global_carryover));
         assert!(quiet.dependencies.iter().filter(|row| row.market == v.vault).all(|row| row.epoch == 3));
         assert!(quiet.holder_basis.is_empty());
-        assert!(quiet
-            .global_state
-            .iter()
-            .all(|row| row.observation == pb::Observation::QualifiedConstant as i32));
+        assert!(quiet.global_state.iter().all(|row| row.observation == pb::Observation::QualifiedConstant));
         b.transaction_traces[0].calls[0].storage_changes[1].old_value = w(8).to_vec();
         assert!(project(&b, &cfg).unwrap_err().to_string().contains("discontinuous"));
         b.transaction_traces[0].calls[0].storage_changes = vec![write(&v.vault, w(0xabcdef), w(0), w(1), 20)];
@@ -1409,13 +1406,13 @@ fn successor_schedule_changes_models_assets_and_storage_without_carryover() {
     let assets = output
         .global_state
         .iter()
-        .find(|row| row.market == next.vault && row.field == pb::StateField::Erc4626TotalAssets as i32)
+        .find(|row| row.market == next.vault && row.field == pb::StateField::Erc4626TotalAssets)
         .unwrap();
     assert_eq!((&*assets.value, assets.bit_width, assets.epoch), ("9", 255, 3));
     let constant = output
         .global_state
         .iter()
-        .find(|row| row.market == next.vault && row.field == pb::StateField::Erc4626DecimalsOffset as i32)
+        .find(|row| row.market == next.vault && row.field == pb::StateField::Erc4626DecimalsOffset)
         .unwrap();
     assert_eq!((constant.epoch, constant.ordinal, constant.first_ordinal, constant.change_count), (3, 30, 0, 0));
     assert!(output
@@ -1451,7 +1448,7 @@ fn successor_schedule_scopes_dependency_code_and_pointer_excursions() {
             assert!(output
                 .epochs
                 .iter()
-                .any(|row| row.market == v.vault && row.epoch == epoch && row.kind == pb::EpochEventKind::Invalidated as i32));
+                .any(|row| row.market == v.vault && row.epoch == epoch && row.kind == pb::EpochEventKind::Invalidated));
             assert_eq!(output.holder_basis.len(), usize::from(ordinal < 30));
         }
     }
@@ -1466,7 +1463,7 @@ fn successor_schedule_scopes_dependency_code_and_pointer_excursions() {
     let edges: Vec<_> = output
         .epochs
         .iter()
-        .filter(|row| row.market == v.vault && row.kind == pb::EpochEventKind::Invalidated as i32)
+        .filter(|row| row.market == v.vault && row.kind == pb::EpochEventKind::Invalidated)
         .map(|row| (row.epoch, row.ordinal))
         .collect();
     assert_eq!(edges, vec![(1, 20), (3, 30)]);
@@ -1476,7 +1473,7 @@ fn successor_schedule_scopes_dependency_code_and_pointer_excursions() {
 
 #[test]
 fn successor_schedule_is_deterministic_and_emits_every_actual_bound() {
-    use prost::Message;
+    use buffa::Message;
     let mut raw = successor_params(BSC, 0);
     let mut third = raw["vaults"][2].clone();
     third["epoch"] = 8.into();
@@ -1491,7 +1488,7 @@ fn successor_schedule_is_deterministic_and_emits_every_actual_bound() {
         expected
             .epochs
             .iter()
-            .filter(|row| row.market == cfg.vaults[0].vault && row.kind == pb::EpochEventKind::Bound as i32)
+            .filter(|row| row.market == cfg.vaults[0].vault && row.kind == pb::EpochEventKind::Bound)
             .count(),
         2
     );

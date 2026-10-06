@@ -6,6 +6,7 @@ members = [
   "erc20/balances",
   "erc20/events",
   "native/balances",
+  "evm-balances",
   "aave/actions",
   "aave/balance-state",
   "evm/executions",
@@ -24,11 +25,15 @@ version = "0.0.0"
 license = "Apache-2.0"
 
 [workspace.dependencies]
-substreams = "0.7.0"
-substreams-abis = { git = "https://github.com/pinax-network/substreams-abis.git", tag = "v1.5.0" }
-substreams-ethereum = "0.11.1"
-prost = "0.13"
-prost-types = "0.13"
+substreams = "0.8.0"
+# v2.0.0 is the port to substreams 0.8.0 and substreams-ethereum 0.12.0
+# (pinax-network/substreams-abis#55; same tree as its head 9914005).
+substreams-abis = { git = "https://github.com/pinax-network/substreams-abis.git", tag = "v2.0.0" }
+substreams-ethereum = "0.12.0"
+# Generated messages (proto/src/pb) and test encoding; the versions substreams
+# 0.8.0 and substreams-ethereum 0.12.0 are built on.
+buffa = { version = "0.9.2", default-features = false, features = ["std"] }
+buffa-types = { version = "0.9.2", default-features = false, features = ["std"] }
 
 [profile.release]
 lto = true

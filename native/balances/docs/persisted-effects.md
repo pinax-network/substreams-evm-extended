@@ -30,9 +30,9 @@ persisted record, so genesis allocations are unsupported rather than guessed.
 
 Reason numbers follow `sf.ethereum.type.v2.BalanceChange.Reason` in
 [firehose-ethereum `type.proto`](https://github.com/streamingfast/firehose-ethereum/blob/develop/proto/sf/ethereum/type/v2/type.proto).
-The pinned `substreams-ethereum` 0.11.1 bindings name reasons 0–16; the
-reducer applies records regardless of whether it can name the reason, because
-the reason only governs the failed-transaction policy. Counts are from the
+The pinned `substreams-ethereum` 0.12.0 bindings name reasons 0–20 (0.11.1
+named 0–16); the reducer applies records regardless of whether it can name the
+reason, because the reason only governs the failed-transaction policy. Counts are from the
 saved-data replay of 1,439 BSC producer-version-5 blocks.
 
 | Reason | Number | Succeeded / system / block | Failed transaction root call | Saved records |

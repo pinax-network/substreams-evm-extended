@@ -697,21 +697,21 @@ fn offset_from(key: &[u8; 32], start: &[u8; 32]) -> Option<u64> {
 }
 
 pub fn validate_block(block: &eth::Block, config: &Config) -> Result<u64, Error> {
-    require(
-        block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32,
-        "Extended blocks required",
-    )?;
+    require(block.detail_level == eth::block::DetailLevel::DetaillevelExtended, "Extended blocks required")?;
     require(config.producer_versions.contains(&block.ver), "Extended producer version not qualified")?;
-    let header = block.header.as_ref().ok_or_else(|| Error::msg("missing header"))?;
+    let header = block.header.as_option().ok_or_else(|| Error::msg("missing header"))?;
     require(
         block.hash.len() == 32 && header.parent_hash.len() == 32 && header.state_root.len() == 32,
         "invalid block identity",
     )?;
     require(header.number == block.number && block.number > 0, "header number mismatch")?;
-    let timestamp = header.timestamp.as_ref().ok_or_else(|| Error::msg("missing timestamp"))?;
+    let timestamp = header.timestamp.as_option().ok_or_else(|| Error::msg("missing timestamp"))?;
     require(timestamp.seconds >= 0, "negative timestamp")?;
     for tx in &block.transaction_traces {
-        require((1..=3).contains(&tx.status) && !tx.calls.is_empty(), "incomplete transaction persistence data")?;
+        require(
+            (1..=3).contains(&tx.status.to_i32()) && !tx.calls.is_empty(),
+            "incomplete transaction persistence data",
+        )?;
     }
     Ok(timestamp.seconds as u64)
 }
@@ -732,14 +732,14 @@ fn field_row(config: &Config, vault: &Vault, r: &Reduced, f: Field) -> pb::Globa
         chain_id: config.chain_id,
         market: vault.vault.clone(),
         epoch: vault.epoch,
-        field: f.field as i32,
+        field: f.field.into(),
         key: f.key,
         value: bits(&r.new, f.offset, f.width).to_string(),
         previous_value: bits(&r.old, f.offset, f.width).to_string(),
         scale: f.scale.into(),
-        observation: pb::Observation::ObservedWrite as i32,
-        boundary: pb::Boundary::EndOfBlock as i32,
-        scope: scope_of(r.scope) as i32,
+        observation: pb::Observation::ObservedWrite.into(),
+        boundary: pb::Boundary::EndOfBlock.into(),
+        scope: scope_of(r.scope).into(),
         ordinal: r.ordinal,
         first_ordinal: r.first_ordinal,
         change_count: r.count,
@@ -760,14 +760,14 @@ fn epoch_row(config: &Config, vault: &Vault, kind: pb::EpochEventKind) -> pb::Mo
         chain_id: config.chain_id,
         market: vault.vault.clone(),
         epoch: vault.epoch,
-        kind: kind as i32,
-        family: vault.family() as i32,
+        kind: kind.into(),
+        family: vault.family().into(),
         model_id: vault.model_id.clone(),
         source_pin: vault.source_pin.clone(),
         implementation_revision: vault.implementation_revision.clone(),
-        basis_kind: pb::BasisKind::Shares as i32,
+        basis_kind: pb::BasisKind::Shares.into(),
         basis_scale: vault.basis_scale().into(),
-        balance_rounding: pb::Rounding::Floor as i32,
+        balance_rounding: pb::Rounding::Floor.into(),
         basis_bit_offset: 0,
         basis_bit_width: 256,
         basis_signed: false,
@@ -781,14 +781,14 @@ fn epoch_row(config: &Config, vault: &Vault, kind: pb::EpochEventKind) -> pb::Mo
         balance_decimals: vault.asset_decimals,
         basis_carryover: !vault.interval.successor,
         global_carryover: !vault.interval.successor,
-        scope: pb::Scope::Epoch as i32,
+        scope: pb::Scope::Epoch.into(),
         ..Default::default()
     }
 }
 fn invalidation(config: &Config, vault: &Vault, reason: pb::InvalidationReason, r: &Change) -> pb::ModelEpoch {
     pb::ModelEpoch {
-        reason: reason as i32,
-        scope: scope_of(r.scope) as i32,
+        reason: reason.into(),
+        scope: scope_of(r.scope).into(),
         ordinal: r.ordinal,
         transaction_index: r.tx_index,
         transaction_hash: r.tx_hash.clone(),
@@ -805,11 +805,11 @@ fn dependency(config: &Config, vault: &Vault, kind: pb::EpochEventKind, role: pb
         chain_id: config.chain_id,
         market: vault.vault.clone(),
         epoch: vault.epoch,
-        kind: kind as i32,
-        role: role as i32,
+        kind: kind.into(),
+        role: role.into(),
         contract: contract.to_vec(),
         depth: 1,
-        binding: pb::BindingKind::Declared as i32,
+        binding: pb::BindingKind::Declared.into(),
         activation_block: vault.activation_block,
         source_pin: vault.source_pin.clone(),
         ..Default::default()
@@ -825,7 +825,7 @@ fn pointer(
     slot: &[u8; 32],
 ) -> Result<pb::Dependency, Error> {
     Ok(pb::Dependency {
-        binding: pb::BindingKind::StoragePointer as i32,
+        binding: pb::BindingKind::StoragePointer.into(),
         pointer_contract: pointer_contract.to_vec(),
         pointer_slot: slot.to_vec(),
         pointer_value: word(contract)?.to_vec(),
@@ -835,7 +835,7 @@ fn pointer(
 
 pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error> {
     let timestamp = validate_block(block, config)?;
-    let header = block.header.as_ref().unwrap();
+    let header = block.header.as_option().unwrap();
     let active: Vec<&Vault> = config.vaults.iter().filter(|v| v.interval.intersects_block(block.number)).collect();
     let mut events = pb::Events::default();
     if !active.is_empty() {
@@ -931,12 +931,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                             market: vault.vault.clone(),
                             holder,
                             epoch: vault.epoch,
-                            basis_kind: pb::BasisKind::Shares as i32,
+                            basis_kind: pb::BasisKind::Shares.into(),
                             value: bits(&r.new, 0, 256).to_string(),
                             previous_value: bits(&r.old, 0, 256).to_string(),
-                            observation: pb::Observation::ObservedWrite as i32,
-                            boundary: pb::Boundary::EndOfBlock as i32,
-                            scope: scope_of(r.scope) as i32,
+                            observation: pb::Observation::ObservedWrite.into(),
+                            boundary: pb::Boundary::EndOfBlock.into(),
+                            scope: scope_of(r.scope).into(),
                             ordinal: r.ordinal,
                             first_ordinal: r.first_ordinal,
                             change_count: r.count,
@@ -1082,8 +1082,8 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     continue;
                 };
                 events.epochs.push(pb::ModelEpoch {
-                    reason: reason as i32,
-                    scope: scope_of(c.scope) as i32,
+                    reason: reason.into(),
+                    scope: scope_of(c.scope).into(),
                     ordinal: c.ordinal,
                     transaction_index: c.tx_index,
                     transaction_hash: c.tx_hash.clone(),
@@ -1185,7 +1185,7 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                     let mut expected = word(&vault.asset)?;
                     expected[11] = u8::try_from(vault.asset_decimals).map_err(|_| Error::msg("asset_decimals exceeds uint8"))?;
                     events.dependencies.push(pb::Dependency {
-                        binding: pb::BindingKind::StoragePointer as i32,
+                        binding: pb::BindingKind::StoragePointer.into(),
                         pointer_contract: vault.vault.clone(),
                         pointer_slot: erc4626_storage_slot.to_vec(),
                         pointer_value: expected.to_vec(),
@@ -1204,12 +1204,12 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
                         chain_id: config.chain_id,
                         market: vault.vault.clone(),
                         epoch: vault.epoch,
-                        field: pb::StateField::Erc4626DecimalsOffset as i32,
+                        field: pb::StateField::Erc4626DecimalsOffset.into(),
                         value: decimals_offset.to_string(),
                         scale: "1".into(),
-                        observation: pb::Observation::QualifiedConstant as i32,
-                        boundary: pb::Boundary::Declaration as i32,
-                        scope: pb::Scope::Epoch as i32,
+                        observation: pb::Observation::QualifiedConstant.into(),
+                        boundary: pb::Boundary::Declaration.into(),
+                        scope: pb::Scope::Epoch.into(),
                         // A declaration sits at the epoch boundary and names the
                         // implementation whose code binds the constant.
                         ordinal: if kind == pb::EpochEventKind::Bound { vault.activation_ordinal } else { 0 },
@@ -1225,13 +1225,13 @@ pub fn project(block: &eth::Block, config: &Config) -> Result<pb::Events, Error>
         .sort_by(|a, b| (&a.market, &a.holder, a.ordinal).cmp(&(&b.market, &b.holder, b.ordinal)));
     events
         .global_state
-        .sort_by(|a, b| (&a.market, a.field, &a.key, a.ordinal).cmp(&(&b.market, b.field, &b.key, b.ordinal)));
+        .sort_by(|a, b| (&a.market, a.field.to_i32(), &a.key, a.ordinal).cmp(&(&b.market, b.field.to_i32(), &b.key, b.ordinal)));
     events
         .epochs
-        .sort_by(|a, b| (&a.market, a.epoch, a.ordinal, a.kind).cmp(&(&b.market, b.epoch, b.ordinal, b.kind)));
+        .sort_by(|a, b| (&a.market, a.epoch, a.ordinal, a.kind.to_i32()).cmp(&(&b.market, b.epoch, b.ordinal, b.kind.to_i32())));
     events
         .dependencies
-        .sort_by(|a, b| (&a.market, a.epoch, a.depth, a.role, &a.contract).cmp(&(&b.market, b.epoch, b.depth, b.role, &b.contract)));
+        .sort_by(|a, b| (&a.market, a.epoch, a.depth, a.role.to_i32(), &a.contract).cmp(&(&b.market, b.epoch, b.depth, b.role.to_i32(), &b.contract)));
     events.clocks.push(pb::BlockClock {
         chain_id: config.chain_id,
         number: block.number,

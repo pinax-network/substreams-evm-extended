@@ -18,8 +18,10 @@ modules and custom database sinks are not part of this workspace.
 
 The canonical RPC reference is retained as an immutable standalone SPKG; its
 dependencies are embedded. Its source modules do not need to be copied here.
-The native ClickHouse sink consumes the unchanged Events protobuf directly;
-see [setup and validation](../erc20/balances/clickhouse/README.md).
+The native ClickHouse sink consumed the unchanged Events protobuf directly
+([setup and validation at `cb62110`](https://github.com/pinax-network/substreams-evm-extended/blob/cb6211007f1f9d0cb5852a6b666da475a8fa6542/erc20/balances/clickhouse/README.md));
+since 2026-10-05 balances reach ClickHouse through
+[`evm-balances`](../evm-balances/README.md).
 
 The old PR's history and discussions remain available at their original URL.
 The source repository retains its shared balance protobuf and RPC-based balance
@@ -43,6 +45,15 @@ also produces byte-identical production WASM. Both historical and
 migrated packages report module hash
 `d94199efaedeed37d58d1be9780b46138caf5576`, with one `map_events`, default `[]`,
 the Extended Ethereum block input and `evm.balances.v1.Events` output.
+
+The table and the paragraph above describe the migration revision. On
+2026-10-05 the substreams 0.8.0 bump replaced the prost file
+`proto/src/pb/evm.balances.v1.rs` with buffa code generated from the unchanged
+`balances.proto` (`proto/src/pb/balances.rs` and its view files); the prost
+file is preserved at
+[`cb62110`](https://github.com/pinax-network/substreams-evm-extended/blob/cb6211007f1f9d0cb5852a6b666da475a8fa6542/proto/src/pb/evm.balances.v1.rs).
+The statements below about unchanged generated Rust types likewise describe
+the code before that date.
 
 The migrated SPKG has different package metadata and embedded documentation.
 Its digest is recorded separately in [migration evidence](evidence/migration.json).

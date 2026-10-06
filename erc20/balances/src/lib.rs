@@ -29,19 +29,19 @@ fn mapping(owner: &[u8], position: &[u8; 32]) -> [u8; 32] {
     hash(&preimage)
 }
 fn validate_block(block: &eth::Block) -> Result<(), Error> {
-    require(
-        block.detail_level == eth::block::DetailLevel::DetaillevelExtended as i32,
-        "Extended blocks required",
-    )?;
+    require(block.detail_level == eth::block::DetailLevel::DetaillevelExtended, "Extended blocks required")?;
     require((3..=5).contains(&block.ver), "unsupported Extended producer version")?;
-    let header = block.header.as_ref().ok_or_else(|| Error::msg("missing header"))?;
+    let header = block.header.as_option().ok_or_else(|| Error::msg("missing header"))?;
     require(
         block.hash.len() == 32 && header.parent_hash.len() == 32 && header.state_root.len() == 32,
         "invalid block identity",
     )?;
     require(header.number == block.number, "header number mismatch")?;
     for tx in &block.transaction_traces {
-        require((1..=3).contains(&tx.status) && !tx.calls.is_empty(), "incomplete transaction persistence data")?;
+        require(
+            (1..=3).contains(&tx.status.to_i32()) && !tx.calls.is_empty(),
+            "incomplete transaction persistence data",
+        )?;
     }
     Ok(())
 }
@@ -83,5 +83,3 @@ mod handler {
         run(&block)
     }
 }
-#[cfg(test)]
-mod infer_tests;

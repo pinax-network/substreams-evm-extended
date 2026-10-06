@@ -19,7 +19,7 @@ syntax = "proto3";
 //     `Events` wrapper: a row is a flat tuple of scalars, enums and `bytes`.
 //  2. There are no `optional` fields. The sink renders an absent `optional
 //     bytes` and an empty `bytes` as the same empty `String`
-//     (erc20/balances/clickhouse/README.md), so presence is never encoded by
+//     (erc20/balances/clickhouse/README.md at cb62110), so presence is never encoded by
 //     field presence. Presence is carried explicitly:
 //       - every exact protocol integer is a `string` holding a decimal integer.
 //         `""` means "not carried by this row"; `"0"` means an observed zero.

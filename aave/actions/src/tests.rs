@@ -1,5 +1,5 @@
 use super::*;
-use prost::Message;
+use buffa::Message;
 
 const POOL_PARAMS: &str = include_str!("../tests/fixtures/bsc-aave-v3-pool.json");
 const BORROW: &[u8] = include_bytes!("../tests/fixtures/122288242-tx32-borrow-usdt.pb");
@@ -24,7 +24,7 @@ fn only_reviewed_producer_versions_can_be_configured() {
     }
 }
 fn decode_block(bytes: &[u8]) -> eth::Block {
-    let block = eth::Block::decode(bytes).unwrap();
+    let block = eth::Block::decode_from_slice(bytes).unwrap();
     assert_eq!((block.ver, block.transaction_traces.len()), (5, 1));
     block
 }
@@ -33,12 +33,16 @@ fn block() -> eth::Block {
         ver: 5,
         number: 100,
         hash: vec![1; 32],
-        detail_level: eth::block::DetailLevel::DetaillevelExtended as i32,
-        header: Some(eth::BlockHeader {
+        detail_level: eth::block::DetailLevel::DetaillevelExtended.into(),
+        header: buffa::MessageField::some(eth::BlockHeader {
             number: 100,
             parent_hash: vec![2; 32],
             state_root: vec![3; 32],
-            timestamp: Some(prost_types::Timestamp { seconds: 1789000000, nanos: 0 }),
+            timestamp: buffa::MessageField::some(buffa_types::google::protobuf::Timestamp {
+                seconds: 1789000000,
+                nanos: 0,
+                ..Default::default()
+            }),
             ..Default::default()
         }),
         ..Default::default()
@@ -46,7 +50,7 @@ fn block() -> eth::Block {
 }
 fn tx(calls: Vec<eth::Call>) -> eth::TransactionTrace {
     eth::TransactionTrace {
-        status: eth::TransactionTraceStatus::Succeeded as i32,
+        status: eth::TransactionTraceStatus::Succeeded.into(),
         hash: vec![7; 32],
         index: 3,
         calls,
@@ -80,7 +84,10 @@ fn captured_borrow_supply_and_withdraw_keep_actor_beneficiary_and_recipient_apar
     let events = project(&decode_block(BORROW), &config()).unwrap();
     assert_eq!(events.actions.len(), 1);
     let a = &events.actions[0];
-    assert_eq!((a.kind, a.persisted, a.ordinal, a.call_index), (pb::ActionKind::Borrow as i32, true, 2549, 4));
+    assert_eq!(
+        (a.kind.to_i32(), a.persisted, a.ordinal, a.call_index),
+        (pb::ActionKind::Borrow as i32, true, 2549, 4)
+    );
     assert_eq!(hex::encode(&a.reserve), USDT);
     assert_eq!(hex::encode(&a.actor), "13f4e5bd5c0da823190f58db3ee98dfa2fa09042");
     assert_eq!(a.actor, a.beneficiary);
@@ -93,14 +100,14 @@ fn captured_borrow_supply_and_withdraw_keep_actor_beneficiary_and_recipient_apar
 
     let events = project(&decode_block(SUPPLY_BTCB), &config()).unwrap();
     let a = &events.actions[0];
-    assert_eq!((a.kind, a.persisted), (pb::ActionKind::Supply as i32, true));
+    assert_eq!((a.kind.to_i32(), a.persisted), (pb::ActionKind::Supply as i32, true));
     assert_eq!(hex::encode(&a.reserve), "7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c");
     assert_eq!((&*a.amount, a.interest_rate_mode), ("9431971302831856", 0));
     assert!(a.borrow_rate.is_empty() && a.recipient.is_empty());
 
     let events = project(&decode_block(WITHDRAW), &config()).unwrap();
     let a = &events.actions[0];
-    assert_eq!((a.kind, a.persisted, a.ordinal), (pb::ActionKind::Withdraw as i32, true, 3362));
+    assert_eq!((a.kind.to_i32(), a.persisted, a.ordinal), (pb::ActionKind::Withdraw as i32, true, 3362));
     assert_eq!(hex::encode(&a.recipient), "e88a4b3c49d4bf48d938cee1400e6806b2550386");
     assert_eq!((a.actor.clone(), a.beneficiary.clone()), (a.recipient.clone(), a.recipient.clone()));
     assert_eq!(a.amount, "5527010534175222644");
@@ -112,7 +119,7 @@ fn reverted_attempts_and_persisted_repeats_are_both_facts_in_one_transaction() {
     let block = decode_block(MULTI);
     let events = project(&block, &config()).unwrap();
     assert_eq!(events.actions.len(), 7);
-    let kinds: Vec<(i32, bool)> = events.actions.iter().map(|a| (a.kind, a.persisted)).collect();
+    let kinds: Vec<(i32, bool)> = events.actions.iter().map(|a| (a.kind.to_i32(), a.persisted)).collect();
     assert_eq!(
         kinds,
         vec![
@@ -171,12 +178,25 @@ fn repay_liquidation_and_flash_loan_decode_from_the_pinned_shapes() {
     assert_eq!(events.actions.len(), 3);
     let r = &events.actions[0];
     assert_eq!(
-        (r.kind, r.reserve.clone(), r.beneficiary.clone(), r.actor.clone(), &*r.amount, r.use_atokens),
+        (
+            r.kind.to_i32(),
+            r.reserve.clone(),
+            r.beneficiary.clone(),
+            r.actor.clone(),
+            &*r.amount,
+            r.use_atokens
+        ),
         (pb::ActionKind::Repay as i32, vec![0x11; 20], vec![0x22; 20], vec![0x33; 20], "500", true)
     );
     let l = &events.actions[1];
     assert_eq!(
-        (l.kind, l.collateral_asset.clone(), l.reserve.clone(), l.beneficiary.clone(), l.actor.clone()),
+        (
+            l.kind.to_i32(),
+            l.collateral_asset.clone(),
+            l.reserve.clone(),
+            l.beneficiary.clone(),
+            l.actor.clone()
+        ),
         (
             pb::ActionKind::LiquidationCall as i32,
             vec![0x44; 20],
@@ -188,7 +208,7 @@ fn repay_liquidation_and_flash_loan_decode_from_the_pinned_shapes() {
     assert_eq!((&*l.amount, &*l.liquidated_collateral_amount, l.receive_atoken), ("700", "90", false));
     let f = &events.actions[2];
     assert_eq!(
-        (f.kind, f.beneficiary.clone(), f.reserve.clone(), f.actor.clone()),
+        (f.kind.to_i32(), f.beneficiary.clone(), f.reserve.clone(), f.actor.clone()),
         (pb::ActionKind::FlashLoan as i32, vec![0x66; 20], vec![0x11; 20], vec![0x77; 20])
     );
     assert_eq!((&*f.amount, f.interest_rate_mode, &*f.premium, f.referral_code), ("1000", 0, "9", 7));
@@ -395,7 +415,7 @@ fn the_decoder_follows_the_compiled_v3_7_0_abi_and_v3_0_shares_it() {
         }])];
         let events = project(&b, &config()).unwrap();
         assert_eq!(events.actions.len(), 1, "{}", event["name"]);
-        assert_eq!(events.actions[0].kind, i as i32 + 1);
+        assert_eq!(events.actions[0].kind.to_i32(), i as i32 + 1);
         b.transaction_traces[0].calls[0].logs = vec![abi_log(event, topics[i], true)];
         assert!(project(&b, &config()).is_err(), "{} with a missing topic must fail", event["name"]);
     }

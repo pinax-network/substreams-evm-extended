@@ -4,7 +4,7 @@
 //! is asserted byte-identical to its historical encoding in the same run.
 use crate::pb::evm::balance_state::v1::*;
 use crate::pb::evm::balances::v1 as balances;
-use prost::Message;
+use buffa::Message;
 
 const AAVE_SUPPLY_ENCODED_LEN: usize = 1361;
 const CLOCK_ONLY_ENCODED_LEN: usize = 216;
@@ -20,7 +20,7 @@ fn hex(bytes: &[u8]) -> String {
 }
 fn roundtrip<M: Message + Default + PartialEq + std::fmt::Debug>(m: &M) -> Vec<u8> {
     let bytes = m.encode_to_vec();
-    assert_eq!(&M::decode(bytes.as_slice()).unwrap(), m);
+    assert_eq!(&M::decode_from_slice(&bytes).unwrap(), m);
     bytes
 }
 
@@ -46,26 +46,19 @@ fn clock(number: u64, holder_rows: u32, global_rows: u32) -> BlockClock {
 /// Aave BSC USDT aToken supply: one holder row and the three reserve fields
 /// `getNormalizedIncome` reads, all observed writes in one transaction.
 fn aave_supply() -> Events {
-    let identity = |ordinal| {
-        (
-            Observation::ObservedWrite as i32,
-            Boundary::EndOfBlock as i32,
-            Scope::Transaction as i32,
-            ordinal,
-        )
-    };
+    let identity = |ordinal| (Observation::ObservedWrite, Boundary::EndOfBlock, Scope::Transaction, ordinal);
     let (observation, boundary, scope, ordinal) = identity(15234);
     let holder = HolderBasis {
         chain_id: 56,
         market: addr(0xa9),
         holder: addr(0x11),
         epoch: 1,
-        basis_kind: BasisKind::ScaledBalance as i32,
+        basis_kind: BasisKind::ScaledBalance.into(),
         value: "998472113344556677889".into(),
         previous_value: "998000000000000000000".into(),
-        observation,
-        boundary,
-        scope,
+        observation: observation.into(),
+        boundary: boundary.into(),
+        scope: scope.into(),
         ordinal,
         first_ordinal: ordinal,
         change_count: 1,
@@ -84,13 +77,13 @@ fn aave_supply() -> Events {
         chain_id: 56,
         market: addr(0xa9),
         epoch: 1,
-        field: field as i32,
+        field: field.into(),
         key: addr(0x55),
         value: value.into(),
         scale: scale.into(),
-        observation: Observation::ObservedWrite as i32,
-        boundary: Boundary::EndOfBlock as i32,
-        scope: Scope::Transaction as i32,
+        observation: Observation::ObservedWrite.into(),
+        boundary: Boundary::EndOfBlock.into(),
+        scope: Scope::Transaction.into(),
         ordinal,
         first_ordinal: ordinal,
         change_count: 1,
@@ -130,7 +123,7 @@ fn aave_supply_round_trips_and_keeps_its_committed_encoding() {
     let events = aave_supply();
     let bytes = roundtrip(&events);
     assert_eq!(
-        hex(&prost::Message::encode_to_vec(&events.holder_basis[0])[..24]),
+        hex(&Message::encode_to_vec(&events.holder_basis[0])[..24]),
         "08381214a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9"
     );
     // Structural expectations a consumer relies on.
@@ -147,7 +140,7 @@ fn comet_global_accrual_emits_no_holder_rows() {
         chain_id: 1,
         market: addr(0xc3),
         epoch: 1,
-        field: field as i32,
+        field: field.into(),
         value: value.into(),
         scale: if matches!(field, StateField::CometLastAccrualTime) {
             "1"
@@ -155,9 +148,9 @@ fn comet_global_accrual_emits_no_holder_rows() {
             "1000000000000000"
         }
         .into(),
-        observation: Observation::ObservedWrite as i32,
-        boundary: Boundary::EndOfBlock as i32,
-        scope: Scope::Transaction as i32,
+        observation: Observation::ObservedWrite.into(),
+        boundary: Boundary::EndOfBlock.into(),
+        scope: Scope::Transaction.into(),
         ordinal: 2044,
         first_ordinal: 2044,
         change_count: 1,
@@ -191,7 +184,7 @@ fn comet_global_accrual_emits_no_holder_rows() {
     roundtrip(&events);
     assert!(events.holder_basis.is_empty());
     let idx = &events.global_state[0];
-    assert_eq!(StateField::try_from(idx.field).unwrap(), StateField::CometBaseSupplyIndex);
+    assert_eq!(idx.field.as_known().unwrap(), StateField::CometBaseSupplyIndex);
 }
 
 #[test]
@@ -201,12 +194,12 @@ fn signed_principal_keeps_its_sign_and_is_never_an_unsigned_balance() {
         market: addr(0xc3),
         holder: addr(0x22),
         epoch: 1,
-        basis_kind: BasisKind::SignedPrincipal as i32,
+        basis_kind: BasisKind::SignedPrincipal.into(),
         value: "-10141204801825835211973625643007".into(),         // int104 min
         previous_value: "10141204801825835211973625643007".into(), // int104 max
-        observation: Observation::ObservedWrite as i32,
-        boundary: Boundary::EndOfBlock as i32,
-        scope: Scope::Transaction as i32,
+        observation: Observation::ObservedWrite.into(),
+        boundary: Boundary::EndOfBlock.into(),
+        scope: Scope::Transaction.into(),
         ordinal: 9,
         first_ordinal: 9,
         change_count: 1,
@@ -214,18 +207,18 @@ fn signed_principal_keeps_its_sign_and_is_never_an_unsigned_balance() {
         signed: true,
         ..Default::default()
     };
-    let decoded = HolderBasis::decode(roundtrip(&debt).as_slice()).unwrap();
+    let decoded = HolderBasis::decode_from_slice(&roundtrip(&debt)).unwrap();
     assert!(decoded.value.starts_with('-'));
-    assert_eq!(BasisKind::try_from(decoded.basis_kind).unwrap(), BasisKind::SignedPrincipal);
+    assert_eq!(decoded.basis_kind.as_known().unwrap(), BasisKind::SignedPrincipal);
     // An unsigned basis never carries a sign; the invariant is checked by
     // producers, the schema keeps both representable.
     let supply = HolderBasis {
-        basis_kind: BasisKind::Shares as i32,
+        basis_kind: BasisKind::Shares.into(),
         value: "115792089237316195423570985008687907853269984665640564039457584007913129639935".into(),
         signed: false,
         ..debt.clone()
     };
-    assert_eq!(HolderBasis::decode(roundtrip(&supply).as_slice()).unwrap().value.len(), 78);
+    assert_eq!(HolderBasis::decode_from_slice(&roundtrip(&supply)).unwrap().value.len(), 78);
 }
 
 #[test]
@@ -236,14 +229,14 @@ fn compound_v2_donation_only_cash_change_is_a_partial_observation() {
         chain_id: 1,
         market: addr(0x39),
         epoch: 1,
-        field: StateField::CompoundV2TotalCash as i32,
+        field: StateField::CompoundV2TotalCash.into(),
         key: addr(0x39),
         value: "310457889201347".into(),
         previous_value: "310000000000000".into(),
         scale: "1".into(),
-        observation: Observation::ObservedWrite as i32,
-        boundary: Boundary::EndOfBlock as i32,
-        scope: Scope::Transaction as i32,
+        observation: Observation::ObservedWrite.into(),
+        boundary: Boundary::EndOfBlock.into(),
+        scope: Scope::Transaction.into(),
         ordinal: 9120,
         first_ordinal: 9120,
         change_count: 1,
@@ -285,12 +278,12 @@ fn lido_rebase_is_a_log_observation_with_no_passive_holder_rows() {
         chain_id: 1,
         market: addr(0xae),
         epoch: 4,
-        field: field as i32,
+        field: field.into(),
         value: value.into(),
         scale: "1".into(),
-        observation: Observation::ObservedLog as i32,
-        boundary: Boundary::Change as i32,
-        scope: Scope::Transaction as i32,
+        observation: Observation::ObservedLog.into(),
+        boundary: Boundary::Change.into(),
+        scope: Scope::Transaction.into(),
         ordinal: 30880,
         first_ordinal: 30880,
         change_count: 1,
@@ -326,12 +319,12 @@ fn erc4626_conversion_input_change_lives_in_the_dependency_family() {
         chain_id: 1,
         market: addr(0x83), // sDAI is the consuming market
         epoch: 1,
-        field: field as i32,
+        field: field.into(),
         value: value.into(),
         scale: scale.into(),
-        observation: Observation::ObservedWrite as i32,
-        boundary: Boundary::EndOfBlock as i32,
-        scope: Scope::Transaction as i32,
+        observation: Observation::ObservedWrite.into(),
+        boundary: Boundary::EndOfBlock.into(),
+        scope: Scope::Transaction.into(),
         ordinal: 7701,
         first_ordinal: 7701,
         change_count: 1,
@@ -349,31 +342,31 @@ fn erc4626_conversion_input_change_lives_in_the_dependency_family() {
         chain_id: 1,
         market: addr(0x83),
         epoch: 1,
-        kind: EpochEventKind::Bound as i32,
-        family: ModelFamily::Erc4626Vault as i32,
+        kind: EpochEventKind::Bound.into(),
+        family: ModelFamily::Erc4626Vault.into(),
         model_id: "erc4626/sdai/pot-rpow".into(),
         source_pin: "sky-ecosystem/sdai@665879762f8b5df5d234463f45d1d6a49bd4fbeb".into(),
-        basis_kind: BasisKind::Shares as i32,
+        basis_kind: BasisKind::Shares.into(),
         // assets = shares * chi / RAY
         basis_scale: "1000000000000000000000000000".into(),
-        balance_rounding: Rounding::Floor as i32,
+        balance_rounding: Rounding::Floor.into(),
         basis_bit_width: 256,
         market_code_hash: word(0xc0),
         activation_block: 20_000_003,
         balance_asset: addr(0x6b),
         balance_decimals: 18,
-        scope: Scope::Epoch as i32,
+        scope: Scope::Epoch.into(),
         ..Default::default()
     };
     let dependency = Dependency {
         chain_id: 1,
         market: addr(0x83),
         epoch: 1,
-        kind: EpochEventKind::Bound as i32,
-        role: DependencyRole::RateAccumulator as i32,
+        kind: EpochEventKind::Bound.into(),
+        role: DependencyRole::RateAccumulator.into(),
         contract: addr(0x19),
         depth: 1,
-        binding: BindingKind::CodeHash as i32,
+        binding: BindingKind::CodeHash.into(),
         code_hash: word(0xc1),
         activation_block: 20_000_003,
         source_pin: "chainlog MCD_POT".into(),
@@ -398,15 +391,15 @@ fn erc4626_conversion_input_change_lives_in_the_dependency_family() {
         ..Default::default()
     };
     roundtrip(&events);
-    assert!(events.global_state.iter().all(|g| g.field != StateField::MakerPotDsr as i32));
+    assert!(events.global_state.iter().all(|g| g.field != StateField::MakerPotDsr));
 }
 
 #[test]
 fn arc_alias_declares_one_balance_at_two_precisions() {
     let alias = AssetAlias {
         chain_id: 5042,
-        kind: AliasKind::PrecisionView as i32,
-        event_kind: EpochEventKind::Bound as i32,
+        kind: AliasKind::PrecisionView.into(),
+        event_kind: EpochEventKind::Bound.into(),
         asset: {
             let mut a = vec![0u8; 20];
             a[0] = 0x36;
@@ -415,7 +408,7 @@ fn arc_alias_declares_one_balance_at_two_precisions() {
         alias_of: vec![], // native
         asset_scale: "1000000".into(),
         alias_of_scale: "1000000000000000000".into(),
-        asset_rounding: Rounding::Floor as i32,
+        asset_rounding: Rounding::Floor.into(),
         log_emitter: vec![0xff; 20].into_iter().enumerate().map(|(i, b)| if i == 19 { 0xfe } else { b }).collect(),
         activation_block: 1,
         source_pin: "docs.arc.io stablecoin-native-model".into(),
@@ -440,7 +433,7 @@ fn a_block_without_state_writes_still_carries_exactly_one_clock() {
         ..Default::default()
     };
     let bytes = roundtrip(&events);
-    assert_eq!(Events::decode(bytes.as_slice()).unwrap().clocks.len(), 1);
+    assert_eq!(Events::decode_from_slice(&bytes).unwrap().clocks.len(), 1);
     println!("clock_only_bytes={}", bytes.len());
     assert_eq!(bytes.len(), CLOCK_ONLY_ENCODED_LEN);
     assert!(Events::default().encode_to_vec().is_empty());
@@ -449,16 +442,16 @@ fn a_block_without_state_writes_still_carries_exactly_one_clock() {
 #[test]
 fn unknown_enum_numbers_survive_decode_as_raw_integers() {
     let row = GlobalState {
-        field: 9999,
-        observation: 77,
+        field: 9999.into(),
+        observation: 77.into(),
         value: "1".into(),
         ..Default::default()
     };
-    let decoded = GlobalState::decode(row.encode_to_vec().as_slice()).unwrap();
-    assert_eq!((decoded.field, decoded.observation), (9999, 77));
-    assert!(StateField::try_from(decoded.field).is_err());
+    let decoded = GlobalState::decode_from_slice(&row.encode_to_vec()).unwrap();
+    assert_eq!((decoded.field.to_i32(), decoded.observation.to_i32()), (9999, 77));
+    assert!(decoded.field.as_known().is_none());
     // A consumer refuses to evaluate such a row; the schema never coerces it to 0.
-    assert_ne!(decoded.field, StateField::Unspecified as i32);
+    assert_ne!(decoded.field, StateField::Unspecified);
 }
 
 #[test]
