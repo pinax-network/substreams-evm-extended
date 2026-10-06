@@ -128,8 +128,10 @@ layout path covered 431 explicitly qualified profiles among the first 450 BSC
 candidates ranked by activity; its code, coverage reports and evidence remain at
 [`9b41c7f`](https://github.com/pinax-network/substreams-evm-extended/tree/9b41c7f/erc20/balances).
 
-Computed balances (reward, reflection, rebasing, scaled) remain open. Ethereum,
-Base, HyperEVM and Arc require independent qualification after the BSC work; the
+Computed balances (reward, reflection, rebasing, scaled) remain open. Networks
+other than BSC need their own qualification after the BSC work; the target
+networks are tracked in
+[#8](https://github.com/pinax-network/substreams-evm-extended/issues/8). The
 repository name is not a claim of verified coverage on every EVM network.
 
 The inference package is packed and committed (`spkg/erc20-balances-v0.4.0.spkg`,

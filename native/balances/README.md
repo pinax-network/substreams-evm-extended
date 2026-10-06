@@ -213,6 +213,6 @@ interpretation, no wallet labels, no `db_out` in this package
 enumeration. Initialization of untouched accounts, exact checkpoints, reorg
 completeness and the complete-block clock contract are shared under
 [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7).
-Ethereum, Base, HyperEVM and Arc semantics are separate qualification work
-under [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
+Other networks' semantics are separate qualification work under
+[#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
 This package does not change `erc20/balances`.

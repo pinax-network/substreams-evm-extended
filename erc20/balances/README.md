@@ -180,7 +180,7 @@ and holders.
 ## Build and Rust tests
 
 ```sh
-make -C erc20/balances test
+cargo test --locked -p erc20-balances
 make -C erc20/balances pack
 ```
 
@@ -189,10 +189,13 @@ skip v0.3.x, so no build can overwrite the v0.3.4 RPC reference). No Buf
 generation is needed here; the public schema is already maintained by the
 shared `proto` crate. The committed `spkg/erc20-balances-v0.1.0.spkg`
 (`532b571f…`, 2026-09-23) is the earlier layout package, which takes layouts as
-params; no build writes to it. This source has not been packed or run in a
-Substreams engine yet; a build is a new artifact and inherits none of that
-package's checks. `spkg/erc20-balances-v0.3.4.spkg` is the immutable RPC
-reference. See [rename provenance](../../docs/migration.md#module-rename). The
+params; no build writes to it. The inference source is packed (v0.2.0 and
+v0.4.0, below) but has only been checked offline: it has not run in a
+Substreams engine
+([#124](https://github.com/pinax-network/substreams-evm-extended/issues/124)).
+A build is a new artifact and inherits none of the layout package's checks.
+`spkg/erc20-balances-v0.3.4.spkg` is the immutable RPC reference. See
+[rename provenance](../../docs/migration.md#module-rename). The
 committed `spkg/erc20-balances-v0.2.0.spkg` (module `6539de92…`, Rust 1.88)
 predates the [producer-release](#producer-releases) rules; v0.4.0 is the
 first build with them

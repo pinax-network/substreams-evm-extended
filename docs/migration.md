@@ -119,9 +119,10 @@ RPC reference `spkg/erc20-balances-v0.3.4.spkg` remain unchanged. Earlier
 byte-identical WASM and package qualification claims apply only to their
 recorded migration revisions, not the renamed build.
 
-Since 2026-10-05 the package is inference only, with version v0.2.0. Its
-builds target `spkg/erc20-balances-v0.2.0.spkg`, so no build overwrites the
-committed v0.1.0 layout package.
+Since 2026-10-05 the package is inference only: v0.2.0, then v0.4.0 from the
+Rust 1.99.0 batch (#118), skipping v0.3.x. Its builds target
+`spkg/erc20-balances-v<version>.spkg`, so no build overwrites the committed
+v0.1.0 layout package or the v0.3.4 RPC reference.
 
 Captured evidence and fixture contents are byte-identical after relocation.
 They may retain `erc20/balances-storage` paths and old crate names because those
