@@ -16,18 +16,36 @@
 -- Copying the state tables lets AggregatingMergeTree merge the windows that
 -- span block S from both sides.
 
--- 0. Check the table structures match (expect no rows). A database set up from
---    another schema, such as the unmerged v0.3.5 variant, cannot be attached.
+-- Steps 0 and 1 throw on failure, so a run of the whole file (for example
+-- `clickhouse-client --multiquery < this-file`) stops before step 2 copies
+-- anything. A partial copy (blocks attached, a balance table refused) would
+-- otherwise need manual cleanup.
+
+-- 0. Check the table structures match. The listing shows any difference; the
+--    assertion stops the run on one. A database set up from another schema,
+--    such as the unmerged v0.3.5 variant, cannot be attached.
 SELECT name, r.q = '' AS missing_in_rpc, e.q = '' AS missing_in_extended
 FROM (SELECT name, replaceAll(create_table_query, 'rpc.', '') AS q FROM system.tables WHERE database = 'rpc') AS r
 FULL OUTER JOIN (SELECT name, replaceAll(create_table_query, 'extended.', '') AS q FROM system.tables WHERE database = 'extended') AS e
 USING (name)
 WHERE r.q != e.q;
 
--- 1. Check the boundary before copying (expect rpc_last < extended_first).
+SELECT throwIf(count() > 0, 'rpc and extended table structures differ (listed above): nothing was copied')
+FROM (SELECT name, replaceAll(create_table_query, 'rpc.', '') AS q FROM system.tables WHERE database = 'rpc') AS r
+FULL OUTER JOIN (SELECT name, replaceAll(create_table_query, 'extended.', '') AS q FROM system.tables WHERE database = 'extended') AS e
+USING (name)
+WHERE r.q != e.q;
+
+-- 1. Check the boundary before copying: rpc_last < extended_first, and
+--    extended already has blocks.
 SELECT
     (SELECT max(block_num) FROM rpc.blocks)      AS rpc_last,
     (SELECT min(block_num) FROM extended.blocks) AS extended_first;
+
+SELECT throwIf(
+    (SELECT count() FROM extended.blocks) = 0
+        OR (SELECT max(block_num) FROM rpc.blocks) >= (SELECT min(block_num) FROM extended.blocks),
+    'rpc must end before extended starts, and extended must have blocks: nothing was copied');
 
 -- 2. Copy history.
 ALTER TABLE extended.blocks                            ATTACH PARTITION tuple() FROM rpc.blocks;

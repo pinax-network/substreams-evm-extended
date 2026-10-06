@@ -141,8 +141,11 @@ make -C evm-balances dev START_BLOCK=<S>
   ([#120](https://github.com/pinax-network/substreams-evm-extended/issues/120)).
   `install-sink` builds it from a clone of the tag, because the fork's
   `go.mod` keeps the upstream module path and `go install <path>@<tag>`
-  cannot fetch it. `substreams-sink-sql --version` must name commit
-  `933a187`; `setup` and `dev` refuse any other build. The image
+  cannot fetch it. Upstream StreamingFast has its own `v4.13.0` (`5a43292`)
+  without these fixes, so pin the commit, not the tag name: a clone that also
+  tracks upstream, or a `go install` of the module path, resolves upstream's.
+  `substreams-sink-sql --version` must name commit `933a187`; `setup` and
+  `dev` refuse any other build. The image
   `ghcr.io/pinax-network/substreams-sink-sql:v4.13.0` is built from the same
   tag.
 
@@ -180,9 +183,10 @@ make -C evm-balances dev START_BLOCK=<S>
 2. Set up a fresh database and start this package at `S`.
 3. Run [`examples/backfill-from-rpc-database.sql`](clickhouse/examples/backfill-from-rpc-database.sql):
    a DDL check, a boundary check and five partition copies (`blocks`, both
-   balance tables, both state tables). Partition copies do not fire the
-   materialized views, so `transactions` is not double-counted, and
-   `AggregatingMergeTree` merges the windows that span `S`.
+   balance tables, both state tables). Either check throws on failure, so a
+   run of the whole file stops before it copies anything. Partition copies do
+   not fire the materialized views, so `transactions` is not double-counted,
+   and `AggregatingMergeTree` merges the windows that span `S`.
 
 - **Schema first.** Compare `SHOW CREATE TABLE` in the RPC-era database with
   v0.3.4 (step 0 does). An unmerged v0.3.5 variant on upstream branch
