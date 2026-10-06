@@ -132,8 +132,10 @@ the same PR. That job's Linux build is canonical (2026-10-06): a macOS build
 of the same source gives other module hashes, because cargo's symbol
 metadata includes the host and LTO then merges functions differently. Take
 committed spkgs from the job's `packages` artifact, not from a local pack.
-Compare module hashes, never spkg sha256: `substreams pack` output is not
-deterministic. Releases are cut by tag, `<package>-v<version>` equal to the
+Compare module hashes, never spkg sha256: an edited README changes the spkg
+bytes, and with substreams CLI v1.22.0 so does every pack of a manifest with
+several `networks:` entries (streamingfast/substreams#978). Today's
+single-network packages do pack byte-identically across CI runs. Releases are cut by tag, `<package>-v<version>` equal to the
 manifest version, after the spkg is committed; `release.yml` publishes the
 CI-built spkg with `HASHES.txt` (README, Releases). A release states that it is
 not live-qualified unless dated evidence names its module hashes.

@@ -113,8 +113,11 @@ hashes" job built. The tag then runs
   module hashes of the committed spkg;
 - publishes a GitHub release with the spkg and `HASHES.txt`.
 
-Identify a release by its module hashes, never by the spkg sha256:
-`substreams pack` is not deterministic. A release is not live qualification;
+Identify a release by its module hashes, never by the spkg sha256: an edited
+README changes the spkg bytes, and with substreams CLI v1.22.0 so does every
+pack of a manifest with several `networks:` entries
+([streamingfast/substreams#978](https://github.com/streamingfast/substreams/pull/978)).
+A release is not live qualification;
 its notes say so unless dated evidence names its module hashes.
 
 ## Coverage
