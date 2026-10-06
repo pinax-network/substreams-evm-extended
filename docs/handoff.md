@@ -116,14 +116,20 @@ the path to production:
   BSC producer drift under firehose-tracer 5.5.0. The erc20 read policy
   landed in PR #137; the infra facts are open.
 - [#120](https://github.com/pinax-network/substreams-evm-extended/issues/120):
-  sink fixes, first
-  [pinax-network/substreams-sink-sql#31](https://github.com/pinax-network/substreams-sink-sql/pull/31)
-  and then a tagged release of the fork.
+  the sink fixes are released in
+  [substreams-sink-sql v4.13.0](https://github.com/pinax-network/substreams-sink-sql/releases/tag/v4.13.0)
+  (commit `933a187`), the sink `evm-balances` supports
+  ([README](../evm-balances/README.md#build-and-deploy)).
 - [#7](https://github.com/pinax-network/substreams-evm-extended/issues/7):
   the cutover contract (RPC-era backfill, stale pairs, replay duplicates,
   sink completeness).
 - [#122](https://github.com/pinax-network/substreams-evm-extended/issues/122):
-  the release flow (PR #140). No package is released yet.
+  the release flow (PR #140).
+  [`native-balances-v0.2.1`](https://github.com/pinax-network/substreams-evm-extended/releases/tag/native-balances-v0.2.1)
+  and
+  [`erc20-balances-v0.4.0`](https://github.com/pinax-network/substreams-evm-extended/releases/tag/erc20-balances-v0.4.0)
+  are released (2026-10-06); `evm-balances-v0.6.0` follows the #120 sink
+  checks. Releases are not live qualification.
 - [#123](https://github.com/pinax-network/substreams-evm-extended/issues/123):
   how Token API treats wrong computed balances and stale RPC-era pairs.
 - [#8](https://github.com/pinax-network/substreams-evm-extended/issues/8):
