@@ -68,6 +68,15 @@ jobs:
           fi
           echo "TAG=$tag" >> "$GITHUB_ENV"
           echo "SPKG=$tag.spkg" >> "$GITHUB_ENV"
+      # The sink that evm-balances supports, from its Makefile (#120).
+      - name: Supported sink
+        if: matrix.dir == 'evm-balances'
+        run: |
+          sink=$(awk '$1 == "SINK_VERSION" {print $3}' evm-balances/Makefile)
+          commit=$(awk '$1 == "SINK_COMMIT" {print $3}' evm-balances/Makefile)
+          test -n "$sink" && test -n "$commit"
+          echo "SINK=$sink" >> "$GITHUB_ENV"
+          echo "SINK_COMMIT=$commit" >> "$GITHUB_ENV"
       - name: Rust toolchain
         run: |
           rustup toolchain install
@@ -98,6 +107,7 @@ jobs:
             echo "commit: $GITHUB_SHA"
             echo "rustc: $(rustc -V)"
             echo "substreams: $SUBSTREAMS_VERSION"
+            if [ -n "${SINK:-}" ]; then echo "sink: pinax-network/substreams-sink-sql $SINK ($SINK_COMMIT)"; fi
             echo
             echo "# module hashes (substreams info)"
             substreams info "dist/$SPKG" | awk '/^Name:/ {n = $2} /^Hash:/ {print n, $2}'
@@ -136,6 +146,10 @@ jobs:
             echo
             echo "Identify this build by the module hashes in HASHES.txt, never by the spkg sha256: \`substreams pack\` is not deterministic, so two packs of the same source differ in bytes."
             echo
+            if [ -n "${SINK:-}" ]; then
+              echo "Supported sink: [pinax-network/substreams-sink-sql $SINK](https://github.com/pinax-network/substreams-sink-sql/releases/tag/$SINK), commit \`$SINK_COMMIT\` (\`make -C evm-balances install-sink\`)."
+              echo
+            fi
             echo '```'
             cat dist/HASHES.txt
             echo '```'

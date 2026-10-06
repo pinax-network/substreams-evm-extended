@@ -128,11 +128,23 @@ live-qualified.
 ```sh
 cargo test --locked -p evm-balances
 make -C evm-balances pack      # 3 WASMs, clickhouse/schema.sql, spkg/evm-balances-v0.6.0.spkg
+make -C evm-balances install-sink   # the supported substreams-sink-sql, v4.13.0
 export SUBSTREAMS_SINK_DSN='clickhouse://<user>:<password>@<host>:9000/<database>'   # create <database> first
 export SUBSTREAMS_API_KEY=...
 make -C evm-balances setup     # idempotent: 3 tables, 2 states, 2 MVs, 2 views, cursors
 make -C evm-balances dev START_BLOCK=<S>
 ```
+
+- **Supported sink.** [pinax-network/substreams-sink-sql
+  v4.13.0](https://github.com/pinax-network/substreams-sink-sql/releases/tag/v4.13.0),
+  commit `933a187`
+  ([#120](https://github.com/pinax-network/substreams-evm-extended/issues/120)).
+  `install-sink` builds it from a clone of the tag, because the fork's
+  `go.mod` keeps the upstream module path and `go install <path>@<tag>`
+  cannot fetch it. `substreams-sink-sql --version` must name commit
+  `933a187`; `setup` and `dev` refuse any other build. The image
+  `ghcr.io/pinax-network/substreams-sink-sql:v4.13.0` is built from the same
+  tag.
 
 - **Build first.** `substreams pack` embeds the imported packages' WASM
   without building it, and `setup` reads the YAML, so every target builds all
@@ -147,12 +159,13 @@ make -C evm-balances dev START_BLOCK=<S>
   `--final-blocks-only` in place of `--undo-buffer-size 0`: ClickHouse cannot
   undo, the sink only logs UNDO. For production keep `--final-blocks-only`,
   drop `--development-mode` and `--on-module-hash-mistmatch=warn` (the fork's
-  spelling; the default `error` stops on a changed `db_out`), and choose
-  `--batch-block-flush-interval` deliberately. Within one flush the sink keeps
-  only the last row per key: with 1, every block's row reaches the tables and
-  the OHLC state; the default 1000 collapses per-key history during catch-up,
-  which changes historical open/high/low/`transactions` but not `FINAL`
-  balances. Match the RPC-era production flags if they are known.
+  spelling; the default `error` stops on a changed `db_out`). From v4.13.0 the
+  flush interval no longer changes what is stored: every block flushes on its
+  own at interval 1 from the first block after a start, and at any interval
+  ClickHouse receives one row per key and block, so the OHLC state sees every
+  row. Older sinks kept only the last row per key within a flush, which made
+  historical open/high/low/`transactions` depend on the interval (never the
+  `FINAL` balances); databases they wrote keep that history.
 - **DSN.** Pass it shell-expanded and quoted, as the Makefile does. `${VAR}`
   placeholders inside the DSN are not expanded for the connection, and parse
   errors echo the DSN; keep passwords out of shared logs.
@@ -200,8 +213,13 @@ make -C evm-balances dev START_BLOCK=<S>
   retry replays them: `blocks` (plain `MergeTree`) gets duplicate rows and the
   OHLC state double-counts. The `ReplacingMergeTree` balance tables dedupe on
   merge.
-- **`transactions`** counts the rows inserted per window, so it depends on the
-  flush cadence.
+- **`transactions`** counts the rows inserted per window. With v4.13.0 that is
+  one row per key and block at any flush interval; older sinks made it depend
+  on the flush cadence.
+- **Raw rows.** ClickHouse's default `optimize_on_insert` collapses a key
+  repeated within one INSERT into a `ReplacingMergeTree`, so balance-table rows
+  read without `FINAL` can show one row per key per flush. The OHLC state still
+  receives every row, and `FINAL` is unaffected.
 - **No chain id.** No table stores one: use one database per network.
 - **Cursor.** Keyed by the `db_out` module hash.
 
@@ -228,8 +246,8 @@ ORDER BY hour
 ```
 
 - An hour with blocks but no ERC-20 row reads 0 instead of disappearing.
-- The value is approximate: replays inflate `transactions`, which also depends
-  on the flush cadence (above). Replayed `blocks` rows do not count twice.
+- The value is approximate: replays inflate `transactions` (above). Replayed
+  `blocks` rows do not count twice.
 - The current hour is partial.
 
 Alert when a complete hour falls below an owner-chosen fraction of the
