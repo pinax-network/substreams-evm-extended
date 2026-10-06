@@ -199,6 +199,37 @@ make -C evm-balances dev START_BLOCK=<S>
 - **No chain id.** No table stores one: use one database per network.
 - **Cursor.** Keyed by the `db_out` module hash.
 
+## Monitoring
+
+A producer change that loses ERC-20 evidence fails no block: inference only
+emits fewer rows
+([#116](https://github.com/pinax-network/substreams-evm-extended/issues/116)).
+ERC-20 rows per block is the signal. `erc20_balances` keeps one row per pair
+after merges, so count the rows inserted into the OHLC state, per hour, over the
+blocks with output:
+
+```sql
+SELECT hour, ifNull(erc20_rows, 0) / blocks AS erc20_rows_per_block
+FROM (SELECT toStartOfHour(timestamp) AS hour, uniqExact(block_num) AS blocks
+      FROM blocks
+      WHERE timestamp > now() - INTERVAL 8 DAY
+      GROUP BY hour) AS b
+LEFT JOIN (SELECT timestamp AS hour, sum(transactions) AS erc20_rows
+      FROM historical_erc20_balances_state
+      WHERE interval_min = 60 AND timestamp > now() - INTERVAL 8 DAY
+      GROUP BY hour) AS e USING (hour)
+ORDER BY hour
+```
+
+- An hour with blocks but no ERC-20 row reads 0 instead of disappearing.
+- The value is approximate: replays inflate `transactions`, which also depends
+  on the flush cadence (above). Replayed `blocks` rows do not count twice.
+- The current hour is partial.
+
+Alert when a complete hour falls below an owner-chosen fraction of the
+trailing 7-day median. The alert lives in ops (Grafana), not in this
+repository.
+
 ## Checks
 
 The offline checks are reported in the pull request that added this package.

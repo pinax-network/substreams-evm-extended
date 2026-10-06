@@ -41,28 +41,55 @@ longer recorded preimages are never decoded. Per block and per contract
    `Withdrawal`, `Mint` and `Burn` never vote, because staking pools and lock
    ledgers emit the same shapes; a contract without a nonzero `Transfer` in
    the block is not inferred.
-3. **Base**: the mapping every traced `balanceOf` reads, if it has exact votes;
+3. **Base**: the mapping every keyed `balanceOf` reads, if it has exact votes;
    otherwise the mapping with the most exact votes, and a tie infers nothing.
+   A traced `balanceOf` is keyed when its storage context recorded a
+   `pad(holder) || base` preimage; see [producer releases](#producer-releases).
    Inner mappings (with their own 64-byte preimage, such as allowances) and
    mappings with more large mismatches than exact votes (a packed word whose
    other field moves) are never chosen.
 4. **Exclusions**: malformed records or event addresses; removed code or a
    self-destruct; discontinuous writes to a key; a traced `balanceOf(holder)`
-   that reads another holder mapping or calls another contract (a beacon
-   `implementation()` lookup followed by its DELEGATECALL is allowed), or that
-   contradicts the stored word at its execution ordinal.
+   that calls another contract (a beacon `implementation()` lookup followed by
+   its DELEGATECALL is allowed) or contradicts the stored word at its execution
+   ordinal, or a keyed one that reads another holder mapping; a successful
+   `balanceOf` call to the contract without a 36-byte input or return data,
+   the shape a producer leaves when it truncates a call.
 5. **Other holder state**: when other mappings mismatch the event flows at least
    as often as the base matches them, as reward and reflection tokens do, only
-   holders with their own traced `balanceOf` keep rows. With two or more exact
+   holders with their own keyed `balanceOf` keep rows. With two or more exact
    votes and no other exactly matching mapping, mismatches below a thousandth
    of the flow (counters) are ignored.
 6. **Rows**: candidate holders written under the base get their last persisted
    word. If that write's frame has no `Transfer`/`Deposit`/`Withdrawal`/`Mint`/`Burn`
    naming a holder other than the contract itself (a flag such as FiatToken's
-   blacklist bit, an admin or a sync write), that holder needs its own traced
-   `balanceOf`. A candidate without a write gets the value of a traced
+   blacklist bit, an admin or a sync write), that holder needs its own keyed
+   `balanceOf`. A candidate without a write gets the value of a keyed
    `balanceOf` that read only the base. Everyone else stays unknown; nothing
    becomes zero.
+
+## Producer releases
+
+`Block.ver` alone does not identify producer semantics. Producers on
+firehose-tracer 5.5.0 and later, such as StreamingFast reth-bsc
+v0.1.2-fh3.1-3 (released 2026-09-29), keep `Block.ver` 5 but change two
+things this package reads
+([#116](https://github.com/pinax-network/substreams-evm-extended/issues/116)):
+
+- `Call.keccak_preimages` keeps only the preimages that explain a storage
+  write of their transaction or system call. A `balanceOf` of a holder whose
+  balance the transaction does not write usually records none.
+- Once a transaction's internal calls pass 50 MiB of input, or 25 MiB of
+  return data, later calls keep only their 4-byte selector and no return data.
+  The flags that mark them (`Call` fields 35 and 36) are not in
+  substreams-ethereum 0.12.0, so this package sees only the shape.
+
+At the owner's direction (2026-10-06), an unkeyed read still excludes its
+contract when it calls out or contradicts the stored word, but it never
+chooses the base, vouches for a holder or supplies a value. A truncated-shape
+`balanceOf` call drops its contract's rows for the block (rule 4). Each
+qualification records the reader release (client and tracer version), not just
+`Block.ver`.
 
 ## Measured
 
@@ -101,6 +128,27 @@ of the same reference package, scored once after the rules were frozen.
   without persisted balance writes (event-only, fake-balance or computed-only)
   are never inferred.
 
+**Simulated firehose-tracer 5.5.0 blocks.** The same captures, with each
+transaction's and system call's preimages filtered as that tracer does (a
+scratch port of its `keccak_filter.rs` at `70497b7`; no call reached the
+truncation limits). The [producer-release](#producer-releases) rules leave the
+table above unchanged row for row.
+
+| Blocks | Emitted | Exact | Wrong | Row recall | Value precision |
+| --- | --- | --- | --- | --- | --- |
+| 123,561,000–123,562,023 | 337,930 | 337,910 | 20 | 62.72% | 99.994% |
+| 122,288,006–122,289,029 | 112,615 | 112,610 | 5 | 59.07% | 99.996% |
+| 120,607,788–120,608,043 | 72,587 | 72,584 | 3 | 59.17% | 99.996% |
+| 104,727,168–104,727,231 | 16,214 | 16,199 | 15 | 62.66% | 99.907% |
+| 122,264,480–122,264,543 | 11,320 | 11,320 | 0 | 58.49% | 100% |
+
+- **Lost rows.** 511, 137, 214, 17 and 11 rows that only an unkeyed read
+  supplied. While unkeyed reads vetoed their contract, recall fell to 26–40%.
+- **Added rows.** 70, 44, 20, 21 and 0 rows of contracts that a second holder
+  mapping's preimage used to exclude; 6, 2, 0, 2 and 0 of them are wrong. Their
+  `balanceOf` also reads that mapping, but its preimage is filtered, so the read
+  looks keyed to the base alone.
+
 These results do not establish any token's semantics outside the tested blocks
 and holders.
 
@@ -114,7 +162,10 @@ and holders.
 - **No persisted write, no rows.** A contract without a persisted write in a
   block gets no rows, however many holders its events name.
 - **Computed balances.** Reward, reflection, rebasing, scaled and
-  constant-default balances are excluded only when the block shows it.
+  constant-default balances are excluded only when the block shows it. On
+  5.5.0 blocks it shows less: a `balanceOf` that also reads a second holder
+  mapping usually keeps only the base's preimage. Only a tracer option that
+  keeps read preimages would restore that exclusion.
 - **Certification by exact votes alone.** When the real balance key is not
   `pad(holder) || base` (struct offsets, Vyper ordering, assembly hashing),
   another mapping that moves exactly, such as a cumulative `received[holder]`,
@@ -140,13 +191,21 @@ shared `proto` crate. The committed `spkg/erc20-balances-v0.1.0.spkg`
 params; no build writes to it. This source has not been packed or run in a
 Substreams engine yet; a build is a new artifact and inherits none of that
 package's checks. `spkg/erc20-balances-v0.3.4.spkg` is the immutable RPC
-reference. See [rename provenance](../../docs/migration.md#module-rename).
+reference. See [rename provenance](../../docs/migration.md#module-rename). The
+committed `spkg/erc20-balances-v0.2.0.spkg` (module `6539de92…`) predates the
+[producer-release](#producer-releases) rules; the hash-changing batch
+([#118](https://github.com/pinax-network/substreams-evm-extended/issues/118))
+packs their build.
 
 Thin Rust tests call the package functions directly. They cover the rules on
 synthetic blocks, the embedded persistence rules, which blocks fail, the
 manifest shape, and captured block 122260950 against its saved same-block RPC
 values. On that block, all 18 recorded `balanceOf` checks match, and so do the
-101 rows inferred for USDT, WBNB, USDC and BTCB.
+101 rows inferred for USDT, WBNB, USDC and BTCB. Without the 383 preimages a
+5.5.0 producer would not record
+([`bsc-122260950-5.5.0-dropped-preimages.json`](tests/fixtures/bsc-122260950-5.5.0-dropped-preimages.json)),
+13 of its `balanceOf` calls lose their holder's preimage and all 164 rows stay
+the same.
 
 ## History
 
