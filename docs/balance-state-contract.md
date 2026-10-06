@@ -297,5 +297,6 @@ Golden lengths pin the wire size of the Aave and clock-only examples.
 ## Not covered here
 
 Actual extraction of any family, activation blocks, storage-layout dumps and
-live qualification belong to #13–#16, #23, #24 and #8. Live Substreams,
-Firehose, RPC and sink usage remains paused.
+live qualification belong to #13–#16, #23, #24 and #8. Each live Substreams,
+Firehose, RPC or sink step needs the owner's OK
+([live use](../AGENTS.md#evidence)).

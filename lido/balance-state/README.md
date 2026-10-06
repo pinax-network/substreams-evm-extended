@@ -68,7 +68,8 @@ regular state; every Aragon base uses unstructured storage), and all 16
 ([evidence](../../docs/evidence/storage-layouts/lido-core@2da0f48f.json),
 [`tests/storage_layout.rs`](tests/storage_layout.rs)). The implementation's
 runtime code hash, the version-4 enactment block and the `activation_block`
-placeholder remain unverified; live Firehose and RPC use is paused.
+placeholder remain unverified; each live Firehose or RPC step needs the
+owner's OK ([live use](../../AGENTS.md#evidence)).
 
 Each epoch requires an `aragon` object containing `kernel`, `app_id`,
 `kernel_implementation`, and a `source_pin` including the implemented

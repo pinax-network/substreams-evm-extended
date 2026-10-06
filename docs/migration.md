@@ -63,7 +63,8 @@ reports are not rewritten to imply that their RPC calls used a later package.
 Subsequent [typed mapping-path source changes](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/typed-mapping-paths.md)
 are validated separately using offline Rust checks and captured data. They are
 not embedded in these preserved SPKGs and do not inherit live qualification from
-the migration baseline. Live chain testing remains paused at the user's request.
+the migration baseline. Each live step needs the owner's OK
+([live use](../AGENTS.md#evidence)).
 
 ## Validation and retained evidence
 

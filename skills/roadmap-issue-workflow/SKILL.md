@@ -9,10 +9,10 @@ description: How roadmap issues in pinax-network/substreams-evm-extended move fr
    offline items (Rust code, tests, saved-block replays, pinned-source
    research, docs, local package build/inspection) and live-gated items
    (RPC, Firehose, streamed-package and sink checks). Read the latest comments
-   and evidence as well as the original issue body: BSC work was separately
-   resumed in September 2026, while other-network and pool-state gates remain.
-   Historical reports do not authorize a new live run; honor the current
-   session's scope and explicit holds.
+   and evidence as well as the original issue body. Each live step needs the
+   owner's explicit OK under the live-use rule in
+   [`AGENTS.md`](../../AGENTS.md#evidence); historical reports do not authorize
+   a new live run, and the `dex/pool-state` hold stays separate.
 2. **Branch from a fresh main** (`git checkout main && git pull`) with a short
    kebab-case branch name. Another agent commits on `codex/*` branches; pull
    before branching and never rebase their work.

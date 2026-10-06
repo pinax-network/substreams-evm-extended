@@ -132,8 +132,11 @@ Computed balances (reward, reflection, rebasing, scaled) remain open. Ethereum,
 Base, HyperEVM and Arc require independent qualification after the BSC work; the
 repository name is not a claim of verified coverage on every EVM network.
 
-The inference-only source is checked offline against saved data only. It is not
-included in the preserved SPKGs, and live chain testing is paused.
+The inference package is packed and committed (`spkg/erc20-balances-v0.4.0.spkg`,
+above) but has only been checked offline against saved data: it has not run in
+a Substreams engine. Its BSC qualification is
+[#124](https://github.com/pinax-network/substreams-evm-extended/issues/124), and
+each live step needs the owner's OK ([live use](AGENTS.md#evidence)).
 
 Outstanding implementation, holder coverage, packaging and network work is
 tracked in [GitHub follow-up issues](docs/follow-up.md). The requested chains,

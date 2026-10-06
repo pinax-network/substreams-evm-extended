@@ -80,7 +80,8 @@ implementation the proxy must hold (`underlying.implementation`) is an
 **unqualified placeholder**. Not verified: the deployed runtime code hashes
 (including which FiatToken version the USDC proxy points to) and the
 placeholder `activation_block` values; no Ethereum Extended blocks are
-cached locally and live Firehose and RPC use is paused. Package version 0.2.0,
+cached locally, and each live Firehose or RPC step needs the owner's OK
+([live use](../../AGENTS.md#evidence)). Package version 0.2.0,
 spec revision 4 accepts a complete schedule of reset-only epochs per market.
 Entries may be supplied in any order; IDs must be positive and strictly increase
 in activation order, with unique activation positions. IDs may have gaps.

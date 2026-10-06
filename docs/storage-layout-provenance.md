@@ -142,4 +142,5 @@ kept for re-runs at a new pin.
 
 What compilation cannot settle: whether the deployed bytecode at the fixture
 addresses was built from that source (code-hash binding) and the block at which
-each epoch became active. Those remain for live resumption.
+each epoch became active. Those need live qualification, each step with the
+owner's OK ([live use](../AGENTS.md#evidence)).

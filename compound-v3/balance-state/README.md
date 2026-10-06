@@ -58,10 +58,11 @@ The slot numbers and bit ranges are **compiler-verified**: `solc 0.8.15
 and [`tests/storage_layout.rs`](tests/storage_layout.rs) pins every fixture slot
 and bit range to it and checks that no compiled slot is left unreviewed
 ([provenance](../../docs/storage-layout-provenance.md)). The implementation
-address, its code hash and the activation block are **not verified**: no Ethereum Extended blocks are cached locally and live Firehose
-and RPC use is paused. The fixture uses placeholder `implementation` and
-`activation_block` values for that reason; a real epoch must replace them
-after qualification.
+address, its code hash and the activation block are **not verified**: no
+Ethereum Extended blocks are cached locally, and each live Firehose or RPC
+step needs the owner's OK ([live use](../../AGENTS.md#evidence)). The
+fixture uses placeholder `implementation` and `activation_block` values for
+that reason; a real epoch must replace them after qualification.
 
 `activation_ordinal` (optional, default `0`) is the first execution ordinal of
 `activation_block` at which the epoch applies. Effects earlier in that block,
