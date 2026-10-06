@@ -30,13 +30,14 @@ files below are unchanged at `970a665` (`evm-balances/`).
 | `clickhouse/examples/refresh-*.sql` | [`db-evm-balances-clickhouse/examples/`](https://github.com/pinax-network/substreams-evm/tree/cb8607f59a37aa9daf85547162b8871d12568282/db-evm-balances-clickhouse/examples) | byte-identical |
 | `src/*.rs` | [`db-evm-balances/src/`](https://github.com/pinax-network/substreams-evm/tree/cb8607f59a37aa9daf85547162b8871d12568282/db-evm-balances/src) | same rows; changes below |
 | `substreams.yaml` | [`db-evm-balances/substreams.yaml`](https://github.com/pinax-network/substreams-evm/blob/cb8607f59a37aa9daf85547162b8871d12568282/db-evm-balances/substreams.yaml) and [`db-evm-balances-clickhouse/substreams.yaml`](https://github.com/pinax-network/substreams-evm/blob/cb8607f59a37aa9daf85547162b8871d12568282/db-evm-balances-clickhouse/substreams.yaml) | one manifest |
-| `../spkg/substreams-database-change-v2.0.0.spkg`, `../spkg/substreams-sink-sql-protodefs-v1.0.7.spkg` | [`spkg/`](https://github.com/pinax-network/substreams-evm/tree/cb8607f59a37aa9daf85547162b8871d12568282/spkg) | byte-identical |
+| Historical `../spkg/substreams-database-change-v2.0.0.spkg`, `../spkg/substreams-sink-sql-protodefs-v1.0.7.spkg` | [`spkg/`](https://github.com/pinax-network/substreams-evm/tree/cb8607f59a37aa9daf85547162b8871d12568282/spkg) | byte-identical, retained; no longer imported |
+| `../spkg/evm-balances-sink-protodefs-v0.1.0.spkg` | [pinned upstream sources](proto/SOURCES.md) | current descriptors, rebuilt from `proto/` |
 | `clickhouse/examples/backfill-from-rpc-database.sql` | none | new |
 
 Changes against upstream `db_out`:
 - **No params.** Upstream's `hex`/`tron_base58` encoding param is gone; addresses are always hex.
 - **No genesis-clock patch.** It covers block 0 of Ethereum, Arbitrum and Boba,
-  which native's producer gate never reaches.
+  which native still rejects because genesis allocations are not traced changes.
 - **Errors instead of a panic** on a missing clock timestamp.
 - **Fail-closed row checks** (see [Rows](#rows)).
 - **`substreams-database-change` 5.0.0** (buffa, substreams 0.8.0) in place of
@@ -56,12 +57,18 @@ them the same module hashes as the packed spkgs; `sink:` may sit next to
 several sinks over one `db_out`, for example a later PostgreSQL variant. The
 sink type is `sf.substreams.sink.sql.v1.Service`, the only one
 `substreams-sink-sql` accepts. Its `schema` takes exactly one file, hence the
-concatenated `schema.sql`. The two vendored proto spkgs supply the
-`DatabaseChanges` and `Service` descriptors offline. The `DatabaseChanges`
-descriptor is upstream's, from `substreams_sink_database_changes` v1.3.1: it
-names field 2 `new_value` and has no `update_op`. The sink decodes with its own
-compiled types, which have both; a tool decoding with the package's
-descriptors would see `update_op` as an unknown field 4.
+concatenated `schema.sql`.
+
+The imported `evm-balances-sink-protodefs` bundle supplies both descriptors
+without network access. Its SQL definitions use the canonical
+`sf/substreams/sink/sql/v1/deprecated.proto` path, matching the current CLI's
+built-in copy while still supplying the definitions to older SQL sink readers.
+The previous `services.proto` import declared the same message names under
+another path, which made the GUI's strict protobuf registry reject the whole
+package. Its `DatabaseChanges` descriptor now comes from the pinned 5.0.0
+encoder, so the GUI correctly shows `value` and `update_op`. This changes
+metadata only; the emitted row encoding and embedded SQL schema are unchanged.
+See [descriptor provenance and rebuild instructions](proto/SOURCES.md).
 
 ## Rows
 
@@ -85,47 +92,36 @@ descriptors would see `update_op` as an unknown field 4.
   amount that is not a decimal `uint256`, or a missing timestamp. The sink would
   store such values as wrong numbers or abort on them.
 
-## Networks and producer versions
+## Networks and block validation
 
-Each map checks `Block.ver` against its qualified versions, so the producer
-version needs no deriving. The network cannot be read from a block:
-`Block`, `BlockHeader` and `TransactionTrace` carry no chain id; the Parlia
-header fingerprint identifies the consensus engine, not the chain (BSC testnet
-shares it); EIP-155 signatures show 56, but blocks without transactions (BSC
-123,550,024) carry nothing. The manifest therefore binds the network.
+Both imported maps take only an Extended block. Native v0.2.0 removes the
+producer-version parameter and gate; `db_out` has no params either, so the GUI
+has no inherited `producer_versions` default. `network: bsc` selects the
+default endpoint; it is not a network allowlist or proof of qualification.
+The endpoint must serve the intended chain because blocks carry no chain id.
 
-- `native/balances/substreams.yaml` lists the qualified versions per network
-  (`bsc`: `{"producer_versions":[5]}`) with no default params, and this
-  package inherits that list.
-- Another `--network` fails closed: the packed spkg refuses to load
-  (`missing 'initialBlock' value`), and the YAML runs with empty params, which
-  `map_events` rejects at the first block.
-- `erc20/balances` accepts versions 3–5 on its own. Inside `db_out` a native
-  refusal fails the whole block, so native's list is the effective gate.
-- Keep `network: bsc` here equal to native's default network: the CLI resolves
-  an import under the import's own default unless `--network` is passed.
-- Set no imported module's params at the top level of this manifest: the
-  import's `networks:` entry silently wins. Qualify new networks in
-  `native/balances` ([#8](https://github.com/pinax-network/substreams-evm-extended/issues/8)).
-- The `-e` endpoint must serve that network; nothing detects another chain's
-  blocks.
-- Any params change changes the `db_out` module hash, and with it the sink's
-  cursor key.
-- Packed spkg digests vary between identical packs: CLI v1.22.0 serializes the
-  densified `networks` map in random order. Identify builds by module hashes,
-  WASM sha256 and schema sha256. Only Makefile builds give hashes that do not
-  depend on the checkout directory: `make` passes `--remap-path-prefix` for
-  the repository root, while a plain `cargo build` embeds the absolute
-  checkout path (from `proto` code compiled into `evm_balances.wasm`) and
-  gives another `db_out` hash. Paths under `CARGO_HOME` and the rustup
-  toolchain are still embedded, so another user's or machine's build can
-  differ.
+Native still rejects incomplete Extended blocks, genesis allocations,
+unsupported failed-transaction reasons, ambiguous ordinals and discontinuous
+balance changes. Its shared persistence rules inspect the supplied data,
+without checking `Block.ver`. ERC-20 inference retains its existing version
+3–5 compatibility check, which therefore also applies to the combined output.
+Removing native's gate does not qualify more networks: the network-specific
+failed-root persistence work in
+[#125](https://github.com/pinax-network/substreams-evm-extended/issues/125)
+remains open.
+
+The new native handler changes its WASM and module hash, and consequently the
+`db_out` module hash and sink cursor key. The v0.1.0 native and v0.4.0 combined
+packages remain as historical artifacts; use v0.2.0 and v0.5.0 respectively.
+Build through the Makefiles for the repository path remap and separate import
+builds. Paths under `CARGO_HOME` and rustup can still make builds differ across
+machines.
 
 ## Build and deploy
 
 ```sh
 cargo test --locked -p evm-balances
-make -C evm-balances pack      # 3 WASMs, clickhouse/schema.sql, spkg/evm-balances-v0.4.0.spkg
+make -C evm-balances pack      # 3 WASMs, clickhouse/schema.sql, spkg/evm-balances-v0.5.0.spkg
 export SUBSTREAMS_SINK_DSN='clickhouse://<user>:<password>@<host>:9000/<database>'   # create <database> first
 export SUBSTREAMS_API_KEY=...
 make -C evm-balances setup     # idempotent: 3 tables, 2 states, 2 MVs, 2 views, cursors
@@ -138,9 +134,9 @@ make -C evm-balances dev START_BLOCK=<S>
   time: built together, `substreams-database-change` turns on buffa's `json`
   feature for the imported maps too, and their WASM and module hashes would
   then differ from the `native/balances` and `erc20/balances` packages'.
-- **Start block.** `START_BLOCK` must be a qualified (version 5) block. Any
-  other `Block.ver`, a missing Extended block or ambiguous producer data stops
-  the stream instead of writing guessed rows.
+- **Start block.** Use a start height qualified for the intended network.
+  Incomplete Extended blocks or ambiguous persisted native data still stop
+  the stream; removing the producer parameter does not prove earlier coverage.
 - **Production flags.** `dev` uses upstream's per-block flush, with
   `--final-blocks-only` in place of `--undo-buffer-size 0`: ClickHouse cannot
   undo, the sink only logs UNDO. For production keep `--final-blocks-only`,
@@ -188,7 +184,7 @@ make -C evm-balances dev START_BLOCK=<S>
   `(contract, holder)` pairs the inference does not emit keep their RPC-era
   value.
 - **`blocks`.** Rows only for blocks with output.
-- **Failure scope.** A native refusal (an unlisted `Block.ver`, ambiguous
+- **Failure scope.** A native refusal (incomplete or ambiguous persisted
   data) halts the ERC-20 rows too.
 
 ## Sink behaviour

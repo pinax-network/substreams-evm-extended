@@ -1,7 +1,7 @@
 specVersion: v0.1.0
 package:
   name: native_balances
-  version: v0.1.0
+  version: v0.2.0
   url: https://github.com/pinax-network/substreams-evm-extended
   description: RPC-free native account balances from persisted Extended block state.
 protobuf:
@@ -15,16 +15,7 @@ modules:
   - name: map_events
     kind: map
     inputs:
-      - params: string
       - source: sf.ethereum.type.v2.Block
     output:
       type: proto:evm.balances.v1.Events
 network: bsc
-# Qualified Extended producer versions (Block.ver) per network. There are no
-# default params: a network without an entry fails closed (the packed spkg
-# refuses to load; this YAML runs with empty params, which map_events rejects
-# at the first block). Add a network only with its own qualification (#8).
-networks:
-  bsc:
-    params:
-      map_events: '{"producer_versions":[5]}'

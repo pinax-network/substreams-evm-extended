@@ -142,16 +142,6 @@ fn rows_the_sink_would_store_wrongly_fail_the_block() {
     assert!(database_changes(&no_time, &ok, &ok).is_err());
 }
 
-/// The `map_events` params this package inherits for `bsc` from the native
-/// manifest's `networks:` entry.
-fn bsc_native_params() -> &'static str {
-    let entry = NATIVE_MANIFEST
-        .split_once("\nnetworks:\n  bsc:\n    params:\n      map_events: '")
-        .expect("native/balances networks.bsc.params.map_events")
-        .1;
-    entry.split_once('\'').unwrap().0
-}
-
 /// Captured BSC block 122260950 through both maps, as the manifest wires them,
 /// and `db_out`: one row per `Balance`, carrying the map's values verbatim.
 #[test]
@@ -165,7 +155,7 @@ fn captured_block_writes_one_row_per_map_balance() {
         number: block.number,
         timestamp: block.header.as_option().unwrap().timestamp.clone(),
     };
-    let native = ::native_balances::project(&block, &::native_balances::parse_params(bsc_native_params()).unwrap()).unwrap();
+    let native = ::native_balances::project(&block).unwrap();
     let erc20 = ::erc20_balances::run(&block).unwrap();
     let changes = database_changes(&clock, &native, &erc20).unwrap().table_changes;
 
@@ -209,7 +199,9 @@ fn manifest_wires_db_out_and_the_schema() {
         "    inputs:\n      - source: sf.substreams.v1.Clock\n      - map: native_balances:map_events\n      - map: erc20_balances:map_events\n    output:\n      type: proto:sf.substreams.sink.database.v1.DatabaseChanges\n"
     ));
     assert!(MANIFEST.contains("sink:\n  module: db_out\n  type: sf.substreams.sink.sql.v1.Service\n  config:\n    schema: \"./clickhouse/schema.sql\""));
-    assert!(!MANIFEST.contains("\nparams:") && !MANIFEST.contains("\nnetworks:"));
+    for manifest in [MANIFEST, NATIVE_MANIFEST] {
+        assert!(!manifest.contains("- params:") && !manifest.contains("\nparams:") && !manifest.contains("\nnetworks:"));
+    }
     assert!(MANIFEST.contains("\nnetwork: bsc\n") && NATIVE_MANIFEST.contains("\nnetwork: bsc\n"));
 }
 

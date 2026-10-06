@@ -1401,3 +1401,20 @@ the encoded size at the median and 0.85 at most, so the budget would be
 reached at roughly 40 MB of encoded block for the densest observed
 composition (70 MB at the median). Probe the largest known BSC Extended blocks
 during qualification.
+
+## Params-free native balances and GUI decoding, 2026-10-06
+
+At the owner's direction native v0.2.0 removes `producer_versions` and the
+manifest network allowlist. Its handler takes only the block, and retains the
+complete Extended-block and concrete persistence checks. The combined
+`evm-balances` v0.5.0 imports it with no parameters. ERC-20 inference still
+accepts versions 3–5; acceptance does not qualify network-specific native
+persistence semantics (#125). Previous package digests and evidence above
+remain historical; the new native and `db_out` module hashes need fresh live
+qualification (#124).
+
+The GUI decoder requires one definition per protobuf symbol. The old SQL
+protodefs package used `services.proto`, while the current CLI injects the same
+legacy messages from `deprecated.proto`. The new package uses canonical file
+paths so the definitions do not collide, and its DatabaseChanges descriptor
+matches the 5.0.0 encoder (`value` and `update_op`).

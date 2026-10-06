@@ -1,17 +1,16 @@
 specVersion: v0.1.0
 package:
   name: evm_balances
-  version: v0.4.0
+  version: v0.5.0
   url: https://github.com/pinax-network/substreams-evm-extended
   description: ERC-20 and native balances from Extended blocks into the substreams-evm ClickHouse tables.
 
 imports:
-  # SQL sink protobufs, byte-identical to substreams-evm's copies.
-  database_changes: ../spkg/substreams-database-change-v2.0.0.spkg
-  sql: ../spkg/substreams-sink-sql-protodefs-v1.0.7.spkg
+  # Pinned descriptors use the CLI's canonical SQL path and the emitted
+  # database-change 5.0.0 schema. See proto/SOURCES.md.
+  sink_types: ../spkg/evm-balances-sink-protodefs-v0.1.0.spkg
 
-  # Local manifests. Their qualified producer versions per network come from
-  # native/balances' own `networks:`; never set imported params here.
+  # Both balance maps take only an Extended block; neither has params.
   native_balances: ../native/balances/substreams.yaml
   erc20_balances: ../erc20/balances/substreams.yaml
 
@@ -39,6 +38,5 @@ sink:
     postgraphile_frontend:
       enabled: false
 
-# Must equal native/balances' default network: the CLI resolves an import under
-# its own default network unless --network is passed.
+# Default routing only; this does not qualify a network or its producer.
 network: bsc

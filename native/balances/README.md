@@ -54,7 +54,6 @@ incomplete instead of guessing:
 | Condition | Error |
 | --- | --- |
 | Block is not `DETAILLEVEL_EXTENDED` | `Extended blocks required` |
-| `Block.ver` not listed in the parameters | `Extended producer version not qualified for native balances` |
 | Missing header, non-32-byte hash/parent/state root, header number mismatch | `invalid block identity` / `header number mismatch` |
 | Block number 0 | `genesis block not qualified for native balances` |
 | Transaction without status 1–3 or without calls | `incomplete transaction persistence data` |
@@ -72,71 +71,49 @@ Silently dropping such a record could omit a persisted credit; failing the
 block surfaces the case for qualification. See the
 [persisted-effect matrix](docs/persisted-effects.md).
 
-## Parameters
+## Input and networks
 
-`map_events` takes a JSON object, `{"producer_versions":[…]}`. Every block
-carries `Block.ver`, so the producer version needs no deriving: `map_events`
-checks it against this list. The network cannot be derived from a block:
-`Block`, `BlockHeader` and `TransactionTrace` carry no chain id; the Parlia
-header fingerprint identifies the consensus engine, not the chain (BSC testnet
-shares it); and EIP-155 signatures show chain 56 only in blocks with
-transactions (BSC block 123,550,024 has none). The manifest therefore binds
-the network and embeds the qualified list per known network:
+`map_events(block)` takes only an Extended block, with no parameters. At the
+owner's direction (2026-10-06), the `producer_versions` parameter and its
+version gate were removed. `Block.ver` does not control acceptance: the map
+checks the block's identity, complete transaction traces, persisted effects,
+execution ordinals and balance continuity instead. Version 3, 4, 5 and an
+unknown version are covered by synthetic regression tests using the same
+valid and ambiguous records.
 
-```yaml
-network: bsc
-networks:
-  bsc:
-    params:
-      map_events: '{"producer_versions":[5]}'
-```
+`network: bsc` remains a CLI endpoint default, not an admission gate. There
+are no per-network parameters or network allowlist, and
+[`evm-balances`](../../evm-balances/README.md) imports this parameter-free
+module. Select the intended network and endpoint when running it; blocks do
+not carry a chain ID that this module can use to verify the endpoint.
 
-- **No default params.** A network without an entry fails closed: the packed
-  spkg refuses to load (`missing 'initialBlock' value for module
-  "map_events"`), and the YAML runs with empty params, which `map_events`
-  rejects at the first block (`invalid native balance params`).
-- **Same module.** Under `bsc` the effective params are unchanged, so the
-  module hash equals the one of the former top-level `params:` (checked with
-  the same WASM before and after the move).
-- **Importers.** [`evm-balances`](../../evm-balances/README.md) inherits the
-  entry as `native_balances:map_events`. An importer keeps `network: bsc` (the
-  CLI resolves an import under the import's own default network unless
-  `--network` is passed) and sets no params for this module at its top level,
-  where this `networks:` entry silently wins.
-- **Overrides.** `-p map_events=…` still overrides the entry at run time and
-  changes the module hash.
-
-`producer_versions` lists the `Block.ver` values the caller has qualified for
-the manifest's network. It must be non-empty; unknown fields are rejected. The
-`bsc` entry lists version 5, the only version replayed
-against saved RPC controls. Version 4 blocks reduce without projection errors
-in the saved-data replay but have no RPC oracle, so they are not enabled by
-default. Version 3 is never acceptable for this reducer: its tracer recorded
-system-call ordinals on a separate scale and zeroed root-call begin ordinals,
-so ordering across scopes cannot be trusted (see the
-[persisted-effect matrix](docs/persisted-effects.md)). Reusing this package on
-another network requires that network's fixtures and qualification under
-[#8](https://github.com/pinax-network/substreams-evm-extended/issues/8).
-Only versions 4 and 5 may be listed (a non-empty subset); version 3, whose
-system-call ordinals are broken, is refused at parse time.
+Acceptance is not qualification for another network or producer release.
+Version-3 system-call ordinals can use a different scale from transaction
+ordinals, and network-specific failed-transaction credits remain unqualified
+(see the [persisted-effect matrix](docs/persisted-effects.md) and
+[#125](https://github.com/pinax-network/substreams-evm-extended/issues/125)).
+The existing data checks reject detectable ambiguity; they do not establish
+that every chain's persistent effects are represented correctly. The dated
+BSC evidence below still refers to its original packages and parameters.
 
 ## Build and test
 
 ```sh
 cargo test --locked -p native-balances -p evm-persist
 make -C native/balances build      # workspace release WASM; no network
-make -C native/balances pack       # spkg/native-balances-v0.1.0.spkg
+make -C native/balances pack       # spkg/native-balances-v0.2.0.spkg
 make -C native/balances gui        # or `prod`; streams from ENDPOINT
 ```
 
 `make gui` and `make prod` read `SUBSTREAMS_API_KEY` from the environment.
-No SPKG of this package is committed; the
+The committed v0.1.0 and v0.2.0 SPKGs are offline builds; the historical live-
 qualified build is identified by its WASM (`48d89d28…`) and module hash
 (`5a2a2e0c…`) below. `substreams pack` embeds this README, so a pack after a
-README edit has a new SPKG digest but the same module. The current source does
-not build that WASM: its `make build` after the substreams 0.8.0 bump
-(2026-10-05) gives WASM `0bc2e2cf…` and, under `bsc`, module `868ac202…`,
-which is not live-qualified.
+README edit has a new SPKG digest but the same module. The 2026-10-05
+substreams 0.8.0 build had WASM `0bc2e2cf…` and, under `bsc`, module
+`868ac202…`; it was not live-qualified. The parameter-free
+v0.2.0 source changes the native module and dependent `db_out` hashes again.
+It has no new live qualification.
 [`evm-balances`](../../evm-balances/README.md) imports this manifest and writes
 its rows to ClickHouse.
 
@@ -197,8 +174,8 @@ ordinal 3237 credit, block ordinal 3244 reset to zero), the two captured
 failed SetCode transactions, net-zero accounts, absent value messages, zero and
 burn-looking addresses, `uint256` max, tied/zero ordinals, discontinuity,
 reverted frames, failed transactions, reverted system calls, the failed-
-transaction reason guard, producer-version and parameter parsing, and the
-absent-contract wire encoding.
+transaction reason guard, parameter-free acceptance across block versions,
+version-independent ambiguity rejection, and the absent-contract wire encoding.
 
 The host replay tool (`native/balances/tools`, [source at `6dade89`](https://github.com/pinax-network/substreams-evm-extended/tree/6dade8957887c0c278cfa8da6bef61b9cc22f534/native/balances/tools);
 removed since) reduced directories of captured
