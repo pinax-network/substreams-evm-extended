@@ -1,3 +1,4 @@
+> Historical record, moved here unchanged from `docs/audit-remediation-2026-09-21.md` on 2026-10-06 (#121), apart from the link paths and file names that the move changed.
 # Offline issue-audit remediation
 
 This work implements the recommendations from the 17-open-issue audit of
