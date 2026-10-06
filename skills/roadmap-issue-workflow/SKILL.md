@@ -43,10 +43,11 @@ description: How roadmap issues in pinax-network/substreams-evm-extended move fr
    loop with a 30 s sleep works.
 8. **Comment on the issue** with two lists: done offline (with the PR number)
    and still open / live-gated. Close the issue only when nothing live-gated
-   remains; otherwise leave it open. Keep `docs/follow-up.md` and the roadmap
-   issue #21 table current.
-9. **Record** anything not derivable from the code in `docs/handoff.md`
-   (facts learned, data locations, open findings).
+   remains; otherwise leave it open. Keep the roadmap issue #21 table
+   current; `docs/follow-up.md` only points to the issue list.
+9. **Record** a changed package version, module hash or qualification in
+   `docs/handoff.md`, which stays a short current-state page. Put dated facts,
+   data locations and findings in the PR and the package's evidence files.
 
 Shell caveats on the original machine: zsh does not word-split unquoted
 variables (`${=VAR}`); avoid leading `=` in echo arguments; foreground sleeps

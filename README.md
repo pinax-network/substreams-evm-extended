@@ -36,8 +36,9 @@ sha256). None is live-qualified.
 `evm-balances` imports the two maps with the same module hashes, and embeds
 the schema `ed1c3bff…`.
 
-Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (state,
-evidence, open findings, next steps) and the procedures in [`skills/`](skills/README.md).
+Picking this up? Start with [`docs/handoff.md`](docs/handoff.md) (package
+status, hashes and open work; the dated record is under `docs/history/`) and
+the procedures in [`skills/`](skills/README.md).
 
 The shared schema stays in the repository-root `proto/` crate:
 
@@ -141,9 +142,11 @@ a Substreams engine. Its BSC qualification is
 each live step needs the owner's OK ([live use](AGENTS.md#evidence)).
 
 Outstanding implementation, holder coverage, packaging and network work is
-tracked in [GitHub follow-up issues](docs/follow-up.md). The requested chains,
-asset scopes, protocol deployments and action-evidence mapping for the
-extraction roadmap are recorded in [extraction coverage](docs/extraction-coverage.md).
+tracked in [GitHub issues](https://github.com/pinax-network/substreams-evm-extended/issues),
+under the roadmap [#21](https://github.com/pinax-network/substreams-evm-extended/issues/21).
+The requested chains, asset scopes, protocol deployments and action-evidence
+mapping for the extraction roadmap are recorded in
+[extraction coverage](docs/extraction-coverage.md).
 
 See [migration provenance](docs/migration.md) for the original PR, preserved
 schema/package digests and the distinction between historical qualification
