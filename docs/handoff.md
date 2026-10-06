@@ -29,13 +29,15 @@ live-qualified.
 
 - **`native/balances`** takes only the block, with no params. Not qualified.
   The last qualified build is historical: the prost build was live-qualified
-  on BSC on 2026-09-23 (WASM `48d89d28…`, module `5a2a2e0c…`;
-  [evidence](../native/balances/README.md#live-qualification-bsc-2026-09-23)).
+  on BSC on 2026-09-23 (WASM `48d89d28…`, module `5a2a2e0c…`), for the
+  accounts it emitted in the stated windows
+  ([evidence](../native/balances/README.md#live-qualification-bsc-2026-09-23)).
   No build since then is qualified.
 - **`erc20/balances`** is inference only. Not qualified, and it has not run in
-  a Substreams engine. On five captured BSC intervals it reproduces 58.5–62.8%
-  of the RPC reference's rows with 99.92–100% value precision, offline
-  ([measured](../erc20/balances/README.md#measured), with each interval and
+  a Substreams engine. Offline, on five captured BSC intervals scored against
+  every row the RPC reference package emitted for them, it reproduces
+  58.5–62.8% of those rows with 99.92–100% value precision
+  ([measured](../erc20/balances/README.md#measured) gives each interval and
   its scored holders). The earlier layout package v0.1.0, another source, was
   checked on live BSC on 2026-09-23
   ([report at `9b41c7f`](https://github.com/pinax-network/substreams-evm-extended/blob/9b41c7f/erc20/balances/docs/live-package-bsc-2026-09-23.md)).
